@@ -16,6 +16,9 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   title: "Funneldeck",
   description: "Hub operacional de funis e CRO",
+  other: {
+    "color-scheme": "dark",
+  },
 };
 
 export default function RootLayout({
