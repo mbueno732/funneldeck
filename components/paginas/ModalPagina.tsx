@@ -32,7 +32,7 @@ function Select({ label, value, onChange, options, obrigatorio }: {
         value={value}
         onChange={e => onChange(e.target.value)}
         required={obrigatorio}
-        className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm focus:outline-none focus:border-indigo-500"
+        className="w-full px-3 py-2 bg-gray-900 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-indigo-500"
       >
         <option value="">Selecionar...</option>
         {options.map(o => (
@@ -55,7 +55,7 @@ function Field({ label, value, onChange, type = 'text', placeholder }: {
         value={value}
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
-        className="bg-gray-800 border-gray-600 text-white placeholder-gray-600 focus:border-indigo-500"
+        className="bg-gray-900 border-white/10 text-white placeholder-gray-600 focus:border-indigo-500"
       />
     </div>
   )
@@ -153,7 +153,7 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
 
   return (
     <Dialog open={aberto} onOpenChange={v => !v && onFechar()}>
-      <DialogContent className={`bg-gray-900 border-gray-600 text-white ${isEdit ? 'max-w-2xl max-h-[90vh] overflow-y-auto' : 'max-w-lg'}`}>
+      <DialogContent className={`bg-gray-900 border-white/10 text-white ${isEdit ? 'max-w-2xl max-h-[90vh] overflow-y-auto' : 'max-w-lg'}`}>
         <DialogHeader>
           <DialogTitle className="text-white">
             {isEdit ? 'Editar Página' : 'Nova Página'}
@@ -205,7 +205,7 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
                   value={form.observacoes}
                   onChange={e => set('observacoes')(e.target.value)}
                   placeholder="Notas, contexto, links adicionais..."
-                  className="bg-gray-800 border-gray-600 text-white placeholder-gray-600 focus:border-indigo-500 min-h-[80px]"
+                  className="bg-gray-900 border-white/10 text-white placeholder-gray-600 focus:border-indigo-500 min-h-[80px]"
                 />
               </div>
             </>

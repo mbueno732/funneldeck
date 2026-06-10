@@ -203,7 +203,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
     <select
       value={value}
       onChange={e => onChange(e.target.value)}
-      className="px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-sm text-gray-300 focus:outline-none focus:border-indigo-500 h-9"
+      className="px-3 py-2 bg-gray-900 border border-white/10 rounded-lg text-sm text-gray-300 focus:outline-none focus:border-indigo-500 h-9"
     >
       <option value="">{label}</option>
       {configOpts(cat).map(c => <option key={c.valor} value={c.valor}>{c.valor}</option>)}
@@ -245,10 +245,10 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <div className="flex items-center bg-gray-800 border border-gray-600 rounded-lg p-0.5">
+          <div className="flex items-center bg-gray-900 border border-white/10 rounded-lg p-0.5">
             <button
               onClick={() => setVisualizacao('tabela')}
-              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded text-xs font-medium transition-colors ${visualizacao === 'tabela' ? 'bg-gray-700 text-white' : 'text-gray-500 hover:text-gray-300'}`}
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded text-xs font-medium transition-colors ${visualizacao === 'tabela' ? 'bg-gray-900 text-white' : 'text-gray-500 hover:text-gray-300'}`}
               title="Visão tabela"
             >
               <List size={14} />
@@ -256,7 +256,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
             </button>
             <button
               onClick={() => setVisualizacao('kanban')}
-              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded text-xs font-medium transition-colors ${visualizacao === 'kanban' ? 'bg-gray-700 text-white' : 'text-gray-500 hover:text-gray-300'}`}
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded text-xs font-medium transition-colors ${visualizacao === 'kanban' ? 'bg-gray-900 text-white' : 'text-gray-500 hover:text-gray-300'}`}
               title="Visão kanban"
             >
               <LayoutGrid size={14} />
@@ -283,7 +283,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
 
       {/* Distribuição por ferramenta */}
       {distribuicaoFerramenta.length > 0 && (
-        <div className="bg-gray-900 border border-gray-600 rounded-xl overflow-hidden">
+        <div className="bg-gray-900 border border-white/10 rounded-xl overflow-hidden">
           <button
             onClick={() => setDistribuicaoAberta(v => !v)}
             className="w-full flex items-center justify-between px-4 py-3 text-sm text-gray-400 hover:text-white transition-colors"
@@ -295,7 +295,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
             </div>
           </button>
           {distribuicaoAberta && (
-            <div className="px-4 pb-4 space-y-2.5 border-t border-gray-600 pt-3">
+            <div className="px-4 pb-4 space-y-2.5 border-t border-white/10 pt-3">
               {distribuicaoFerramenta.map(({ ferramenta, label, count, pct }) => (
                 <button
                   key={ferramenta}
@@ -311,7 +311,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
                       <span className="text-xs font-medium text-gray-400 w-8 text-right">{pct}%</span>
                     </div>
                   </div>
-                  <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden">
+                  <div className="h-1.5 bg-gray-900 rounded-full overflow-hidden">
                     <div
                       className="h-full rounded-full transition-all"
                       style={{
@@ -335,13 +335,13 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
             placeholder="Buscar páginas..."
             value={busca}
             onChange={e => setBusca(e.target.value)}
-            className="pl-8 bg-gray-800 border-gray-600 text-white placeholder-gray-500 h-9 w-52"
+            className="pl-8 bg-gray-900 border-white/10 text-white placeholder-gray-500 h-9 w-52"
           />
         </div>
         <select
           value={filtroFunil}
           onChange={e => setFiltroFunil(e.target.value)}
-          className="px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-sm text-gray-300 focus:outline-none focus:border-indigo-500 h-9"
+          className="px-3 py-2 bg-gray-900 border border-white/10 rounded-lg text-sm text-gray-300 focus:outline-none focus:border-indigo-500 h-9"
         >
           <option value="">Todos os funis</option>
           {funis.map(f => (
@@ -366,7 +366,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
         {(busca || filtroFunil || filtroStatus || filtroEtapa || filtroPrioridade || filtroFerramenta || filtroAtrasadas) && (
           <button
             onClick={() => { setBusca(''); setFiltroFunil(''); setFiltroStatus(''); setFiltroEtapa(''); setFiltroPrioridade(''); setFiltroFerramenta(''); setFiltroAtrasadas(false) }}
-            className="px-3 py-1.5 text-xs text-gray-400 hover:text-white border border-gray-600 rounded-lg hover:border-gray-500 transition-colors"
+            className="px-3 py-1.5 text-xs text-gray-400 hover:text-white border border-white/10 rounded-lg hover:border-white/20 transition-colors"
           >
             Limpar filtros
           </button>
@@ -384,7 +384,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
                 className={`flex-none w-72 rounded-xl border transition-colors ${
                   dragOverStatus === col.valor
                     ? 'border-indigo-500 bg-indigo-500/5'
-                    : 'border-gray-600 bg-gray-900/50'
+                    : 'border-white/10 bg-gray-900/50'
                 }`}
                 onDragOver={e => { e.preventDefault(); setDragOverStatus(col.valor) }}
                 onDragLeave={e => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragOverStatus(null) }}
@@ -401,12 +401,12 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
                 }}
               >
                 {/* Cabeçalho da coluna */}
-                <div className="flex items-center justify-between px-4 py-3 border-b border-gray-600">
+                <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.07]">
                   <div className="flex items-center gap-2">
                     {col.cor && <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: col.cor }} />}
                     <span className="text-sm font-medium text-white">{col.valor}</span>
                   </div>
-                  <span className="text-xs text-gray-500 bg-gray-800 px-2 py-0.5 rounded-full">{colPaginas.length}</span>
+                  <span className="text-xs text-gray-500 bg-gray-900 px-2 py-0.5 rounded-full">{colPaginas.length}</span>
                 </div>
 
                 {/* Cards */}
@@ -431,8 +431,8 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
                           draggingId === p.id
                             ? 'opacity-40 border-indigo-500'
                             : atrasada
-                              ? 'border-l-2 border-l-red-500 border-gray-600 hover:border-gray-500'
-                              : 'border-gray-600 hover:border-gray-500'
+                              ? 'border-l-2 border-l-red-500 border-white/10 hover:border-white/20'
+                              : 'border-white/10 hover:border-white/20'
                         }`}
                       >
                         {/* Topo do card */}
@@ -454,7 +454,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
                             {['Implementada', 'Publicada'].includes(p.status) && (
                               <button
                                 onClick={() => setChecklistPagina(raw)}
-                                className="p-1 hover:bg-gray-700 rounded transition-colors"
+                                className="p-1 hover:bg-gray-900 rounded transition-colors"
                                 title="Checklist"
                               >
                                 <ClipboardList size={12} className={pct === 100 ? 'text-green-400' : pct !== null ? 'text-yellow-400' : 'text-indigo-400'} />
@@ -462,7 +462,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
                             )}
                             <button
                               onClick={() => { setEditando(raw); setModalAberto(true) }}
-                              className="p-1 hover:bg-gray-700 rounded transition-colors"
+                              className="p-1 hover:bg-gray-900 rounded transition-colors"
                               title="Editar"
                             >
                               <Pencil size={12} className="text-gray-500" />
@@ -480,7 +480,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
                         {/* Badges rodapé */}
                         <div className="mt-2 flex items-center gap-1.5 flex-wrap">
                           {p.etapa && (
-                            <span className="text-xs text-gray-400 bg-gray-800 px-1.5 py-0.5 rounded">{p.etapa}</span>
+                            <span className="text-xs text-gray-400 bg-gray-900 px-1.5 py-0.5 rounded">{p.etapa}</span>
                           )}
                           {p.prioridade && (
                             <span
@@ -516,11 +516,11 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
       )}
 
       {/* Tabela */}
-      {visualizacao === 'tabela' && <div className="rounded-xl border border-gray-600 overflow-hidden">
+      {visualizacao === 'tabela' && <div className="rounded-xl border border-white/10 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-gray-800/60 text-gray-400 text-xs uppercase tracking-wide">
+              <tr className="bg-gray-900/60 text-gray-400 text-xs uppercase tracking-wide">
                 <th className="px-4 py-3 text-left font-medium">Página</th>
                 <th className="px-4 py-3 text-left font-medium">Funil</th>
                 <th className="px-4 py-3 text-left font-medium">Etapa</th>
@@ -533,7 +533,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
                 <th className="px-4 py-3 text-left font-medium w-10"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-700">
+            <tbody className="divide-y divide-white/[0.07]">
               {filtradas.length === 0 ? (
                 <tr>
                   <td colSpan={9} className="px-4 py-12 text-center text-gray-500">
@@ -548,7 +548,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
                   return (
                     <tr
                       key={p.id}
-                      className={`hover:bg-gray-800/40 transition-colors ${atrasada ? 'border-l-2 border-l-red-500' : ''}`}
+                      className={`hover:bg-gray-900/40 transition-colors ${atrasada ? 'border-l-2 border-l-red-500' : ''}`}
                     >
                       {/* Nome */}
                       <td className="px-4 py-3">
@@ -558,7 +558,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
                               <input autoFocus value={celula.valor}
                                 onChange={e => setCelula(c => c ? { ...c, valor: e.target.value } : c)}
                                 onKeyDown={e => { if (e.key === 'Enter') handleSalvarCelula(); if (e.key === 'Escape') setCelula(null) }}
-                                className="w-20 px-1.5 py-0.5 text-xs bg-gray-800 border border-indigo-500 rounded text-indigo-300 font-mono focus:outline-none"
+                                className="w-20 px-1.5 py-0.5 text-xs bg-gray-900 border border-indigo-500 rounded text-indigo-300 font-mono focus:outline-none"
                                 placeholder="CP-01"
                               />
                               <button onClick={handleSalvarCelula} className="text-green-400 hover:text-green-300"><Check size={12} /></button>
@@ -575,7 +575,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
                           ) : (
                             <button
                               onClick={() => setCelula({ id: p.id, campo: 'codigo', valor: '' })}
-                              className="text-gray-600 text-xs px-1.5 py-0.5 rounded border border-dashed border-gray-600 hover:border-gray-500 hover:text-gray-400 transition-colors shrink-0"
+                              className="text-gray-600 text-xs px-1.5 py-0.5 rounded border border-dashed border-white/10 hover:border-white/20 hover:text-gray-400 transition-colors shrink-0"
                               title="Adicionar código"
                             >
                               +código
@@ -599,7 +599,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
                               onChange={e => setUrlTemp(e.target.value)}
                               onKeyDown={e => { if (e.key === 'Enter') handleSalvarUrl(p); if (e.key === 'Escape') setEditandoUrl(null) }}
                               placeholder="https://"
-                              className="flex-1 px-2 py-1 text-xs bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 min-w-0"
+                              className="flex-1 px-2 py-1 text-xs bg-gray-900 border border-white/10 rounded text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 min-w-0"
                             />
                             <button onClick={() => handleSalvarUrl(p)} className="p-1 text-green-400 hover:text-green-300"><Check size={13} /></button>
                             <button onClick={() => setEditandoUrl(null)} className="p-1 text-gray-500 hover:text-gray-300"><X size={13} /></button>
@@ -669,7 +669,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
                             <input autoFocus type="number" min="0" step="0.5" value={celula.valor}
                               onChange={e => setCelula(c => c ? { ...c, valor: e.target.value } : c)}
                               onKeyDown={e => { if (e.key === 'Enter') handleSalvarCelula(); if (e.key === 'Escape') setCelula(null) }}
-                              className="w-16 px-1.5 py-0.5 text-xs bg-gray-800 border border-gray-600 rounded text-white focus:outline-none focus:border-indigo-500"
+                              className="w-16 px-1.5 py-0.5 text-xs bg-gray-900 border border-white/10 rounded text-white focus:outline-none focus:border-indigo-500"
                             />
                             <button onClick={handleSalvarCelula} className="text-green-400 hover:text-green-300"><Check size={12} /></button>
                             <button onClick={() => setCelula(null)} className="text-gray-500 hover:text-gray-300"><X size={12} /></button>
@@ -693,7 +693,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
                             <input autoFocus type="date" value={celula.valor}
                               onChange={e => setCelula(c => c ? { ...c, valor: e.target.value } : c)}
                               onKeyDown={e => { if (e.key === 'Enter') handleSalvarCelula(); if (e.key === 'Escape') setCelula(null) }}
-                              className="px-1.5 py-0.5 text-xs bg-gray-800 border border-gray-600 rounded text-white focus:outline-none focus:border-indigo-500"
+                              className="px-1.5 py-0.5 text-xs bg-gray-900 border border-white/10 rounded text-white focus:outline-none focus:border-indigo-500"
                             />
                             <button onClick={handleSalvarCelula} className="text-green-400 hover:text-green-300"><Check size={12} /></button>
                             <button onClick={() => setCelula(null)} className="text-gray-500 hover:text-gray-300"><X size={12} /></button>
@@ -725,7 +725,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
                                   <span className="text-xs text-gray-500">{estadoGtmetrix || 'Analisando'}</span>
                                   <span className="text-xs text-gray-600">{Math.round(progressoGtmetrix)}%</span>
                                 </div>
-                                <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden">
+                                <div className="h-1.5 bg-gray-900 rounded-full overflow-hidden">
                                   <div
                                     className="h-full rounded-full transition-all duration-700"
                                     style={{ width: `${progressoGtmetrix}%`, backgroundColor: '#f97316' }}
@@ -784,8 +784,8 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
                         {deletandoPagina === p.id ? (
                           <div className="flex items-center gap-1">
                             <span className="text-xs text-gray-400 mr-1">Deletar?</span>
-                            <button onClick={() => handleDeletar(p.id)} className="p-1 text-red-400 hover:text-red-300 hover:bg-gray-700 rounded"><Check size={12} /></button>
-                            <button onClick={() => setDeletandoPagina(null)} className="p-1 text-gray-500 hover:text-gray-300 hover:bg-gray-700 rounded"><X size={12} /></button>
+                            <button onClick={() => handleDeletar(p.id)} className="p-1 text-red-400 hover:text-red-300 hover:bg-gray-900 rounded"><Check size={12} /></button>
+                            <button onClick={() => setDeletandoPagina(null)} className="p-1 text-gray-500 hover:text-gray-300 hover:bg-gray-900 rounded"><X size={12} /></button>
                           </div>
                         ) : (
                           <div className="flex items-center gap-1">
@@ -799,7 +799,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
                               return (
                                 <button
                                   onClick={() => setChecklistPagina(p)}
-                                  className="flex items-center gap-1 p-1.5 hover:bg-gray-700 rounded transition-colors"
+                                  className="flex items-center gap-1 p-1.5 hover:bg-gray-900 rounded transition-colors"
                                   title="Checklist de publicação"
                                 >
                                   <ClipboardList size={13} className={pct === 100 ? 'text-green-400' : pct !== null ? 'text-yellow-400' : 'text-indigo-400'} />
@@ -812,20 +812,20 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
                               )
                             })()}
                             <button onClick={() => { setEditandoUrl(p.id); setUrlTemp(p.url_pagina ?? '') }}
-                              className="p-1.5 text-gray-500 hover:text-indigo-400 hover:bg-gray-700 rounded transition-colors"
+                              className="p-1.5 text-gray-500 hover:text-indigo-400 hover:bg-gray-900 rounded transition-colors"
                               title={p.url_pagina ? 'Editar URL' : 'Adicionar URL'}>
                               <LinkIcon size={13} />
                             </button>
                             <button onClick={() => handleDuplicar(p.id)}
-                              className="p-1.5 text-gray-500 hover:text-indigo-400 hover:bg-gray-700 rounded transition-colors" title="Duplicar">
+                              className="p-1.5 text-gray-500 hover:text-indigo-400 hover:bg-gray-900 rounded transition-colors" title="Duplicar">
                               <Copy size={13} />
                             </button>
                             <button onClick={() => { setEditando(p); setModalAberto(true) }}
-                              className="p-1.5 text-gray-500 hover:text-white hover:bg-gray-700 rounded transition-colors" title="Editar">
+                              className="p-1.5 text-gray-500 hover:text-white hover:bg-gray-900 rounded transition-colors" title="Editar">
                               <Pencil size={13} />
                             </button>
                             <button onClick={() => setDeletandoPagina(p.id)}
-                              className="p-1.5 text-gray-500 hover:text-red-400 hover:bg-gray-700 rounded transition-colors" title="Deletar">
+                              className="p-1.5 text-gray-500 hover:text-red-400 hover:bg-gray-900 rounded transition-colors" title="Deletar">
                               <Trash2 size={13} />
                             </button>
                           </div>

@@ -79,7 +79,7 @@ export function GerenciarProdutos({ produtos, especialistas }: Props) {
           value={form.especialista_id}
           onChange={e => setForm(f => ({ ...f, especialista_id: e.target.value }))}
           required
-          className="px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-sm text-gray-300 focus:outline-none focus:border-indigo-500 h-10"
+          className="px-3 py-2 bg-gray-900 border border-white/10 rounded-lg text-sm text-gray-300 focus:outline-none focus:border-indigo-500 h-10"
         >
           <option value="">Especialista *</option>
           {especialistas.map(e => <option key={e.id} value={e.id}>{e.nome}</option>)}
@@ -88,7 +88,7 @@ export function GerenciarProdutos({ produtos, especialistas }: Props) {
           value={form.nome}
           onChange={e => setForm(f => ({ ...f, nome: e.target.value }))}
           placeholder="Nome do produto *"
-          className="bg-gray-800 border-gray-600 text-white placeholder-gray-500 focus:border-indigo-500 flex-1 min-w-40"
+          className="bg-gray-900 border-white/10 text-white placeholder-gray-500 focus:border-indigo-500 flex-1 min-w-40"
         />
         <Button type="submit" disabled={criando || !form.nome.trim() || !form.especialista_id} className="bg-indigo-600 hover:bg-indigo-500 gap-2 shrink-0">
           <Plus size={16} />
@@ -108,7 +108,7 @@ export function GerenciarProdutos({ produtos, especialistas }: Props) {
         <select
           value={filtroEsp}
           onChange={e => setFiltroEsp(e.target.value)}
-          className="px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-sm text-gray-300 focus:outline-none focus:border-indigo-500 h-9"
+          className="px-3 py-2 bg-gray-900 border border-white/10 rounded-lg text-sm text-gray-300 focus:outline-none focus:border-indigo-500 h-9"
         >
           <option value="">Todos os especialistas</option>
           {especialistas.map(e => <option key={e.id} value={e.id}>{e.nome}</option>)}
@@ -117,17 +117,17 @@ export function GerenciarProdutos({ produtos, especialistas }: Props) {
       </div>
 
       {/* Lista */}
-      <div className="rounded-xl border border-gray-600 overflow-hidden">
+      <div className="rounded-xl border border-white/10 overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-gray-800/60 text-gray-400 text-xs uppercase tracking-wide">
+            <tr className="bg-gray-900/60 text-gray-400 text-xs uppercase tracking-wide">
               <th className="px-4 py-3 text-left font-medium">Produto</th>
               <th className="px-4 py-3 text-left font-medium">Especialista</th>
               <th className="px-4 py-3 text-left font-medium">Status</th>
               <th className="px-4 py-3 w-20"></th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-700">
+          <tbody className="divide-y divide-white/[0.07]">
             {filtrados.length === 0 ? (
               <tr>
                 <td colSpan={4} className="px-4 py-10 text-center text-gray-500">
@@ -135,14 +135,14 @@ export function GerenciarProdutos({ produtos, especialistas }: Props) {
                 </td>
               </tr>
             ) : filtrados.map(p => (
-              <tr key={p.id} className="hover:bg-gray-800/40 transition-colors">
+              <tr key={p.id} className="hover:bg-gray-900/40 transition-colors">
                 <td className="px-4 py-3">
                   {editando?.id === p.id ? (
                     <div className="flex items-center gap-2">
                       <Input
                         value={editando.nome}
                         onChange={e => setEditando({ id: p.id, nome: e.target.value })}
-                        className="bg-gray-700 border-gray-600 text-white h-8 text-sm"
+                        className="bg-gray-900 border-white/10 text-white h-8 text-sm"
                         autoFocus
                         onKeyDown={e => e.key === 'Enter' && handleSalvarEdicao(p.id)}
                       />
@@ -164,22 +164,22 @@ export function GerenciarProdutos({ produtos, especialistas }: Props) {
                     {confirmandoDelete === p.id ? (
                       <>
                         <span className="text-xs text-gray-400 mr-1">Excluir?</span>
-                        <button onClick={() => handleDeletar(p.id)} className="p-1.5 text-red-400 hover:text-red-300 hover:bg-gray-700 rounded transition-colors" title="Confirmar exclusão">
+                        <button onClick={() => handleDeletar(p.id)} className="p-1.5 text-red-400 hover:text-red-300 hover:bg-gray-900 rounded transition-colors" title="Confirmar exclusão">
                           <Check size={13} />
                         </button>
-                        <button onClick={() => setConfirmandoDelete(null)} className="p-1.5 text-gray-500 hover:text-gray-300 hover:bg-gray-700 rounded transition-colors">
+                        <button onClick={() => setConfirmandoDelete(null)} className="p-1.5 text-gray-500 hover:text-gray-300 hover:bg-gray-900 rounded transition-colors">
                           <X size={13} />
                         </button>
                       </>
                     ) : (
                       <>
-                        <button onClick={() => setEditando({ id: p.id, nome: p.nome })} className="p-1.5 text-gray-500 hover:text-white hover:bg-gray-700 rounded transition-colors">
+                        <button onClick={() => setEditando({ id: p.id, nome: p.nome })} className="p-1.5 text-gray-500 hover:text-white hover:bg-gray-900 rounded transition-colors">
                           <Pencil size={13} />
                         </button>
-                        <button onClick={() => handleToggleAtivo(p)} className="p-1.5 text-gray-500 hover:text-yellow-400 hover:bg-gray-700 rounded transition-colors" title={p.ativo ? 'Desativar' : 'Ativar'}>
+                        <button onClick={() => handleToggleAtivo(p)} className="p-1.5 text-gray-500 hover:text-yellow-400 hover:bg-gray-900 rounded transition-colors" title={p.ativo ? 'Desativar' : 'Ativar'}>
                           {p.ativo ? <X size={13} /> : <Check size={13} />}
                         </button>
-                        <button onClick={() => { setConfirmandoDelete(p.id); setErroDelete(null) }} className="p-1.5 text-gray-500 hover:text-red-400 hover:bg-gray-700 rounded transition-colors" title="Excluir produto">
+                        <button onClick={() => { setConfirmandoDelete(p.id); setErroDelete(null) }} className="p-1.5 text-gray-500 hover:text-red-400 hover:bg-gray-900 rounded transition-colors" title="Excluir produto">
                           <Trash2 size={13} />
                         </button>
                       </>

@@ -34,8 +34,8 @@ export function Sidebar({ usuario }: Props) {
   }
 
   return (
-    <aside className="w-56 shrink-0 border-r border-gray-600 bg-gray-900 flex flex-col">
-      <div className="px-4 py-4 border-b border-gray-600">
+    <aside className="w-56 shrink-0 border-r border-white/10 bg-gray-900 flex flex-col">
+      <div className="px-4 py-4 border-b border-white/[0.07]">
         <Logo />
       </div>
 
@@ -50,7 +50,7 @@ export function Sidebar({ usuario }: Props) {
               className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
                 active
                   ? 'bg-indigo-600 text-white'
-                  : 'text-gray-400 hover:text-white hover:bg-gray-800'
+                  : 'text-gray-400 hover:text-white hover:bg-gray-900'
               }`}
             >
               <Icon size={16} />
@@ -61,7 +61,7 @@ export function Sidebar({ usuario }: Props) {
       </nav>
 
       {/* Usuário + logout */}
-      <div className="p-3 border-t border-gray-600">
+      <div className="p-3 border-t border-white/10">
         <div className="flex items-center justify-between px-2 py-2">
           <div className="min-w-0">
             <p className="text-sm text-white font-medium truncate">{usuario.nome}</p>
@@ -70,7 +70,7 @@ export function Sidebar({ usuario }: Props) {
           <button
             onClick={handleLogout}
             title="Sair"
-            className="p-1.5 text-gray-500 hover:text-red-400 hover:bg-gray-800 rounded-lg transition-colors shrink-0"
+            className="p-1.5 text-gray-500 hover:text-red-400 hover:bg-gray-900 rounded-lg transition-colors shrink-0"
           >
             <LogOut size={15} />
           </button>

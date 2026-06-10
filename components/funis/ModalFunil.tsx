@@ -118,7 +118,7 @@ export function ModalFunil({ aberto, onFechar, onSalvo, funil, produtos, especia
 
   return (
     <Dialog open={aberto} onOpenChange={v => !v && onFechar()}>
-      <DialogContent className="bg-gray-900 border-gray-600 text-white max-w-lg">
+      <DialogContent className="bg-gray-900 border-white/10 text-white max-w-lg">
         <DialogHeader>
           <DialogTitle className="text-white">{funil ? 'Editar Funil' : 'Novo Funil'}</DialogTitle>
         </DialogHeader>
@@ -130,7 +130,7 @@ export function ModalFunil({ aberto, onFechar, onSalvo, funil, produtos, especia
             <select
               value={filtroEsp}
               onChange={e => { setFiltroEsp(e.target.value); set('produto_id')('') }}
-              className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm focus:outline-none focus:border-indigo-500"
+              className="w-full px-3 py-2 bg-gray-900 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-indigo-500"
             >
               <option value="">Todos</option>
               {especialistas.map(e => <option key={e.id} value={e.id}>{e.nome}</option>)}
@@ -142,7 +142,7 @@ export function ModalFunil({ aberto, onFechar, onSalvo, funil, produtos, especia
             <select
               value={form.produto_id}
               onChange={e => handleCampoGatilho('produto_id', e.target.value)}
-              className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm focus:outline-none focus:border-indigo-500"
+              className="w-full px-3 py-2 bg-gray-900 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-indigo-500"
             >
               <option value="">Sem produto vinculado</option>
               {produtosFiltrados.map(p => <option key={p.id} value={p.id}>{p.nome}</option>)}
@@ -156,7 +156,7 @@ export function ModalFunil({ aberto, onFechar, onSalvo, funil, produtos, especia
                 value={form.id_funil}
                 onChange={e => handleCampoGatilho('id_funil', e.target.value)}
                 placeholder="Ex: MVA"
-                className="bg-gray-800 border-gray-600 text-white placeholder-gray-600 focus:border-indigo-500 font-mono"
+                className="bg-gray-900 border-white/10 text-white placeholder-gray-600 focus:border-indigo-500 font-mono"
               />
             </div>
             <div className="col-span-2 space-y-1.5">
@@ -166,7 +166,7 @@ export function ModalFunil({ aberto, onFechar, onSalvo, funil, produtos, especia
                 onChange={e => { setNomeAuto(false); set('nome')(e.target.value) }}
                 placeholder="Ex: Perpétuo Digital Go"
                 required
-                className="bg-gray-800 border-gray-600 text-white placeholder-gray-500 focus:border-indigo-500"
+                className="bg-gray-900 border-white/10 text-white placeholder-gray-500 focus:border-indigo-500"
               />
             </div>
           </div>
@@ -174,14 +174,14 @@ export function ModalFunil({ aberto, onFechar, onSalvo, funil, produtos, especia
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label className="text-gray-400 text-xs">Tipo *</Label>
-              <select value={form.tipo} onChange={e => handleCampoGatilho('tipo', e.target.value)} required className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm focus:outline-none focus:border-indigo-500">
+              <select value={form.tipo} onChange={e => handleCampoGatilho('tipo', e.target.value)} required className="w-full px-3 py-2 bg-gray-900 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-indigo-500">
                 <option value="">Selecionar...</option>
                 {configOpts('tipo_funil').map(v => <option key={v} value={v}>{v}</option>)}
               </select>
             </div>
             <div className="space-y-1.5">
               <Label className="text-gray-400 text-xs">Status</Label>
-              <select value={form.status} onChange={e => set('status')(e.target.value)} className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm focus:outline-none focus:border-indigo-500">
+              <select value={form.status} onChange={e => set('status')(e.target.value)} className="w-full px-3 py-2 bg-gray-900 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-indigo-500">
                 {configOpts('status_funil').map(v => <option key={v} value={v}>{v}</option>)}
               </select>
             </div>
@@ -190,22 +190,22 @@ export function ModalFunil({ aberto, onFechar, onSalvo, funil, produtos, especia
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label className="text-gray-400 text-xs">Responsável CRO</Label>
-              <Input value={form.responsavel_cro} onChange={e => set('responsavel_cro')(e.target.value)} placeholder="Nome" className="bg-gray-800 border-gray-600 text-white placeholder-gray-600 focus:border-indigo-500" />
+              <Input value={form.responsavel_cro} onChange={e => set('responsavel_cro')(e.target.value)} placeholder="Nome" className="bg-gray-900 border-white/10 text-white placeholder-gray-600 focus:border-indigo-500" />
             </div>
             <div className="space-y-1.5">
               <Label className="text-gray-400 text-xs">Responsável Dev</Label>
-              <Input value={form.responsavel_dev} onChange={e => set('responsavel_dev')(e.target.value)} placeholder="Nome" className="bg-gray-800 border-gray-600 text-white placeholder-gray-600 focus:border-indigo-500" />
+              <Input value={form.responsavel_dev} onChange={e => set('responsavel_dev')(e.target.value)} placeholder="Nome" className="bg-gray-900 border-white/10 text-white placeholder-gray-600 focus:border-indigo-500" />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label className="text-gray-400 text-xs">Data de Ativação</Label>
-              <Input type="date" value={form.data_ativacao} onChange={e => set('data_ativacao')(e.target.value)} className="bg-gray-800 border-gray-600 text-white focus:border-indigo-500" />
+              <Input type="date" value={form.data_ativacao} onChange={e => set('data_ativacao')(e.target.value)} className="bg-gray-900 border-white/10 text-white focus:border-indigo-500" />
             </div>
             <div className="space-y-1.5">
               <Label className="text-gray-400 text-xs">Planilha de Leads</Label>
-              <Input type="url" value={form.planilha_leads} onChange={e => set('planilha_leads')(e.target.value)} placeholder="https://" className="bg-gray-800 border-gray-600 text-white placeholder-gray-600 focus:border-indigo-500" />
+              <Input type="url" value={form.planilha_leads} onChange={e => set('planilha_leads')(e.target.value)} placeholder="https://" className="bg-gray-900 border-white/10 text-white placeholder-gray-600 focus:border-indigo-500" />
             </div>
           </div>
 

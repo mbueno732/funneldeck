@@ -49,7 +49,7 @@ const ICON_BG: Record<CardCor, string> = {
   red:    'bg-red-500/10 text-red-400',
   blue:   'bg-blue-500/10 text-blue-400',
   orange: 'bg-orange-500/10 text-orange-400',
-  gray:   'bg-gray-700 text-gray-400',
+  gray:   'bg-gray-900 text-gray-400',
 }
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
@@ -75,11 +75,11 @@ function KpiCard({ label, value, sub, icon: Icon, cor, href, badge, highlight }:
   const isOk    = (cor === 'red' || cor === 'amber') && numVal === 0
 
   const borderCls =
-    highlight === 'ok'              ? 'border-l-[3px] border-l-green-500/70 border-gray-600' :
-    cor === 'orange' && isAlert     ? 'border-l-[3px] border-l-orange-500 border-gray-600' :
+    highlight === 'ok'              ? 'border-l-[3px] border-l-green-500/70 border-white/10' :
+    cor === 'orange' && isAlert     ? 'border-l-[3px] border-l-orange-500 border-white/10' :
     cor === 'red'    && isAlert     ? 'border-red-500/40' :
     cor === 'amber'  && isAlert     ? 'border-amber-500/20' :
-    'border-gray-600'
+    'border-white/10'
 
   const valueCls =
     isOk                             ? 'text-green-400' :
@@ -94,11 +94,11 @@ function KpiCard({ label, value, sub, icon: Icon, cor, href, badge, highlight }:
     cor === 'orange' ? 'bg-orange-500/10 text-orange-400' :
     cor === 'amber'  ? 'bg-amber-500/10 text-amber-400' :
     cor === 'red'    ? 'bg-red-500/10 text-red-400' :
-    'bg-gray-700 text-gray-400'
+    'bg-gray-900 text-gray-400'
 
   const content = (
     <div className={`bg-gray-900 border rounded-xl p-4 space-y-3 h-full transition-colors ${
-      href ? 'hover:border-gray-500 cursor-pointer' : ''
+      href ? 'hover:border-white/20 cursor-pointer' : ''
     } ${borderCls}`}>
       <div className="flex items-center justify-between">
         <span className="text-gray-400 text-sm">{label}</span>
@@ -129,7 +129,7 @@ function ProgressBar({ value, max }: { value: number; max: number }) {
         <span>{value} publicadas</span>
         <span>{pct}%</span>
       </div>
-      <div className="h-1 bg-gray-800 rounded-full overflow-hidden">
+      <div className="h-1 bg-gray-900 rounded-full overflow-hidden">
         <div
           className="h-full rounded-full transition-all"
           style={{ width: `${pct}%`, backgroundColor: pct === 100 ? '#22c55e' : pct > 50 ? '#6366f1' : '#3b82f6' }}
@@ -174,7 +174,7 @@ export function DashboardView({
 
       {/* Pipeline bar */}
       {kpis.total_paginas > 0 && (
-        <div className="bg-gray-900 border border-gray-600 rounded-xl p-5 space-y-4">
+        <div className="bg-gray-900 border border-white/10 rounded-xl p-5 space-y-4">
           <div className="flex items-center justify-between">
             <p className="text-sm font-medium text-white">Pipeline de produção</p>
             <span className="text-xs text-gray-500">
@@ -276,7 +276,7 @@ export function DashboardView({
               const pct = esp.total_paginas > 0 ? Math.round((esp.paginas_publicadas / esp.total_paginas) * 100) : 0
               return (
                 <Link key={esp.id} href={`/funis?especialista=${esp.id}`} className="block h-full">
-                  <div className="bg-gray-900 border border-gray-600 rounded-xl p-4 space-y-3 h-full hover:border-gray-500 transition-colors">
+                  <div className="bg-gray-900 border border-white/10 rounded-xl p-4 space-y-3 h-full hover:border-white/20 transition-colors">
                     <div className="flex items-center justify-between">
                       <h3 className="text-sm font-medium text-white">{esp.nome}</h3>
                       <div className="flex items-center gap-2 text-xs text-gray-500">
@@ -309,7 +309,7 @@ export function DashboardView({
 
       {/* Estado vazio global */}
       {kpis.total_paginas === 0 && kpis.total_funis === 0 && (
-        <div className="rounded-xl border border-gray-600 p-12 text-center space-y-3">
+        <div className="rounded-xl border border-white/10 p-12 text-center space-y-3">
           <p className="text-gray-400">Nenhum dado ainda.</p>
           <p className="text-gray-600 text-sm">
             Comece cadastrando{' '}

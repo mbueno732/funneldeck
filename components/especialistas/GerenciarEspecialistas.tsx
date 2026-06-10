@@ -52,7 +52,7 @@ export function GerenciarEspecialistas({ especialistas }: { especialistas: Espec
           value={novoNome}
           onChange={e => setNovoNome(e.target.value)}
           placeholder="Nome do especialista..."
-          className="bg-gray-800 border-gray-600 text-white placeholder-gray-500 focus:border-indigo-500"
+          className="bg-gray-900 border-white/10 text-white placeholder-gray-500 focus:border-indigo-500"
         />
         <Button type="submit" disabled={criando || !novoNome.trim()} className="bg-indigo-600 hover:bg-indigo-500 gap-2 shrink-0">
           <Plus size={16} />
@@ -61,16 +61,16 @@ export function GerenciarEspecialistas({ especialistas }: { especialistas: Espec
       </form>
 
       {/* Lista */}
-      <div className="rounded-xl border border-gray-600 overflow-hidden">
+      <div className="rounded-xl border border-white/10 overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-gray-800/60 text-gray-400 text-xs uppercase tracking-wide">
+            <tr className="bg-gray-900/60 text-gray-400 text-xs uppercase tracking-wide">
               <th className="px-4 py-3 text-left font-medium">Nome</th>
               <th className="px-4 py-3 text-left font-medium">Status</th>
               <th className="px-4 py-3 w-20"></th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-700">
+          <tbody className="divide-y divide-white/[0.07]">
             {especialistas.length === 0 ? (
               <tr>
                 <td colSpan={3} className="px-4 py-10 text-center text-gray-500">
@@ -78,14 +78,14 @@ export function GerenciarEspecialistas({ especialistas }: { especialistas: Espec
                 </td>
               </tr>
             ) : especialistas.map(e => (
-              <tr key={e.id} className="hover:bg-gray-800/40 transition-colors">
+              <tr key={e.id} className="hover:bg-gray-900/40 transition-colors">
                 <td className="px-4 py-3">
                   {editandoId === e.id ? (
                     <div className="flex items-center gap-2">
                       <Input
                         value={editandoNome}
                         onChange={ev => setEditandoNome(ev.target.value)}
-                        className="bg-gray-700 border-gray-600 text-white h-8 text-sm"
+                        className="bg-gray-900 border-white/10 text-white h-8 text-sm"
                         autoFocus
                         onKeyDown={ev => ev.key === 'Enter' && handleSalvarEdicao(e.id)}
                       />
@@ -115,13 +115,13 @@ export function GerenciarEspecialistas({ especialistas }: { especialistas: Espec
                   <div className="flex items-center gap-1 justify-end">
                     <button
                       onClick={() => { setEditandoId(e.id); setEditandoNome(e.nome) }}
-                      className="p-1.5 text-gray-500 hover:text-white hover:bg-gray-700 rounded transition-colors"
+                      className="p-1.5 text-gray-500 hover:text-white hover:bg-gray-900 rounded transition-colors"
                     >
                       <Pencil size={13} />
                     </button>
                     <button
                       onClick={() => handleToggleAtivo(e)}
-                      className="p-1.5 text-gray-500 hover:text-yellow-400 hover:bg-gray-700 rounded transition-colors text-xs"
+                      className="p-1.5 text-gray-500 hover:text-yellow-400 hover:bg-gray-900 rounded transition-colors text-xs"
                       title={e.ativo ? 'Desativar' : 'Ativar'}
                     >
                       {e.ativo ? <X size={13} /> : <Check size={13} />}

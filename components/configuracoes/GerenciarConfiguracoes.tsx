@@ -67,14 +67,14 @@ export function GerenciarConfiguracoes({ configs }: Props) {
       </div>
 
       {/* Abas */}
-      <div className="flex flex-wrap gap-1 border-b border-gray-600 pb-0">
+      <div className="flex flex-wrap gap-1 border-b border-white/[0.07] pb-0">
         {CATEGORIAS.map(cat => (
           <button
             key={cat.key}
             onClick={() => setAbaAtiva(cat.key)}
             className={`px-3 py-2 text-sm rounded-t-lg transition-colors -mb-px ${
               abaAtiva === cat.key
-                ? 'bg-gray-800 text-white border border-b-gray-800 border-gray-600'
+                ? 'bg-gray-900 text-white border border-b-gray-800 border-white/10'
                 : 'text-gray-500 hover:text-gray-300'
             }`}
           >
@@ -89,7 +89,7 @@ export function GerenciarConfiguracoes({ configs }: Props) {
           value={novoValor}
           onChange={e => setNovoValor(e.target.value)}
           placeholder="Novo item..."
-          className="flex-1 px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500"
+          className="flex-1 px-3 py-2 bg-gray-900 border border-white/10 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500"
         />
         <div className="flex items-center gap-1.5 shrink-0">
           {CORES_RAPIDAS.map(c => (
@@ -111,17 +111,17 @@ export function GerenciarConfiguracoes({ configs }: Props) {
       </form>
 
       {/* Lista de itens */}
-      <div className="rounded-xl border border-gray-600 overflow-hidden">
+      <div className="rounded-xl border border-white/10 overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-gray-800/60 text-gray-400 text-xs uppercase tracking-wide">
+            <tr className="bg-gray-900/60 text-gray-400 text-xs uppercase tracking-wide">
               <th className="px-4 py-3 text-left font-medium">Valor</th>
               <th className="px-4 py-3 text-left font-medium">Cor</th>
               <th className="px-4 py-3 text-left font-medium">Status</th>
               <th className="px-4 py-3 w-24"></th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-700">
+          <tbody className="divide-y divide-white/[0.07]">
             {itens.length === 0 ? (
               <tr>
                 <td colSpan={4} className="px-4 py-8 text-center text-gray-500 text-xs">
@@ -129,7 +129,7 @@ export function GerenciarConfiguracoes({ configs }: Props) {
                 </td>
               </tr>
             ) : itens.map(item => (
-              <tr key={item.id} className="hover:bg-gray-800/40 transition-colors">
+              <tr key={item.id} className="hover:bg-gray-900/40 transition-colors">
                 <td className="px-4 py-3">
                   {editando?.id === item.id ? (
                     <div className="flex items-center gap-2">
@@ -138,7 +138,7 @@ export function GerenciarConfiguracoes({ configs }: Props) {
                         value={editando.valor}
                         onChange={e => setEditando(ed => ed ? { ...ed, valor: e.target.value } : ed)}
                         onKeyDown={e => { if (e.key === 'Enter') handleSalvarEdicao(); if (e.key === 'Escape') setEditando(null) }}
-                        className="flex-1 px-2 py-1 bg-gray-700 border border-gray-600 rounded text-white text-sm focus:outline-none focus:border-indigo-500"
+                        className="flex-1 px-2 py-1 bg-gray-900 border border-white/10 rounded text-white text-sm focus:outline-none focus:border-indigo-500"
                       />
                       <button onClick={handleSalvarEdicao} className="text-green-400 hover:text-green-300"><Check size={14} /></button>
                       <button onClick={() => setEditando(null)} className="text-gray-500 hover:text-gray-300"><X size={14} /></button>
@@ -188,16 +188,16 @@ export function GerenciarConfiguracoes({ configs }: Props) {
                     <div className="flex items-center gap-1 justify-end">
                       <button
                         onClick={() => setEditando({ id: item.id, valor: item.valor, cor: item.cor ?? '' })}
-                        className="p-1.5 text-gray-500 hover:text-white hover:bg-gray-700 rounded transition-colors"
+                        className="p-1.5 text-gray-500 hover:text-white hover:bg-gray-900 rounded transition-colors"
                       ><Pencil size={12} /></button>
                       <button
                         onClick={() => handleToggleAtivo(item)}
-                        className="p-1.5 text-gray-500 hover:text-yellow-400 hover:bg-gray-700 rounded transition-colors"
+                        className="p-1.5 text-gray-500 hover:text-yellow-400 hover:bg-gray-900 rounded transition-colors"
                         title={item.ativo ? 'Desativar' : 'Ativar'}
                       >{item.ativo ? <X size={12} /> : <Check size={12} />}</button>
                       <button
                         onClick={() => setConfirmandoDelete(item.id)}
-                        className="p-1.5 text-gray-500 hover:text-red-400 hover:bg-gray-700 rounded transition-colors"
+                        className="p-1.5 text-gray-500 hover:text-red-400 hover:bg-gray-900 rounded transition-colors"
                       ><Trash2 size={12} /></button>
                     </div>
                   )}

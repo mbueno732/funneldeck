@@ -99,18 +99,18 @@ export function ListaFunis({ funis, produtos, especialistas, configs, initialEsp
       {/* Filtros */}
       <div className="flex gap-2 flex-wrap">
         <select value={filtroEsp} onChange={e => setFiltroEsp(e.target.value)}
-          className="px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-sm text-gray-300 focus:outline-none focus:border-indigo-500 h-9">
+          className="px-3 py-2 bg-gray-900 border border-white/10 rounded-lg text-sm text-gray-300 focus:outline-none focus:border-indigo-500 h-9">
           <option value="">Todos os especialistas</option>
           {especialistas.map(e => <option key={e.id} value={e.id}>{e.nome}</option>)}
         </select>
         <select value={filtroStatus} onChange={e => setFiltroStatus(e.target.value)}
-          className="px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-sm text-gray-300 focus:outline-none focus:border-indigo-500 h-9">
+          className="px-3 py-2 bg-gray-900 border border-white/10 rounded-lg text-sm text-gray-300 focus:outline-none focus:border-indigo-500 h-9">
           <option value="">Todos os status</option>
           {statusOpts.map(c => <option key={c.valor} value={c.valor}>{c.valor}</option>)}
         </select>
         {(filtroEsp || filtroStatus) && (
           <button onClick={() => { setFiltroEsp(''); setFiltroStatus('') }}
-            className="px-3 py-1.5 text-xs text-gray-400 hover:text-white border border-gray-600 rounded-lg hover:border-gray-500 transition-colors">
+            className="px-3 py-1.5 text-xs text-gray-400 hover:text-white border border-white/10 rounded-lg hover:border-white/20 transition-colors">
             Limpar
           </button>
         )}
@@ -125,7 +125,7 @@ export function ListaFunis({ funis, produtos, especialistas, configs, initialEsp
 
       {/* Cards */}
       {filtrados.length === 0 ? (
-        <div className="rounded-xl border border-gray-600 p-12 text-center text-gray-500">
+        <div className="rounded-xl border border-white/10 p-12 text-center text-gray-500">
           {funis.length === 0 ? 'Nenhum funil cadastrado ainda.' : 'Nenhum funil encontrado com os filtros aplicados.'}
         </div>
       ) : (() => {
@@ -136,7 +136,7 @@ export function ListaFunis({ funis, produtos, especialistas, configs, initialEsp
             const temImpl = f.impl_nao_publicadas > 0
 
             return (
-              <div key={f.id} className="bg-gray-900 border border-gray-600 rounded-xl p-4 space-y-3 hover:border-gray-500 transition-colors">
+              <div key={f.id} className="bg-gray-900 border border-white/10 rounded-xl p-4 space-y-3 hover:border-white/20 transition-colors">
                 {/* Header do card */}
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
@@ -211,7 +211,7 @@ export function ListaFunis({ funis, produtos, especialistas, configs, initialEsp
                     <span className="text-gray-500">{f.paginas_publicadas} de {f.total_paginas} páginas publicadas</span>
                     <span className="text-gray-400 font-medium">{pct}%</span>
                   </div>
-                  <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden">
+                  <div className="h-1.5 bg-gray-900 rounded-full overflow-hidden">
                     <div
                       className="h-full rounded-full transition-all"
                       style={{
@@ -237,19 +237,19 @@ export function ListaFunis({ funis, produtos, especialistas, configs, initialEsp
                 )}
 
                 {/* Ações */}
-                <div className="flex items-center gap-2 pt-1 border-t border-gray-600">
+                <div className="flex items-center gap-2 pt-1 border-t border-white/10">
                   {confirmandoDelete === f.id ? (
                     <>
                       <span className="flex-1 text-xs text-gray-400">Excluir funil?</span>
                       <button
                         onClick={() => handleDeletar(f.id)}
-                        className="flex items-center gap-1 text-xs text-red-400 hover:text-red-300 py-1.5 px-2 hover:bg-gray-800 rounded-lg transition-colors"
+                        className="flex items-center gap-1 text-xs text-red-400 hover:text-red-300 py-1.5 px-2 hover:bg-gray-900 rounded-lg transition-colors"
                       >
                         <Check size={12} /> Confirmar
                       </button>
                       <button
                         onClick={() => setConfirmandoDelete(null)}
-                        className="flex items-center gap-1 text-xs text-gray-400 hover:text-white py-1.5 px-2 hover:bg-gray-800 rounded-lg transition-colors"
+                        className="flex items-center gap-1 text-xs text-gray-400 hover:text-white py-1.5 px-2 hover:bg-gray-900 rounded-lg transition-colors"
                       >
                         <X size={12} /> Cancelar
                       </button>
@@ -258,35 +258,35 @@ export function ListaFunis({ funis, produtos, especialistas, configs, initialEsp
                     <>
                       <button
                         onClick={() => setNovaPaginaFunilId(f.id)}
-                        className="flex items-center gap-1.5 text-xs text-indigo-400 hover:text-indigo-300 py-1.5 px-2 hover:bg-gray-800 rounded-lg transition-colors"
+                        className="flex items-center gap-1.5 text-xs text-indigo-400 hover:text-indigo-300 py-1.5 px-2 hover:bg-gray-900 rounded-lg transition-colors"
                       >
                         <Plus size={12} />
                         Página
                       </button>
                       <Link
                         href={`/paginas?funil=${f.id}`}
-                        className="flex-1 flex items-center justify-center gap-1.5 text-xs text-gray-400 hover:text-white py-1.5 hover:bg-gray-800 rounded-lg transition-colors"
+                        className="flex-1 flex items-center justify-center gap-1.5 text-xs text-gray-400 hover:text-white py-1.5 hover:bg-gray-900 rounded-lg transition-colors"
                       >
                         <FileText size={12} />
                         Ver ({f.total_paginas})
                       </Link>
                       <button
                         onClick={() => setDuplicando(f)}
-                        className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-white py-1.5 px-2 hover:bg-gray-800 rounded-lg transition-colors"
+                        className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-white py-1.5 px-2 hover:bg-gray-900 rounded-lg transition-colors"
                       >
                         <Copy size={12} />
                         Duplicar
                       </button>
                       <button
                         onClick={() => { setEditando(f); setModalAberto(true) }}
-                        className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-white py-1.5 px-2 hover:bg-gray-800 rounded-lg transition-colors"
+                        className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-white py-1.5 px-2 hover:bg-gray-900 rounded-lg transition-colors"
                       >
                         <Pencil size={12} />
                         Editar
                       </button>
                       <button
                         onClick={() => { setConfirmandoDelete(f.id); setErroDelete(null) }}
-                        className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-red-400 py-1.5 px-2 hover:bg-gray-800 rounded-lg transition-colors"
+                        className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-red-400 py-1.5 px-2 hover:bg-gray-900 rounded-lg transition-colors"
                         title="Excluir funil"
                       >
                         <Trash2 size={12} />
@@ -315,7 +315,7 @@ export function ListaFunis({ funis, produtos, especialistas, configs, initialEsp
             label: 'Ongoing',
             tipos: [] as string[], // catch-all
             cor: 'text-gray-400',
-            linha: 'bg-gray-800',
+            linha: 'bg-gray-900',
           },
         ]
 

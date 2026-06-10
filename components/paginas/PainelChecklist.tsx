@@ -97,9 +97,9 @@ export function PainelChecklist({ pagina, onFechar }: Props) {
       <div className="fixed inset-0 z-30 bg-black/40" onClick={onFechar} />
 
       {/* Painel */}
-      <div className="fixed right-0 top-0 h-full w-full max-w-md z-40 bg-gray-900 border-l border-gray-600 flex flex-col shadow-2xl">
+      <div className="fixed right-0 top-0 h-full w-full max-w-md z-40 bg-gray-900 border-l border-white/10 flex flex-col shadow-2xl">
         {/* Header */}
-        <div className="flex items-start justify-between p-5 border-b border-gray-600 shrink-0">
+        <div className="flex items-start justify-between p-5 border-b border-white/[0.07] shrink-0">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <CheckSquare size={16} className="text-indigo-400 shrink-0" />
@@ -107,7 +107,7 @@ export function PainelChecklist({ pagina, onFechar }: Props) {
             </div>
             <p className="text-gray-500 text-xs mt-0.5 truncate">{pagina.nome}</p>
           </div>
-          <button onClick={onFechar} className="p-1.5 text-gray-500 hover:text-white hover:bg-gray-800 rounded transition-colors shrink-0 ml-2">
+          <button onClick={onFechar} className="p-1.5 text-gray-500 hover:text-white hover:bg-gray-900 rounded transition-colors shrink-0 ml-2">
             <X size={16} />
           </button>
         </div>
@@ -141,14 +141,14 @@ export function PainelChecklist({ pagina, onFechar }: Props) {
         ) : (
           <div className="flex-1 overflow-y-auto">
             {/* Progresso */}
-            <div className="p-5 border-b border-gray-600 space-y-2">
+            <div className="p-5 border-b border-white/[0.07] space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-400">{concluidos} de {total} itens</span>
                 <span className={`text-sm font-bold ${pct === 100 ? 'text-green-400' : pct >= 60 ? 'text-yellow-400' : 'text-gray-400'}`}>
                   {pct}%
                 </span>
               </div>
-              <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
+              <div className="h-2 bg-gray-900 rounded-full overflow-hidden">
                 <div
                   className="h-full rounded-full transition-all duration-300"
                   style={{ width: `${pct}%`, backgroundColor: pct === 100 ? '#22c55e' : pct >= 60 ? '#eab308' : '#f97316' }}
@@ -157,7 +157,7 @@ export function PainelChecklist({ pagina, onFechar }: Props) {
             </div>
 
             {/* Toggle VSL */}
-            <div className="px-5 py-4 border-b border-gray-600">
+            <div className="px-5 py-4 border-b border-white/[0.07]">
               <label className="flex items-center justify-between cursor-pointer">
                 <div>
                   <p className="text-sm text-white font-medium">Página tem VSL</p>
@@ -165,7 +165,7 @@ export function PainelChecklist({ pagina, onFechar }: Props) {
                 </div>
                 <button
                   onClick={() => handleVsl(!vsl)}
-                  className={`relative w-10 h-5 rounded-full transition-colors ${vsl ? 'bg-indigo-600' : 'bg-gray-700'}`}
+                  className={`relative w-10 h-5 rounded-full transition-colors ${vsl ? 'bg-indigo-600' : 'bg-gray-900'}`}
                 >
                   <span className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform ${vsl ? 'translate-x-5' : ''}`} />
                 </button>
@@ -173,7 +173,7 @@ export function PainelChecklist({ pagina, onFechar }: Props) {
             </div>
 
             {/* Itens por fase */}
-            <div className="divide-y divide-gray-700/60">
+            <div className="divide-y divide-white/[0.07]/60">
               {FASES.map(fase => {
                 const itensFase = itens.filter(i => i.fase === fase).sort((a, b) => a.ordem - b.ordem)
                 if (!itensFase.length) return null
@@ -184,7 +184,7 @@ export function PainelChecklist({ pagina, onFechar }: Props) {
                   <div key={fase}>
                     <button
                       onClick={() => setFasesAbertas(f => ({ ...f, [fase]: !faseAberta }))}
-                      className="w-full flex items-center justify-between px-5 py-3 hover:bg-gray-800/40 transition-colors"
+                      className="w-full flex items-center justify-between px-5 py-3 hover:bg-gray-900/40 transition-colors"
                     >
                       <span className="text-xs font-semibold uppercase tracking-widest text-gray-400">
                         {FASE_LABEL[fase]}
@@ -247,20 +247,20 @@ export function PainelChecklist({ pagina, onFechar }: Props) {
             </div>
 
             {/* Observações */}
-            <div className="p-5 border-t border-gray-600">
+            <div className="p-5 border-t border-white/10">
               <p className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-2">Observações</p>
               <textarea
                 value={checklist.observacao_geral ?? ''}
                 onChange={e => handleObservacao(e.target.value)}
                 placeholder="Notas sobre a publicação..."
                 rows={3}
-                className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500 resize-none"
+                className="w-full px-3 py-2 bg-gray-900 border border-white/10 rounded-lg text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500 resize-none"
               />
             </div>
 
             {/* Histórico de status */}
             {historico.length > 0 && (
-              <div className="border-t border-gray-600">
+              <div className="border-t border-white/10">
                 <button
                   onClick={() => setHistoricoAberto(v => !v)}
                   className="w-full flex items-center justify-between px-5 py-3 text-xs text-gray-500 hover:text-gray-300 transition-colors"
@@ -278,7 +278,7 @@ export function PainelChecklist({ pagina, onFechar }: Props) {
                       <div key={h.id} className="flex gap-3">
                         <div className="flex flex-col items-center">
                           <div className="w-2 h-2 rounded-full bg-indigo-500 shrink-0 mt-1" />
-                          {i < historico.length - 1 && <div className="w-px flex-1 bg-gray-800 mt-1" />}
+                          {i < historico.length - 1 && <div className="w-px flex-1 bg-gray-900 mt-1" />}
                         </div>
                         <div className="pb-3 flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">

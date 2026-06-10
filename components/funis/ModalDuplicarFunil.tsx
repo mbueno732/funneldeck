@@ -57,7 +57,7 @@ export function ModalDuplicarFunil({ aberto, onFechar, onSalvo, funil, produtos,
 
   return (
     <Dialog open={aberto} onOpenChange={v => !v && onFechar()}>
-      <DialogContent className="bg-gray-900 border-gray-600 text-white max-w-md">
+      <DialogContent className="bg-gray-900 border-white/10 text-white max-w-md">
         <DialogHeader>
           <DialogTitle className="text-white flex items-center gap-2">
             <Copy size={16} className="text-indigo-400" />
@@ -65,7 +65,7 @@ export function ModalDuplicarFunil({ aberto, onFechar, onSalvo, funil, produtos,
           </DialogTitle>
         </DialogHeader>
 
-        <div className="mt-1 p-3 bg-gray-800/60 rounded-lg border border-gray-600">
+        <div className="mt-1 p-3 bg-gray-900/60 rounded-lg border border-white/10">
           <p className="text-xs text-gray-400 mb-1">Duplicando</p>
           <p className="text-white font-medium">
             {funil.id_funil && <span className="text-indigo-400 font-mono mr-2">[{funil.id_funil}]</span>}
@@ -88,7 +88,7 @@ export function ModalDuplicarFunil({ aberto, onFechar, onSalvo, funil, produtos,
               onChange={e => setNome(e.target.value)}
               placeholder="Nome do novo funil"
               required
-              className="bg-gray-800 border-gray-600 text-white placeholder-gray-600 focus:border-indigo-500"
+              className="bg-gray-900 border-white/10 text-white placeholder-gray-600 focus:border-indigo-500"
             />
           </div>
 
@@ -97,7 +97,7 @@ export function ModalDuplicarFunil({ aberto, onFechar, onSalvo, funil, produtos,
             <select
               value={produtoId}
               onChange={e => setProdutoId(e.target.value)}
-              className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-sm text-white focus:outline-none focus:border-indigo-500 h-10"
+              className="w-full px-3 py-2 bg-gray-900 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-indigo-500 h-10"
             >
               <option value="">Sem produto vinculado</option>
               {especialistas.map(esp => {
@@ -114,7 +114,7 @@ export function ModalDuplicarFunil({ aberto, onFechar, onSalvo, funil, produtos,
             </select>
           </div>
 
-          <label className="flex items-start gap-3 cursor-pointer p-3 rounded-lg border border-gray-600 hover:border-gray-500 transition-colors">
+          <label className="flex items-start gap-3 cursor-pointer p-3 rounded-lg border border-white/10 hover:border-white/20 transition-colors">
             <input
               type="checkbox"
               checked={incluirPaginas}
