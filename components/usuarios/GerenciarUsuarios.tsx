@@ -1,8 +1,8 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { UserPlus, Shield, Eye, Loader2, Mail } from 'lucide-react'
-import { convidarUsuario, atualizarPerfilUsuario } from '@/lib/actions/usuarios'
+import { UserPlus, Shield, Eye, Loader2, Mail, RotateCcw } from 'lucide-react'
+import { convidarUsuario, atualizarPerfilUsuario, reenviarConvite } from '@/lib/actions/usuarios'
 
 interface Usuario {
   id: string
@@ -10,6 +10,7 @@ interface Usuario {
   email: string
   perfil: 'editor' | 'visualizador'
   criado_em: string
+  nunca_entrou: boolean
 }
 
 interface Props {
@@ -24,6 +25,8 @@ export function GerenciarUsuarios({ usuarios, usuarioAtualId }: Props) {
   const [sucesso, setSucesso] = useState('')
   const [erro, setErro] = useState('')
   const [alterandoPerfil, setAlterandoPerfil] = useState<string | null>(null)
+  const [reenviando, setReenviando] = useState<string | null>(null)
+  const [sucessoReenvio, setSucessoReenvio] = useState<string | null>(null)
 
   async function handleConvidar(e: React.FormEvent) {
     e.preventDefault()
@@ -39,6 +42,18 @@ export function GerenciarUsuarios({ usuarios, usuarioAtualId }: Props) {
       setErro(err instanceof Error ? err.message : 'Erro ao enviar convite.')
     } finally {
       setEnviando(false)
+    }
+  }
+
+  async function handleReenviar(email: string) {
+    setReenviando(email)
+    setSucessoReenvio(null)
+    try {
+      await reenviarConvite(email)
+      setSucessoReenvio(email)
+      setTimeout(() => setSucessoReenvio(null), 3000)
+    } finally {
+      setReenviando(null)
     }
   }
 
@@ -108,12 +123,29 @@ export function GerenciarUsuarios({ usuarios, usuarioAtualId }: Props) {
                     {u.id === usuarioAtualId && (
                       <span className="text-[10px] text-gray-500 bg-gray-800 px-1.5 py-0.5 rounded">você</span>
                     )}
+                    {u.nunca_entrou && (
+                      <span className="text-[10px] text-yellow-500 bg-yellow-500/10 px-1.5 py-0.5 rounded">convite pendente</span>
+                    )}
                   </div>
                   <p className="text-xs text-gray-500 truncate">{u.email}</p>
                 </div>
               </div>
 
               <div className="flex items-center gap-2 shrink-0">
+                {u.nunca_entrou && u.id !== usuarioAtualId && (
+                  <button
+                    onClick={() => handleReenviar(u.email)}
+                    disabled={reenviando === u.email}
+                    className="flex items-center gap-1 text-xs px-2 py-1 text-gray-400 hover:text-indigo-400 hover:bg-gray-800 rounded-lg transition-colors"
+                    title="Reenviar convite"
+                  >
+                    {reenviando === u.email
+                      ? <Loader2 size={11} className="animate-spin" />
+                      : <RotateCcw size={11} />
+                    }
+                    {sucessoReenvio === u.email ? 'Enviado!' : 'Reenviar'}
+                  </button>
+                )}
                 {alterandoPerfil === u.id ? (
                   <Loader2 size={14} className="text-gray-500 animate-spin" />
                 ) : u.id === usuarioAtualId ? (
