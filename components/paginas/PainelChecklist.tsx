@@ -97,9 +97,9 @@ export function PainelChecklist({ pagina, onFechar }: Props) {
       <div className="fixed inset-0 z-30 bg-black/40" onClick={onFechar} />
 
       {/* Painel */}
-      <div className="fixed right-0 top-0 h-full w-full max-w-md z-40 bg-gray-900 border-l border-gray-800 flex flex-col shadow-2xl">
+      <div className="fixed right-0 top-0 h-full w-full max-w-md z-40 bg-gray-900 border-l border-gray-700 flex flex-col shadow-2xl">
         {/* Header */}
-        <div className="flex items-start justify-between p-5 border-b border-gray-800 shrink-0">
+        <div className="flex items-start justify-between p-5 border-b border-gray-700 shrink-0">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <CheckSquare size={16} className="text-indigo-400 shrink-0" />
@@ -141,7 +141,7 @@ export function PainelChecklist({ pagina, onFechar }: Props) {
         ) : (
           <div className="flex-1 overflow-y-auto">
             {/* Progresso */}
-            <div className="p-5 border-b border-gray-800 space-y-2">
+            <div className="p-5 border-b border-gray-700 space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-400">{concluidos} de {total} itens</span>
                 <span className={`text-sm font-bold ${pct === 100 ? 'text-green-400' : pct >= 60 ? 'text-yellow-400' : 'text-gray-400'}`}>
@@ -157,7 +157,7 @@ export function PainelChecklist({ pagina, onFechar }: Props) {
             </div>
 
             {/* Toggle VSL */}
-            <div className="px-5 py-4 border-b border-gray-800">
+            <div className="px-5 py-4 border-b border-gray-700">
               <label className="flex items-center justify-between cursor-pointer">
                 <div>
                   <p className="text-sm text-white font-medium">Página tem VSL</p>
@@ -247,7 +247,7 @@ export function PainelChecklist({ pagina, onFechar }: Props) {
             </div>
 
             {/* Observações */}
-            <div className="p-5 border-t border-gray-800">
+            <div className="p-5 border-t border-gray-700">
               <p className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-2">Observações</p>
               <textarea
                 value={checklist.observacao_geral ?? ''}
@@ -260,7 +260,7 @@ export function PainelChecklist({ pagina, onFechar }: Props) {
 
             {/* Histórico de status */}
             {historico.length > 0 && (
-              <div className="border-t border-gray-800">
+              <div className="border-t border-gray-700">
                 <button
                   onClick={() => setHistoricoAberto(v => !v)}
                   className="w-full flex items-center justify-between px-5 py-3 text-xs text-gray-500 hover:text-gray-300 transition-colors"

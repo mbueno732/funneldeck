@@ -57,7 +57,7 @@ export function ModalDuplicarFunil({ aberto, onFechar, onSalvo, funil, produtos,
 
   return (
     <Dialog open={aberto} onOpenChange={v => !v && onFechar()}>
-      <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-md">
+      <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-md">
         <DialogHeader>
           <DialogTitle className="text-white flex items-center gap-2">
             <Copy size={16} className="text-indigo-400" />

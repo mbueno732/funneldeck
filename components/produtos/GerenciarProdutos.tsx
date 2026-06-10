@@ -117,7 +117,7 @@ export function GerenciarProdutos({ produtos, especialistas }: Props) {
       </div>
 
       {/* Lista */}
-      <div className="rounded-xl border border-gray-800 overflow-hidden">
+      <div className="rounded-xl border border-gray-700 overflow-hidden">
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-gray-800/60 text-gray-400 text-xs uppercase tracking-wide">

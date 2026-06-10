@@ -67,7 +67,7 @@ export function GerenciarConfiguracoes({ configs }: Props) {
       </div>
 
       {/* Abas */}
-      <div className="flex flex-wrap gap-1 border-b border-gray-800 pb-0">
+      <div className="flex flex-wrap gap-1 border-b border-gray-700 pb-0">
         {CATEGORIAS.map(cat => (
           <button
             key={cat.key}
@@ -111,7 +111,7 @@ export function GerenciarConfiguracoes({ configs }: Props) {
       </form>
 
       {/* Lista de itens */}
-      <div className="rounded-xl border border-gray-800 overflow-hidden">
+      <div className="rounded-xl border border-gray-700 overflow-hidden">
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-gray-800/60 text-gray-400 text-xs uppercase tracking-wide">

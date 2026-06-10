@@ -153,7 +153,7 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
 
   return (
     <Dialog open={aberto} onOpenChange={v => !v && onFechar()}>
-      <DialogContent className={`bg-gray-900 border-gray-800 text-white ${isEdit ? 'max-w-2xl max-h-[90vh] overflow-y-auto' : 'max-w-lg'}`}>
+      <DialogContent className={`bg-gray-900 border-gray-700 text-white ${isEdit ? 'max-w-2xl max-h-[90vh] overflow-y-auto' : 'max-w-lg'}`}>
         <DialogHeader>
           <DialogTitle className="text-white">
             {isEdit ? 'Editar Página' : 'Nova Página'}

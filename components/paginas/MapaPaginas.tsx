@@ -283,7 +283,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
 
       {/* Distribuição por ferramenta */}
       {distribuicaoFerramenta.length > 0 && (
-        <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+        <div className="bg-gray-900 border border-gray-700 rounded-xl overflow-hidden">
           <button
             onClick={() => setDistribuicaoAberta(v => !v)}
             className="w-full flex items-center justify-between px-4 py-3 text-sm text-gray-400 hover:text-white transition-colors"
@@ -295,7 +295,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
             </div>
           </button>
           {distribuicaoAberta && (
-            <div className="px-4 pb-4 space-y-2.5 border-t border-gray-800 pt-3">
+            <div className="px-4 pb-4 space-y-2.5 border-t border-gray-700 pt-3">
               {distribuicaoFerramenta.map(({ ferramenta, label, count, pct }) => (
                 <button
                   key={ferramenta}
@@ -384,7 +384,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
                 className={`flex-none w-72 rounded-xl border transition-colors ${
                   dragOverStatus === col.valor
                     ? 'border-indigo-500 bg-indigo-500/5'
-                    : 'border-gray-800 bg-gray-900/50'
+                    : 'border-gray-700 bg-gray-900/50'
                 }`}
                 onDragOver={e => { e.preventDefault(); setDragOverStatus(col.valor) }}
                 onDragLeave={e => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragOverStatus(null) }}
@@ -401,7 +401,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
                 }}
               >
                 {/* Cabeçalho da coluna */}
-                <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800">
+                <div className="flex items-center justify-between px-4 py-3 border-b border-gray-700">
                   <div className="flex items-center gap-2">
                     {col.cor && <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: col.cor }} />}
                     <span className="text-sm font-medium text-white">{col.valor}</span>
@@ -431,8 +431,8 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
                           draggingId === p.id
                             ? 'opacity-40 border-indigo-500'
                             : atrasada
-                              ? 'border-l-2 border-l-red-500 border-gray-800 hover:border-gray-700'
-                              : 'border-gray-800 hover:border-gray-700'
+                              ? 'border-l-2 border-l-red-500 border-gray-700 hover:border-gray-700'
+                              : 'border-gray-700 hover:border-gray-700'
                         }`}
                       >
                         {/* Topo do card */}
@@ -516,7 +516,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
       )}
 
       {/* Tabela */}
-      {visualizacao === 'tabela' && <div className="rounded-xl border border-gray-800 overflow-hidden">
+      {visualizacao === 'tabela' && <div className="rounded-xl border border-gray-700 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>

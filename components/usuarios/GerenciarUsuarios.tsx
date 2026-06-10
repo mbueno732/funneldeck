@@ -70,7 +70,7 @@ export function GerenciarUsuarios({ usuarios, usuarioAtualId }: Props) {
     <div className="space-y-6">
 
       {/* Convidar */}
-      <div className="bg-gray-900 border border-gray-800 rounded-xl p-5 space-y-4">
+      <div className="bg-gray-900 border border-gray-700 rounded-xl p-5 space-y-4">
         <div>
           <h2 className="text-white font-medium">Convidar usuário</h2>
           <p className="text-gray-500 text-sm mt-0.5">A pessoa receberá um email para criar a própria senha.</p>
@@ -101,8 +101,8 @@ export function GerenciarUsuarios({ usuarios, usuarioAtualId }: Props) {
       </div>
 
       {/* Lista */}
-      <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
-        <div className="px-5 py-3 border-b border-gray-800">
+      <div className="bg-gray-900 border border-gray-700 rounded-xl overflow-hidden">
+        <div className="px-5 py-3 border-b border-gray-700">
           <p className="text-sm font-medium text-white">{usuarios.length} usuário{usuarios.length !== 1 ? 's' : ''}</p>
         </div>
         <div className="divide-y divide-gray-800">

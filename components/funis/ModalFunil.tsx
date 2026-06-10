@@ -118,7 +118,7 @@ export function ModalFunil({ aberto, onFechar, onSalvo, funil, produtos, especia
 
   return (
     <Dialog open={aberto} onOpenChange={v => !v && onFechar()}>
-      <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-lg">
+      <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-lg">
         <DialogHeader>
           <DialogTitle className="text-white">{funil ? 'Editar Funil' : 'Novo Funil'}</DialogTitle>
         </DialogHeader>

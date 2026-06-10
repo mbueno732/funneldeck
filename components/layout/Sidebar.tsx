@@ -34,8 +34,8 @@ export function Sidebar({ usuario }: Props) {
   }
 
   return (
-    <aside className="w-56 shrink-0 border-r border-gray-800 bg-gray-900 flex flex-col">
-      <div className="px-4 py-4 border-b border-gray-800">
+    <aside className="w-56 shrink-0 border-r border-gray-700 bg-gray-900 flex flex-col">
+      <div className="px-4 py-4 border-b border-gray-700">
         <Logo />
       </div>
 
@@ -61,7 +61,7 @@ export function Sidebar({ usuario }: Props) {
       </nav>
 
       {/* Usuário + logout */}
-      <div className="p-3 border-t border-gray-800">
+      <div className="p-3 border-t border-gray-700">
         <div className="flex items-center justify-between px-2 py-2">
           <div className="min-w-0">
             <p className="text-sm text-white font-medium truncate">{usuario.nome}</p>

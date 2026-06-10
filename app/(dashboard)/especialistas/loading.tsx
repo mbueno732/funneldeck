@@ -9,10 +9,10 @@ export default function Loading() {
         <div className="h-10 flex-1 bg-gray-800 rounded-lg" />
         <div className="h-10 w-28 bg-gray-800 rounded-lg" />
       </div>
-      <div className="rounded-xl border border-gray-800 overflow-hidden">
+      <div className="rounded-xl border border-gray-700 overflow-hidden">
         <div className="bg-gray-800/60 h-10" />
         {Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className="flex items-center justify-between px-4 py-3 border-t border-gray-800">
+          <div key={i} className="flex items-center justify-between px-4 py-3 border-t border-gray-700">
             <div className="h-4 w-40 bg-gray-800 rounded" />
             <div className="h-5 w-14 bg-gray-800 rounded-full" />
             <div className="flex gap-1">

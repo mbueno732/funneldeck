@@ -125,7 +125,7 @@ export function ListaFunis({ funis, produtos, especialistas, configs, initialEsp
 
       {/* Cards */}
       {filtrados.length === 0 ? (
-        <div className="rounded-xl border border-gray-800 p-12 text-center text-gray-500">
+        <div className="rounded-xl border border-gray-700 p-12 text-center text-gray-500">
           {funis.length === 0 ? 'Nenhum funil cadastrado ainda.' : 'Nenhum funil encontrado com os filtros aplicados.'}
         </div>
       ) : (() => {
@@ -136,7 +136,7 @@ export function ListaFunis({ funis, produtos, especialistas, configs, initialEsp
             const temImpl = f.impl_nao_publicadas > 0
 
             return (
-              <div key={f.id} className="bg-gray-900 border border-gray-800 rounded-xl p-4 space-y-3 hover:border-gray-700 transition-colors">
+              <div key={f.id} className="bg-gray-900 border border-gray-700 rounded-xl p-4 space-y-3 hover:border-gray-700 transition-colors">
                 {/* Header do card */}
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
@@ -237,7 +237,7 @@ export function ListaFunis({ funis, produtos, especialistas, configs, initialEsp
                 )}
 
                 {/* Ações */}
-                <div className="flex items-center gap-2 pt-1 border-t border-gray-800">
+                <div className="flex items-center gap-2 pt-1 border-t border-gray-700">
                   {confirmandoDelete === f.id ? (
                     <>
                       <span className="flex-1 text-xs text-gray-400">Excluir funil?</span>
