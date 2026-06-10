@@ -30,8 +30,8 @@ export async function convidarUsuario(email: string) {
 }
 
 export async function reenviarConvite(email: string) {
-  const admin = createAdminClient()
-  const { error } = await admin.auth.admin.inviteUserByEmail(email, {
+  const supabase = await createClient()
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: `${APP_URL}/auth/callback?intent=invite`,
   })
   if (error) throw error
