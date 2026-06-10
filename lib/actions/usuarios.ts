@@ -22,26 +22,41 @@ export async function listarUsuarios() {
   })
 }
 
-export async function convidarUsuario(email: string) {
-  const admin = createAdminClient()
-  const { error } = await admin.auth.admin.inviteUserByEmail(email, {
-    redirectTo: `${APP_URL}/auth/callback?intent=invite`,
-  })
-  if (error) throw error
-  revalidatePath('/usuarios')
+export async function convidarUsuario(email: string): Promise<{ error?: string }> {
+  try {
+    const admin = createAdminClient()
+    const { error } = await admin.auth.admin.inviteUserByEmail(email, {
+      redirectTo: `${APP_URL}/auth/callback?intent=invite`,
+    })
+    if (error) return { error: error.message }
+    revalidatePath('/usuarios')
+    return {}
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : 'Erro ao enviar convite.' }
+  }
 }
 
-export async function reenviarConvite(email: string) {
-  const supabase = await createClient()
-  const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${APP_URL}/auth/callback?intent=invite`,
-  })
-  if (error) throw error
+export async function reenviarConvite(email: string): Promise<{ error?: string }> {
+  try {
+    const supabase = await createClient()
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${APP_URL}/auth/callback?intent=invite`,
+    })
+    if (error) return { error: error.message }
+    return {}
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : 'Erro ao reenviar convite.' }
+  }
 }
 
-export async function atualizarPerfilUsuario(id: string, perfil: 'editor' | 'visualizador') {
-  const admin = createAdminClient()
-  const { error } = await admin.from('usuarios').update({ perfil }).eq('id', id)
-  if (error) throw error
-  revalidatePath('/usuarios')
+export async function atualizarPerfilUsuario(id: string, perfil: 'editor' | 'visualizador'): Promise<{ error?: string }> {
+  try {
+    const admin = createAdminClient()
+    const { error } = await admin.from('usuarios').update({ perfil }).eq('id', id)
+    if (error) return { error: error.message }
+    revalidatePath('/usuarios')
+    return {}
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : 'Erro ao atualizar perfil.' }
+  }
 }

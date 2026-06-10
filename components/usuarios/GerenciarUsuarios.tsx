@@ -33,38 +33,33 @@ export function GerenciarUsuarios({ usuarios, usuarioAtualId }: Props) {
     setErro('')
     setSucesso('')
     setEnviando(true)
-    try {
-      await convidarUsuario(email.trim().toLowerCase())
+    const result = await convidarUsuario(email.trim().toLowerCase())
+    if (result.error) {
+      setErro(result.error)
+    } else {
       setSucesso(`Convite enviado para ${email}`)
       setEmail('')
       router.refresh()
-    } catch (err: unknown) {
-      setErro(err instanceof Error ? err.message : 'Erro ao enviar convite.')
-    } finally {
-      setEnviando(false)
     }
+    setEnviando(false)
   }
 
-  async function handleReenviar(email: string) {
-    setReenviando(email)
+  async function handleReenviar(emailAlvo: string) {
+    setReenviando(emailAlvo)
     setSucessoReenvio(null)
-    try {
-      await reenviarConvite(email)
-      setSucessoReenvio(email)
+    const result = await reenviarConvite(emailAlvo)
+    if (!result.error) {
+      setSucessoReenvio(emailAlvo)
       setTimeout(() => setSucessoReenvio(null), 3000)
-    } finally {
-      setReenviando(null)
     }
+    setReenviando(null)
   }
 
   async function handleAlterarPerfil(id: string, perfil: 'editor' | 'visualizador') {
     setAlterandoPerfil(id)
-    try {
-      await atualizarPerfilUsuario(id, perfil)
-      router.refresh()
-    } finally {
-      setAlterandoPerfil(null)
-    }
+    const result = await atualizarPerfilUsuario(id, perfil)
+    if (!result.error) router.refresh()
+    setAlterandoPerfil(null)
   }
 
   function iniciais(nome: string) {
