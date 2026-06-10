@@ -1,0 +1,14 @@
+-- Migration 004 — A/B Tests: page link + statistical metrics
+
+ALTER TABLE testes_ab
+    ADD COLUMN IF NOT EXISTS pagina_id UUID REFERENCES paginas(id),
+    ADD COLUMN IF NOT EXISTS tipo_teste TEXT CHECK(tipo_teste IN ('aquisicao', 'vendas')),
+    ADD COLUMN IF NOT EXISTS elemento_testado TEXT;
+
+ALTER TABLE variantes_teste
+    ADD COLUMN IF NOT EXISTS is_controle BOOLEAN NOT NULL DEFAULT FALSE,
+    ADD COLUMN IF NOT EXISTS is_vencedor BOOLEAN NOT NULL DEFAULT FALSE,
+    ADD COLUMN IF NOT EXISTS sessoes INTEGER NOT NULL DEFAULT 0,
+    ADD COLUMN IF NOT EXISTS conversoes INTEGER NOT NULL DEFAULT 0,
+    ADD COLUMN IF NOT EXISTS receita NUMERIC NOT NULL DEFAULT 0,
+    ADD COLUMN IF NOT EXISTS sessoes_checkout INTEGER NOT NULL DEFAULT 0;
