@@ -9,13 +9,15 @@ export async function listarUsuarios() {
   const admin = createAdminClient()
   const supabase = await createClient()
 
-  const [{ data }, { data: { users: authUsers } }] = await Promise.all([
+  const [{ data }, authResult] = await Promise.all([
     supabase.from('usuarios').select('id, nome, email, perfil, criado_em').order('criado_em', { ascending: true }),
     admin.auth.admin.listUsers(),
   ])
 
+  const authUsers = authResult.data?.users ?? []
+
   return (data ?? []).map(u => {
-    const authUser = authUsers?.find(a => a.id === u.id)
+    const authUser = authUsers.find(a => a.id === u.id)
     return { ...u, nunca_entrou: !authUser?.last_sign_in_at }
   })
 }
