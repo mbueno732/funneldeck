@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
   LayoutDashboard, Users, Package, GitBranch,
-  FileText, Settings, LogOut,
+  FileText, Settings, LogOut, UserCog,
 } from 'lucide-react'
 import { Logo } from './Logo'
 import { createClient } from '@/lib/supabase/client'
@@ -14,6 +14,7 @@ const navItems = [
   { href: '/produtos',       label: 'Produtos',      icon: Package },
   { href: '/funis',          label: 'Funis',         icon: GitBranch },
   { href: '/paginas',        label: 'Páginas',       icon: FileText },
+  { href: '/usuarios',       label: 'Usuários',      icon: UserCog },
   { href: '/configuracoes',  label: 'Configurações', icon: Settings },
 ]
 

@@ -1,0 +1,145 @@
+'use client'
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { UserPlus, Shield, Eye, Loader2, Mail } from 'lucide-react'
+import { convidarUsuario, atualizarPerfilUsuario } from '@/lib/actions/usuarios'
+
+interface Usuario {
+  id: string
+  nome: string
+  email: string
+  perfil: 'editor' | 'visualizador'
+  criado_em: string
+}
+
+interface Props {
+  usuarios: Usuario[]
+  usuarioAtualId: string
+}
+
+export function GerenciarUsuarios({ usuarios, usuarioAtualId }: Props) {
+  const router = useRouter()
+  const [email, setEmail] = useState('')
+  const [enviando, setEnviando] = useState(false)
+  const [sucesso, setSucesso] = useState('')
+  const [erro, setErro] = useState('')
+  const [alterandoPerfil, setAlterandoPerfil] = useState<string | null>(null)
+
+  async function handleConvidar(e: React.FormEvent) {
+    e.preventDefault()
+    setErro('')
+    setSucesso('')
+    setEnviando(true)
+    try {
+      await convidarUsuario(email.trim().toLowerCase())
+      setSucesso(`Convite enviado para ${email}`)
+      setEmail('')
+      router.refresh()
+    } catch (err: unknown) {
+      setErro(err instanceof Error ? err.message : 'Erro ao enviar convite.')
+    } finally {
+      setEnviando(false)
+    }
+  }
+
+  async function handleAlterarPerfil(id: string, perfil: 'editor' | 'visualizador') {
+    setAlterandoPerfil(id)
+    try {
+      await atualizarPerfilUsuario(id, perfil)
+      router.refresh()
+    } finally {
+      setAlterandoPerfil(null)
+    }
+  }
+
+  function iniciais(nome: string) {
+    return nome.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()
+  }
+
+  return (
+    <div className="space-y-6">
+
+      {/* Convidar */}
+      <div className="bg-gray-900 border border-gray-800 rounded-xl p-5 space-y-4">
+        <div>
+          <h2 className="text-white font-medium">Convidar usuário</h2>
+          <p className="text-gray-500 text-sm mt-0.5">A pessoa receberá um email para criar a própria senha.</p>
+        </div>
+        <form onSubmit={handleConvidar} className="flex gap-2">
+          <div className="relative flex-1">
+            <Mail size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+            <input
+              type="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              placeholder="email@empresa.com"
+              required
+              className="w-full pl-8 pr-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={enviando || !email}
+            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-sm font-medium rounded-lg transition-colors"
+          >
+            {enviando ? <Loader2 size={14} className="animate-spin" /> : <UserPlus size={14} />}
+            Convidar
+          </button>
+        </form>
+        {sucesso && <p className="text-green-400 text-sm">{sucesso}</p>}
+        {erro && <p className="text-red-400 text-sm">{erro}</p>}
+      </div>
+
+      {/* Lista */}
+      <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+        <div className="px-5 py-3 border-b border-gray-800">
+          <p className="text-sm font-medium text-white">{usuarios.length} usuário{usuarios.length !== 1 ? 's' : ''}</p>
+        </div>
+        <div className="divide-y divide-gray-800">
+          {usuarios.map(u => (
+            <div key={u.id} className="flex items-center justify-between px-5 py-4">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-8 h-8 rounded-full bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center shrink-0">
+                  <span className="text-xs font-medium text-indigo-400">{iniciais(u.nome || u.email)}</span>
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm text-white font-medium truncate">{u.nome || '—'}</p>
+                    {u.id === usuarioAtualId && (
+                      <span className="text-[10px] text-gray-500 bg-gray-800 px-1.5 py-0.5 rounded">você</span>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-500 truncate">{u.email}</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0">
+                {alterandoPerfil === u.id ? (
+                  <Loader2 size={14} className="text-gray-500 animate-spin" />
+                ) : u.id === usuarioAtualId ? (
+                  <span className={`flex items-center gap-1 text-xs px-2 py-1 rounded-lg font-medium ${
+                    u.perfil === 'editor'
+                      ? 'bg-indigo-500/10 text-indigo-400'
+                      : 'bg-gray-700 text-gray-400'
+                  }`}>
+                    {u.perfil === 'editor' ? <Shield size={11} /> : <Eye size={11} />}
+                    {u.perfil}
+                  </span>
+                ) : (
+                  <select
+                    value={u.perfil}
+                    onChange={e => handleAlterarPerfil(u.id, e.target.value as 'editor' | 'visualizador')}
+                    className="text-xs px-2 py-1 bg-gray-800 border border-gray-700 rounded-lg text-gray-300 focus:outline-none focus:border-indigo-500 cursor-pointer"
+                  >
+                    <option value="editor">editor</option>
+                    <option value="visualizador">visualizador</option>
+                  </select>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
