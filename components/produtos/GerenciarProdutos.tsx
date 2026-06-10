@@ -79,7 +79,7 @@ export function GerenciarProdutos({ produtos, especialistas }: Props) {
           value={form.especialista_id}
           onChange={e => setForm(f => ({ ...f, especialista_id: e.target.value }))}
           required
-          className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-gray-300 focus:outline-none focus:border-indigo-500 h-10"
+          className="px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-sm text-gray-300 focus:outline-none focus:border-indigo-500 h-10"
         >
           <option value="">Especialista *</option>
           {especialistas.map(e => <option key={e.id} value={e.id}>{e.nome}</option>)}
@@ -88,7 +88,7 @@ export function GerenciarProdutos({ produtos, especialistas }: Props) {
           value={form.nome}
           onChange={e => setForm(f => ({ ...f, nome: e.target.value }))}
           placeholder="Nome do produto *"
-          className="bg-gray-800 border-gray-700 text-white placeholder-gray-500 focus:border-indigo-500 flex-1 min-w-40"
+          className="bg-gray-800 border-gray-600 text-white placeholder-gray-500 focus:border-indigo-500 flex-1 min-w-40"
         />
         <Button type="submit" disabled={criando || !form.nome.trim() || !form.especialista_id} className="bg-indigo-600 hover:bg-indigo-500 gap-2 shrink-0">
           <Plus size={16} />
@@ -108,7 +108,7 @@ export function GerenciarProdutos({ produtos, especialistas }: Props) {
         <select
           value={filtroEsp}
           onChange={e => setFiltroEsp(e.target.value)}
-          className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-gray-300 focus:outline-none focus:border-indigo-500 h-9"
+          className="px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-sm text-gray-300 focus:outline-none focus:border-indigo-500 h-9"
         >
           <option value="">Todos os especialistas</option>
           {especialistas.map(e => <option key={e.id} value={e.id}>{e.nome}</option>)}
@@ -117,7 +117,7 @@ export function GerenciarProdutos({ produtos, especialistas }: Props) {
       </div>
 
       {/* Lista */}
-      <div className="rounded-xl border border-gray-700 overflow-hidden">
+      <div className="rounded-xl border border-gray-600 overflow-hidden">
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-gray-800/60 text-gray-400 text-xs uppercase tracking-wide">
@@ -127,7 +127,7 @@ export function GerenciarProdutos({ produtos, especialistas }: Props) {
               <th className="px-4 py-3 w-20"></th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-800">
+          <tbody className="divide-y divide-gray-700">
             {filtrados.length === 0 ? (
               <tr>
                 <td colSpan={4} className="px-4 py-10 text-center text-gray-500">

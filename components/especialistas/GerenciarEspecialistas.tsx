@@ -52,7 +52,7 @@ export function GerenciarEspecialistas({ especialistas }: { especialistas: Espec
           value={novoNome}
           onChange={e => setNovoNome(e.target.value)}
           placeholder="Nome do especialista..."
-          className="bg-gray-800 border-gray-700 text-white placeholder-gray-500 focus:border-indigo-500"
+          className="bg-gray-800 border-gray-600 text-white placeholder-gray-500 focus:border-indigo-500"
         />
         <Button type="submit" disabled={criando || !novoNome.trim()} className="bg-indigo-600 hover:bg-indigo-500 gap-2 shrink-0">
           <Plus size={16} />
@@ -61,7 +61,7 @@ export function GerenciarEspecialistas({ especialistas }: { especialistas: Espec
       </form>
 
       {/* Lista */}
-      <div className="rounded-xl border border-gray-700 overflow-hidden">
+      <div className="rounded-xl border border-gray-600 overflow-hidden">
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-gray-800/60 text-gray-400 text-xs uppercase tracking-wide">
@@ -70,7 +70,7 @@ export function GerenciarEspecialistas({ especialistas }: { especialistas: Espec
               <th className="px-4 py-3 w-20"></th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-800">
+          <tbody className="divide-y divide-gray-700">
             {especialistas.length === 0 ? (
               <tr>
                 <td colSpan={3} className="px-4 py-10 text-center text-gray-500">

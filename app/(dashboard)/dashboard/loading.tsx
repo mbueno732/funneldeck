@@ -10,7 +10,7 @@ export default function Loading() {
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="bg-gray-900 border border-gray-700 rounded-xl p-4 space-y-3">
+          <div key={i} className="bg-gray-900 border border-gray-600 rounded-xl p-4 space-y-3">
             <div className="flex items-center justify-between">
               <div className="h-4 w-28 bg-gray-800 rounded" />
               <div className="h-8 w-8 bg-gray-800 rounded-lg" />
@@ -22,7 +22,7 @@ export default function Loading() {
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="bg-gray-900 border border-gray-700 rounded-xl p-4 space-y-3">
+          <div key={i} className="bg-gray-900 border border-gray-600 rounded-xl p-4 space-y-3">
             <div className="flex items-center justify-between">
               <div className="h-4 w-28 bg-gray-800 rounded" />
               <div className="h-8 w-8 bg-gray-800 rounded-lg" />
@@ -32,7 +32,7 @@ export default function Loading() {
           </div>
         ))}
       </div>
-      <div className="bg-gray-900 border border-gray-700 rounded-xl p-5 space-y-3">
+      <div className="bg-gray-900 border border-gray-600 rounded-xl p-5 space-y-3">
         <div className="flex items-center justify-between">
           <div className="h-5 w-36 bg-gray-800 rounded" />
           <div className="h-6 w-12 bg-gray-800 rounded" />

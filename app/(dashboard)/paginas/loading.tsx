@@ -13,10 +13,10 @@ export default function Loading() {
           <div key={i} className="h-9 bg-gray-800 rounded-lg" style={{ width: w }} />
         ))}
       </div>
-      <div className="rounded-xl border border-gray-700 overflow-hidden">
+      <div className="rounded-xl border border-gray-600 overflow-hidden">
         <div className="bg-gray-800/60 h-10" />
         {Array.from({ length: 8 }).map((_, i) => (
-          <div key={i} className="flex items-center gap-4 px-4 py-3 border-t border-gray-700">
+          <div key={i} className="flex items-center gap-4 px-4 py-3 border-t border-gray-600">
             <div className="flex-1 h-4 bg-gray-800 rounded w-1/4" />
             <div className="h-4 bg-gray-800 rounded w-24" />
             <div className="h-4 bg-gray-800 rounded w-16" />

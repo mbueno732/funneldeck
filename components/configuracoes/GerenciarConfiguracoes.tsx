@@ -67,14 +67,14 @@ export function GerenciarConfiguracoes({ configs }: Props) {
       </div>
 
       {/* Abas */}
-      <div className="flex flex-wrap gap-1 border-b border-gray-700 pb-0">
+      <div className="flex flex-wrap gap-1 border-b border-gray-600 pb-0">
         {CATEGORIAS.map(cat => (
           <button
             key={cat.key}
             onClick={() => setAbaAtiva(cat.key)}
             className={`px-3 py-2 text-sm rounded-t-lg transition-colors -mb-px ${
               abaAtiva === cat.key
-                ? 'bg-gray-800 text-white border border-b-gray-800 border-gray-700'
+                ? 'bg-gray-800 text-white border border-b-gray-800 border-gray-600'
                 : 'text-gray-500 hover:text-gray-300'
             }`}
           >
@@ -89,7 +89,7 @@ export function GerenciarConfiguracoes({ configs }: Props) {
           value={novoValor}
           onChange={e => setNovoValor(e.target.value)}
           placeholder="Novo item..."
-          className="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500"
+          className="flex-1 px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500"
         />
         <div className="flex items-center gap-1.5 shrink-0">
           {CORES_RAPIDAS.map(c => (
@@ -111,7 +111,7 @@ export function GerenciarConfiguracoes({ configs }: Props) {
       </form>
 
       {/* Lista de itens */}
-      <div className="rounded-xl border border-gray-700 overflow-hidden">
+      <div className="rounded-xl border border-gray-600 overflow-hidden">
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-gray-800/60 text-gray-400 text-xs uppercase tracking-wide">
@@ -121,7 +121,7 @@ export function GerenciarConfiguracoes({ configs }: Props) {
               <th className="px-4 py-3 w-24"></th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-800">
+          <tbody className="divide-y divide-gray-700">
             {itens.length === 0 ? (
               <tr>
                 <td colSpan={4} className="px-4 py-8 text-center text-gray-500 text-xs">

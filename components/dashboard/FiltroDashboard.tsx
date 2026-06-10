@@ -16,7 +16,7 @@ export function FiltroDashboard({ especialistas }: { especialistas: Especialista
     <select
       value={atual}
       onChange={e => handleChange(e.target.value)}
-      className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-gray-300 focus:outline-none focus:border-indigo-500 h-9"
+      className="px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-sm text-gray-300 focus:outline-none focus:border-indigo-500 h-9"
     >
       <option value="">Todos os especialistas</option>
       {especialistas.map(e => (

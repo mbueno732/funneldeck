@@ -30,7 +30,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-950">
-      <div className="w-full max-w-sm p-8 bg-gray-900 rounded-xl border border-gray-700 space-y-6">
+      <div className="w-full max-w-sm p-8 bg-gray-900 rounded-xl border border-gray-600 space-y-6">
         <div className="text-center space-y-2">
           <div className="flex items-center justify-center gap-3">
             <svg width="36" height="36" viewBox="0 0 32 32" fill="none">
@@ -53,7 +53,7 @@ export default function LoginPage() {
               value={email}
               onChange={e => setEmail(e.target.value)}
               required
-              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500"
+              className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500"
               placeholder="seu@email.com"
             />
           </div>
@@ -66,7 +66,7 @@ export default function LoginPage() {
               onChange={e => setSenha(e.target.value)}
               required
               minLength={6}
-              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500"
+              className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500"
               placeholder="••••••••"
             />
           </div>

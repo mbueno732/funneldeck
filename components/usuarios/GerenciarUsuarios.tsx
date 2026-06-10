@@ -70,7 +70,7 @@ export function GerenciarUsuarios({ usuarios, usuarioAtualId }: Props) {
     <div className="space-y-6">
 
       {/* Convidar */}
-      <div className="bg-gray-900 border border-gray-700 rounded-xl p-5 space-y-4">
+      <div className="bg-gray-900 border border-gray-600 rounded-xl p-5 space-y-4">
         <div>
           <h2 className="text-white font-medium">Convidar usuário</h2>
           <p className="text-gray-500 text-sm mt-0.5">A pessoa receberá um email para criar a própria senha.</p>
@@ -84,7 +84,7 @@ export function GerenciarUsuarios({ usuarios, usuarioAtualId }: Props) {
               onChange={e => setEmail(e.target.value)}
               placeholder="email@empresa.com"
               required
-              className="w-full pl-8 pr-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500"
+              className="w-full pl-8 pr-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500"
             />
           </div>
           <button
@@ -101,11 +101,11 @@ export function GerenciarUsuarios({ usuarios, usuarioAtualId }: Props) {
       </div>
 
       {/* Lista */}
-      <div className="bg-gray-900 border border-gray-700 rounded-xl overflow-hidden">
-        <div className="px-5 py-3 border-b border-gray-700">
+      <div className="bg-gray-900 border border-gray-600 rounded-xl overflow-hidden">
+        <div className="px-5 py-3 border-b border-gray-600">
           <p className="text-sm font-medium text-white">{usuarios.length} usuário{usuarios.length !== 1 ? 's' : ''}</p>
         </div>
-        <div className="divide-y divide-gray-800">
+        <div className="divide-y divide-gray-700">
           {usuarios.map(u => (
             <div key={u.id} className="flex items-center justify-between px-5 py-4">
               <div className="flex items-center gap-3 min-w-0">
@@ -156,7 +156,7 @@ export function GerenciarUsuarios({ usuarios, usuarioAtualId }: Props) {
                   <select
                     value={u.perfil}
                     onChange={e => handleAlterarPerfil(u.id, e.target.value as 'editor' | 'visualizador')}
-                    className="text-xs px-2 py-1 bg-gray-800 border border-gray-700 rounded-lg text-gray-300 focus:outline-none focus:border-indigo-500 cursor-pointer"
+                    className="text-xs px-2 py-1 bg-gray-800 border border-gray-600 rounded-lg text-gray-300 focus:outline-none focus:border-indigo-500 cursor-pointer"
                   >
                     <option value="editor">editor</option>
                     <option value="visualizador">visualizador</option>
