@@ -1,4 +1,6 @@
 import type { Config } from "tailwindcss";
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const colors = require("tailwindcss/colors");
 
 const config: Config = {
   darkMode: ["class"],
@@ -23,8 +25,9 @@ const config: Config = {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
-        /* Escala customizada — sobrescreve Tailwind default para gray-950/900/800 */
+        /* Preserva toda a escala padrão e sobrescreve apenas 950/900/800 */
         gray: {
+          ...colors.gray,
           950: "rgb(var(--gray-950) / <alpha-value>)",
           900: "rgb(var(--gray-900) / <alpha-value>)",
           800: "rgb(var(--gray-800) / <alpha-value>)",
