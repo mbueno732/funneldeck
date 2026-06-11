@@ -57,7 +57,6 @@ export function GerenciarProdutos({ produtos, especialistas }: Props) {
     setConfirmandoDelete(null)
     try {
       await deletarProduto(id)
-      router.refresh()
     } catch (e: unknown) {
       setDeletados(d => { const next = new Set(d); next.delete(id); return next })
       setErroDelete(e instanceof Error ? e.message : 'Erro ao excluir produto.')

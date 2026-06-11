@@ -59,7 +59,6 @@ export function GerenciarConfiguracoes({ configs }: Props) {
     setConfirmandoDelete(null)
     try {
       await deletarConfiguracao(id)
-      router.refresh()
     } catch {
       setDeletados(d => { const next = new Set(d); next.delete(id); return next })
     }

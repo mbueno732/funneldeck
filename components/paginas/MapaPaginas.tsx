@@ -212,9 +212,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
     setDeletandoPagina(null)
     try {
       await deletarPagina(id)
-      router.refresh()
     } catch (e) {
-      // Reverte remoção otimista se falhar
       setDeletadas(d => { const next = new Set(d); next.delete(id); return next })
       console.error('Erro ao deletar página:', e)
     }
