@@ -50,8 +50,7 @@ export async function criarFunil(input: {
     .single()
   if (error) throw error
   await registrarAuditoria('funis', data.id, 'criar', { depois: data })
-  revalidatePath('/funis', 'layout')
-  revalidatePath('/dashboard')
+  revalidatePath('/funis')
   return data as Funil
 }
 
@@ -65,8 +64,7 @@ export async function atualizarFunil(id: string, input: Partial<Omit<Funil, 'id'
     .single()
   if (error) throw error
   await registrarAuditoria('funis', id, 'atualizar', { depois: data })
-  revalidatePath('/funis', 'layout')
-  revalidatePath('/dashboard')
+  revalidatePath('/funis')
   return data as Funil
 }
 
@@ -80,8 +78,7 @@ export async function deletarFunil(id: string) {
   const { error } = await supabase.from('funis').delete().eq('id', id)
   if (error) throw error
   await registrarAuditoria('funis', id, 'deletar', {})
-  revalidatePath('/funis', 'layout')
-  revalidatePath('/dashboard')
+  revalidatePath('/funis')
 }
 
 export async function duplicarFunil(

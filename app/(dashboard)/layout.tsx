@@ -4,12 +4,13 @@ import { Sidebar } from '@/components/layout/Sidebar'
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: authData } = await supabase.auth.getUser()
+  const user = authData?.user ?? null
   const { data: usuario } = await supabase
     .from('usuarios')
     .select('nome, perfil')
     .eq('id', user?.id ?? '')
-    .single()
+    .maybeSingle()
 
   return (
     <div className="flex h-screen bg-gray-950 text-gray-100">
