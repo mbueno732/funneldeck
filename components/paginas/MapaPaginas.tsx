@@ -5,6 +5,7 @@ import { Plus, Search, ExternalLink, Pencil, Trash2, AlertTriangle, Clock, Copy,
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { ModalPagina } from './ModalPagina'
 import { PainelChecklist } from './PainelChecklist'
 import { atualizarPagina, deletarPagina, duplicarPagina } from '@/lib/actions/paginas'
@@ -216,14 +217,17 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
   }
 
   const filtroSelect = (label: string, value: string, onChange: (v: string) => void, cat: string) => (
-    <select
-      value={value}
-      onChange={e => onChange(e.target.value)}
-      className="px-3 py-2 bg-gray-900 border border-white/10 rounded-lg text-sm text-gray-300 focus:outline-none focus:border-indigo-500 h-9"
-    >
-      <option value="">{label}</option>
-      {configOpts(cat).map(c => <option key={c.valor} value={c.valor}>{c.valor}</option>)}
-    </select>
+    <Select value={value || '__all__'} onValueChange={v => onChange(v === '__all__' ? '' : v)}>
+      <SelectTrigger className="h-9 text-sm bg-gray-900 border-white/10 text-gray-300 hover:bg-gray-800 focus:ring-0 focus:ring-offset-0 min-w-[110px]">
+        <SelectValue placeholder={label} />
+      </SelectTrigger>
+      <SelectContent className="bg-gray-900 border-white/10">
+        <SelectItem value="__all__" className="text-gray-400 focus:bg-gray-800 focus:text-white">{label}</SelectItem>
+        {configOpts(cat).map(c => (
+          <SelectItem key={c.valor} value={c.valor} className="text-gray-300 focus:bg-gray-800 focus:text-white">{c.valor}</SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   )
 
   const totalAtrasadas = filtradas.filter(isAtrasada).length
@@ -354,18 +358,19 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
             className="pl-8 bg-gray-900 border-white/10 text-white placeholder-gray-500 h-9 w-52"
           />
         </div>
-        <select
-          value={filtroFunil}
-          onChange={e => setFiltroFunil(e.target.value)}
-          className="px-3 py-2 bg-gray-900 border border-white/10 rounded-lg text-sm text-gray-300 focus:outline-none focus:border-indigo-500 h-9"
-        >
-          <option value="">Todos os funis</option>
-          {funis.map(f => (
-            <option key={f.id} value={f.id}>
-              {f.id_funil ? `[${f.id_funil}] ` : ''}{f.nome}
-            </option>
-          ))}
-        </select>
+        <Select value={filtroFunil || '__all__'} onValueChange={v => setFiltroFunil(v === '__all__' ? '' : v)}>
+          <SelectTrigger className="h-9 text-sm bg-gray-900 border-white/10 text-gray-300 hover:bg-gray-800 focus:ring-0 focus:ring-offset-0 min-w-[140px]">
+            <SelectValue placeholder="Todos os funis" />
+          </SelectTrigger>
+          <SelectContent className="bg-gray-900 border-white/10">
+            <SelectItem value="__all__" className="text-gray-400 focus:bg-gray-800 focus:text-white">Todos os funis</SelectItem>
+            {funis.map(f => (
+              <SelectItem key={f.id} value={f.id} className="text-gray-300 focus:bg-gray-800 focus:text-white">
+                {f.id_funil ? `[${f.id_funil}] ` : ''}{f.nome}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         {filtroSelect('Etapa', filtroEtapa, setFiltroEtapa, 'etapa')}
         {filtroSelect('Status', filtroStatus, setFiltroStatus, 'status_pagina')}
         {filtroSelect('Prioridade', filtroPrioridade, setFiltroPrioridade, 'prioridade')}
