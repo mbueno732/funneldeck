@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
-import { AlertTriangle, CheckCircle, Clock, Zap, ListTodo, CalendarX, TrendingUp, PauseCircle, ChevronDown, ChevronRight, Timer } from 'lucide-react'
+import { AlertTriangle, CheckCircle, Zap, ListTodo, TrendingUp, PauseCircle, ChevronDown, ChevronRight, Timer, OctagonPause, Target } from 'lucide-react'
 
 interface Kpis {
   total_paginas: number
@@ -14,7 +14,8 @@ interface Kpis {
   funis_ativos: number
   pct_publicadas: number
   checklists_bloqueando: number
-  paginas_sem_data: number
+  paginas_paradas: number
+  taxa_entrega_mes: number | null
   funis_sem_movimento: number
   publicadas_mes: number
 }
@@ -243,8 +244,16 @@ export function DashboardView({
         <SectionLabel>Fluxo</SectionLabel>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <KpiCard label="A Fazer"       value={kpis.paginas_a_fazer}       sub="backlog"               icon={ListTodo}    cor="gray"                                               href="/paginas?status=A+fazer" />
-          <KpiCard label="Em Andamento"  value={kpis.paginas_em_andamento}  sub="em produção agora"     icon={Clock}       cor="blue"                                               href="/paginas?status=Em+andamento" />
-          <KpiCard label="Implementadas" value={kpis.paginas_implementadas} sub="aguardando publicação" icon={Zap}         cor={kpis.paginas_implementadas > 0 ? 'yellow' : 'gray'} href="/paginas?status=Implementada" />
+          <KpiCard
+            label="Paradas há 7+ dias"
+            value={kpis.paginas_paradas}
+            sub="em andamento sem atualização"
+            icon={OctagonPause}
+            cor={kpis.paginas_paradas > 0 ? 'orange' : 'gray'}
+            href="/paginas?status=Em+andamento"
+            badge={kpis.paginas_paradas > 0 ? 'requer atenção' : undefined}
+          />
+          <KpiCard label="Implementadas" value={kpis.paginas_implementadas} sub="aguardando publicação"  icon={Zap}         cor={kpis.paginas_implementadas > 0 ? 'yellow' : 'gray'} href="/paginas?status=Implementada" />
           <KpiCard label="Publicadas"    value={kpis.paginas_publicadas}    sub={`${kpis.pct_publicadas}% do total`} icon={CheckCircle} cor="green" highlight="ok"               href="/paginas?status=Publicada" />
         </div>
       </div>
@@ -253,9 +262,15 @@ export function DashboardView({
       <div>
         <SectionLabel>Saúde</SectionLabel>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <KpiCard label="Atrasadas"         value={kpis.paginas_atrasadas}     sub="prazo vencido"            icon={AlertTriangle} cor="red"    href="/paginas?atrasadas=1" />
-          <KpiCard label="Check. Bloqueando" value={kpis.checklists_bloqueando} sub="impl. com itens pendentes" icon={ListTodo}      cor="amber"  href="/paginas?status=Implementada" />
-          <KpiCard label="Sem Prazo"         value={kpis.paginas_sem_data}      sub="em andamento sem data"    icon={CalendarX}     cor="gray"   href="/paginas?status=Em+andamento" />
+          <KpiCard label="Atrasadas"         value={kpis.paginas_atrasadas}     sub="prazo vencido"            icon={AlertTriangle} cor="red"   href="/paginas?atrasadas=1" />
+          <KpiCard label="Check. Bloqueando" value={kpis.checklists_bloqueando} sub="impl. com itens pendentes" icon={ListTodo}      cor="amber" href="/paginas?status=Implementada" />
+          <KpiCard
+            label="Taxa de entrega"
+            value={kpis.taxa_entrega_mes != null ? `${kpis.taxa_entrega_mes}%` : '—'}
+            sub="previstas no mês publicadas"
+            icon={Target}
+            cor={kpis.taxa_entrega_mes == null ? 'gray' : kpis.taxa_entrega_mes >= 80 ? 'green' : kpis.taxa_entrega_mes >= 50 ? 'yellow' : 'red'}
+          />
           <KpiCard
             label="Funis Parados"
             value={kpis.funis_sem_movimento}

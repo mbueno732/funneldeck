@@ -64,7 +64,21 @@ export default async function DashboardPage({
       const itens = cl?.checklist_itens ?? []
       return itens.length > 0 && itens.some(i => !i.concluido)
     }).length,
-    paginas_sem_data: p.filter(x => x.status === 'Em andamento' && !x.data_prevista).length,
+    paginas_paradas: (() => {
+      const limite = new Date()
+      limite.setDate(limite.getDate() - 7)
+      return p.filter(x => {
+        if (x.status !== 'Em andamento') return false
+        const at = (x as { atualizado_em?: string }).atualizado_em
+        return at ? new Date(at) < limite : false
+      }).length
+    })(),
+    taxa_entrega_mes: (() => {
+      const previstas = p.filter(x => x.data_prevista && x.data_prevista >= inicioMes.toISOString().split('T')[0] && x.data_prevista < fimMes.toISOString().split('T')[0])
+      if (previstas.length === 0) return null
+      const publicadas = previstas.filter(x => x.status === 'Publicada').length
+      return Math.round((publicadas / previstas.length) * 100)
+    })(),
     funis_sem_movimento: funisVisiveis.filter((fn: Record<string, unknown>) => {
       if (fn.status !== 'Ativo') return false
       return !p.filter(pg => pg.funil_id === fn.id).some(pg =>
