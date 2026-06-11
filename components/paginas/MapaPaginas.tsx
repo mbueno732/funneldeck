@@ -192,6 +192,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
             gtmetrix_score: resultado.score,
             gtmetrix_lcp: resultado.lcp,
             gtmetrix_tempo: resultado.tempo,
+            gtmetrix_analisado_em: new Date().toISOString(),
           }
         }))
       }
