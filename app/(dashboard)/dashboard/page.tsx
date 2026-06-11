@@ -63,7 +63,7 @@ export default async function DashboardPage({
     funis_sem_movimento: funisVisiveis.filter((fn: Record<string, unknown>) => {
       if (fn.status !== 'Ativo') return false
       return !p.filter(pg => pg.funil_id === fn.id).some(pg =>
-        ['Em andamento', 'Implementada'].includes(pg.status)
+        ['Em andamento', 'Implementada', 'Publicada'].includes(pg.status)
       )
     }).length,
     publicadas_mes: p.filter(x =>
