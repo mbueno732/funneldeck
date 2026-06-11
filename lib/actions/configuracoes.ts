@@ -1,5 +1,6 @@
 'use server'
 import { createClient } from '@/lib/supabase/server'
+import { revalidatePath } from 'next/cache'
 import type { Configuracao, CategoriaConfig } from '@/lib/types'
 
 export async function listarConfiguracoes(categoria: CategoriaConfig) {
@@ -33,6 +34,8 @@ export async function criarConfiguracao(input: { categoria: CategoriaConfig; val
     .select()
     .single()
   if (error) throw error
+  revalidatePath('/configuracoes')
+  revalidatePath('/paginas')
   return data as Configuracao
 }
 
@@ -45,6 +48,8 @@ export async function atualizarConfiguracao(id: string, input: Partial<Pick<Conf
     .select()
     .single()
   if (error) throw error
+  revalidatePath('/configuracoes')
+  revalidatePath('/paginas')
   return data as Configuracao
 }
 
@@ -55,4 +60,6 @@ export async function deletarConfiguracao(id: string) {
     .delete()
     .eq('id', id)
   if (error) throw error
+  revalidatePath('/configuracoes')
+  revalidatePath('/paginas')
 }

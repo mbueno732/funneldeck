@@ -162,15 +162,20 @@ export function GerenciarProdutos({ produtos, especialistas }: Props) {
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-1 justify-end">
                     {confirmandoDelete === p.id ? (
-                      <>
-                        <span className="text-xs text-gray-400 mr-1">Excluir?</span>
-                        <button onClick={() => handleDeletar(p.id)} className="p-1.5 text-red-400 hover:text-red-300 hover:bg-gray-900 rounded transition-colors" title="Confirmar exclusão">
-                          <Check size={13} />
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleDeletar(p.id)}
+                          className="px-3 py-1.5 text-xs text-white bg-red-600 hover:bg-red-500 rounded-lg font-medium transition-colors"
+                        >
+                          Excluir
                         </button>
-                        <button onClick={() => setConfirmandoDelete(null)} className="p-1.5 text-gray-500 hover:text-gray-300 hover:bg-gray-900 rounded transition-colors">
-                          <X size={13} />
+                        <button
+                          onClick={() => setConfirmandoDelete(null)}
+                          className="px-3 py-1.5 text-xs text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors"
+                        >
+                          Cancelar
                         </button>
-                      </>
+                      </div>
                     ) : (
                       <>
                         <button onClick={() => setEditando({ id: p.id, nome: p.nome })} className="p-1.5 text-gray-500 hover:text-white hover:bg-gray-900 rounded transition-colors">

@@ -1,6 +1,7 @@
 'use server'
 import { createClient } from '@/lib/supabase/server'
 import { registrarAuditoria } from './auditoria'
+import { revalidatePath } from 'next/cache'
 import type { Produto } from '@/lib/types'
 
 export async function listarProdutos(especialista_id?: string) {
@@ -24,6 +25,8 @@ export async function criarProduto(input: { especialista_id: string; nome: strin
     .single()
   if (error) throw error
   await registrarAuditoria('produtos', data.id, 'criar', { depois: data })
+  revalidatePath('/produtos')
+  revalidatePath('/funis')
   return data as Produto
 }
 
@@ -37,6 +40,8 @@ export async function atualizarProduto(id: string, input: { nome?: string; descr
     .single()
   if (error) throw error
   await registrarAuditoria('produtos', id, 'atualizar', { depois: data })
+  revalidatePath('/produtos')
+  revalidatePath('/funis')
   return data as Produto
 }
 
@@ -50,4 +55,6 @@ export async function deletarProduto(id: string) {
   const { error } = await supabase.from('produtos').delete().eq('id', id)
   if (error) throw error
   await registrarAuditoria('produtos', id, 'deletar', {})
+  revalidatePath('/produtos')
+  revalidatePath('/funis')
 }

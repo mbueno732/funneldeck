@@ -1,6 +1,7 @@
 'use server'
 import { createClient } from '@/lib/supabase/server'
 import { registrarAuditoria } from './auditoria'
+import { revalidatePath } from 'next/cache'
 import type { Especialista } from '@/lib/types'
 
 export async function listarEspecialistas() {
@@ -22,6 +23,9 @@ export async function criarEspecialista(input: { nome: string }) {
     .single()
   if (error) throw error
   await registrarAuditoria('especialistas', data.id, 'criar', { depois: data })
+  revalidatePath('/especialistas')
+  revalidatePath('/produtos')
+  revalidatePath('/funis')
   return data as Especialista
 }
 
@@ -35,5 +39,9 @@ export async function atualizarEspecialista(id: string, input: { nome?: string; 
     .single()
   if (error) throw error
   await registrarAuditoria('especialistas', id, 'atualizar', { depois: data })
+  revalidatePath('/especialistas')
+  revalidatePath('/produtos')
+  revalidatePath('/funis')
+  revalidatePath('/dashboard')
   return data as Especialista
 }
