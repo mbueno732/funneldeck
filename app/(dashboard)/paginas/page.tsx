@@ -2,6 +2,8 @@ import { createClient } from '@/lib/supabase/server'
 import { MapaPaginas } from '@/components/paginas/MapaPaginas'
 import type { Pagina, Funil, Especialista, Configuracao } from '@/lib/types'
 
+export const dynamic = 'force-dynamic'
+
 export default async function PaginasPage({ searchParams }: { searchParams: { funil?: string; status?: string; atrasadas?: string } }) {
   const supabase = await createClient()
 

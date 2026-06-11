@@ -122,7 +122,13 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
     const url = urlTemp.trim() || null
     setOverrides(o => ({ ...o, [pagina.id]: { ...o[pagina.id], url_pagina: url } }))
     setEditandoUrl(null)
-    await atualizarPagina(pagina.id, { url_pagina: url })
+    try {
+      await atualizarPagina(pagina.id, { url_pagina: url })
+      router.refresh()
+    } catch {
+      // reverte override se save falhar
+      setOverrides(o => ({ ...o, [pagina.id]: { ...o[pagina.id], url_pagina: pagina.url_pagina } }))
+    }
   }
 
   async function handleMudarPrioridade(pagina: Pagina, novaPrioridade: string) {
