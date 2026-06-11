@@ -25,7 +25,7 @@ export default function SetPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-950">
+    <div className="min-h-screen flex items-center justify-center bg-black">
       <div className="w-full max-w-sm p-8 bg-gray-900 rounded-xl border border-white/10 space-y-6">
         <div className="space-y-1">
           <div className="flex items-center gap-2.5 mb-4">

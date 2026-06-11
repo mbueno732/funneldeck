@@ -12,7 +12,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
     .single()
 
   return (
-    <div className="flex h-screen bg-gray-950 text-gray-100">
+    <div className="flex h-screen bg-black text-gray-100">
       <Sidebar usuario={{ nome: usuario?.nome ?? user?.email ?? '', perfil: usuario?.perfil ?? 'visualizador' }} />
       <main className="flex-1 overflow-y-auto p-6">
         {children}
