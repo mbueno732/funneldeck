@@ -780,26 +780,23 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
                       </td>
 
                       {/* Ações */}
-                      <td className="px-4 py-3 relative">
-                        {deletandoPagina === p.id && (
-                          <div className="absolute right-2 top-1/2 -translate-y-1/2 z-20 bg-gray-900 border border-white/10 rounded-xl shadow-xl p-3 flex flex-col gap-2 min-w-[180px]">
-                            <p className="text-xs text-gray-400 leading-snug">Excluir <span className="text-white font-medium">{p.nome}</span>?</p>
-                            <div className="flex gap-2">
-                              <button
-                                onClick={() => setDeletandoPagina(null)}
-                                className="flex-1 py-1.5 text-xs text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors"
-                              >
-                                Cancelar
-                              </button>
-                              <button
-                                onClick={() => handleDeletar(p.id)}
-                                className="flex-1 py-1.5 text-xs text-white bg-red-600 hover:bg-red-500 rounded-lg transition-colors font-medium"
-                              >
-                                Excluir
-                              </button>
-                            </div>
+                      <td className="px-4 py-3">
+                        {deletandoPagina === p.id ? (
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => handleDeletar(p.id)}
+                              className="px-3 py-1.5 text-xs text-white bg-red-600 hover:bg-red-500 rounded-lg font-medium transition-colors"
+                            >
+                              Excluir
+                            </button>
+                            <button
+                              onClick={() => setDeletandoPagina(null)}
+                              className="px-3 py-1.5 text-xs text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors"
+                            >
+                              Cancelar
+                            </button>
                           </div>
-                        )}
+                        ) : (
                         <div className="flex items-center gap-1">
                             {['Implementada', 'Publicada'].includes(p.status) && (() => {
                               const raw_cl = (p as Record<string, unknown>).checklists_publicacao
@@ -841,6 +838,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
                               <Trash2 size={13} />
                             </button>
                           </div>
+                        )}
                       </td>
                     </tr>
                   )
