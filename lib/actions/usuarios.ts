@@ -26,7 +26,7 @@ export async function convidarUsuario(email: string): Promise<{ error?: string }
   try {
     const admin = createAdminClient()
     const { error } = await admin.auth.admin.inviteUserByEmail(email, {
-      redirectTo: `${APP_URL}/auth/callback?intent=invite`,
+      redirectTo: `${APP_URL}/auth/set-password`,
     })
     if (error) return { error: error.message }
     revalidatePath('/usuarios')
@@ -40,7 +40,7 @@ export async function reenviarConvite(email: string): Promise<{ error?: string }
   try {
     const supabase = await createClient()
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${APP_URL}/auth/callback?intent=invite`,
+      redirectTo: `${APP_URL}/auth/set-password`,
     })
     if (error) return { error: error.message }
     return {}
