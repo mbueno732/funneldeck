@@ -15,28 +15,31 @@ export default function SetPasswordPage() {
   useEffect(() => {
     const supabase = createClient()
 
-    // Verifica sessão existente (cookie) ou aguarda tokens do hash serem processados
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        setTemSessao(true)
+    async function inicializar() {
+      const hash = typeof window !== 'undefined' ? window.location.hash.substring(1) : ''
+      const params = new URLSearchParams(hash)
+      const accessToken = params.get('access_token')
+      const refreshToken = params.get('refresh_token')
+
+      if (accessToken && refreshToken) {
+        // Garante que usamos a sessão do convite, não uma sessão existente
+        await supabase.auth.signOut()
+        const { data, error } = await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken })
+        if (data.session && !error) {
+          setTemSessao(true)
+        }
+        setVerificando(false)
+        // Limpa o hash da URL sem recarregar a página
+        window.history.replaceState(null, '', window.location.pathname)
+      } else {
+        // Sem tokens no hash — verifica se já tem sessão ativa (ex: recarregou a página)
+        const { data: { session } } = await supabase.auth.getSession()
+        setTemSessao(!!session)
         setVerificando(false)
       }
-    })
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session) {
-        setTemSessao(true)
-        setVerificando(false)
-      }
-    })
-
-    // Timeout de segurança: se em 6s não tiver sessão, exibe erro
-    const timeout = setTimeout(() => setVerificando(false), 6000)
-
-    return () => {
-      subscription.unsubscribe()
-      clearTimeout(timeout)
     }
+
+    inicializar()
   }, [])
 
   async function handleSubmit(e: React.FormEvent) {
