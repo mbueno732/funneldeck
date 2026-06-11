@@ -135,7 +135,7 @@ export function ModalDuplicarFunil({ aberto, onFechar, onSalvo, funil, produtos,
             <Button type="button" variant="ghost" onClick={onFechar} className="text-gray-400 hover:text-white">
               Cancelar
             </Button>
-            <Button type="submit" disabled={salvando} className="bg-indigo-600 hover:bg-indigo-500 gap-2">
+            <Button type="submit" disabled={salvando} className="bg-indigo-600 hover:bg-indigo-500 text-white gap-2">
               <Copy size={14} />
               {salvando ? 'Duplicando...' : 'Duplicar'}
             </Button>

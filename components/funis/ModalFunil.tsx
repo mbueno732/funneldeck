@@ -213,7 +213,7 @@ export function ModalFunil({ aberto, onFechar, onSalvo, funil, produtos, especia
 
           <div className="flex justify-end gap-2 pt-1">
             <Button type="button" variant="ghost" onClick={onFechar} className="text-gray-400 hover:text-white">Cancelar</Button>
-            <Button type="submit" disabled={salvando} className="bg-indigo-600 hover:bg-indigo-500">
+            <Button type="submit" disabled={salvando} className="bg-indigo-600 hover:bg-indigo-500 text-white">
               {salvando ? 'Salvando...' : funil ? 'Salvar alterações' : 'Criar funil'}
             </Button>
           </div>

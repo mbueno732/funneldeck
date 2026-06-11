@@ -90,7 +90,7 @@ export function GerenciarProdutos({ produtos, especialistas }: Props) {
           placeholder="Nome do produto *"
           className="bg-gray-900 border-white/10 text-white placeholder-gray-500 focus:border-indigo-500 flex-1 min-w-40"
         />
-        <Button type="submit" disabled={criando || !form.nome.trim() || !form.especialista_id} className="bg-indigo-600 hover:bg-indigo-500 gap-2 shrink-0">
+        <Button type="submit" disabled={criando || !form.nome.trim() || !form.especialista_id} className="bg-indigo-600 hover:bg-indigo-500 text-white gap-2 shrink-0">
           <Plus size={16} />
           Adicionar
         </Button>

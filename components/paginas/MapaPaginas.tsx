@@ -265,7 +265,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
           </div>
           <Button
             onClick={() => { setEditando(null); setModalAberto(true) }}
-            className="bg-indigo-600 hover:bg-indigo-500 gap-2"
+            className="bg-indigo-600 hover:bg-indigo-500 text-white gap-2"
             title={filtroFunil ? `Nova página no funil selecionado` : undefined}
           >
             <Plus size={16} />

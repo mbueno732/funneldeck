@@ -217,7 +217,7 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
             <Button type="button" variant="ghost" onClick={onFechar} className="text-gray-400 hover:text-white">
               Cancelar
             </Button>
-            <Button type="submit" disabled={salvando} className="bg-indigo-600 hover:bg-indigo-500">
+            <Button type="submit" disabled={salvando} className="bg-indigo-600 hover:bg-indigo-500 text-white">
               {salvando ? 'Salvando...' : isEdit ? 'Salvar alterações' : 'Criar página'}
             </Button>
           </div>
