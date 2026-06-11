@@ -1,6 +1,5 @@
 'use client'
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { Plus, Pencil, Check, X, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -14,7 +13,6 @@ interface Props {
 }
 
 export function GerenciarProdutos({ produtos, especialistas }: Props) {
-  const router = useRouter()
   const [lista, setLista] = useState<Produto[]>(produtos)
   const [filtroEsp, setFiltroEsp] = useState('')
   const [form, setForm] = useState({ nome: '', especialista_id: '', descricao: '' })
