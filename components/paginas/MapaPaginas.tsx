@@ -30,6 +30,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
   const [celula, setCelula] = useState<{ id: string; campo: 'horas_reais' | 'data_prevista' | 'codigo'; valor: string } | null>(null)
   const [deletandoPagina, setDeletandoPagina] = useState<string | null>(null)
   const [deletadas, setDeletadas] = useState<Set<string>>(new Set())
+  const [duplicandoPagina, setDuplicandoPagina] = useState<string | null>(null)
   const [analisando, setAnalisando] = useState<string | null>(null)
   const [estadoGtmetrix, setEstadoGtmetrix] = useState<string>('')
   const [progressoGtmetrix, setProgressoGtmetrix] = useState(0)
@@ -203,8 +204,15 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
   }
 
   async function handleDuplicar(id: string) {
-    await duplicarPagina(id)
-    router.refresh()
+    setDuplicandoPagina(id)
+    try {
+      await duplicarPagina(id)
+      router.refresh()
+    } catch (e) {
+      console.error('Erro ao duplicar página:', e)
+    } finally {
+      setDuplicandoPagina(null)
+    }
   }
 
   async function handleDeletar(id: string) {
@@ -872,8 +880,9 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
                               <LinkIcon size={13} />
                             </button>
                             <button onClick={() => handleDuplicar(p.id)}
-                              className="p-1.5 text-gray-500 hover:text-indigo-400 hover:bg-gray-900 rounded transition-colors" title="Duplicar">
-                              <Copy size={13} />
+                              disabled={duplicandoPagina === p.id}
+                              className="p-1.5 text-gray-500 hover:text-indigo-400 hover:bg-gray-900 rounded transition-colors disabled:opacity-40 disabled:cursor-wait" title="Duplicar">
+                              <Copy size={13} className={duplicandoPagina === p.id ? 'animate-pulse' : ''} />
                             </button>
                             <button onClick={() => { setEditando(p); setModalAberto(true) }}
                               className="p-1.5 text-gray-500 hover:text-white hover:bg-gray-900 rounded transition-colors" title="Editar">

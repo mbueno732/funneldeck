@@ -112,7 +112,12 @@ export async function duplicarPagina(id: string) {
       ...campos,
       nome: `Cópia de ${original.nome}`,
       status: 'A fazer',
+      url_pagina: null,
       horas_reais: null,
+      data_prevista: null,
+      ab_test: false,
+      url_variacao_a: null,
+      url_variacao_b: null,
     })
     .select()
     .single()

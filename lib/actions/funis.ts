@@ -101,7 +101,14 @@ export async function duplicarFunil(
   const { id: _id, criado_em: _c, atualizado_em: _a, ...campos } = original
   const { data: novoFunil, error: errNovo } = await supabase
     .from('funis')
-    .insert({ ...campos, id_funil: opcoes.id_funil || null, nome: opcoes.nome, status: 'Ativo', ...(opcoes.produto_id ? { produto_id: opcoes.produto_id } : {}) })
+    .insert({
+      ...campos,
+      nome: opcoes.nome,
+      status: 'Ativo',
+      // id_funil mantido do original via ...campos (sem override)
+      ...(opcoes.id_funil !== undefined ? { id_funil: opcoes.id_funil || null } : {}),
+      ...(opcoes.produto_id ? { produto_id: opcoes.produto_id } : {}),
+    })
     .select()
     .single()
   if (errNovo) throw errNovo
