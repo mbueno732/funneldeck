@@ -780,15 +780,27 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
                       </td>
 
                       {/* Ações */}
-                      <td className="px-4 py-3">
-                        {deletandoPagina === p.id ? (
-                          <div className="flex items-center gap-1">
-                            <span className="text-xs text-gray-400 mr-1">Deletar?</span>
-                            <button onClick={() => handleDeletar(p.id)} className="p-1 text-red-400 hover:text-red-300 hover:bg-gray-900 rounded"><Check size={12} /></button>
-                            <button onClick={() => setDeletandoPagina(null)} className="p-1 text-gray-500 hover:text-gray-300 hover:bg-gray-900 rounded"><X size={12} /></button>
+                      <td className="px-4 py-3 relative">
+                        {deletandoPagina === p.id && (
+                          <div className="absolute right-2 top-1/2 -translate-y-1/2 z-20 bg-gray-900 border border-white/10 rounded-xl shadow-xl p-3 flex flex-col gap-2 min-w-[180px]">
+                            <p className="text-xs text-gray-400 leading-snug">Excluir <span className="text-white font-medium">{p.nome}</span>?</p>
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => setDeletandoPagina(null)}
+                                className="flex-1 py-1.5 text-xs text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors"
+                              >
+                                Cancelar
+                              </button>
+                              <button
+                                onClick={() => handleDeletar(p.id)}
+                                className="flex-1 py-1.5 text-xs text-white bg-red-600 hover:bg-red-500 rounded-lg transition-colors font-medium"
+                              >
+                                Excluir
+                              </button>
+                            </div>
                           </div>
-                        ) : (
-                          <div className="flex items-center gap-1">
+                        )}
+                        <div className="flex items-center gap-1">
                             {['Implementada', 'Publicada'].includes(p.status) && (() => {
                               const raw_cl = (p as Record<string, unknown>).checklists_publicacao
                               const cl = Array.isArray(raw_cl) ? raw_cl[0] : raw_cl as { checklist_itens: { concluido: boolean }[] } | null
@@ -829,7 +841,6 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
                               <Trash2 size={13} />
                             </button>
                           </div>
-                        )}
                       </td>
                     </tr>
                   )
