@@ -642,61 +642,57 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
 
                       {/* Etapa */}
                       <td className="px-4 py-3">
-                        <select
-                          value={p.etapa ?? ''}
-                          onChange={e => handleMudarEtapa(p, e.target.value)}
-                          className="appearance-none border-0 text-xs font-medium cursor-pointer focus:outline-none"
-                          style={{ color: p.etapa ? '#9ca3af' : '#4b5563', backgroundColor: '#0a0a0a' }}
-                        >
-                          <option value="" style={{ backgroundColor: '#0a0a0a', color: '#6b7280' }}>— etapa</option>
-                          {configOpts('etapa').map(c => (
-                            <option key={c.valor} value={c.valor} style={{ backgroundColor: '#0a0a0a', color: '#d1d5db' }}>{c.valor}</option>
-                          ))}
-                        </select>
+                        <Select value={p.etapa ?? '__none__'} onValueChange={v => handleMudarEtapa(p, v === '__none__' ? '' : v)}>
+                          <SelectTrigger className="border-0 bg-transparent p-0 h-auto w-auto text-xs font-medium focus:ring-0 focus:ring-offset-0 gap-0 [&>svg]:hidden"
+                            style={{ color: p.etapa ? '#9ca3af' : '#4b5563' }}>
+                            <SelectValue placeholder="— etapa" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-gray-900 border-white/10">
+                            <SelectItem value="__none__" className="text-gray-500 focus:bg-gray-800 focus:text-white">— etapa</SelectItem>
+                            {configOpts('etapa').map(c => <SelectItem key={c.valor} value={c.valor} className="text-gray-300 focus:bg-gray-800 focus:text-white">{c.valor}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
                       </td>
 
                       {/* Ferramenta */}
                       <td className="px-4 py-3">
-                        <select
-                          value={p.ferramenta ?? ''}
-                          onChange={e => handleMudarFerramenta(p, e.target.value)}
-                          className="appearance-none border-0 text-xs font-medium cursor-pointer focus:outline-none"
-                          style={{ color: p.ferramenta ? (cor('ferramenta', p.ferramenta) ?? '#9ca3af') : '#4b5563', backgroundColor: '#0a0a0a' }}
-                        >
-                          <option value="" style={{ backgroundColor: '#0a0a0a', color: '#6b7280' }}>— ferramenta</option>
-                          {configOpts('ferramenta').map(c => (
-                            <option key={c.valor} value={c.valor} style={{ backgroundColor: '#0a0a0a', color: '#d1d5db' }}>{c.valor}</option>
-                          ))}
-                        </select>
+                        <Select value={p.ferramenta ?? '__none__'} onValueChange={v => handleMudarFerramenta(p, v === '__none__' ? '' : v)}>
+                          <SelectTrigger className="border-0 bg-transparent p-0 h-auto w-auto text-xs font-medium focus:ring-0 focus:ring-offset-0 gap-0 [&>svg]:hidden"
+                            style={{ color: p.ferramenta ? (cor('ferramenta', p.ferramenta) ?? '#9ca3af') : '#4b5563' }}>
+                            <SelectValue placeholder="— ferramenta" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-gray-900 border-white/10">
+                            <SelectItem value="__none__" className="text-gray-500 focus:bg-gray-800 focus:text-white">— ferramenta</SelectItem>
+                            {configOpts('ferramenta').map(c => <SelectItem key={c.valor} value={c.valor} className="text-gray-300 focus:bg-gray-800 focus:text-white">{c.valor}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
                       </td>
 
-                      {/* Status — select nativo */}
+                      {/* Status */}
                       <td className="px-4 py-3">
-                        <select
-                          value={p.status}
-                          onChange={e => handleMudarStatus(p, e.target.value)}
-                          className="appearance-none border-0 text-xs font-medium cursor-pointer focus:outline-none"
-                          style={{ color: cor('status_pagina', p.status) ?? '#6b7280', backgroundColor: '#0a0a0a' }}
-                        >
-                          {configOpts('status_pagina').map(c => (
-                            <option key={c.valor} value={c.valor} style={{ backgroundColor: '#0a0a0a', color: '#d1d5db' }}>{c.valor}</option>
-                          ))}
-                        </select>
+                        <Select value={p.status} onValueChange={v => handleMudarStatus(p, v)}>
+                          <SelectTrigger className="border-0 bg-transparent p-0 h-auto w-auto text-xs font-medium focus:ring-0 focus:ring-offset-0 gap-0 [&>svg]:hidden"
+                            style={{ color: cor('status_pagina', p.status) ?? '#6b7280' }}>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="bg-gray-900 border-white/10">
+                            {configOpts('status_pagina').map(c => <SelectItem key={c.valor} value={c.valor} className="text-gray-300 focus:bg-gray-800 focus:text-white">{c.valor}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
                       </td>
 
-                      {/* Prioridade — select nativo */}
+                      {/* Prioridade */}
                       <td className="px-4 py-3">
-                        <select
-                          value={p.prioridade ?? ''}
-                          onChange={e => handleMudarPrioridade(p, e.target.value)}
-                          className="appearance-none border-0 text-xs font-medium cursor-pointer focus:outline-none"
-                          style={{ color: p.prioridade ? (cor('prioridade', p.prioridade) ?? '#6b7280') : '#4b5563', backgroundColor: '#0a0a0a' }}
-                        >
-                          <option value="" style={{ backgroundColor: '#0a0a0a', color: '#6b7280' }}>— prioridade</option>
-                          {configOpts('prioridade').map(c => (
-                            <option key={c.valor} value={c.valor} style={{ backgroundColor: '#0a0a0a', color: '#d1d5db' }}>{c.valor}</option>
-                          ))}
-                        </select>
+                        <Select value={p.prioridade ?? '__none__'} onValueChange={v => handleMudarPrioridade(p, v === '__none__' ? '' : v)}>
+                          <SelectTrigger className="border-0 bg-transparent p-0 h-auto w-auto text-xs font-medium focus:ring-0 focus:ring-offset-0 gap-0 [&>svg]:hidden"
+                            style={{ color: p.prioridade ? (cor('prioridade', p.prioridade) ?? '#6b7280') : '#4b5563' }}>
+                            <SelectValue placeholder="— prioridade" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-gray-900 border-white/10">
+                            <SelectItem value="__none__" className="text-gray-500 focus:bg-gray-800 focus:text-white">— prioridade</SelectItem>
+                            {configOpts('prioridade').map(c => <SelectItem key={c.valor} value={c.valor} className="text-gray-300 focus:bg-gray-800 focus:text-white">{c.valor}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
                       </td>
 
                       {/* Horas — clicável para editar horas reais */}
