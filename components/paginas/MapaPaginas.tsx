@@ -97,6 +97,12 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
       .sort((a, b) => b.count - a.count)
   }, [paginas])
 
+  const isAtrasada = (p: Pagina) =>
+    p.data_prevista && p.data_prevista < hoje && !['Publicada', 'Suspensa'].includes(p.status)
+
+  const isDesvioHoras = (p: Pagina) =>
+    p.horas_estimadas && p.horas_reais && p.horas_reais > p.horas_estimadas
+
   const filtradas = useMemo(() => (paginas ?? []).filter(p => {
     if (deletadas.has(p.id)) return false
     if (busca && !p.nome.toLowerCase().includes(busca.toLowerCase())) return false
@@ -107,13 +113,8 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
     if (filtroFerramenta && p.ferramenta !== filtroFerramenta) return false
     if (filtroAtrasadas && !isAtrasada(p)) return false
     return true
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }), [paginas, deletadas, busca, filtroFunil, filtroStatus, filtroEtapa, filtroPrioridade, filtroFerramenta, filtroAtrasadas])
-
-  const isAtrasada = (p: Pagina) =>
-    p.data_prevista && p.data_prevista < hoje && !['Publicada', 'Suspensa'].includes(p.status)
-
-  const isDesvioHoras = (p: Pagina) =>
-    p.horas_estimadas && p.horas_reais && p.horas_reais > p.horas_estimadas
 
 
   async function handleMudarStatus(pagina: Pagina, novoStatus: string) {
