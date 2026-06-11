@@ -218,7 +218,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
 
   const filtroSelect = (label: string, value: string, onChange: (v: string) => void, cat: string) => (
     <Select value={value || '__all__'} onValueChange={v => onChange(v === '__all__' ? '' : v)}>
-      <SelectTrigger className="h-9 text-sm bg-gray-900 border-white/10 text-gray-300 hover:bg-gray-800 focus:ring-0 focus:ring-offset-0 min-w-[110px]">
+      <SelectTrigger className="h-9 text-sm bg-gray-900 border-white/10 text-gray-300 hover:bg-gray-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[110px]">
         <SelectValue placeholder={label} />
       </SelectTrigger>
       <SelectContent className="bg-gray-900 border-white/10">
@@ -359,7 +359,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
           />
         </div>
         <Select value={filtroFunil || '__all__'} onValueChange={v => setFiltroFunil(v === '__all__' ? '' : v)}>
-          <SelectTrigger className="h-9 text-sm bg-gray-900 border-white/10 text-gray-300 hover:bg-gray-800 focus:ring-0 focus:ring-offset-0 min-w-[140px]">
+          <SelectTrigger className="h-9 text-sm bg-gray-900 border-white/10 text-gray-300 hover:bg-gray-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[140px]">
             <SelectValue placeholder="Todos os funis" />
           </SelectTrigger>
           <SelectContent className="bg-gray-900 border-white/10">
