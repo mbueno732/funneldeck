@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { Plus, Pencil, Check, X, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { criarProduto, atualizarProduto, deletarProduto } from '@/lib/actions/produtos'
 import type { Produto, Especialista } from '@/lib/types'
 
@@ -75,15 +76,15 @@ export function GerenciarProdutos({ produtos, especialistas }: Props) {
 
       {/* Formulário de criação */}
       <form onSubmit={handleCriar} className="flex gap-2 flex-wrap">
-        <select
-          value={form.especialista_id}
-          onChange={e => setForm(f => ({ ...f, especialista_id: e.target.value }))}
-          required
-          className="px-3 py-2 bg-gray-900 border border-white/10 rounded-lg text-sm text-gray-300 focus:outline-none focus:border-indigo-500 h-10"
-        >
-          <option value="">Especialista *</option>
-          {especialistas.map(e => <option key={e.id} value={e.id}>{e.nome}</option>)}
-        </select>
+        <Select value={form.especialista_id || '__none__'} onValueChange={v => setForm(f => ({ ...f, especialista_id: v === '__none__' ? '' : v }))}>
+          <SelectTrigger className="h-9 text-sm bg-gray-900 border-white/10 text-gray-300 hover:bg-gray-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[130px]">
+            <SelectValue placeholder="Especialista *" />
+          </SelectTrigger>
+          <SelectContent className="bg-gray-900 border-white/10">
+            <SelectItem value="__none__" className="text-gray-300 focus:bg-gray-800 focus:text-white">Especialista *</SelectItem>
+            {especialistas.map(e => <SelectItem key={e.id} value={e.id} className="text-gray-300 focus:bg-gray-800 focus:text-white">{e.nome}</SelectItem>)}
+          </SelectContent>
+        </Select>
         <Input
           value={form.nome}
           onChange={e => setForm(f => ({ ...f, nome: e.target.value }))}
@@ -105,14 +106,15 @@ export function GerenciarProdutos({ produtos, especialistas }: Props) {
 
       {/* Filtro */}
       <div className="flex items-center gap-2">
-        <select
-          value={filtroEsp}
-          onChange={e => setFiltroEsp(e.target.value)}
-          className="px-3 py-2 bg-gray-900 border border-white/10 rounded-lg text-sm text-gray-300 focus:outline-none focus:border-indigo-500 h-9"
-        >
-          <option value="">Todos os especialistas</option>
-          {especialistas.map(e => <option key={e.id} value={e.id}>{e.nome}</option>)}
-        </select>
+        <Select value={filtroEsp || '__all__'} onValueChange={v => setFiltroEsp(v === '__all__' ? '' : v)}>
+          <SelectTrigger className="h-9 text-sm bg-gray-900 border-white/10 text-gray-300 hover:bg-gray-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[130px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="bg-gray-900 border-white/10">
+            <SelectItem value="__all__" className="text-gray-300 focus:bg-gray-800 focus:text-white">Todos os especialistas</SelectItem>
+            {especialistas.map(e => <SelectItem key={e.id} value={e.id} className="text-gray-300 focus:bg-gray-800 focus:text-white">{e.nome}</SelectItem>)}
+          </SelectContent>
+        </Select>
         <span className="text-gray-500 text-sm">{filtrados.length} produto{filtrados.length !== 1 ? 's' : ''}</span>
       </div>
 

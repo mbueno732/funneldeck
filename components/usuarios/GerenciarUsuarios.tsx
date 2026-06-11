@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { UserPlus, Shield, Eye, Loader2, Mail, RotateCcw } from 'lucide-react'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { convidarUsuario, atualizarPerfilUsuario, reenviarConvite } from '@/lib/actions/usuarios'
 
 interface Usuario {
@@ -153,14 +154,15 @@ export function GerenciarUsuarios({ usuarios, usuarioAtualId }: Props) {
                     {u.perfil}
                   </span>
                 ) : (
-                  <select
-                    value={u.perfil}
-                    onChange={e => handleAlterarPerfil(u.id, e.target.value as 'editor' | 'visualizador')}
-                    className="text-xs px-2 py-1 bg-gray-900 border border-white/10 rounded-lg text-gray-300 focus:outline-none focus:border-indigo-500 cursor-pointer"
-                  >
-                    <option value="editor">editor</option>
-                    <option value="visualizador">visualizador</option>
-                  </select>
+                  <Select value={u.perfil} onValueChange={v => handleAlterarPerfil(u.id, v as 'editor' | 'visualizador')}>
+                    <SelectTrigger className="border-0 bg-transparent p-0 h-auto w-auto text-xs font-medium focus:ring-0 focus:ring-offset-0 gap-0 [&>svg]:hidden px-2 py-1 border border-white/10 rounded-lg text-gray-300 cursor-pointer" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-900 border-white/10">
+                      <SelectItem value="editor" className="text-gray-300 focus:bg-gray-800 focus:text-white">editor</SelectItem>
+                      <SelectItem value="visualizador" className="text-gray-300 focus:bg-gray-800 focus:text-white">visualizador</SelectItem>
+                    </SelectContent>
+                  </Select>
                 )}
               </div>
             </div>

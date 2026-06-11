@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { Select as ShadSelect, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { criarPagina, atualizarPagina } from '@/lib/actions/paginas'
 import type { Pagina, Funil, Configuracao } from '@/lib/types'
 
@@ -28,17 +29,17 @@ function Select({ label, value, onChange, options, obrigatorio }: {
   return (
     <div className="space-y-1.5">
       <Label className="text-gray-400 text-xs">{label}{obrigatorio && ' *'}</Label>
-      <select
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        required={obrigatorio}
-        className="w-full px-3 py-2 bg-gray-900 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-indigo-500"
-      >
-        <option value="">Selecionar...</option>
-        {options.map(o => (
-          <option key={o.valor} value={o.valor}>{o.label ?? o.valor}</option>
-        ))}
-      </select>
+      <ShadSelect value={value || '__none__'} onValueChange={v => onChange(v === '__none__' ? '' : v)}>
+        <SelectTrigger className="w-full bg-gray-900 border-white/10 text-white focus:ring-0 focus:ring-offset-0 h-10">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent className="bg-gray-900 border-white/10">
+          <SelectItem value="__none__" className="text-gray-300 focus:bg-gray-800 focus:text-white">Selecionar...</SelectItem>
+          {options.map(o => (
+            <SelectItem key={o.valor} value={o.valor} className="text-gray-300 focus:bg-gray-800 focus:text-white">{o.label ?? o.valor}</SelectItem>
+          ))}
+        </SelectContent>
+      </ShadSelect>
     </div>
   )
 }

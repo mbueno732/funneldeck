@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { criarFunil, atualizarFunil } from '@/lib/actions/funis'
 import type { Funil, Produto, Especialista, Configuracao } from '@/lib/types'
 
@@ -127,26 +128,28 @@ export function ModalFunil({ aberto, onFechar, onSalvo, funil, produtos, especia
           {/* Especialista → Produto */}
           <div className="space-y-1.5">
             <Label className="text-gray-400 text-xs">Especialista</Label>
-            <select
-              value={filtroEsp}
-              onChange={e => { setFiltroEsp(e.target.value); set('produto_id')('') }}
-              className="w-full px-3 py-2 bg-gray-900 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-indigo-500"
-            >
-              <option value="">Todos</option>
-              {especialistas.map(e => <option key={e.id} value={e.id}>{e.nome}</option>)}
-            </select>
+            <Select value={filtroEsp || '__all__'} onValueChange={v => { setFiltroEsp(v === '__all__' ? '' : v); set('produto_id')('') }}>
+              <SelectTrigger className="w-full bg-gray-900 border-white/10 text-white focus:ring-0 focus:ring-offset-0 h-10">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-gray-900 border-white/10">
+                <SelectItem value="__all__" className="text-gray-300 focus:bg-gray-800 focus:text-white">Todos</SelectItem>
+                {especialistas.map(e => <SelectItem key={e.id} value={e.id} className="text-gray-300 focus:bg-gray-800 focus:text-white">{e.nome}</SelectItem>)}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-1.5">
             <Label className="text-gray-400 text-xs">Produto <span className="text-gray-600">(opcional)</span></Label>
-            <select
-              value={form.produto_id}
-              onChange={e => handleCampoGatilho('produto_id', e.target.value)}
-              className="w-full px-3 py-2 bg-gray-900 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-indigo-500"
-            >
-              <option value="">Sem produto vinculado</option>
-              {produtosFiltrados.map(p => <option key={p.id} value={p.id}>{p.nome}</option>)}
-            </select>
+            <Select value={form.produto_id || '__none__'} onValueChange={v => handleCampoGatilho('produto_id', v === '__none__' ? '' : v)}>
+              <SelectTrigger className="w-full bg-gray-900 border-white/10 text-white focus:ring-0 focus:ring-offset-0 h-10">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-gray-900 border-white/10">
+                <SelectItem value="__none__" className="text-gray-300 focus:bg-gray-800 focus:text-white">Sem produto vinculado</SelectItem>
+                {produtosFiltrados.map(p => <SelectItem key={p.id} value={p.id} className="text-gray-300 focus:bg-gray-800 focus:text-white">{p.nome}</SelectItem>)}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="grid grid-cols-3 gap-3">
@@ -174,16 +177,26 @@ export function ModalFunil({ aberto, onFechar, onSalvo, funil, produtos, especia
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label className="text-gray-400 text-xs">Tipo *</Label>
-              <select value={form.tipo} onChange={e => handleCampoGatilho('tipo', e.target.value)} required className="w-full px-3 py-2 bg-gray-900 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-indigo-500">
-                <option value="">Selecionar...</option>
-                {configOpts('tipo_funil').map(v => <option key={v} value={v}>{v}</option>)}
-              </select>
+              <Select value={form.tipo || '__none__'} onValueChange={v => handleCampoGatilho('tipo', v === '__none__' ? '' : v)}>
+                <SelectTrigger className="w-full bg-gray-900 border-white/10 text-white focus:ring-0 focus:ring-offset-0 h-10">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-900 border-white/10">
+                  <SelectItem value="__none__" className="text-gray-300 focus:bg-gray-800 focus:text-white">Selecionar...</SelectItem>
+                  {configOpts('tipo_funil').map(v => <SelectItem key={v} value={v} className="text-gray-300 focus:bg-gray-800 focus:text-white">{v}</SelectItem>)}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-1.5">
               <Label className="text-gray-400 text-xs">Status</Label>
-              <select value={form.status} onChange={e => set('status')(e.target.value)} className="w-full px-3 py-2 bg-gray-900 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-indigo-500">
-                {configOpts('status_funil').map(v => <option key={v} value={v}>{v}</option>)}
-              </select>
+              <Select value={form.status} onValueChange={v => set('status')(v)}>
+                <SelectTrigger className="w-full bg-gray-900 border-white/10 text-white focus:ring-0 focus:ring-offset-0 h-10">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-900 border-white/10">
+                  {configOpts('status_funil').map(v => <SelectItem key={v} value={v} className="text-gray-300 focus:bg-gray-800 focus:text-white">{v}</SelectItem>)}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 

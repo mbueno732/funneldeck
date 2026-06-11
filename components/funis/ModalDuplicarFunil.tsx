@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Copy } from 'lucide-react'
 import { duplicarFunil } from '@/lib/actions/funis'
 import type { Funil, Produto, Especialista } from '@/lib/types'
@@ -94,24 +95,24 @@ export function ModalDuplicarFunil({ aberto, onFechar, onSalvo, funil, produtos,
 
           <div className="space-y-1.5">
             <Label className="text-gray-400 text-xs">Produto <span className="text-gray-600">(opcional)</span></Label>
-            <select
-              value={produtoId}
-              onChange={e => setProdutoId(e.target.value)}
-              className="w-full px-3 py-2 bg-gray-900 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-indigo-500 h-10"
-            >
-              <option value="">Sem produto vinculado</option>
-              {especialistas.map(esp => {
-                const prods = produtos.filter(p => p.especialista_id === esp.id && p.ativo)
-                if (!prods.length) return null
-                return (
-                  <optgroup key={esp.id} label={esp.nome}>
-                    {prods.map(p => (
-                      <option key={p.id} value={p.id}>{p.nome}</option>
-                    ))}
-                  </optgroup>
-                )
-              })}
-            </select>
+            <Select value={produtoId || '__none__'} onValueChange={v => setProdutoId(v === '__none__' ? '' : v)}>
+              <SelectTrigger className="w-full bg-gray-900 border-white/10 text-white focus:ring-0 focus:ring-offset-0 h-10">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-gray-900 border-white/10">
+                <SelectItem value="__none__" className="text-gray-300 focus:bg-gray-800 focus:text-white">Sem produto vinculado</SelectItem>
+                {especialistas.flatMap(esp => {
+                  const prods = produtos.filter(p => p.especialista_id === esp.id && p.ativo)
+                  if (!prods.length) return []
+                  return [
+                    <SelectItem key={`esp-${esp.id}`} value={`__esp_${esp.id}`} disabled className="text-gray-500 text-xs font-semibold uppercase tracking-wide cursor-default">{esp.nome}</SelectItem>,
+                    ...prods.map(p => (
+                      <SelectItem key={p.id} value={p.id} className="text-gray-300 focus:bg-gray-800 focus:text-white pl-4">{p.nome}</SelectItem>
+                    ))
+                  ]
+                })}
+              </SelectContent>
+            </Select>
           </div>
 
           <label className="flex items-start gap-3 cursor-pointer p-3 rounded-lg border border-white/10 hover:border-white/20 transition-colors">

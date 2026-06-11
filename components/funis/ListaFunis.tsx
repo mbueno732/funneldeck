@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { Plus, Pencil, FileText, ExternalLink, AlertCircle, Copy, Trash2, Check, X } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { StatusBadge } from '@/components/shared/StatusBadge'
 import { ModalFunil } from './ModalFunil'
 import { ModalDuplicarFunil } from './ModalDuplicarFunil'
@@ -98,16 +99,24 @@ export function ListaFunis({ funis, produtos, especialistas, configs, initialEsp
 
       {/* Filtros */}
       <div className="flex gap-2 flex-wrap">
-        <select value={filtroEsp} onChange={e => setFiltroEsp(e.target.value)}
-          className="px-3 py-2 bg-gray-900 border border-white/10 rounded-lg text-sm text-gray-300 focus:outline-none focus:border-indigo-500 h-9">
-          <option value="">Todos os especialistas</option>
-          {especialistas.map(e => <option key={e.id} value={e.id}>{e.nome}</option>)}
-        </select>
-        <select value={filtroStatus} onChange={e => setFiltroStatus(e.target.value)}
-          className="px-3 py-2 bg-gray-900 border border-white/10 rounded-lg text-sm text-gray-300 focus:outline-none focus:border-indigo-500 h-9">
-          <option value="">Todos os status</option>
-          {statusOpts.map(c => <option key={c.valor} value={c.valor}>{c.valor}</option>)}
-        </select>
+        <Select value={filtroEsp || '__all__'} onValueChange={v => setFiltroEsp(v === '__all__' ? '' : v)}>
+          <SelectTrigger className="h-9 text-sm bg-gray-900 border-white/10 text-gray-300 hover:bg-gray-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[130px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="bg-gray-900 border-white/10">
+            <SelectItem value="__all__" className="text-gray-300 focus:bg-gray-800 focus:text-white">Todos os especialistas</SelectItem>
+            {especialistas.map(e => <SelectItem key={e.id} value={e.id} className="text-gray-300 focus:bg-gray-800 focus:text-white">{e.nome}</SelectItem>)}
+          </SelectContent>
+        </Select>
+        <Select value={filtroStatus || '__all__'} onValueChange={v => setFiltroStatus(v === '__all__' ? '' : v)}>
+          <SelectTrigger className="h-9 text-sm bg-gray-900 border-white/10 text-gray-300 hover:bg-gray-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[130px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="bg-gray-900 border-white/10">
+            <SelectItem value="__all__" className="text-gray-300 focus:bg-gray-800 focus:text-white">Todos os status</SelectItem>
+            {statusOpts.map(c => <SelectItem key={c.valor} value={c.valor} className="text-gray-300 focus:bg-gray-800 focus:text-white">{c.valor}</SelectItem>)}
+          </SelectContent>
+        </Select>
         {(filtroEsp || filtroStatus) && (
           <button onClick={() => { setFiltroEsp(''); setFiltroStatus('') }}
             className="px-3 py-1.5 text-xs text-gray-400 hover:text-white border border-white/10 rounded-lg hover:border-white/20 transition-colors">
@@ -158,20 +167,24 @@ export function ListaFunis({ funis, produtos, especialistas, configs, initialEsp
                     const statusAtual = statusOverrides[f.id] ?? f.status
                     const corAtual = cor('status_funil', statusAtual)
                     return (
-                      <select
-                        value={statusAtual}
-                        onChange={e => handleMudarStatusFunil(f.id, e.target.value)}
-                        className="appearance-none text-xs font-medium px-2 py-0.5 rounded-full border cursor-pointer focus:outline-none bg-transparent"
-                        style={{
-                          color: corAtual ?? '#6b7280',
-                          borderColor: corAtual ? `${corAtual}4d` : '#374151',
-                          backgroundColor: corAtual ? `${corAtual}1a` : 'transparent',
-                        }}
-                      >
-                        {statusOpts.map(c => (
-                          <option key={c.valor} value={c.valor}>{c.valor}</option>
-                        ))}
-                      </select>
+                      <Select value={statusAtual} onValueChange={v => handleMudarStatusFunil(f.id, v)}>
+                        <SelectTrigger
+                          className="border-0 bg-transparent p-0 h-auto w-auto text-xs font-medium focus:ring-0 focus:ring-offset-0 gap-0 [&>svg]:hidden px-2 py-0.5 rounded-full border cursor-pointer"
+                          style={{
+                            color: corAtual ?? '#6b7280',
+                            borderColor: corAtual ? `${corAtual}4d` : '#374151',
+                            backgroundColor: corAtual ? `${corAtual}1a` : 'transparent',
+                            border: `1px solid ${corAtual ? `${corAtual}4d` : '#374151'}`,
+                          }}
+                        >
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="bg-gray-900 border-white/10">
+                          {statusOpts.map(c => (
+                            <SelectItem key={c.valor} value={c.valor} className="text-gray-300 focus:bg-gray-800 focus:text-white">{c.valor}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     )
                   })()}
                 </div>
