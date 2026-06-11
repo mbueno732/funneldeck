@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { createClient } from '@/lib/supabase/server'
 import { listarUsuarios } from '@/lib/actions/usuarios'
 import { GerenciarUsuarios } from '@/components/usuarios/GerenciarUsuarios'

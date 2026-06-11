@@ -49,6 +49,7 @@ export interface Funil {
   status: string
   data_ativacao?: string | null
   planilha_leads?: string | null
+  planilha_pesquisa?: string | null
   criado_em: string
   atualizado_em: string
   produtos?: Produto & { especialistas?: Pick<Especialista, 'id' | 'nome'> }

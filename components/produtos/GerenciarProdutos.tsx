@@ -15,6 +15,7 @@ interface Props {
 
 export function GerenciarProdutos({ produtos, especialistas }: Props) {
   const router = useRouter()
+  const [lista, setLista] = useState<Produto[]>(produtos)
   const [filtroEsp, setFiltroEsp] = useState('')
   const [form, setForm] = useState({ nome: '', especialista_id: '', descricao: '' })
   const [criando, setCriando] = useState(false)
@@ -23,17 +24,40 @@ export function GerenciarProdutos({ produtos, especialistas }: Props) {
   const [erroDelete, setErroDelete] = useState<string | null>(null)
   const [deletados, setDeletados] = useState<Set<string>>(new Set())
 
-  const filtrados = (filtroEsp ? produtos.filter(p => p.especialista_id === filtroEsp) : produtos)
+  const filtrados = (filtroEsp ? lista.filter(p => p.especialista_id === filtroEsp) : lista)
     .filter(p => !deletados.has(p.id))
 
   async function handleCriar(e: React.FormEvent) {
     e.preventDefault()
     if (!form.nome.trim() || !form.especialista_id) return
     setCriando(true)
+
+    // Optimistic: adiciona imediatamente na lista local
+    const tempId = `temp-${Date.now()}`
+    const esp = especialistas.find(e => e.id === form.especialista_id)
+    const optimista: Produto = {
+      id: tempId,
+      nome: form.nome.trim(),
+      especialista_id: form.especialista_id,
+      descricao: form.descricao || null,
+      ativo: true,
+      criado_em: new Date().toISOString(),
+      atualizado_em: new Date().toISOString(),
+      especialistas: esp ? { id: esp.id, nome: esp.nome } : undefined,
+    }
+    setLista(prev => [...prev, optimista])
+    setForm({ nome: '', especialista_id: form.especialista_id, descricao: '' })
+
     try {
-      await criarProduto({ nome: form.nome.trim(), especialista_id: form.especialista_id, descricao: form.descricao || undefined })
-      router.refresh()
-      setForm({ nome: '', especialista_id: '', descricao: '' })
+      const real = await criarProduto({ nome: optimista.nome, especialista_id: form.especialista_id, descricao: form.descricao || undefined })
+      // Substitui o item temporário pelo real vindo do servidor
+      setLista(prev => prev.map(p => p.id === tempId
+        ? { ...real, especialistas: esp ? { id: esp.id, nome: esp.nome } : undefined }
+        : p
+      ))
+    } catch {
+      // Rollback se falhar
+      setLista(prev => prev.filter(p => p.id !== tempId))
     } finally {
       setCriando(false)
     }
@@ -41,14 +65,14 @@ export function GerenciarProdutos({ produtos, especialistas }: Props) {
 
   async function handleSalvarEdicao(id: string) {
     if (!editando?.nome.trim()) return
-    await atualizarProduto(id, { nome: editando.nome.trim() })
+    setLista(prev => prev.map(p => p.id === id ? { ...p, nome: editando.nome.trim() } : p))
     setEditando(null)
-    router.refresh()
+    await atualizarProduto(id, { nome: editando.nome.trim() })
   }
 
   async function handleToggleAtivo(p: Produto) {
+    setLista(prev => prev.map(x => x.id === p.id ? { ...x, ativo: !x.ativo } : x))
     await atualizarProduto(p.id, { ativo: !p.ativo })
-    router.refresh()
   }
 
   async function handleDeletar(id: string) {
@@ -57,6 +81,7 @@ export function GerenciarProdutos({ produtos, especialistas }: Props) {
     setConfirmandoDelete(null)
     try {
       await deletarProduto(id)
+      setLista(prev => prev.filter(p => p.id !== id))
     } catch (e: unknown) {
       setDeletados(d => { const next = new Set(d); next.delete(id); return next })
       setErroDelete(e instanceof Error ? e.message : 'Erro ao excluir produto.')

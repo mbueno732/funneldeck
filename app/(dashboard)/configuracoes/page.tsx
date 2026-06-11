@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { createClient } from '@/lib/supabase/server'
 import { GerenciarConfiguracoes } from '@/components/configuracoes/GerenciarConfiguracoes'
 import type { Configuracao } from '@/lib/types'

@@ -41,6 +41,7 @@ export async function criarFunil(input: {
   status?: string
   data_ativacao?: string
   planilha_leads?: string
+  planilha_pesquisa?: string
 }) {
   const supabase = await createClient()
   const { data, error } = await supabase
@@ -127,5 +128,7 @@ export async function duplicarFunil(
   }
 
   await registrarAuditoria('funis', novoFunil.id, 'duplicar', { origem: id, incluiu_paginas: opcoes.incluir_paginas })
+  revalidatePath('/funis')
+  revalidatePath('/paginas')
   return novoFunil as Funil
 }

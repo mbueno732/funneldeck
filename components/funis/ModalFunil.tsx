@@ -21,7 +21,7 @@ interface Props {
 const VAZIO = {
   produto_id: '', nome: '', id_funil: '', tipo: '',
   status: 'Ativo', responsavel_cro: '', responsavel_dev: '',
-  data_ativacao: '', planilha_leads: '',
+  data_ativacao: '', planilha_leads: '', planilha_pesquisa: '',
 }
 
 export function ModalFunil({ aberto, onFechar, onSalvo, funil, produtos, especialistas, configs }: Props) {
@@ -60,6 +60,7 @@ export function ModalFunil({ aberto, onFechar, onSalvo, funil, produtos, especia
         responsavel_dev: funil.responsavel_dev ?? '',
         data_ativacao: funil.data_ativacao ?? '',
         planilha_leads: funil.planilha_leads ?? '',
+        planilha_pesquisa: funil.planilha_pesquisa ?? '',
       })
       const prod = produtos.find(p => p.id === funil.produto_id)
       if (prod) setFiltroEsp(prod.especialista_id)
@@ -105,6 +106,7 @@ export function ModalFunil({ aberto, onFechar, onSalvo, funil, produtos, especia
         responsavel_dev: form.responsavel_dev || undefined,
         data_ativacao: form.data_ativacao || undefined,
         planilha_leads: form.planilha_leads || undefined,
+        planilha_pesquisa: form.planilha_pesquisa || undefined,
       }
       if (funil) await atualizarFunil(funil.id, payload)
       else await criarFunil(payload)
@@ -220,6 +222,11 @@ export function ModalFunil({ aberto, onFechar, onSalvo, funil, produtos, especia
               <Label className="text-gray-400 text-xs">Planilha de Leads</Label>
               <Input type="url" value={form.planilha_leads} onChange={e => set('planilha_leads')(e.target.value)} placeholder="https://" className="bg-gray-900 border-white/10 text-white placeholder-gray-600 focus:border-indigo-500" />
             </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label className="text-gray-400 text-xs">Planilha de Pesquisa</Label>
+            <Input type="url" value={form.planilha_pesquisa} onChange={e => set('planilha_pesquisa')(e.target.value)} placeholder="https://" className="bg-gray-900 border-white/10 text-white placeholder-gray-600 focus:border-indigo-500" />
           </div>
 
           {erro && <p className="text-red-400 text-sm">{erro}</p>}

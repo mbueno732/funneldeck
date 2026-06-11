@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { createClient } from '@/lib/supabase/server'
 import { GerenciarProdutos } from '@/components/produtos/GerenciarProdutos'
 import type { Produto, Especialista } from '@/lib/types'
