@@ -2,6 +2,8 @@ import { createClient } from '@/lib/supabase/server'
 import { ListaFunis } from '@/components/funis/ListaFunis'
 import type { Produto, Especialista, Configuracao } from '@/lib/types'
 
+export const dynamic = 'force-dynamic'
+
 export default async function FunisPage({ searchParams }: { searchParams: { especialista?: string } }) {
   const supabase = await createClient()
 
