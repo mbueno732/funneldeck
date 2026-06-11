@@ -1,6 +1,7 @@
 'use server'
 import { createClient } from '@/lib/supabase/server'
 import { registrarAuditoria } from './auditoria'
+import { revalidatePath } from 'next/cache'
 import type { Pagina } from '@/lib/types'
 
 export async function listarPaginas(filtros?: {
@@ -75,6 +76,7 @@ export async function criarPagina(input: Omit<Pagina, 'id' | 'criado_em' | 'atua
     .single()
   if (error) throw error
   await registrarAuditoria('paginas', data.id, 'criar', { depois: data })
+  revalidatePath('/paginas')
   return data as Pagina
 }
 
@@ -88,6 +90,7 @@ export async function atualizarPagina(id: string, input: Partial<Omit<Pagina, 'i
     .single()
   if (error) throw error
   await registrarAuditoria('paginas', id, 'atualizar', { depois: data })
+  revalidatePath('/paginas')
   return data as Pagina
 }
 
