@@ -204,12 +204,14 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
 
   async function handleDuplicar(id: string) {
     await duplicarPagina(id)
+    router.refresh()
   }
 
   async function handleDeletar(id: string) {
     setDeletadas(d => new Set(d).add(id))
     setDeletandoPagina(null)
     await deletarPagina(id)
+    router.refresh()
   }
 
   function handleSalvo() {
