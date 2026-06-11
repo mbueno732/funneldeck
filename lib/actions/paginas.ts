@@ -125,10 +125,12 @@ export async function duplicarPagina(id: string) {
 
 export async function deletarPagina(id: string) {
   const supabase = await createClient()
-  const { error } = await supabase
-    .from('paginas')
-    .delete()
-    .eq('id', id)
+
+  // Remove dependências sem CASCADE antes de deletar
+  await supabase.from('migracoes').delete().eq('pagina_id', id)
+  await supabase.from('testes_ab').update({ pagina_id: null }).eq('pagina_id', id)
+
+  const { error } = await supabase.from('paginas').delete().eq('id', id)
   if (error) throw error
   await registrarAuditoria('paginas', id, 'deletar', {})
   revalidatePath('/paginas')
