@@ -13,6 +13,7 @@ export function GerenciarEspecialistas({ especialistas }: { especialistas: Espec
   const [criando, setCriando] = useState(false)
   const [editandoId, setEditandoId] = useState<string | null>(null)
   const [editandoNome, setEditandoNome] = useState('')
+  const [ativoOverrides, setAtivoOverrides] = useState<Record<string, boolean>>({})
 
   async function handleCriar(e: React.FormEvent) {
     e.preventDefault()
@@ -35,8 +36,9 @@ export function GerenciarEspecialistas({ especialistas }: { especialistas: Espec
   }
 
   async function handleToggleAtivo(e: Especialista) {
-    await atualizarEspecialista(e.id, { ativo: !e.ativo })
-    router.refresh()
+    const novoAtivo = !( e.id in ativoOverrides ? ativoOverrides[e.id] : e.ativo)
+    setAtivoOverrides(o => ({ ...o, [e.id]: novoAtivo }))
+    await atualizarEspecialista(e.id, { ativo: novoAtivo })
   }
 
   return (
@@ -77,7 +79,9 @@ export function GerenciarEspecialistas({ especialistas }: { especialistas: Espec
                   Nenhum especialista cadastrado.
                 </td>
               </tr>
-            ) : especialistas.map(e => (
+            ) : especialistas.map(e => {
+              const ativo = e.id in ativoOverrides ? ativoOverrides[e.id] : e.ativo
+              return (
               <tr key={e.id} className="hover:bg-gray-900/40 transition-colors">
                 <td className="px-4 py-3">
                   {editandoId === e.id ? (
@@ -97,18 +101,18 @@ export function GerenciarEspecialistas({ especialistas }: { especialistas: Espec
                       </button>
                     </div>
                   ) : (
-                    <span className={`font-medium ${e.ativo ? 'text-white' : 'text-gray-500 line-through'}`}>
+                    <span className={`font-medium ${ativo ? 'text-white' : 'text-gray-500 line-through'}`}>
                       {e.nome}
                     </span>
                   )}
                 </td>
                 <td className="px-4 py-3">
                   <span className={`text-xs px-2 py-0.5 rounded-full border ${
-                    e.ativo
+                    ativo
                       ? 'bg-green-500/10 text-green-400 border-green-500/30'
                       : 'bg-gray-500/10 text-gray-500 border-gray-500/30'
                   }`}>
-                    {e.ativo ? 'Ativo' : 'Inativo'}
+                    {ativo ? 'Ativo' : 'Inativo'}
                   </span>
                 </td>
                 <td className="px-4 py-3">
@@ -122,14 +126,15 @@ export function GerenciarEspecialistas({ especialistas }: { especialistas: Espec
                     <button
                       onClick={() => handleToggleAtivo(e)}
                       className="p-1.5 text-gray-500 hover:text-yellow-400 hover:bg-gray-900 rounded transition-colors text-xs"
-                      title={e.ativo ? 'Desativar' : 'Ativar'}
+                      title={ativo ? 'Desativar' : 'Ativar'}
                     >
-                      {e.ativo ? <X size={13} /> : <Check size={13} />}
+                      {ativo ? <X size={13} /> : <Check size={13} />}
                     </button>
                   </div>
                 </td>
               </tr>
-            ))}
+              )
+            })}
           </tbody>
         </table>
       </div>
