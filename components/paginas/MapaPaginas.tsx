@@ -130,6 +130,16 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
     await atualizarPagina(pagina.id, { prioridade: novaPrioridade || null })
   }
 
+  async function handleMudarEtapa(pagina: Pagina, novaEtapa: string) {
+    setOverrides(o => ({ ...o, [pagina.id]: { ...o[pagina.id], etapa: novaEtapa || null } }))
+    await atualizarPagina(pagina.id, { etapa: novaEtapa || null })
+  }
+
+  async function handleMudarFerramenta(pagina: Pagina, novaFerramenta: string) {
+    setOverrides(o => ({ ...o, [pagina.id]: { ...o[pagina.id], ferramenta: novaFerramenta || null } }))
+    await atualizarPagina(pagina.id, { ferramenta: novaFerramenta || null })
+  }
+
   async function handleSalvarCelula() {
     if (!celula) return
     const { id, campo, valor } = celula
@@ -196,6 +206,13 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
   }
 
   function handleSalvo() {
+    if (editando) {
+      setOverrides(o => {
+        const next = { ...o }
+        delete next[editando.id]
+        return next
+      })
+    }
     router.refresh()
   }
 
@@ -621,16 +638,32 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
 
                       {/* Etapa */}
                       <td className="px-4 py-3">
-                        {p.etapa ? (
-                          <span className="text-gray-400 text-xs">{p.etapa}</span>
-                        ) : <span className="text-gray-600">—</span>}
+                        <select
+                          value={p.etapa ?? ''}
+                          onChange={e => handleMudarEtapa(p, e.target.value)}
+                          className="appearance-none border-0 text-xs font-medium cursor-pointer focus:outline-none"
+                          style={{ color: p.etapa ? '#9ca3af' : '#4b5563', backgroundColor: '#0a0a0a' }}
+                        >
+                          <option value="" style={{ backgroundColor: '#0a0a0a', color: '#6b7280' }}>— etapa</option>
+                          {configOpts('etapa').map(c => (
+                            <option key={c.valor} value={c.valor} style={{ backgroundColor: '#0a0a0a', color: '#d1d5db' }}>{c.valor}</option>
+                          ))}
+                        </select>
                       </td>
 
                       {/* Ferramenta */}
                       <td className="px-4 py-3">
-                        {p.ferramenta ? (
-                          <StatusBadge valor={p.ferramenta} cor={cor('ferramenta', p.ferramenta)} />
-                        ) : <span className="text-gray-600">—</span>}
+                        <select
+                          value={p.ferramenta ?? ''}
+                          onChange={e => handleMudarFerramenta(p, e.target.value)}
+                          className="appearance-none border-0 text-xs font-medium cursor-pointer focus:outline-none"
+                          style={{ color: p.ferramenta ? (cor('ferramenta', p.ferramenta) ?? '#9ca3af') : '#4b5563', backgroundColor: '#0a0a0a' }}
+                        >
+                          <option value="" style={{ backgroundColor: '#0a0a0a', color: '#6b7280' }}>— ferramenta</option>
+                          {configOpts('ferramenta').map(c => (
+                            <option key={c.valor} value={c.valor} style={{ backgroundColor: '#0a0a0a', color: '#d1d5db' }}>{c.valor}</option>
+                          ))}
+                        </select>
                       </td>
 
                       {/* Status — select nativo */}
@@ -638,11 +671,11 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
                         <select
                           value={p.status}
                           onChange={e => handleMudarStatus(p, e.target.value)}
-                          className="appearance-none bg-transparent border-0 text-xs font-medium cursor-pointer focus:outline-none"
-                          style={{ color: cor('status_pagina', p.status) ?? '#6b7280' }}
+                          className="appearance-none border-0 text-xs font-medium cursor-pointer focus:outline-none"
+                          style={{ color: cor('status_pagina', p.status) ?? '#6b7280', backgroundColor: '#0a0a0a' }}
                         >
                           {configOpts('status_pagina').map(c => (
-                            <option key={c.valor} value={c.valor}>{c.valor}</option>
+                            <option key={c.valor} value={c.valor} style={{ backgroundColor: '#0a0a0a', color: '#d1d5db' }}>{c.valor}</option>
                           ))}
                         </select>
                       </td>
@@ -652,12 +685,12 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
                         <select
                           value={p.prioridade ?? ''}
                           onChange={e => handleMudarPrioridade(p, e.target.value)}
-                          className="appearance-none bg-transparent border-0 text-xs font-medium cursor-pointer focus:outline-none"
-                          style={{ color: p.prioridade ? (cor('prioridade', p.prioridade) ?? '#6b7280') : '#4b5563' }}
+                          className="appearance-none border-0 text-xs font-medium cursor-pointer focus:outline-none"
+                          style={{ color: p.prioridade ? (cor('prioridade', p.prioridade) ?? '#6b7280') : '#4b5563', backgroundColor: '#0a0a0a' }}
                         >
-                          <option value="">— prioridade</option>
+                          <option value="" style={{ backgroundColor: '#0a0a0a', color: '#6b7280' }}>— prioridade</option>
                           {configOpts('prioridade').map(c => (
-                            <option key={c.valor} value={c.valor}>{c.valor}</option>
+                            <option key={c.valor} value={c.valor} style={{ backgroundColor: '#0a0a0a', color: '#d1d5db' }}>{c.valor}</option>
                           ))}
                         </select>
                       </td>

@@ -153,7 +153,7 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
 
   return (
     <Dialog open={aberto} onOpenChange={v => !v && onFechar()}>
-      <DialogContent className={`bg-gray-900 border-white/10 text-white ${isEdit ? 'max-w-2xl max-h-[90vh] overflow-y-auto' : 'max-w-lg'}`}>
+      <DialogContent className="bg-gray-900 border-white/10 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-white">
             {isEdit ? 'Editar Página' : 'Nova Página'}
@@ -181,35 +181,30 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
             <Select label="Prioridade" value={form.prioridade} onChange={set('prioridade')} options={configOpts('prioridade')} />
           </div>
 
-          {/* Campos extras — só na edição */}
-          {isEdit && (
-            <>
-              <div className="grid grid-cols-3 gap-3">
-                <Field label="Responsável" value={form.responsavel} onChange={set('responsavel')} placeholder="Nome" />
-                <Field label="Data Prevista" value={form.data_prevista} onChange={set('data_prevista')} type="date" />
-                <Field label="Horas Estimadas" value={form.horas_estimadas} onChange={set('horas_estimadas')} type="number" placeholder="0" />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <Field label="URL da Página" value={form.url_pagina} onChange={set('url_pagina')} type="url" placeholder="https://" />
-                <Field label="Referência Dev" value={form.referencia_dev} onChange={set('referencia_dev')} type="url" placeholder="https://" />
-              </div>
-              <div className={`grid gap-3 ${isTYP ? 'grid-cols-2' : 'grid-cols-1'}`}>
-                {isTYP && (
-                  <Field label="Planilha de Pesquisa" value={form.url_planilha_pesquisa} onChange={set('url_planilha_pesquisa')} type="url" placeholder="https://" />
-                )}
-                <Field label="Documentação" value={form.url_documentacao} onChange={set('url_documentacao')} type="url" placeholder="https://" />
-              </div>
-              <div className="space-y-1.5">
-                <Label className="text-gray-400 text-xs">Observações</Label>
-                <Textarea
-                  value={form.observacoes}
-                  onChange={e => set('observacoes')(e.target.value)}
-                  placeholder="Notas, contexto, links adicionais..."
-                  className="bg-gray-900 border-white/10 text-white placeholder-gray-600 focus:border-indigo-500 min-h-[80px]"
-                />
-              </div>
-            </>
-          )}
+          <div className="grid grid-cols-3 gap-3">
+            <Field label="Responsável" value={form.responsavel} onChange={set('responsavel')} placeholder="Nome" />
+            <Field label="Data Prevista" value={form.data_prevista} onChange={set('data_prevista')} type="date" />
+            <Field label="Horas Estimadas" value={form.horas_estimadas} onChange={set('horas_estimadas')} type="number" placeholder="0" />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="URL da Página" value={form.url_pagina} onChange={set('url_pagina')} type="url" placeholder="https://" />
+            <Field label="Referência Dev" value={form.referencia_dev} onChange={set('referencia_dev')} type="url" placeholder="https://" />
+          </div>
+          <div className={`grid gap-3 ${isTYP ? 'grid-cols-2' : 'grid-cols-1'}`}>
+            {isTYP && (
+              <Field label="Planilha de Pesquisa" value={form.url_planilha_pesquisa} onChange={set('url_planilha_pesquisa')} type="url" placeholder="https://" />
+            )}
+            <Field label="Documentação" value={form.url_documentacao} onChange={set('url_documentacao')} type="url" placeholder="https://" />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-gray-400 text-xs">Observações</Label>
+            <Textarea
+              value={form.observacoes}
+              onChange={e => set('observacoes')(e.target.value)}
+              placeholder="Notas, contexto, links adicionais..."
+              className="bg-gray-900 border-white/10 text-white placeholder-gray-600 focus:border-indigo-500 min-h-[80px]"
+            />
+          </div>
 
           {erro && <p className="text-red-400 text-sm">{erro}</p>}
 
