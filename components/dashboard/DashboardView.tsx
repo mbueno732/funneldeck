@@ -1,5 +1,7 @@
+'use client'
+import { useState } from 'react'
 import Link from 'next/link'
-import { AlertTriangle, CheckCircle, Clock, Zap, ListTodo, CalendarX, TrendingUp, PauseCircle } from 'lucide-react'
+import { AlertTriangle, CheckCircle, Clock, Zap, ListTodo, CalendarX, TrendingUp, PauseCircle, ChevronDown, ChevronRight, Timer } from 'lucide-react'
 
 interface Kpis {
   total_paginas: number
@@ -17,6 +19,13 @@ interface Kpis {
   publicadas_mes: number
 }
 
+interface HorasKpis {
+  estimadas: number
+  reais: number
+  desvio_pct: number
+  top_desvios: { nome: string; estimadas: number; reais: number; desvio: number }[]
+}
+
 interface EspecialistaResumo {
   id: string
   nome: string
@@ -25,6 +34,8 @@ interface EspecialistaResumo {
   total_paginas: number
   paginas_publicadas: number
   paginas_atrasadas: number
+  horas_estimadas: number
+  horas_reais: number
 }
 
 interface StatusConfig {
@@ -143,11 +154,17 @@ export function DashboardView({
   kpis,
   porEspecialista,
   statusConfigs,
+  mesLabel,
+  horasKpis,
 }: {
   kpis: Kpis
   porEspecialista: EspecialistaResumo[]
   statusConfigs: StatusConfig[]
+  mesLabel: string
+  horasKpis: HorasKpis
 }) {
+  const [horasAberto, setHorasAberto] = useState(false)
+
   const colorMap = Object.fromEntries(statusConfigs.map(c => [c.valor, c.cor]))
   const getColor = (status: string) => colorMap[status] ?? STATUS_COR_DEFAULT[status] ?? '#4b5563'
 
@@ -167,7 +184,7 @@ export function DashboardView({
   })
 
   const temAlerta = kpis.paginas_atrasadas > 0 || kpis.checklists_bloqueando > 0
-  const mesPorExtenso = new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
+  const temHoras = horasKpis.estimadas > 0
 
   return (
     <div className="space-y-5">
@@ -252,20 +269,136 @@ export function DashboardView({
       </div>
 
       {/* PUBLICAÇÕES NO MÊS */}
-      {/* TODO: 3 slots disponíveis para futuras métricas (ex: horas estimadas vs reais, velocidade média por etapa) */}
       <div>
         <SectionLabel>Publicações no mês</SectionLabel>
         <div className="grid grid-cols-4 gap-3">
           <KpiCard
             label="Publicadas no Mês"
             value={kpis.publicadas_mes}
-            sub={mesPorExtenso}
+            sub={mesLabel}
             icon={TrendingUp}
             cor={kpis.publicadas_mes > 0 ? 'green' : 'gray'}
             href="/paginas?status=Publicada"
           />
         </div>
       </div>
+
+      {/* HORAS */}
+      {temHoras && (
+        <div className="bg-gray-900 border border-white/10 rounded-xl overflow-hidden">
+          <button
+            onClick={() => setHorasAberto(v => !v)}
+            className="w-full flex items-center justify-between px-4 py-3 text-sm text-gray-400 hover:text-white transition-colors"
+          >
+            <div className="flex items-center gap-2">
+              <Timer size={14} className="text-indigo-400" />
+              <span className="font-medium text-white">Horas</span>
+              <span className="text-gray-600 text-xs">estimado vs realizado</span>
+            </div>
+            <div className="flex items-center gap-3">
+              {!horasAberto && horasKpis.desvio_pct !== 0 && (
+                <span className={`text-xs font-medium ${horasKpis.desvio_pct > 0 ? 'text-red-400' : 'text-green-400'}`}>
+                  {horasKpis.desvio_pct > 0 ? '+' : ''}{horasKpis.desvio_pct}%
+                </span>
+              )}
+              {horasAberto ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+            </div>
+          </button>
+
+          {horasAberto && (
+            <div className="border-t border-white/10 px-4 pb-4 pt-3 space-y-4">
+              {/* KPIs de horas */}
+              <div className="grid grid-cols-3 gap-3">
+                <div className="bg-gray-950 border border-white/10 rounded-xl p-4">
+                  <p className="text-gray-500 text-xs mb-1">Estimado</p>
+                  <p className="text-white text-2xl font-medium">{horasKpis.estimadas}<span className="text-gray-500 text-sm ml-1">h</span></p>
+                </div>
+                <div className="bg-gray-950 border border-white/10 rounded-xl p-4">
+                  <p className="text-gray-500 text-xs mb-1">Realizado</p>
+                  <p className="text-white text-2xl font-medium">{horasKpis.reais}<span className="text-gray-500 text-sm ml-1">h</span></p>
+                </div>
+                <div className={`border rounded-xl p-4 ${
+                  horasKpis.desvio_pct === 0 ? 'bg-gray-950 border-white/10' :
+                  horasKpis.desvio_pct > 0   ? 'bg-red-500/5 border-red-500/20' :
+                                               'bg-green-500/5 border-green-500/20'
+                }`}>
+                  <p className="text-gray-500 text-xs mb-1">Desvio</p>
+                  <p className={`text-2xl font-medium ${
+                    horasKpis.desvio_pct === 0 ? 'text-gray-400' :
+                    horasKpis.desvio_pct > 0   ? 'text-red-400' : 'text-green-400'
+                  }`}>
+                    {horasKpis.desvio_pct > 0 ? '+' : ''}{horasKpis.desvio_pct}<span className="text-sm ml-0.5">%</span>
+                  </p>
+                  <p className="text-gray-600 text-xs mt-0.5">
+                    {horasKpis.desvio_pct > 0 ? 'acima do estimado' : horasKpis.desvio_pct < 0 ? 'abaixo do estimado' : 'dentro do estimado'}
+                  </p>
+                </div>
+              </div>
+
+              {/* Top desvios */}
+              {horasKpis.top_desvios.length > 0 && (
+                <div>
+                  <p className="text-[10px] font-medium tracking-[.06em] text-gray-600 uppercase mb-2">Maiores desvios por página</p>
+                  <div className="space-y-1.5">
+                    {horasKpis.top_desvios.map((pg, i) => (
+                      <div key={i} className="flex items-center justify-between text-xs">
+                        <span className="text-gray-400 truncate flex-1 mr-3">{pg.nome}</span>
+                        <div className="flex items-center gap-3 shrink-0">
+                          <span className="text-gray-600">{pg.estimadas}h est. / {pg.reais}h real</span>
+                          <span className={`font-medium w-12 text-right ${pg.desvio > 0 ? 'text-red-400' : 'text-green-400'}`}>
+                            {pg.desvio > 0 ? '+' : ''}{pg.desvio}%
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Horas por especialista */}
+              {porEspecialista.filter(e => e.horas_estimadas > 0).length > 0 && (
+                <div>
+                  <p className="text-[10px] font-medium tracking-[.06em] text-gray-600 uppercase mb-2">Por especialista</p>
+                  <div className="space-y-2">
+                    {porEspecialista.filter(e => e.horas_estimadas > 0).map(esp => {
+                      const desvio = esp.horas_estimadas > 0
+                        ? Math.round(((esp.horas_reais - esp.horas_estimadas) / esp.horas_estimadas) * 100)
+                        : 0
+                      const pct = esp.horas_estimadas > 0
+                        ? Math.min(Math.round((esp.horas_reais / esp.horas_estimadas) * 100), 150)
+                        : 0
+                      return (
+                        <div key={esp.id} className="space-y-1">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-gray-400">{esp.nome}</span>
+                            <div className="flex items-center gap-2 text-gray-600">
+                              <span>{esp.horas_reais}h / {esp.horas_estimadas}h</span>
+                              {desvio !== 0 && (
+                                <span className={`font-medium ${desvio > 0 ? 'text-red-400' : 'text-green-400'}`}>
+                                  {desvio > 0 ? '+' : ''}{desvio}%
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="h-1 bg-gray-950 rounded-full overflow-hidden">
+                            <div
+                              className="h-full rounded-full transition-all"
+                              style={{
+                                width: `${Math.min(pct, 100)}%`,
+                                backgroundColor: desvio > 15 ? '#ef4444' : desvio > 0 ? '#f97316' : '#22c55e',
+                              }}
+                            />
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* POR ESPECIALISTA */}
       {porEspecialista.length > 0 && (
