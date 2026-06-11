@@ -116,6 +116,7 @@ export async function duplicarPagina(id: string) {
     .single()
   if (error) throw error
   await registrarAuditoria('paginas', data.id, 'duplicar', { origem: id })
+  revalidatePath('/paginas')
   return data as Pagina
 }
 
@@ -127,4 +128,5 @@ export async function deletarPagina(id: string) {
     .eq('id', id)
   if (error) throw error
   await registrarAuditoria('paginas', id, 'deletar', {})
+  revalidatePath('/paginas')
 }
