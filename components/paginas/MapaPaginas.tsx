@@ -29,6 +29,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
   const [urlTemp, setUrlTemp] = useState('')
   const [celula, setCelula] = useState<{ id: string; campo: 'horas_reais' | 'data_prevista' | 'codigo'; valor: string } | null>(null)
   const [deletandoPagina, setDeletandoPagina] = useState<string | null>(null)
+  const [deletadas, setDeletadas] = useState<Set<string>>(new Set())
   const [analisando, setAnalisando] = useState<string | null>(null)
   const [estadoGtmetrix, setEstadoGtmetrix] = useState<string>('')
   const [progressoGtmetrix, setProgressoGtmetrix] = useState(0)
@@ -96,6 +97,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
   }, [paginas])
 
   const filtradas = useMemo(() => (paginas ?? []).filter(p => {
+    if (deletadas.has(p.id)) return false
     if (busca && !p.nome.toLowerCase().includes(busca.toLowerCase())) return false
     if (filtroFunil && p.funil_id !== filtroFunil) return false
     if (filtroStatus && p.status !== filtroStatus) return false
@@ -104,7 +106,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
     if (filtroFerramenta && p.ferramenta !== filtroFerramenta) return false
     if (filtroAtrasadas && !isAtrasada(p)) return false
     return true
-  }), [paginas, busca, filtroFunil, filtroStatus, filtroEtapa, filtroPrioridade, filtroFerramenta, filtroAtrasadas])
+  }), [paginas, deletadas, busca, filtroFunil, filtroStatus, filtroEtapa, filtroPrioridade, filtroFerramenta, filtroAtrasadas])
 
   const isAtrasada = (p: Pagina) =>
     p.data_prevista && p.data_prevista < hoje && !['Publicada', 'Suspensa'].includes(p.status)
@@ -202,13 +204,12 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
 
   async function handleDuplicar(id: string) {
     await duplicarPagina(id)
-    router.refresh()
   }
 
   async function handleDeletar(id: string) {
-    await deletarPagina(id)
+    setDeletadas(d => new Set(d).add(id))
     setDeletandoPagina(null)
-    router.refresh()
+    await deletarPagina(id)
   }
 
   function handleSalvo() {
