@@ -10,6 +10,7 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        /* Shadcn/UI */
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: { DEFAULT: "hsl(var(--card))", foreground: "hsl(var(--card-foreground))" },
@@ -22,6 +23,12 @@ const config: Config = {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
+        /* Escala customizada — sobrescreve Tailwind default para gray-950/900/800 */
+        gray: {
+          950: "rgb(var(--gray-950) / <alpha-value>)",
+          900: "rgb(var(--gray-900) / <alpha-value>)",
+          800: "rgb(var(--gray-800) / <alpha-value>)",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
