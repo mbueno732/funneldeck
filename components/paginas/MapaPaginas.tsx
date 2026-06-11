@@ -5,7 +5,6 @@ import { Plus, Search, ExternalLink, Pencil, Trash2, AlertTriangle, Clock, Copy,
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { StatusBadge } from '@/components/shared/StatusBadge'
 import { ModalPagina } from './ModalPagina'
 import { PainelChecklist } from './PainelChecklist'
 import { atualizarPagina, deletarPagina, duplicarPagina } from '@/lib/actions/paginas'
