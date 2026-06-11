@@ -820,7 +820,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
                               </div>
                             )
                           }
-                          if (p.url_pagina && p.status === 'Publicada') {
+                          if (p.url_pagina && p.status === 'Implementada') {
                             return (
                               <button
                                 onClick={() => handleAnalisarGtmetrix(p)}
