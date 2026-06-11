@@ -47,6 +47,7 @@ export function ListaFunis({ funis, produtos, especialistas, configs, initialEsp
   const [duplicando, setDuplicando] = useState<Funil | null>(null)
   const [confirmandoDelete, setConfirmandoDelete] = useState<string | null>(null)
   const [erroDelete, setErroDelete] = useState<string | null>(null)
+  const [deletados, setDeletados] = useState<Set<string>>(new Set())
   const [statusOverrides, setStatusOverrides] = useState<Record<string, string>>({})
   const [novaPaginaFunilId, setNovaPaginaFunilId] = useState<string | null>(null)
 
@@ -54,6 +55,7 @@ export function ListaFunis({ funis, produtos, especialistas, configs, initialEsp
   const cor = (cat: string, val: string) => colorMap[`${cat}:${val}`] ?? null
 
   const filtrados = funis.filter(f => {
+    if (deletados.has(f.id)) return false
     const prod = produtos.find(p => p.id === f.produto_id)
     if (filtroEsp && prod?.especialista_id !== filtroEsp) return false
     if (filtroStatus && f.status !== filtroStatus) return false
@@ -69,13 +71,14 @@ export function ListaFunis({ funis, produtos, especialistas, configs, initialEsp
 
   async function handleDeletar(id: string) {
     setErroDelete(null)
+    setDeletados(d => new Set(d).add(id))
+    setConfirmandoDelete(null)
     try {
       await deletarFunil(id)
-      setConfirmandoDelete(null)
       router.refresh()
     } catch (e: unknown) {
+      setDeletados(d => { const next = new Set(d); next.delete(id); return next })
       setErroDelete(e instanceof Error ? e.message : 'Erro ao excluir funil.')
-      setConfirmandoDelete(null)
     }
   }
 

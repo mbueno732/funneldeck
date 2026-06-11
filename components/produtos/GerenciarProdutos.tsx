@@ -21,8 +21,10 @@ export function GerenciarProdutos({ produtos, especialistas }: Props) {
   const [editando, setEditando] = useState<{ id: string; nome: string } | null>(null)
   const [confirmandoDelete, setConfirmandoDelete] = useState<string | null>(null)
   const [erroDelete, setErroDelete] = useState<string | null>(null)
+  const [deletados, setDeletados] = useState<Set<string>>(new Set())
 
-  const filtrados = filtroEsp ? produtos.filter(p => p.especialista_id === filtroEsp) : produtos
+  const filtrados = (filtroEsp ? produtos.filter(p => p.especialista_id === filtroEsp) : produtos)
+    .filter(p => !deletados.has(p.id))
 
   async function handleCriar(e: React.FormEvent) {
     e.preventDefault()
@@ -51,13 +53,14 @@ export function GerenciarProdutos({ produtos, especialistas }: Props) {
 
   async function handleDeletar(id: string) {
     setErroDelete(null)
+    setDeletados(d => new Set(d).add(id))
+    setConfirmandoDelete(null)
     try {
       await deletarProduto(id)
-      setConfirmandoDelete(null)
       router.refresh()
     } catch (e: unknown) {
+      setDeletados(d => { const next = new Set(d); next.delete(id); return next })
       setErroDelete(e instanceof Error ? e.message : 'Erro ao excluir produto.')
-      setConfirmandoDelete(null)
     }
   }
 

@@ -26,8 +26,9 @@ export function GerenciarConfiguracoes({ configs }: Props) {
   const [adicionando, setAdicionando] = useState(false)
   const [editando, setEditando] = useState<{ id: string; valor: string; cor: string } | null>(null)
   const [confirmandoDelete, setConfirmandoDelete] = useState<string | null>(null)
+  const [deletados, setDeletados] = useState<Set<string>>(new Set())
 
-  const itens = configs.filter(c => c.categoria === abaAtiva).sort((a, b) => a.ordem - b.ordem)
+  const itens = configs.filter(c => c.categoria === abaAtiva && !deletados.has(c.id)).sort((a, b) => a.ordem - b.ordem)
 
   async function handleAdicionar(e: React.FormEvent) {
     e.preventDefault()
@@ -54,9 +55,14 @@ export function GerenciarConfiguracoes({ configs }: Props) {
   }
 
   async function handleDeletar(id: string) {
-    await deletarConfiguracao(id)
+    setDeletados(d => new Set(d).add(id))
     setConfirmandoDelete(null)
-    router.refresh()
+    try {
+      await deletarConfiguracao(id)
+      router.refresh()
+    } catch {
+      setDeletados(d => { const next = new Set(d); next.delete(id); return next })
+    }
   }
 
   return (
