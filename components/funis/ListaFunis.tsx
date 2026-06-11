@@ -315,22 +315,25 @@ export function ListaFunis({ funis, produtos, especialistas, configs, initialEsp
 
         const GRUPOS = [
           {
-            label: 'Evergreen',
-            tipos: ['Evergreen'],
-            cor: 'text-green-400',
-            linha: 'bg-green-900/30',
-          },
-          {
             label: 'Launch',
             tipos: ['Lançamento', 'Webinar', 'Evento'],
-            cor: 'text-indigo-400',
-            linha: 'bg-indigo-900/30',
+            badge: 'bg-amber-500/10 text-amber-400 border-amber-500/30',
+            linha: 'bg-gradient-to-r from-amber-500/40 to-transparent',
+            contador: 'text-amber-500/50',
+          },
+          {
+            label: 'Evergreen',
+            tipos: ['Evergreen'],
+            badge: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
+            linha: 'bg-gradient-to-r from-emerald-500/40 to-transparent',
+            contador: 'text-emerald-500/50',
           },
           {
             label: 'Ongoing',
             tipos: [] as string[], // catch-all
-            cor: 'text-gray-400',
-            linha: 'bg-gray-900',
+            badge: 'bg-sky-500/10 text-sky-400 border-sky-500/30',
+            linha: 'bg-gradient-to-r from-sky-500/40 to-transparent',
+            contador: 'text-sky-500/50',
           },
         ]
 
@@ -342,18 +345,20 @@ export function ListaFunis({ funis, produtos, especialistas, configs, initialEsp
         }
 
         return (
-          <div className="space-y-8">
+          <div className="space-y-10">
             {GRUPOS.map(grupo => {
               const itens = filtrados.filter(f => atribuirGrupo(f) === grupo.label)
               if (!itens.length) return null
               return (
-                <div key={grupo.label} className="space-y-3">
+                <div key={grupo.label} className="space-y-4">
                   <div className="flex items-center gap-3">
-                    <span className={`text-xs font-semibold uppercase tracking-widest ${grupo.cor}`}>
+                    <span className={`px-2.5 py-0.5 text-xs font-semibold uppercase tracking-widest rounded-full border ${grupo.badge}`}>
                       {grupo.label}
                     </span>
                     <div className={`flex-1 h-px ${grupo.linha}`} />
-                    <span className="text-xs text-gray-600">{itens.length} funil{itens.length !== 1 ? 's' : ''}</span>
+                    <span className={`text-xs font-medium ${grupo.contador}`}>
+                      {itens.length} funil{itens.length !== 1 ? 's' : ''}
+                    </span>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                     {itens.map(renderCard)}
