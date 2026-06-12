@@ -7,15 +7,35 @@ import type { Configuracao, CategoriaConfig } from '@/lib/types'
 
 type AbaAtiva = CategoriaConfig | 'checklist'
 
-const CATEGORIAS: { key: AbaAtiva; label: string }[] = [
-  { key: 'status_pagina', label: 'Status da Página' },
-  { key: 'etapa',         label: 'Etapas' },
-  { key: 'ferramenta',    label: 'Ferramentas' },
-  { key: 'prioridade',    label: 'Prioridades' },
-  { key: 'tipo_funil',    label: 'Tipos de Funil' },
-  { key: 'status_funil',  label: 'Status do Funil' },
-  { key: 'responsavel',   label: 'Responsáveis' },
-  { key: 'checklist',     label: 'Checklist de Publicação' },
+const GRUPOS: { label: string; itens: { key: AbaAtiva; label: string }[] }[] = [
+  {
+    label: 'Páginas',
+    itens: [
+      { key: 'status_pagina', label: 'Status' },
+      { key: 'etapa',         label: 'Etapas' },
+      { key: 'ferramenta',    label: 'Ferramentas' },
+      { key: 'prioridade',    label: 'Prioridades' },
+    ],
+  },
+  {
+    label: 'Funis',
+    itens: [
+      { key: 'tipo_funil',   label: 'Tipos de Funil' },
+      { key: 'status_funil', label: 'Status do Funil' },
+    ],
+  },
+  {
+    label: 'Time',
+    itens: [
+      { key: 'responsavel', label: 'Responsáveis' },
+    ],
+  },
+  {
+    label: 'Publicação',
+    itens: [
+      { key: 'checklist', label: 'Checklist' },
+    ],
+  },
 ]
 
 const CHECKLIST_FASES: { key: CategoriaConfig; label: string }[] = [
@@ -250,112 +270,128 @@ export function GerenciarConfiguracoes({ configs }: Props) {
     }
   }
 
+  const abaLabel = GRUPOS.flatMap(g => g.itens).find(i => i.key === abaAtiva)?.label ?? ''
+
   return (
-    <div className="space-y-6 max-w-2xl">
+    <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-white">Configurações</h1>
         <p className="text-gray-500 text-sm mt-1">Gerencie as listas de opções usadas em todo o sistema.</p>
       </div>
 
-      {/* Abas */}
-      <div className="flex flex-wrap gap-1 border-b border-white/[0.07] pb-0">
-        {CATEGORIAS.map(cat => (
-          <button
-            key={cat.key}
-            onClick={() => setAbaAtiva(cat.key)}
-            className={`px-3 py-2 text-sm rounded-t-lg transition-colors -mb-px ${
-              abaAtiva === cat.key
-                ? 'bg-gray-900 text-white border border-b-gray-800 border-white/10'
-                : 'text-gray-500 hover:text-gray-300'
-            }`}
-          >
-            {cat.label}
-          </button>
-        ))}
-      </div>
+      <div className="flex gap-8 items-start">
 
-      {/* ── Aba checklist: view agrupada por fase ───────────────────────── */}
-      {abaAtiva === 'checklist' ? (
-        <div className="space-y-6">
-          {CHECKLIST_FASES.map(fase => {
-            const itensFase = configs
-              .filter(c => c.categoria === fase.key && !deletados.has(c.id))
-              .sort((a, b) => a.ordem - b.ordem)
-            return (
-              <div key={fase.key} className="space-y-3">
-                <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-widest">{fase.label}</h3>
-
-                <TabelaItens
-                  itens={itensFase}
-                  editando={editando}
-                  confirmandoDelete={confirmandoDelete}
-                  setEditando={setEditando}
-                  onSalvarEdicao={handleSalvarEdicao}
-                  onToggleAtivo={handleToggleAtivo}
-                  onDeletar={handleDeletar}
-                  setConfirmandoDelete={setConfirmandoDelete}
-                />
-
-                <form onSubmit={e => handleAdicionarChecklist(e, fase.key)} className="flex gap-2">
-                  <input
-                    value={checkNovoValor[fase.key] ?? ''}
-                    onChange={e => setCheckNovoValor(v => ({ ...v, [fase.key]: e.target.value }))}
-                    placeholder={`Novo item de ${fase.label.toLowerCase()}...`}
-                    className="flex-1 px-3 py-2 bg-gray-900 border border-white/10 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500"
-                  />
+        {/* ── Sidebar ─────────────────────────────────────────────────── */}
+        <nav className="w-44 shrink-0 space-y-5">
+          {GRUPOS.map(grupo => (
+            <div key={grupo.label}>
+              <p className="text-xs font-semibold text-gray-600 uppercase tracking-widest mb-1.5 px-2">
+                {grupo.label}
+              </p>
+              <div className="space-y-0.5">
+                {grupo.itens.map(item => (
                   <button
-                    type="submit"
-                    disabled={checkAdicionando === fase.key || !checkNovoValor[fase.key]?.trim()}
-                    className="flex items-center gap-1.5 px-3 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-sm rounded-lg transition-colors shrink-0"
+                    key={item.key}
+                    onClick={() => setAbaAtiva(item.key)}
+                    className={`w-full text-left px-2 py-1.5 rounded-lg text-sm transition-colors ${
+                      abaAtiva === item.key
+                        ? 'bg-indigo-600/20 text-indigo-300 font-medium'
+                        : 'text-gray-400 hover:text-white hover:bg-gray-900'
+                    }`}
                   >
-                    <Plus size={14} /> Adicionar
+                    {item.label}
                   </button>
-                </form>
+                ))}
               </div>
-            )
-          })}
-        </div>
-      ) : (
-        /* ── Abas normais ─────────────────────────────────────────────── */
-        <>
-          <form onSubmit={handleAdicionar} className="flex items-center gap-2">
-            <input
-              value={novoValor}
-              onChange={e => setNovoValor(e.target.value)}
-              placeholder="Novo item..."
-              className="flex-1 px-3 py-2 bg-gray-900 border border-white/10 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500"
-            />
-            <div className="flex items-center gap-1.5 shrink-0">
-              {CORES_RAPIDAS.map(c => (
-                <button
-                  key={c} type="button"
-                  onClick={() => setNovaCor(novaCor === c ? '' : c)}
-                  className={`w-5 h-5 rounded-full transition-all ${novaCor === c ? 'ring-2 ring-white ring-offset-1 ring-offset-gray-900 scale-110' : 'opacity-60 hover:opacity-100'}`}
-                  style={{ backgroundColor: c }}
-                />
-              ))}
             </div>
-            <button
-              type="submit"
-              disabled={adicionando || !novoValor.trim()}
-              className="flex items-center gap-1.5 px-3 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-sm rounded-lg transition-colors shrink-0"
-            >
-              <Plus size={14} /> Adicionar
-            </button>
-          </form>
+          ))}
+        </nav>
 
-          <TabelaItens
-            itens={itens}
-            editando={editando}
-            confirmandoDelete={confirmandoDelete}
-            setEditando={setEditando}
-            onSalvarEdicao={handleSalvarEdicao}
-            onToggleAtivo={handleToggleAtivo}
-            onDeletar={handleDeletar}
-            setConfirmandoDelete={setConfirmandoDelete}
-          />
-        </>
-      )}
+        {/* ── Conteúdo ────────────────────────────────────────────────── */}
+        <div className="flex-1 min-w-0 space-y-4">
+          <h2 className="text-base font-semibold text-white">{abaLabel}</h2>
+
+          {/* Checklist: view agrupada por fase */}
+          {abaAtiva === 'checklist' ? (
+            <div className="space-y-6">
+              {CHECKLIST_FASES.map(fase => {
+                const itensFase = configs
+                  .filter(c => c.categoria === fase.key && !deletados.has(c.id))
+                  .sort((a, b) => a.ordem - b.ordem)
+                return (
+                  <div key={fase.key} className="space-y-3">
+                    <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-widest">{fase.label}</h3>
+                    <TabelaItens
+                      itens={itensFase}
+                      editando={editando}
+                      confirmandoDelete={confirmandoDelete}
+                      setEditando={setEditando}
+                      onSalvarEdicao={handleSalvarEdicao}
+                      onToggleAtivo={handleToggleAtivo}
+                      onDeletar={handleDeletar}
+                      setConfirmandoDelete={setConfirmandoDelete}
+                    />
+                    <form onSubmit={e => handleAdicionarChecklist(e, fase.key)} className="flex gap-2">
+                      <input
+                        value={checkNovoValor[fase.key] ?? ''}
+                        onChange={e => setCheckNovoValor(v => ({ ...v, [fase.key]: e.target.value }))}
+                        placeholder={`Novo item de ${fase.label.toLowerCase()}...`}
+                        className="flex-1 px-3 py-2 bg-gray-900 border border-white/10 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500"
+                      />
+                      <button
+                        type="submit"
+                        disabled={checkAdicionando === fase.key || !checkNovoValor[fase.key]?.trim()}
+                        className="flex items-center gap-1.5 px-3 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-sm rounded-lg transition-colors shrink-0"
+                      >
+                        <Plus size={14} /> Adicionar
+                      </button>
+                    </form>
+                  </div>
+                )
+              })}
+            </div>
+          ) : (
+            /* Categorias normais */
+            <>
+              <form onSubmit={handleAdicionar} className="flex items-center gap-2">
+                <input
+                  value={novoValor}
+                  onChange={e => setNovoValor(e.target.value)}
+                  placeholder="Novo item..."
+                  className="flex-1 px-3 py-2 bg-gray-900 border border-white/10 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500"
+                />
+                <div className="flex items-center gap-1.5 shrink-0">
+                  {CORES_RAPIDAS.map(c => (
+                    <button
+                      key={c} type="button"
+                      onClick={() => setNovaCor(novaCor === c ? '' : c)}
+                      className={`w-5 h-5 rounded-full transition-all ${novaCor === c ? 'ring-2 ring-white ring-offset-1 ring-offset-gray-900 scale-110' : 'opacity-60 hover:opacity-100'}`}
+                      style={{ backgroundColor: c }}
+                    />
+                  ))}
+                </div>
+                <button
+                  type="submit"
+                  disabled={adicionando || !novoValor.trim()}
+                  className="flex items-center gap-1.5 px-3 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-sm rounded-lg transition-colors shrink-0"
+                >
+                  <Plus size={14} /> Adicionar
+                </button>
+              </form>
+              <TabelaItens
+                itens={itens}
+                editando={editando}
+                confirmandoDelete={confirmandoDelete}
+                setEditando={setEditando}
+                onSalvarEdicao={handleSalvarEdicao}
+                onToggleAtivo={handleToggleAtivo}
+                onDeletar={handleDeletar}
+                setConfirmandoDelete={setConfirmandoDelete}
+              />
+            </>
+          )}
+        </div>
+      </div>
     </div>
   )
 }
