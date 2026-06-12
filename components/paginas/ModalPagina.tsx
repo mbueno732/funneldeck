@@ -207,7 +207,7 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Responsável" value={form.responsavel} onChange={set('responsavel')} placeholder="Nome" />
+            <Select label="Responsável" value={form.responsavel} onChange={set('responsavel')} options={configOpts('responsavel')} />
             <Field label="Data Prevista" value={form.data_prevista} onChange={set('data_prevista')} type="date" />
           </div>
           <div className="grid grid-cols-2 gap-3">

@@ -147,3 +147,4 @@ export type CategoriaConfig =
   | 'ferramenta'
   | 'status_pagina'
   | 'prioridade'
+  | 'responsavel'

@@ -205,11 +205,27 @@ export function ModalFunil({ aberto, onFechar, onSalvo, funil, produtos, especia
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label className="text-gray-400 text-xs">Responsável CRO</Label>
-              <Input value={form.responsavel_cro} onChange={e => set('responsavel_cro')(e.target.value)} placeholder="Nome" className="bg-gray-900 border-white/10 text-white placeholder-gray-600 focus:border-indigo-500" />
+              <Select value={form.responsavel_cro || '__none__'} onValueChange={v => set('responsavel_cro')(v === '__none__' ? '' : v)}>
+                <SelectTrigger className="w-full bg-gray-900 border-white/10 text-white focus:ring-0 focus:ring-offset-0 h-10">
+                  <SelectValue placeholder="Selecionar..." />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-900 border-white/10">
+                  <SelectItem value="__none__" className="text-gray-500 focus:bg-gray-800 focus:text-white">—</SelectItem>
+                  {configOpts('responsavel').map(v => <SelectItem key={v} value={v} className="text-gray-300 focus:bg-gray-800 focus:text-white">{v}</SelectItem>)}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-1.5">
               <Label className="text-gray-400 text-xs">Responsável Dev</Label>
-              <Input value={form.responsavel_dev} onChange={e => set('responsavel_dev')(e.target.value)} placeholder="Nome" className="bg-gray-900 border-white/10 text-white placeholder-gray-600 focus:border-indigo-500" />
+              <Select value={form.responsavel_dev || '__none__'} onValueChange={v => set('responsavel_dev')(v === '__none__' ? '' : v)}>
+                <SelectTrigger className="w-full bg-gray-900 border-white/10 text-white focus:ring-0 focus:ring-offset-0 h-10">
+                  <SelectValue placeholder="Selecionar..." />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-900 border-white/10">
+                  <SelectItem value="__none__" className="text-gray-500 focus:bg-gray-800 focus:text-white">—</SelectItem>
+                  {configOpts('responsavel').map(v => <SelectItem key={v} value={v} className="text-gray-300 focus:bg-gray-800 focus:text-white">{v}</SelectItem>)}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
