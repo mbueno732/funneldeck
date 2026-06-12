@@ -340,15 +340,22 @@ export function ListaFunis({ funis, produtos, especialistas, configs, initialEsp
           },
           {
             label: 'Ongoing',
-            tipos: [] as string[], // catch-all
+            tipos: ['Ongoing'],
             badge: 'bg-sky-500/10 text-sky-400 border-sky-500/30',
             linha: 'bg-gradient-to-r from-sky-500/40 to-transparent',
             contador: 'text-sky-500/50',
           },
+          {
+            label: 'Plataforma',
+            tipos: ['Plataforma'],
+            badge: 'bg-violet-500/10 text-violet-400 border-violet-500/30',
+            linha: 'bg-gradient-to-r from-violet-500/40 to-transparent',
+            contador: 'text-violet-500/50',
+          },
         ]
 
         const atribuirGrupo = (f: FunilComMetricas) => {
-          for (const g of GRUPOS.slice(0, -1)) {
+          for (const g of GRUPOS) {
             if (g.tipos.includes(f.tipo)) return g.label
           }
           return 'Ongoing'
