@@ -110,9 +110,9 @@ export function PainelChecklist({ pagina, onFechar }: Props) {
       <div className="fixed inset-0 z-30 bg-black/40" onClick={onFechar} />
 
       {/* Painel */}
-      <div className="fixed right-0 top-0 h-full w-full max-w-md z-40 bg-gray-900 border-l border-white/10 flex flex-col shadow-2xl">
+      <div className="fixed right-0 top-0 h-full w-full max-w-md z-40 bg-gray-900 border-l border-gray-800 flex flex-col shadow-2xl">
         {/* Header */}
-        <div className="flex items-start justify-between p-5 border-b border-white/[0.07] shrink-0">
+        <div className="flex items-start justify-between p-5 border-b border-gray-800 shrink-0">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <CheckSquare size={16} className="text-indigo-400 shrink-0" />
@@ -154,7 +154,7 @@ export function PainelChecklist({ pagina, onFechar }: Props) {
         ) : (
           <div className="flex-1 overflow-y-auto">
             {/* Progresso */}
-            <div className="p-5 border-b border-white/[0.07] space-y-2">
+            <div className="p-5 border-b border-gray-800 space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-400">
                 {concluidos} de {aplicaveis.length} itens
@@ -173,7 +173,7 @@ export function PainelChecklist({ pagina, onFechar }: Props) {
             </div>
 
             {/* Toggle VSL */}
-            <div className="px-5 py-4 border-b border-white/[0.07]">
+            <div className="px-5 py-4 border-b border-gray-800">
               <label className="flex items-center justify-between cursor-pointer">
                 <div>
                   <p className="text-sm text-white font-medium">Página tem VSL</p>
@@ -286,20 +286,20 @@ export function PainelChecklist({ pagina, onFechar }: Props) {
             </div>
 
             {/* Observações */}
-            <div className="p-5 border-t border-white/10">
+            <div className="p-5 border-t border-gray-800">
               <p className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-2">Observações</p>
               <textarea
                 value={checklist.observacao_geral ?? ''}
                 onChange={e => handleObservacao(e.target.value)}
                 placeholder="Notas sobre a publicação..."
                 rows={3}
-                className="w-full px-3 py-2 bg-gray-900 border border-white/10 rounded-lg text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500 resize-none"
+                className="w-full px-3 py-2 bg-gray-900 border border-gray-800 rounded-lg text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500 resize-none"
               />
             </div>
 
             {/* Histórico de status */}
             {historico.length > 0 && (
-              <div className="border-t border-white/10">
+              <div className="border-t border-gray-800">
                 <button
                   onClick={() => setHistoricoAberto(v => !v)}
                   className="w-full flex items-center justify-between px-5 py-3 text-xs text-gray-500 hover:text-gray-300 transition-colors"

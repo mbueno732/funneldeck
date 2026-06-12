@@ -87,7 +87,7 @@ function ItemRow({
               value={editando.valor}
               onChange={e => setEditando({ ...editando, valor: e.target.value })}
               onKeyDown={e => { if (e.key === 'Enter') onSalvar(); if (e.key === 'Escape') onCancelarEdicao() }}
-              className="flex-1 px-2 py-1 bg-gray-900 border border-white/10 rounded text-white text-sm focus:outline-none focus:border-indigo-500"
+              className="flex-1 px-2 py-1 bg-gray-900 border border-gray-800 rounded text-white text-sm focus:outline-none focus:border-indigo-500"
             />
             <button onClick={onSalvar} className="text-green-400 hover:text-green-300"><Check size={14} /></button>
             <button onClick={onCancelarEdicao} className="text-gray-500 hover:text-gray-300"><X size={14} /></button>
@@ -164,7 +164,7 @@ function TabelaItens({
   setConfirmandoDelete: (id: string | null) => void
 }) {
   return (
-    <div className="rounded-xl border border-white/10 overflow-hidden">
+    <div className="rounded-xl border border-gray-800 overflow-hidden">
       <table className="w-full text-sm">
         <thead>
           <tr className="bg-gray-900/60 text-gray-400 text-xs uppercase tracking-wide">
@@ -336,7 +336,7 @@ export function GerenciarConfiguracoes({ configs }: Props) {
                         value={checkNovoValor[fase.key] ?? ''}
                         onChange={e => setCheckNovoValor(v => ({ ...v, [fase.key]: e.target.value }))}
                         placeholder={`Novo item de ${fase.label.toLowerCase()}...`}
-                        className="flex-1 px-3 py-2 bg-gray-900 border border-white/10 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500"
+                        className="flex-1 px-3 py-2 bg-gray-900 border border-gray-800 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500"
                       />
                       <button
                         type="submit"
@@ -358,7 +358,7 @@ export function GerenciarConfiguracoes({ configs }: Props) {
                   value={novoValor}
                   onChange={e => setNovoValor(e.target.value)}
                   placeholder="Novo item..."
-                  className="flex-1 px-3 py-2 bg-gray-900 border border-white/10 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500"
+                  className="flex-1 px-3 py-2 bg-gray-900 border border-gray-800 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500"
                 />
                 <div className="flex items-center gap-1.5 shrink-0">
                   {CORES_RAPIDAS.map(c => (

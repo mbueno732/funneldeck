@@ -30,10 +30,10 @@ function Select({ label, value, onChange, options, obrigatorio }: {
     <div className="space-y-1.5">
       <Label className="text-gray-400 text-xs">{label}{obrigatorio && ' *'}</Label>
       <ShadSelect value={value || '__none__'} onValueChange={v => onChange(v === '__none__' ? '' : v)}>
-        <SelectTrigger className="w-full bg-gray-900 border-white/10 text-white focus:ring-0 focus:ring-offset-0 h-10">
+        <SelectTrigger className="w-full bg-gray-900 border-gray-800 text-white focus:ring-0 focus:ring-offset-0 h-10">
           <SelectValue />
         </SelectTrigger>
-        <SelectContent className="bg-gray-900 border-white/10">
+        <SelectContent className="bg-gray-900 border-gray-800">
           <SelectItem value="__none__" className="text-gray-300 focus:bg-gray-800 focus:text-white">Selecionar...</SelectItem>
           {options.map(o => (
             <SelectItem key={o.valor} value={o.valor} className="text-gray-300 focus:bg-gray-800 focus:text-white">{o.label ?? o.valor}</SelectItem>
@@ -56,7 +56,7 @@ function Field({ label, value, onChange, type = 'text', placeholder }: {
         value={value}
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
-        className="bg-gray-900 border-white/10 text-white placeholder-gray-600 focus:border-indigo-500"
+        className="bg-gray-900 border-gray-800 text-white placeholder-gray-600 focus:border-indigo-500"
       />
     </div>
   )
@@ -178,7 +178,7 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
 
   return (
     <Dialog open={aberto} onOpenChange={v => !v && onFechar()}>
-      <DialogContent className="bg-gray-900 border-white/10 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-white">
             {isEdit ? 'Editar Página' : 'Nova Página'}
@@ -230,7 +230,7 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
               value={form.observacoes}
               onChange={e => set('observacoes')(e.target.value)}
               placeholder="Notas, contexto, links adicionais..."
-              className="bg-gray-900 border-white/10 text-white placeholder-gray-600 focus:border-indigo-500 min-h-[80px]"
+              className="bg-gray-900 border-gray-800 text-white placeholder-gray-600 focus:border-indigo-500 min-h-[80px]"
             />
           </div>
 

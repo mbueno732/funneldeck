@@ -71,7 +71,7 @@ export default function SetPasswordPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-950">
-      <div className="w-full max-w-sm p-8 bg-gray-900 rounded-xl border border-white/10 space-y-6">
+      <div className="w-full max-w-sm p-8 bg-gray-900 rounded-xl border border-gray-800 space-y-6">
         <Logo />
 
         {verificando ? (
@@ -99,7 +99,7 @@ export default function SetPasswordPage() {
                   onChange={e => setSenha(e.target.value)}
                   required
                   minLength={6}
-                  className="w-full px-3 py-2 bg-gray-900 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500"
+                  className="w-full px-3 py-2 bg-gray-900 border border-gray-800 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500"
                   placeholder="••••••••"
                 />
               </div>
@@ -110,7 +110,7 @@ export default function SetPasswordPage() {
                   value={confirmacao}
                   onChange={e => setConfirmacao(e.target.value)}
                   required
-                  className="w-full px-3 py-2 bg-gray-900 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500"
+                  className="w-full px-3 py-2 bg-gray-900 border border-gray-800 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500"
                   placeholder="••••••••"
                 />
               </div>

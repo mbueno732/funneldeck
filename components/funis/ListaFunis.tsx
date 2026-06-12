@@ -102,26 +102,26 @@ export function ListaFunis({ funis, produtos, especialistas, configs, initialEsp
       {/* Filtros */}
       <div className="flex gap-2 flex-wrap">
         <Select value={filtroEsp || '__all__'} onValueChange={v => setFiltroEsp(v === '__all__' ? '' : v)}>
-          <SelectTrigger className="h-9 text-sm bg-gray-900 border-white/10 text-gray-300 hover:bg-gray-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[130px]">
+          <SelectTrigger className="h-9 text-sm bg-gray-900 border-gray-800 text-gray-300 hover:bg-gray-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[130px]">
             <SelectValue />
           </SelectTrigger>
-          <SelectContent className="bg-gray-900 border-white/10">
+          <SelectContent className="bg-gray-900 border-gray-800">
             <SelectItem value="__all__" className="text-gray-300 focus:bg-gray-800 focus:text-white">Todos os especialistas</SelectItem>
             {especialistas.map(e => <SelectItem key={e.id} value={e.id} className="text-gray-300 focus:bg-gray-800 focus:text-white">{e.nome}</SelectItem>)}
           </SelectContent>
         </Select>
         <Select value={filtroStatus || '__all__'} onValueChange={v => setFiltroStatus(v === '__all__' ? '' : v)}>
-          <SelectTrigger className="h-9 text-sm bg-gray-900 border-white/10 text-gray-300 hover:bg-gray-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[130px]">
+          <SelectTrigger className="h-9 text-sm bg-gray-900 border-gray-800 text-gray-300 hover:bg-gray-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[130px]">
             <SelectValue />
           </SelectTrigger>
-          <SelectContent className="bg-gray-900 border-white/10">
+          <SelectContent className="bg-gray-900 border-gray-800">
             <SelectItem value="__all__" className="text-gray-300 focus:bg-gray-800 focus:text-white">Todos os status</SelectItem>
             {statusOpts.map(c => <SelectItem key={c.valor} value={c.valor} className="text-gray-300 focus:bg-gray-800 focus:text-white">{c.valor}</SelectItem>)}
           </SelectContent>
         </Select>
         {(filtroEsp || filtroStatus) && (
           <button onClick={() => { setFiltroEsp(''); setFiltroStatus('') }}
-            className="px-3 py-1.5 text-xs text-gray-400 hover:text-white border border-white/10 rounded-lg hover:border-white/20 transition-colors">
+            className="px-3 py-1.5 text-xs text-gray-400 hover:text-white border border-gray-800 rounded-lg hover:border-gray-600 transition-colors">
             Limpar
           </button>
         )}
@@ -136,7 +136,7 @@ export function ListaFunis({ funis, produtos, especialistas, configs, initialEsp
 
       {/* Cards */}
       {filtrados.length === 0 ? (
-        <div className="rounded-xl border border-white/10 p-12 text-center text-gray-500">
+        <div className="rounded-xl border border-gray-800 p-12 text-center text-gray-500">
           {funis.length === 0 ? 'Nenhum funil cadastrado ainda.' : 'Nenhum funil encontrado com os filtros aplicados.'}
         </div>
       ) : (() => {
@@ -147,7 +147,7 @@ export function ListaFunis({ funis, produtos, especialistas, configs, initialEsp
             const temImpl = f.impl_nao_publicadas > 0
 
             return (
-              <div key={f.id} className="bg-gray-900 border border-white/10 rounded-xl p-4 space-y-3 hover:border-white/20 transition-colors">
+              <div key={f.id} className="bg-gray-900 border border-gray-800 rounded-xl p-4 space-y-3 hover:border-gray-600 transition-colors">
                 {/* Header do card */}
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
@@ -181,7 +181,7 @@ export function ListaFunis({ funis, produtos, especialistas, configs, initialEsp
                         >
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent className="bg-gray-900 border-white/10">
+                        <SelectContent className="bg-gray-900 border-gray-800">
                           {statusOpts.map(c => (
                             <SelectItem key={c.valor} value={c.valor} className="text-gray-300 focus:bg-gray-800 focus:text-white">{c.valor}</SelectItem>
                           ))}
@@ -252,7 +252,7 @@ export function ListaFunis({ funis, produtos, especialistas, configs, initialEsp
                 )}
 
                 {/* Ações */}
-                <div className="flex items-center gap-2 pt-1 border-t border-white/10">
+                <div className="flex items-center gap-2 pt-1 border-t border-gray-800">
                   {confirmandoDelete === f.id ? (
                     <>
                       <span className="flex-1 text-xs text-gray-400">Excluir funil?</span>

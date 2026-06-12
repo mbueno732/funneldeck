@@ -18,10 +18,10 @@ export default function Loading() {
       </div>
 
       {/* Conteúdo skeleton */}
-      <div className="rounded-xl border border-white/10 overflow-hidden">
+      <div className="rounded-xl border border-gray-800 overflow-hidden">
         <div className="bg-gray-900/60 h-10" />
         {[1, 2, 3, 4, 5].map(i => (
-          <div key={i} className="flex items-center gap-4 px-4 py-3 border-t border-white/10">
+          <div key={i} className="flex items-center gap-4 px-4 py-3 border-t border-gray-800">
             <div className="flex-1 space-y-2">
               <div className="h-4 bg-gray-900 rounded w-1/3" />
               <div className="h-3 bg-gray-900/60 rounded w-1/4" />

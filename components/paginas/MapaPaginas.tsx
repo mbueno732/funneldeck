@@ -265,10 +265,10 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
 
   const filtroSelect = (label: string, value: string, onChange: (v: string) => void, cat: string) => (
     <Select value={value || '__all__'} onValueChange={v => onChange(v === '__all__' ? '' : v)}>
-      <SelectTrigger className="h-9 text-sm bg-gray-900 border-white/10 text-gray-300 hover:bg-gray-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[110px]">
+      <SelectTrigger className="h-9 text-sm bg-gray-900 border-gray-800 text-gray-300 hover:bg-gray-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[110px]">
         <SelectValue placeholder={label} />
       </SelectTrigger>
-      <SelectContent className="bg-gray-900 border-white/10">
+      <SelectContent className="bg-gray-900 border-gray-800">
         <SelectItem value="__all__" className="text-gray-400 focus:bg-gray-800 focus:text-white">{label}</SelectItem>
         {configOpts(cat).map(c => (
           <SelectItem key={c.valor} value={c.valor} className="text-gray-300 focus:bg-gray-800 focus:text-white">{c.valor}</SelectItem>
@@ -312,7 +312,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <div className="flex items-center bg-gray-900 border border-white/10 rounded-lg p-0.5">
+          <div className="flex items-center bg-gray-900 border border-gray-800 rounded-lg p-0.5">
             <button
               onClick={() => setVisualizacao('tabela')}
               className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded text-xs font-medium transition-colors ${visualizacao === 'tabela' ? 'bg-gray-900 text-white' : 'text-gray-500 hover:text-gray-300'}`}
@@ -350,7 +350,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
 
       {/* Distribuição por ferramenta */}
       {distribuicaoFerramenta.length > 0 && (
-        <div className="bg-gray-900 border border-white/10 rounded-xl overflow-hidden">
+        <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
           <button
             onClick={() => setDistribuicaoAberta(v => !v)}
             className="w-full flex items-center justify-between px-4 py-3 text-sm text-gray-400 hover:text-white transition-colors"
@@ -362,7 +362,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
             </div>
           </button>
           {distribuicaoAberta && (
-            <div className="px-4 pb-4 space-y-2.5 border-t border-white/10 pt-3">
+            <div className="px-4 pb-4 space-y-2.5 border-t border-gray-800 pt-3">
               {distribuicaoFerramenta.map(({ ferramenta, label, count, pct }) => (
                 <button
                   key={ferramenta}
@@ -402,14 +402,14 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
             placeholder="Buscar páginas..."
             value={busca}
             onChange={e => setBusca(e.target.value)}
-            className="pl-8 bg-gray-900 border-white/10 text-white placeholder-gray-500 h-9 w-52"
+            className="pl-8 bg-gray-900 border-gray-800 text-white placeholder-gray-500 h-9 w-52"
           />
         </div>
         <Select value={filtroFunil || '__all__'} onValueChange={v => setFiltroFunil(v === '__all__' ? '' : v)}>
-          <SelectTrigger className="h-9 text-sm bg-gray-900 border-white/10 text-gray-300 hover:bg-gray-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[140px]">
+          <SelectTrigger className="h-9 text-sm bg-gray-900 border-gray-800 text-gray-300 hover:bg-gray-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[140px]">
             <SelectValue placeholder="Todos os funis" />
           </SelectTrigger>
-          <SelectContent className="bg-gray-900 border-white/10">
+          <SelectContent className="bg-gray-900 border-gray-800">
             <SelectItem value="__all__" className="text-gray-400 focus:bg-gray-800 focus:text-white">Todos os funis</SelectItem>
             {funis.map(f => (
               <SelectItem key={f.id} value={f.id} className="text-gray-300 focus:bg-gray-800 focus:text-white">
@@ -434,7 +434,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
         {(busca || filtroFunil || filtroStatus || filtroEtapa || filtroPrioridade || filtroFerramenta || filtroAtrasadas) && (
           <button
             onClick={() => { setBusca(''); setFiltroFunil(''); setFiltroStatus(''); setFiltroEtapa(''); setFiltroPrioridade(''); setFiltroFerramenta(''); setFiltroAtrasadas(false) }}
-            className="px-3 py-1.5 text-xs text-gray-400 hover:text-white border border-white/10 rounded-lg hover:border-white/20 transition-colors"
+            className="px-3 py-1.5 text-xs text-gray-400 hover:text-white border border-gray-800 rounded-lg hover:border-gray-600 transition-colors"
           >
             Limpar filtros
           </button>
@@ -452,7 +452,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
                 className={`flex-none w-72 rounded-xl border transition-colors ${
                   dragOverStatus === col.valor
                     ? 'border-indigo-500 bg-indigo-500/5'
-                    : 'border-white/10 bg-gray-900/50'
+                    : 'border-gray-800 bg-gray-900/50'
                 }`}
                 onDragOver={e => { e.preventDefault(); setDragOverStatus(col.valor) }}
                 onDragLeave={e => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragOverStatus(null) }}
@@ -469,7 +469,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
                 }}
               >
                 {/* Cabeçalho da coluna */}
-                <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.07]">
+                <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800">
                   <div className="flex items-center gap-2">
                     {col.cor && <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: col.cor }} />}
                     <span className="text-sm font-medium text-white">{col.valor}</span>
@@ -499,8 +499,8 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
                           draggingId === p.id
                             ? 'opacity-40 border-indigo-500'
                             : atrasada
-                              ? 'border-l-2 border-l-red-500 border-white/10 hover:border-white/20'
-                              : 'border-white/10 hover:border-white/20'
+                              ? 'border-l-2 border-l-red-500 border-gray-800 hover:border-gray-600'
+                              : 'border-gray-800 hover:border-gray-600'
                         }`}
                       >
                         {/* Topo do card */}
@@ -584,7 +584,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
       )}
 
       {/* Tabela */}
-      {visualizacao === 'tabela' && <div className="rounded-xl border border-white/10 overflow-hidden">
+      {visualizacao === 'tabela' && <div className="rounded-xl border border-gray-800 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -643,7 +643,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
                           ) : (
                             <button
                               onClick={() => setCelula({ id: p.id, campo: 'codigo', valor: '' })}
-                              className="text-gray-600 text-xs px-1.5 py-0.5 rounded border border-dashed border-white/10 hover:border-white/20 hover:text-gray-400 transition-colors shrink-0"
+                              className="text-gray-600 text-xs px-1.5 py-0.5 rounded border border-dashed border-gray-800 hover:border-gray-600 hover:text-gray-400 transition-colors shrink-0"
                               title="Adicionar código"
                             >
                               +código
@@ -667,7 +667,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
                               onChange={e => setUrlTemp(e.target.value)}
                               onKeyDown={e => { if (e.key === 'Enter') handleSalvarUrl(p); if (e.key === 'Escape') setEditandoUrl(null) }}
                               placeholder="https://"
-                              className="flex-1 px-2 py-1 text-xs bg-gray-900 border border-white/10 rounded text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 min-w-0"
+                              className="flex-1 px-2 py-1 text-xs bg-gray-900 border border-gray-800 rounded text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 min-w-0"
                             />
                             <button onClick={() => handleSalvarUrl(p)} className="p-1 text-green-400 hover:text-green-300"><Check size={13} /></button>
                             <button onClick={() => setEditandoUrl(null)} className="p-1 text-gray-500 hover:text-gray-300"><X size={13} /></button>
@@ -694,7 +694,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
                             style={{ color: p.etapa ? '#9ca3af' : '#4b5563' }}>
                             <SelectValue placeholder="— etapa" />
                           </SelectTrigger>
-                          <SelectContent className="bg-gray-900 border-white/10">
+                          <SelectContent className="bg-gray-900 border-gray-800">
                             <SelectItem value="__none__" className="text-gray-500 focus:bg-gray-800 focus:text-white">— etapa</SelectItem>
                             {configOpts('etapa').map(c => <SelectItem key={c.valor} value={c.valor} className="text-gray-300 focus:bg-gray-800 focus:text-white">{c.valor}</SelectItem>)}
                           </SelectContent>
@@ -708,7 +708,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
                             style={{ color: p.ferramenta ? (cor('ferramenta', p.ferramenta) ?? '#9ca3af') : '#4b5563' }}>
                             <SelectValue placeholder="— ferramenta" />
                           </SelectTrigger>
-                          <SelectContent className="bg-gray-900 border-white/10">
+                          <SelectContent className="bg-gray-900 border-gray-800">
                             <SelectItem value="__none__" className="text-gray-500 focus:bg-gray-800 focus:text-white">— ferramenta</SelectItem>
                             {configOpts('ferramenta').map(c => <SelectItem key={c.valor} value={c.valor} className="text-gray-300 focus:bg-gray-800 focus:text-white">{c.valor}</SelectItem>)}
                           </SelectContent>
@@ -722,7 +722,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
                             style={{ color: cor('status_pagina', p.status) ?? '#6b7280' }}>
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent className="bg-gray-900 border-white/10">
+                          <SelectContent className="bg-gray-900 border-gray-800">
                             {configOpts('status_pagina').map(c => <SelectItem key={c.valor} value={c.valor} className="text-gray-300 focus:bg-gray-800 focus:text-white">{c.valor}</SelectItem>)}
                           </SelectContent>
                         </Select>
@@ -735,7 +735,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
                             style={{ color: p.prioridade ? (cor('prioridade', p.prioridade) ?? '#6b7280') : '#4b5563' }}>
                             <SelectValue placeholder="— prioridade" />
                           </SelectTrigger>
-                          <SelectContent className="bg-gray-900 border-white/10">
+                          <SelectContent className="bg-gray-900 border-gray-800">
                             <SelectItem value="__none__" className="text-gray-500 focus:bg-gray-800 focus:text-white">— prioridade</SelectItem>
                             {configOpts('prioridade').map(c => <SelectItem key={c.valor} value={c.valor} className="text-gray-300 focus:bg-gray-800 focus:text-white">{c.valor}</SelectItem>)}
                           </SelectContent>
@@ -750,7 +750,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
                               onChange={e => setCelula(c => c ? { ...c, valor: e.target.value } : c)}
                               onKeyDown={e => { if (e.key === 'Enter') handleSalvarCelula(); if (e.key === 'Escape') setCelula(null) }}
                               placeholder="ex: 1h30"
-                              className="w-20 px-1.5 py-0.5 text-xs bg-gray-900 border border-white/10 rounded text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500"
+                              className="w-20 px-1.5 py-0.5 text-xs bg-gray-900 border border-gray-800 rounded text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500"
                             />
                             <button onClick={handleSalvarCelula} className="text-green-400 hover:text-green-300"><Check size={12} /></button>
                             <button onClick={() => setCelula(null)} className="text-gray-500 hover:text-gray-300"><X size={12} /></button>
@@ -774,7 +774,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
                             <input autoFocus type="date" value={celula.valor}
                               onChange={e => setCelula(c => c ? { ...c, valor: e.target.value } : c)}
                               onKeyDown={e => { if (e.key === 'Enter') handleSalvarCelula(); if (e.key === 'Escape') setCelula(null) }}
-                              className="px-1.5 py-0.5 text-xs bg-gray-900 border border-white/10 rounded text-white focus:outline-none focus:border-indigo-500"
+                              className="px-1.5 py-0.5 text-xs bg-gray-900 border border-gray-800 rounded text-white focus:outline-none focus:border-indigo-500"
                             />
                             <button onClick={handleSalvarCelula} className="text-green-400 hover:text-green-300"><Check size={12} /></button>
                             <button onClick={() => setCelula(null)} className="text-gray-500 hover:text-gray-300"><X size={12} /></button>

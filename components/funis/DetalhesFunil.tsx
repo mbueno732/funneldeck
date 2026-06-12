@@ -145,7 +145,7 @@ export function DetalhesFunil({ funil, paginas, historico, configs }: Props) {
       </div>
 
       {/* Abas */}
-      <div className="flex gap-1 border-b border-white/10">
+      <div className="flex gap-1 border-b border-gray-800">
         {([
           { id: 'timeline', label: 'Timeline', icon: Clock },
           { id: 'paginas',  label: 'Páginas',  icon: LayoutGrid },

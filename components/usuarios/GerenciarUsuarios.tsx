@@ -71,7 +71,7 @@ export function GerenciarUsuarios({ usuarios, usuarioAtualId }: Props) {
     <div className="space-y-6">
 
       {/* Convidar */}
-      <div className="bg-gray-900 border border-white/10 rounded-xl p-5 space-y-4">
+      <div className="bg-gray-900 border border-gray-800 rounded-xl p-5 space-y-4">
         <div>
           <h2 className="text-white font-medium">Convidar usuário</h2>
           <p className="text-gray-500 text-sm mt-0.5">A pessoa receberá um email para criar a própria senha.</p>
@@ -85,7 +85,7 @@ export function GerenciarUsuarios({ usuarios, usuarioAtualId }: Props) {
               onChange={e => setEmail(e.target.value)}
               placeholder="email@empresa.com"
               required
-              className="w-full pl-8 pr-3 py-2 bg-gray-900 border border-white/10 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500"
+              className="w-full pl-8 pr-3 py-2 bg-gray-900 border border-gray-800 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500"
             />
           </div>
           <button
@@ -102,8 +102,8 @@ export function GerenciarUsuarios({ usuarios, usuarioAtualId }: Props) {
       </div>
 
       {/* Lista */}
-      <div className="bg-gray-900 border border-white/10 rounded-xl overflow-hidden">
-        <div className="px-5 py-3 border-b border-white/[0.07]">
+      <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+        <div className="px-5 py-3 border-b border-gray-800">
           <p className="text-sm font-medium text-white">{usuarios.length} usuário{usuarios.length !== 1 ? 's' : ''}</p>
         </div>
         <div className="divide-y divide-white/[0.07]">
@@ -155,10 +155,10 @@ export function GerenciarUsuarios({ usuarios, usuarioAtualId }: Props) {
                   </span>
                 ) : (
                   <Select value={u.perfil} onValueChange={v => handleAlterarPerfil(u.id, v as 'editor' | 'visualizador')}>
-                    <SelectTrigger className="border-0 bg-transparent p-0 h-auto w-auto text-xs font-medium focus:ring-0 focus:ring-offset-0 gap-0 [&>svg]:hidden px-2 py-1 border border-white/10 rounded-lg text-gray-300 cursor-pointer" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
+                    <SelectTrigger className="border-0 bg-transparent p-0 h-auto w-auto text-xs font-medium focus:ring-0 focus:ring-offset-0 gap-0 [&>svg]:hidden px-2 py-1 border border-gray-800 rounded-lg text-gray-300 cursor-pointer" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-gray-900 border-white/10">
+                    <SelectContent className="bg-gray-900 border-gray-800">
                       <SelectItem value="editor" className="text-gray-300 focus:bg-gray-800 focus:text-white">editor</SelectItem>
                       <SelectItem value="visualizador" className="text-gray-300 focus:bg-gray-800 focus:text-white">visualizador</SelectItem>
                     </SelectContent>

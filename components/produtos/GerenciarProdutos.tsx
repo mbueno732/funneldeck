@@ -102,10 +102,10 @@ export function GerenciarProdutos({ produtos, especialistas }: Props) {
       {/* Formulário de criação */}
       <form onSubmit={handleCriar} className="flex gap-2 flex-wrap">
         <Select value={form.especialista_id || '__none__'} onValueChange={v => setForm(f => ({ ...f, especialista_id: v === '__none__' ? '' : v }))}>
-          <SelectTrigger className="h-9 text-sm bg-gray-900 border-white/10 text-gray-300 hover:bg-gray-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[130px]">
+          <SelectTrigger className="h-9 text-sm bg-gray-900 border-gray-800 text-gray-300 hover:bg-gray-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[130px]">
             <SelectValue placeholder="Especialista *" />
           </SelectTrigger>
-          <SelectContent className="bg-gray-900 border-white/10">
+          <SelectContent className="bg-gray-900 border-gray-800">
             <SelectItem value="__none__" className="text-gray-300 focus:bg-gray-800 focus:text-white">Especialista *</SelectItem>
             {especialistas.map(e => <SelectItem key={e.id} value={e.id} className="text-gray-300 focus:bg-gray-800 focus:text-white">{e.nome}</SelectItem>)}
           </SelectContent>
@@ -114,7 +114,7 @@ export function GerenciarProdutos({ produtos, especialistas }: Props) {
           value={form.nome}
           onChange={e => setForm(f => ({ ...f, nome: e.target.value }))}
           placeholder="Nome do produto *"
-          className="bg-gray-900 border-white/10 text-white placeholder-gray-500 focus:border-indigo-500 flex-1 min-w-40"
+          className="bg-gray-900 border-gray-800 text-white placeholder-gray-500 focus:border-indigo-500 flex-1 min-w-40"
         />
         <Button type="submit" disabled={criando || !form.nome.trim() || !form.especialista_id} className="bg-indigo-600 hover:bg-indigo-500 text-white gap-2 shrink-0">
           <Plus size={16} />
@@ -132,10 +132,10 @@ export function GerenciarProdutos({ produtos, especialistas }: Props) {
       {/* Filtro */}
       <div className="flex items-center gap-2">
         <Select value={filtroEsp || '__all__'} onValueChange={v => setFiltroEsp(v === '__all__' ? '' : v)}>
-          <SelectTrigger className="h-9 text-sm bg-gray-900 border-white/10 text-gray-300 hover:bg-gray-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[130px]">
+          <SelectTrigger className="h-9 text-sm bg-gray-900 border-gray-800 text-gray-300 hover:bg-gray-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[130px]">
             <SelectValue />
           </SelectTrigger>
-          <SelectContent className="bg-gray-900 border-white/10">
+          <SelectContent className="bg-gray-900 border-gray-800">
             <SelectItem value="__all__" className="text-gray-300 focus:bg-gray-800 focus:text-white">Todos os especialistas</SelectItem>
             {especialistas.map(e => <SelectItem key={e.id} value={e.id} className="text-gray-300 focus:bg-gray-800 focus:text-white">{e.nome}</SelectItem>)}
           </SelectContent>
@@ -144,7 +144,7 @@ export function GerenciarProdutos({ produtos, especialistas }: Props) {
       </div>
 
       {/* Lista */}
-      <div className="rounded-xl border border-white/10 overflow-hidden">
+      <div className="rounded-xl border border-gray-800 overflow-hidden">
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-gray-900/60 text-gray-400 text-xs uppercase tracking-wide">
@@ -169,7 +169,7 @@ export function GerenciarProdutos({ produtos, especialistas }: Props) {
                       <Input
                         value={editando.nome}
                         onChange={e => setEditando({ id: p.id, nome: e.target.value })}
-                        className="bg-gray-900 border-white/10 text-white h-8 text-sm"
+                        className="bg-gray-900 border-gray-800 text-white h-8 text-sm"
                         autoFocus
                         onKeyDown={e => e.key === 'Enter' && handleSalvarEdicao(p.id)}
                       />

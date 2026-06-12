@@ -54,7 +54,7 @@ export function GerenciarEspecialistas({ especialistas }: { especialistas: Espec
           value={novoNome}
           onChange={e => setNovoNome(e.target.value)}
           placeholder="Nome do especialista..."
-          className="bg-gray-900 border-white/10 text-white placeholder-gray-500 focus:border-indigo-500"
+          className="bg-gray-900 border-gray-800 text-white placeholder-gray-500 focus:border-indigo-500"
         />
         <Button type="submit" disabled={criando || !novoNome.trim()} className="bg-indigo-600 hover:bg-indigo-500 text-white gap-2 shrink-0">
           <Plus size={16} />
@@ -63,7 +63,7 @@ export function GerenciarEspecialistas({ especialistas }: { especialistas: Espec
       </form>
 
       {/* Lista */}
-      <div className="rounded-xl border border-white/10 overflow-hidden">
+      <div className="rounded-xl border border-gray-800 overflow-hidden">
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-gray-900/60 text-gray-400 text-xs uppercase tracking-wide">
@@ -89,7 +89,7 @@ export function GerenciarEspecialistas({ especialistas }: { especialistas: Espec
                       <Input
                         value={editandoNome}
                         onChange={ev => setEditandoNome(ev.target.value)}
-                        className="bg-gray-900 border-white/10 text-white h-8 text-sm"
+                        className="bg-gray-900 border-gray-800 text-white h-8 text-sm"
                         autoFocus
                         onKeyDown={ev => ev.key === 'Enter' && handleSalvarEdicao(e.id)}
                       />

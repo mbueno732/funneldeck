@@ -2,34 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ─── Design system: escala de cinza customizada ───────────────────────────
-   Formato RGB para compatibilidade com modificadores de opacidade do Tailwind
-   ex: bg-gray-900/50 funciona corretamente
-   ─────────────────────────────────────────────────────────────────────────── */
-:root {
-  color-scheme: dark;
-
-  /* Fundo de página — preto profundo, referência para todo o contraste */
-  --gray-950: 10 10 10;        /* #0a0a0a */
-
-  /* Cards e painéis — 2 stops acima do fundo, perceptível em qualquer monitor */
-  --gray-900: 26 31 46;        /* #1a1f2e */
-
-  /* Inputs, hover states, elementos internos ao card */
-  --gray-800: 37 45 61;        /* #252d3d */
-
-  /* Bordas e divisores */
-  --gray-700: 55 65 81;        /* #374151 — padrão Tailwind mantido */
-}
-
-/* ─── Variáveis Shadcn/UI ────────────────────────────────────────────────── */
 @layer base {
   :root {
-    --background: 0 0% 4%;
+    color-scheme: dark;
+    --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
-    --card: 226 28% 14%;
+    --card: 222.2 84% 4.9%;
     --card-foreground: 210 40% 98%;
-    --popover: 226 28% 14%;
+    --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
     --primary: 217.2 91.2% 59.8%;
     --primary-foreground: 0 0% 100%;
@@ -41,17 +21,16 @@
     --accent-foreground: 210 40% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 20%;
-    --input: 226 28% 14%;
-    --ring: 217.2 91.2% 59.8%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 48%;
     --radius: 0.5rem;
   }
 }
 
 @layer base {
   body {
-    @apply text-foreground;
-    background-color: rgb(var(--gray-950));
+    @apply bg-background text-foreground;
     font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
   }
 }

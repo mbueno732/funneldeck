@@ -58,7 +58,7 @@ export function ModalDuplicarFunil({ aberto, onFechar, onSalvo, funil, produtos,
 
   return (
     <Dialog open={aberto} onOpenChange={v => !v && onFechar()}>
-      <DialogContent className="bg-gray-900 border-white/10 text-white max-w-md">
+      <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-md">
         <DialogHeader>
           <DialogTitle className="text-white flex items-center gap-2">
             <Copy size={16} className="text-indigo-400" />
@@ -66,7 +66,7 @@ export function ModalDuplicarFunil({ aberto, onFechar, onSalvo, funil, produtos,
           </DialogTitle>
         </DialogHeader>
 
-        <div className="mt-1 p-3 bg-gray-900/60 rounded-lg border border-white/10">
+        <div className="mt-1 p-3 bg-gray-900/60 rounded-lg border border-gray-800">
           <p className="text-xs text-gray-400 mb-1">Duplicando</p>
           <p className="text-white font-medium">
             {funil.id_funil && <span className="text-indigo-400 font-mono mr-2">[{funil.id_funil}]</span>}
@@ -89,17 +89,17 @@ export function ModalDuplicarFunil({ aberto, onFechar, onSalvo, funil, produtos,
               onChange={e => setNome(e.target.value)}
               placeholder="Nome do novo funil"
               required
-              className="bg-gray-900 border-white/10 text-white placeholder-gray-600 focus:border-indigo-500"
+              className="bg-gray-900 border-gray-800 text-white placeholder-gray-600 focus:border-indigo-500"
             />
           </div>
 
           <div className="space-y-1.5">
             <Label className="text-gray-400 text-xs">Produto <span className="text-gray-600">(opcional)</span></Label>
             <Select value={produtoId || '__none__'} onValueChange={v => setProdutoId(v === '__none__' ? '' : v)}>
-              <SelectTrigger className="w-full bg-gray-900 border-white/10 text-white focus:ring-0 focus:ring-offset-0 h-10">
+              <SelectTrigger className="w-full bg-gray-900 border-gray-800 text-white focus:ring-0 focus:ring-offset-0 h-10">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-gray-900 border-white/10">
+              <SelectContent className="bg-gray-900 border-gray-800">
                 <SelectItem value="__none__" className="text-gray-300 focus:bg-gray-800 focus:text-white">Sem produto vinculado</SelectItem>
                 {especialistas.flatMap(esp => {
                   const prods = produtos.filter(p => p.especialista_id === esp.id && p.ativo)
@@ -115,7 +115,7 @@ export function ModalDuplicarFunil({ aberto, onFechar, onSalvo, funil, produtos,
             </Select>
           </div>
 
-          <label className="flex items-start gap-3 cursor-pointer p-3 rounded-lg border border-white/10 hover:border-white/20 transition-colors">
+          <label className="flex items-start gap-3 cursor-pointer p-3 rounded-lg border border-gray-800 hover:border-gray-600 transition-colors">
             <input
               type="checkbox"
               checked={incluirPaginas}
