@@ -62,6 +62,30 @@ function Field({ label, value, onChange, type = 'text', placeholder }: {
   )
 }
 
+function parseHoras(val: string): number | null {
+  if (!val?.trim()) return null
+  const v = val.trim().toLowerCase()
+  const hm = v.match(/^(\d+)h(\d+)m?$/)
+  if (hm) return parseFloat(hm[1]) + parseInt(hm[2]) / 60
+  const h = v.match(/^(\d+(?:[.,]\d+)?)h$/)
+  if (h) return parseFloat(h[1].replace(',', '.'))
+  const m = v.match(/^(\d+)(?:m|min)$/)
+  if (m) return parseInt(m[1]) / 60
+  const colon = v.match(/^(\d+):(\d+)$/)
+  if (colon) return parseInt(colon[1]) + parseInt(colon[2]) / 60
+  const num = parseFloat(v.replace(',', '.'))
+  return isNaN(num) || num < 0 ? null : num
+}
+
+function formatHoras(val: number | null | undefined): string {
+  if (val == null) return ''
+  const h = Math.floor(val)
+  const m = Math.round((val - h) * 60)
+  if (h === 0) return `${m}m`
+  if (m === 0) return `${h}h`
+  return `${h}h${m}`
+}
+
 const VAZIO = {
   funil_id: '', nome: '', etapa: '', ferramenta: '', status: 'A fazer',
   prioridade: '', responsavel: '', url_pagina: '', referencia_dev: '',
@@ -89,8 +113,8 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
         responsavel: pagina.responsavel ?? '',
         url_pagina: pagina.url_pagina ?? '',
         referencia_dev: pagina.referencia_dev ?? '',
-        horas_estimadas: pagina.horas_estimadas?.toString() ?? '',
-        horas_reais: pagina.horas_reais?.toString() ?? '',
+        horas_estimadas: formatHoras(pagina.horas_estimadas),
+        horas_reais: formatHoras(pagina.horas_reais),
         data_prevista: pagina.data_prevista ?? '',
         url_planilha_pesquisa: pagina.url_planilha_pesquisa ?? '',
         url_documentacao: pagina.url_documentacao ?? '',
@@ -129,8 +153,8 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
         responsavel: form.responsavel || null,
         url_pagina: form.url_pagina || null,
         referencia_dev: form.referencia_dev || null,
-        horas_estimadas: form.horas_estimadas ? parseFloat(form.horas_estimadas) : null,
-        horas_reais: form.horas_reais ? parseFloat(form.horas_reais) : null,
+        horas_estimadas: parseHoras(form.horas_estimadas),
+        horas_reais: parseHoras(form.horas_reais),
         data_prevista: form.data_prevista || null,
         url_planilha_pesquisa: isTYP ? (form.url_planilha_pesquisa || null) : null,
         url_documentacao: form.url_documentacao || null,
@@ -187,8 +211,8 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
             <Field label="Data Prevista" value={form.data_prevista} onChange={set('data_prevista')} type="date" />
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Horas Estimadas" value={form.horas_estimadas} onChange={set('horas_estimadas')} type="number" placeholder="0" />
-            <Field label="Horas Reais" value={form.horas_reais} onChange={set('horas_reais')} type="number" placeholder="0" />
+            <Field label="Horas Estimadas" value={form.horas_estimadas} onChange={set('horas_estimadas')} placeholder="ex: 2h, 1h30, 45m" />
+            <Field label="Horas Reais" value={form.horas_reais} onChange={set('horas_reais')} placeholder="ex: 2h, 1h30, 45m" />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <Field label="URL da Página" value={form.url_pagina} onChange={set('url_pagina')} type="url" placeholder="https://" />

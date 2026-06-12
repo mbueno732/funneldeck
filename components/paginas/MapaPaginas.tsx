@@ -12,6 +12,30 @@ import { atualizarPagina, deletarPagina, duplicarPagina } from '@/lib/actions/pa
 import { iniciarAnaliseGtmetrix, verificarAnaliseGtmetrix } from '@/lib/actions/gtmetrix'
 import type { Pagina, Funil, Especialista, Configuracao } from '@/lib/types'
 
+function parseHoras(val: string): number | null {
+  if (!val?.trim()) return null
+  const v = val.trim().toLowerCase()
+  const hm = v.match(/^(\d+)h(\d+)m?$/)
+  if (hm) return parseFloat(hm[1]) + parseInt(hm[2]) / 60
+  const h = v.match(/^(\d+(?:[.,]\d+)?)h$/)
+  if (h) return parseFloat(h[1].replace(',', '.'))
+  const m = v.match(/^(\d+)(?:m|min)$/)
+  if (m) return parseInt(m[1]) / 60
+  const colon = v.match(/^(\d+):(\d+)$/)
+  if (colon) return parseInt(colon[1]) + parseInt(colon[2]) / 60
+  const num = parseFloat(v.replace(',', '.'))
+  return isNaN(num) || num < 0 ? null : num
+}
+
+function formatHoras(val: number | null | undefined): string {
+  if (val == null) return '—'
+  const h = Math.floor(val)
+  const m = Math.round((val - h) * 60)
+  if (h === 0) return `${m}m`
+  if (m === 0) return `${h}h`
+  return `${h}h${m}`
+}
+
 interface Props {
   paginas: Pagina[]
   funis: Funil[]
@@ -154,7 +178,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
     if (!celula) return
     const { id, campo, valor } = celula
     const update: Partial<Pagina> =
-      campo === 'horas_reais' ? { horas_reais: valor ? parseFloat(valor) : null } :
+      campo === 'horas_reais' ? { horas_reais: parseHoras(valor) } :
       campo === 'data_prevista' ? { data_prevista: valor || null } :
       { codigo: valor.trim() || null }
     setOverrides(o => ({ ...o, [id]: { ...o[id], ...update } }))
@@ -722,22 +746,23 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
                       <td className="px-4 py-3">
                         {celula?.id === p.id && celula.campo === 'horas_reais' ? (
                           <div className="flex items-center gap-1">
-                            <input autoFocus type="number" min="0" step="0.5" value={celula.valor}
+                            <input autoFocus type="text" value={celula.valor}
                               onChange={e => setCelula(c => c ? { ...c, valor: e.target.value } : c)}
                               onKeyDown={e => { if (e.key === 'Enter') handleSalvarCelula(); if (e.key === 'Escape') setCelula(null) }}
-                              className="w-16 px-1.5 py-0.5 text-xs bg-gray-900 border border-white/10 rounded text-white focus:outline-none focus:border-indigo-500"
+                              placeholder="ex: 1h30"
+                              className="w-20 px-1.5 py-0.5 text-xs bg-gray-900 border border-white/10 rounded text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500"
                             />
                             <button onClick={handleSalvarCelula} className="text-green-400 hover:text-green-300"><Check size={12} /></button>
                             <button onClick={() => setCelula(null)} className="text-gray-500 hover:text-gray-300"><X size={12} /></button>
                           </div>
                         ) : p.horas_estimadas != null ? (
                           <button
-                            onClick={() => setCelula({ id: p.id, campo: 'horas_reais', valor: p.horas_reais?.toString() ?? '' })}
+                            onClick={() => setCelula({ id: p.id, campo: 'horas_reais', valor: formatHoras(p.horas_reais) === '—' ? '' : formatHoras(p.horas_reais) })}
                             className={`flex items-center gap-1 text-xs hover:opacity-70 transition-opacity ${desvio ? 'text-yellow-400' : 'text-gray-400'}`}
                             title="Clique para editar horas reais"
                           >
                             {desvio && <Clock size={11} />}
-                            <span>{p.horas_reais != null ? `${p.horas_reais}h` : '—'} / {p.horas_estimadas}h</span>
+                            <span>{formatHoras(p.horas_reais)} / {formatHoras(p.horas_estimadas)}</span>
                           </button>
                         ) : <span className="text-gray-600">—</span>}
                       </td>
