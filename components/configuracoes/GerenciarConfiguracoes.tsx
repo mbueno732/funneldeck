@@ -12,7 +12,11 @@ const CATEGORIAS: { key: CategoriaConfig; label: string }[] = [
   { key: 'prioridade',    label: 'Prioridades' },
   { key: 'tipo_funil',    label: 'Tipos de Funil' },
   { key: 'status_funil',  label: 'Status do Funil' },
-  { key: 'responsavel',   label: 'Responsáveis' },
+  { key: 'responsavel',            label: 'Responsáveis' },
+  { key: 'checklist_setup',        label: 'Checklist — Setup' },
+  { key: 'checklist_desenvolvimento', label: 'Checklist — Desenvolvimento' },
+  { key: 'checklist_testes',       label: 'Checklist — Testes' },
+  { key: 'checklist_performance',  label: 'Checklist — Performance' },
 ]
 
 const CORES_RAPIDAS = ['#22c55e','#3b82f6','#f97316','#eab308','#f97316','#ef4444','#6b7280','#a855f7','#ec4899']

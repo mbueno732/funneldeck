@@ -148,3 +148,7 @@ export type CategoriaConfig =
   | 'status_pagina'
   | 'prioridade'
   | 'responsavel'
+  | 'checklist_setup'
+  | 'checklist_desenvolvimento'
+  | 'checklist_testes'
+  | 'checklist_performance'
