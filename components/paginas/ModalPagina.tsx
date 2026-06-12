@@ -194,7 +194,7 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
             obrigatorio
             options={funis.map(f => ({ valor: f.id, label: `${f.id_funil && f.id_funil !== f.nome ? `[${f.id_funil}] ` : ''}${f.nome}` }))}
           />
-          <Field label="Nome da Página *" value={form.nome} onChange={set('nome')} placeholder="Ex: Captura DG6 — Pedro Sobral" />
+          <Field label="Nome da Página *" value={form.nome} onChange={set('nome')} placeholder="Ex: A, Halo B, VSL longa, Confirmação" />
 
           {/* Campos essenciais — sempre visíveis */}
           <div className="grid grid-cols-2 gap-3">
