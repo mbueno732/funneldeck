@@ -266,20 +266,20 @@ export function ModalFunil({ aberto, onFechar, onSalvo, funil, produtos, especia
             </div>
           </div>
 
+          <div className="space-y-1.5">
+            <Label className="text-gray-400 text-xs">Data de Ativação</Label>
+            <Input type="date" value={form.data_ativacao} onChange={e => set('data_ativacao')(e.target.value)} className="bg-gray-900 border-gray-800 text-white focus:border-indigo-500" />
+          </div>
+
           <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label className="text-gray-400 text-xs">Data de Ativação</Label>
-              <Input type="date" value={form.data_ativacao} onChange={e => set('data_ativacao')(e.target.value)} className="bg-gray-900 border-gray-800 text-white focus:border-indigo-500" />
-            </div>
             <div className="space-y-1.5">
               <Label className="text-gray-400 text-xs">Planilha de Leads</Label>
               <Input type="url" value={form.planilha_leads} onChange={e => set('planilha_leads')(e.target.value)} placeholder="https://" className="bg-gray-900 border-gray-800 text-white placeholder-gray-600 focus:border-indigo-500" />
             </div>
-          </div>
-
-          <div className="space-y-1.5">
-            <Label className="text-gray-400 text-xs">Planilha de Pesquisa</Label>
-            <Input type="url" value={form.planilha_pesquisa} onChange={e => set('planilha_pesquisa')(e.target.value)} placeholder="https://" className="bg-gray-900 border-gray-800 text-white placeholder-gray-600 focus:border-indigo-500" />
+            <div className="space-y-1.5">
+              <Label className="text-gray-400 text-xs">Planilha de Pesquisa</Label>
+              <Input type="url" value={form.planilha_pesquisa} onChange={e => set('planilha_pesquisa')(e.target.value)} placeholder="https://" className="bg-gray-900 border-gray-800 text-white placeholder-gray-600 focus:border-indigo-500" />
+            </div>
           </div>
 
           {erro && <p className="text-red-400 text-sm">{erro}</p>}
