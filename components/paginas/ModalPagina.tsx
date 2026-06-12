@@ -182,10 +182,13 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
             <Select label="Prioridade" value={form.prioridade} onChange={set('prioridade')} options={configOpts('prioridade')} />
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 gap-3">
             <Field label="Responsável" value={form.responsavel} onChange={set('responsavel')} placeholder="Nome" />
             <Field label="Data Prevista" value={form.data_prevista} onChange={set('data_prevista')} type="date" />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
             <Field label="Horas Estimadas" value={form.horas_estimadas} onChange={set('horas_estimadas')} type="number" placeholder="0" />
+            <Field label="Horas Reais" value={form.horas_reais} onChange={set('horas_reais')} type="number" placeholder="0" />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <Field label="URL da Página" value={form.url_pagina} onChange={set('url_pagina')} type="url" placeholder="https://" />
