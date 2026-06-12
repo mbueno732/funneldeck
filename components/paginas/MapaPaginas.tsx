@@ -80,6 +80,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
   }, [analisando])
   const [busca, setBusca] = useState('')
   const [filtroFunil, setFiltroFunil] = useState(initialFunilId ?? '')
+  const [filtroTipo, setFiltroTipo] = useState('')
   const [filtroStatus, setFiltroStatus] = useState(initialStatus ?? '')
   const [filtroAtrasadas, setFiltroAtrasadas] = useState(initialAtrasadas ?? false)
   const [filtroEtapa, setFiltroEtapa] = useState('')
@@ -131,6 +132,10 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
     if (deletadas.has(p.id)) return false
     if (busca && !p.nome.toLowerCase().includes(busca.toLowerCase())) return false
     if (filtroFunil && p.funil_id !== filtroFunil) return false
+    if (filtroTipo) {
+      const funil = funis.find(f => f.id === p.funil_id)
+      if (funil?.tipo !== filtroTipo) return false
+    }
     if (filtroStatus && p.status !== filtroStatus) return false
     if (filtroEtapa && p.etapa !== filtroEtapa) return false
     if (filtroPrioridade && p.prioridade !== filtroPrioridade) return false
@@ -138,7 +143,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
     if (filtroAtrasadas && !isAtrasada(p)) return false
     return true
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }), [paginas, deletadas, busca, filtroFunil, filtroStatus, filtroEtapa, filtroPrioridade, filtroFerramenta, filtroAtrasadas])
+  }), [paginas, deletadas, busca, filtroFunil, filtroTipo, filtroStatus, filtroEtapa, filtroPrioridade, filtroFerramenta, filtroAtrasadas, funis])
 
 
   async function handleMudarStatus(pagina: Pagina, novoStatus: string) {
@@ -419,6 +424,17 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
             ))}
           </SelectContent>
         </Select>
+        <Select value={filtroTipo || '__all__'} onValueChange={v => { setFiltroTipo(v === '__all__' ? '' : v); setFiltroFunil('') }}>
+          <SelectTrigger className="h-9 text-sm bg-gray-900 border-gray-800 text-gray-300 hover:bg-gray-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[130px]">
+            <SelectValue placeholder="Tipo de funil" />
+          </SelectTrigger>
+          <SelectContent className="bg-gray-900 border-gray-800">
+            <SelectItem value="__all__" className="text-gray-400 focus:bg-gray-800 focus:text-white">Tipo de funil</SelectItem>
+            {Array.from(new Set(funis.map(f => f.tipo).filter(Boolean))).sort().map(tipo => (
+              <SelectItem key={tipo} value={tipo} className="text-gray-300 focus:bg-gray-800 focus:text-white">{tipo}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         {filtroSelect('Etapa', filtroEtapa, setFiltroEtapa, 'etapa')}
         {filtroSelect('Status', filtroStatus, setFiltroStatus, 'status_pagina')}
         {filtroSelect('Prioridade', filtroPrioridade, setFiltroPrioridade, 'prioridade')}
@@ -432,9 +448,9 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
             Atrasadas <X size={12} />
           </button>
         )}
-        {(busca || filtroFunil || filtroStatus || filtroEtapa || filtroPrioridade || filtroFerramenta || filtroAtrasadas) && (
+        {(busca || filtroFunil || filtroTipo || filtroStatus || filtroEtapa || filtroPrioridade || filtroFerramenta || filtroAtrasadas) && (
           <button
-            onClick={() => { setBusca(''); setFiltroFunil(''); setFiltroStatus(''); setFiltroEtapa(''); setFiltroPrioridade(''); setFiltroFerramenta(''); setFiltroAtrasadas(false) }}
+            onClick={() => { setBusca(''); setFiltroFunil(''); setFiltroTipo(''); setFiltroStatus(''); setFiltroEtapa(''); setFiltroPrioridade(''); setFiltroFerramenta(''); setFiltroAtrasadas(false) }}
             className="px-3 py-1.5 text-xs text-gray-400 hover:text-white border border-gray-800 rounded-lg hover:border-gray-600 transition-colors"
           >
             Limpar filtros
