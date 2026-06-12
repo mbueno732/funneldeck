@@ -19,7 +19,7 @@ interface Props {
 }
 
 const VAZIO = {
-  produto_id: '', nome: '', id_funil: '', tipo: '',
+  objetivo: '', produto_id: '', nome: '', id_funil: '', tipo: '',
   status: 'Ativo', responsavel_cro: '', responsavel_dev: '',
   data_ativacao: '', planilha_leads: '', planilha_pesquisa: '',
 }
@@ -51,6 +51,7 @@ export function ModalFunil({ aberto, onFechar, onSalvo, funil, produtos, especia
   useEffect(() => {
     if (funil) {
       setForm({
+        objetivo: funil.objetivo ?? '',
         produto_id: funil.produto_id ?? '',
         nome: funil.nome,
         id_funil: funil.id_funil ?? '',
@@ -87,16 +88,19 @@ export function ModalFunil({ aberto, onFechar, onSalvo, funil, produtos, especia
     })
   }
 
+  const podeSubmeter = form.nome && form.tipo && form.objetivo &&
+    (form.objetivo !== 'Venda' || !!form.produto_id)
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!form.nome || !form.tipo) {
-      setErro('Nome e tipo são obrigatórios.')
-      return
-    }
+    if (!form.objetivo) { setErro('Selecione o objetivo do funil.'); return }
+    if (!form.nome || !form.tipo) { setErro('Nome e tipo são obrigatórios.'); return }
+    if (form.objetivo === 'Venda' && !form.produto_id) { setErro('Funil de Venda exige produto vinculado.'); return }
     setSalvando(true)
     setErro('')
     try {
       const payload = {
+        objetivo: form.objetivo,
         produto_id: form.produto_id || null,
         nome: form.nome,
         id_funil: form.id_funil || undefined,
@@ -127,6 +131,30 @@ export function ModalFunil({ aberto, onFechar, onSalvo, funil, produtos, especia
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 mt-2">
+          {/* Objetivo */}
+          <div className="space-y-1.5">
+            <Label className="text-gray-400 text-xs">Objetivo *</Label>
+            <div className="flex gap-3">
+              {(['Venda', 'Aquisição'] as const).map(op => (
+                <button
+                  key={op}
+                  type="button"
+                  onClick={() => {
+                    set('objetivo')(op)
+                    if (op === 'Aquisição') set('produto_id')('')
+                  }}
+                  className={`flex-1 py-2 rounded-lg border text-sm font-medium transition-colors ${
+                    form.objetivo === op
+                      ? 'bg-indigo-600/20 border-indigo-500 text-indigo-300'
+                      : 'bg-gray-900 border-gray-800 text-gray-400 hover:border-gray-600'
+                  }`}
+                >
+                  {op}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* Especialista → Produto */}
           <div className="space-y-1.5">
             <Label className="text-gray-400 text-xs">Especialista</Label>
@@ -142,13 +170,22 @@ export function ModalFunil({ aberto, onFechar, onSalvo, funil, produtos, especia
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-gray-400 text-xs">Produto <span className="text-gray-600">(opcional)</span></Label>
+            <Label className="text-gray-400 text-xs">
+              {form.objetivo === 'Venda'
+                ? <span>Produto <span className="text-red-400">*</span></span>
+                : <span>Produto alvo <span className="text-gray-600">(opcional)</span></span>
+              }
+            </Label>
             <Select value={form.produto_id || '__none__'} onValueChange={v => handleCampoGatilho('produto_id', v === '__none__' ? '' : v)}>
-              <SelectTrigger className="w-full bg-gray-900 border-gray-800 text-white focus:ring-0 focus:ring-offset-0 h-10">
+              <SelectTrigger className={`w-full bg-gray-900 text-white focus:ring-0 focus:ring-offset-0 h-10 ${
+                form.objetivo === 'Venda' && !form.produto_id ? 'border-red-500/50' : 'border-gray-800'
+              }`}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-gray-900 border-gray-800">
-                <SelectItem value="__none__" className="text-gray-300 focus:bg-gray-800 focus:text-white">Sem produto vinculado</SelectItem>
+                <SelectItem value="__none__" className="text-gray-400 focus:bg-gray-800 focus:text-white">
+                  {form.objetivo === 'Venda' ? 'Selecionar produto...' : 'Sem produto alvo'}
+                </SelectItem>
                 {produtosFiltrados.map(p => <SelectItem key={p.id} value={p.id} className="text-gray-300 focus:bg-gray-800 focus:text-white">{p.nome}</SelectItem>)}
               </SelectContent>
             </Select>
@@ -249,7 +286,7 @@ export function ModalFunil({ aberto, onFechar, onSalvo, funil, produtos, especia
 
           <div className="flex justify-end gap-2 pt-1">
             <Button type="button" variant="ghost" onClick={onFechar} className="text-gray-400 hover:text-white">Cancelar</Button>
-            <Button type="submit" disabled={salvando} className="bg-indigo-600 hover:bg-indigo-500 text-white">
+            <Button type="submit" disabled={salvando || !podeSubmeter} className="bg-indigo-600 hover:bg-indigo-500 text-white disabled:opacity-40">
               {salvando ? 'Salvando...' : funil ? 'Salvar alterações' : 'Criar funil'}
             </Button>
           </div>

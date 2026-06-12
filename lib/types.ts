@@ -44,6 +44,7 @@ export interface Funil {
   id_funil?: string | null
   nome: string
   tipo: string
+  objetivo?: string | null
   responsavel_cro?: string | null
   responsavel_dev?: string | null
   status: string

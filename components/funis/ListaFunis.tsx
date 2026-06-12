@@ -191,9 +191,19 @@ export function ListaFunis({ funis, produtos, especialistas, configs, initialEsp
                   })()}
                 </div>
 
-                {/* Tipo */}
+                {/* Tipo + Objetivo */}
                 <div className="flex items-center gap-2">
                   <StatusBadge valor={f.tipo} cor={null} size="sm" />
+                  {f.objetivo && (
+                    <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${
+                      f.objetivo === 'Venda'
+                        ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                        : 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
+                    }`}>
+                      {f.objetivo}
+                    </span>
+                  )}
+
                   {f.planilha_leads && (
                     <a href={f.planilha_leads} target="_blank" rel="noopener noreferrer"
                       className="text-xs text-indigo-400 hover:text-indigo-300 flex items-center gap-1">
