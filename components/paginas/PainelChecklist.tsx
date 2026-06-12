@@ -1,11 +1,11 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { X, CheckSquare, Square, AlertTriangle, ChevronDown, ChevronRight } from 'lucide-react'
-import { buscarChecklist, toggleItemChecklist, atualizarChecklistMeta, criarChecklistManual } from '@/lib/actions/checklists'
+import { X, CheckSquare, Square, MinusSquare, AlertTriangle, ChevronDown, ChevronRight } from 'lucide-react'
+import { buscarChecklist, toggleItemChecklist, toggleNaoSeAplica, atualizarChecklistMeta, criarChecklistManual } from '@/lib/actions/checklists'
 import { buscarHistoricoStatus } from '@/lib/actions/historico'
 import type { Pagina } from '@/lib/types'
 
-type Item = { id: string; fase: string; item: string; concluido: boolean; ordem: number }
+type Item = { id: string; fase: string; item: string; concluido: boolean; nao_se_aplica: boolean; ordem: number }
 type HistoricoItem = {
   id: string
   status_anterior: string | null
@@ -58,13 +58,25 @@ export function PainelChecklist({ pagina, onFechar }: Props) {
   }, [pagina])
 
   async function handleToggleItem(item: Item) {
-    if (!checklist) return
+    if (!checklist || item.nao_se_aplica) return
     const novo = !item.concluido
     setChecklist(c => c ? {
       ...c,
       checklist_itens: c.checklist_itens.map(i => i.id === item.id ? { ...i, concluido: novo } : i)
     } : c)
     await toggleItemChecklist(item.id, novo)
+  }
+
+  async function handleToggleNaoSeAplica(item: Item) {
+    if (!checklist) return
+    const novo = !item.nao_se_aplica
+    setChecklist(c => c ? {
+      ...c,
+      checklist_itens: c.checklist_itens.map(i =>
+        i.id === item.id ? { ...i, nao_se_aplica: novo, concluido: novo ? false : i.concluido } : i
+      )
+    } : c)
+    await toggleNaoSeAplica(item.id, novo)
   }
 
   async function handleVsl(valor: boolean) {
@@ -82,9 +94,10 @@ export function PainelChecklist({ pagina, onFechar }: Props) {
   if (!pagina) return null
 
   const itens = checklist?.checklist_itens ?? []
-  const total = itens.length
-  const concluidos = itens.filter(i => i.concluido).length
-  const pct = total > 0 ? Math.round((concluidos / total) * 100) : 0
+  const aplicaveis = itens.filter(i => !i.nao_se_aplica)
+  const naoSeAplicam = itens.length - aplicaveis.length
+  const concluidos = aplicaveis.filter(i => i.concluido).length
+  const pct = aplicaveis.length > 0 ? Math.round((concluidos / aplicaveis.length) * 100) : 100
   const vsl = checklist?.vsl_ativo ?? false
 
   const grade = pagina.gtmetrix_grade as string | null | undefined
@@ -143,7 +156,10 @@ export function PainelChecklist({ pagina, onFechar }: Props) {
             {/* Progresso */}
             <div className="p-5 border-b border-white/[0.07] space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-400">{concluidos} de {total} itens</span>
+                <span className="text-sm text-gray-400">
+                {concluidos} de {aplicaveis.length} itens
+                {naoSeAplicam > 0 && <span className="text-gray-600 text-xs ml-1">· {naoSeAplicam} N/A</span>}
+              </span>
                 <span className={`text-sm font-bold ${pct === 100 ? 'text-green-400' : pct >= 60 ? 'text-yellow-400' : 'text-gray-400'}`}>
                   {pct}%
                 </span>
@@ -178,7 +194,9 @@ export function PainelChecklist({ pagina, onFechar }: Props) {
                 const itensFase = itens.filter(i => i.fase === fase).sort((a, b) => a.ordem - b.ordem)
                 if (!itensFase.length) return null
                 const faseAberta = fasesAbertas[fase] ?? true
-                const faseConcluidos = itensFase.filter(i => i.concluido).length
+                const faseAplicaveis = itensFase.filter(i => !i.nao_se_aplica)
+                const faseConcluidos = faseAplicaveis.filter(i => i.concluido).length
+                const faseNa = itensFase.length - faseAplicaveis.length
 
                 return (
                   <div key={fase}>
@@ -190,7 +208,10 @@ export function PainelChecklist({ pagina, onFechar }: Props) {
                         {FASE_LABEL[fase]}
                       </span>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-gray-600">{faseConcluidos}/{itensFase.length}</span>
+                        <span className="text-xs text-gray-600">
+                          {faseConcluidos}/{faseAplicaveis.length}
+                          {faseNa > 0 && <span className="ml-1 text-gray-700">· {faseNa} N/A</span>}
+                        </span>
                         {faseAberta ? <ChevronDown size={13} className="text-gray-600" /> : <ChevronRight size={13} className="text-gray-600" />}
                       </div>
                     </button>
@@ -199,25 +220,43 @@ export function PainelChecklist({ pagina, onFechar }: Props) {
                       <div className="px-5 pb-3 space-y-1">
                         {itensFase.map(item => {
                           const isGtmetrix = item.item.toLowerCase().includes('gtmetrix')
+                          const isNa = item.nao_se_aplica
                           return (
                             <div key={item.id} className="space-y-1">
-                              <button
-                                onClick={() => handleToggleItem(item)}
-                                className="w-full flex items-start gap-3 py-1.5 group text-left"
-                              >
-                                <div className="shrink-0 mt-0.5">
-                                  {item.concluido
-                                    ? <CheckSquare size={15} className="text-indigo-400" />
-                                    : <Square size={15} className="text-gray-600 group-hover:text-gray-400" />
+                              <div className="w-full flex items-start gap-3 py-1.5 group">
+                                <button
+                                  onClick={() => handleToggleItem(item)}
+                                  className="shrink-0 mt-0.5"
+                                  disabled={isNa}
+                                >
+                                  {isNa
+                                    ? <MinusSquare size={15} className="text-gray-700" />
+                                    : item.concluido
+                                      ? <CheckSquare size={15} className="text-indigo-400" />
+                                      : <Square size={15} className="text-gray-600 hover:text-gray-400" />
                                   }
-                                </div>
-                                <span className={`text-sm leading-snug ${item.concluido ? 'line-through text-gray-600' : 'text-gray-300'}`}>
+                                </button>
+                                <span className={`flex-1 text-sm leading-snug ${
+                                  isNa ? 'line-through text-gray-700 italic' :
+                                  item.concluido ? 'line-through text-gray-600' : 'text-gray-300'
+                                }`}>
                                   {item.item}
                                 </span>
-                              </button>
+                                <button
+                                  onClick={() => handleToggleNaoSeAplica(item)}
+                                  title={isNa ? 'Desfazer N/A' : 'Marcar como não se aplica'}
+                                  className={`shrink-0 px-1.5 py-0.5 text-xs rounded transition-colors opacity-0 group-hover:opacity-100 ${
+                                    isNa
+                                      ? 'text-gray-500 bg-gray-800 hover:bg-gray-700 opacity-100'
+                                      : 'text-gray-600 hover:text-gray-400 hover:bg-gray-900'
+                                  }`}
+                                >
+                                  N/A
+                                </button>
+                              </div>
 
                               {/* GTmetrix badge integrado */}
-                              {isGtmetrix && grade && (
+                              {!isNa && isGtmetrix && grade && (
                                 <div className="ml-6 flex items-center gap-2">
                                   <span
                                     className="text-xs font-bold px-1.5 py-0.5 rounded"

@@ -13,7 +13,7 @@ export default async function PaginasPage({ searchParams }: { searchParams: { fu
     { data: especialistas },
     { data: configs },
   ] = await Promise.all([
-    supabase.from('paginas').select('*, funis(id, id_funil, nome, tipo), checklists_publicacao(id, checklist_itens(id, concluido))').order('codigo').order('nome'),
+    supabase.from('paginas').select('*, funis(id, id_funil, nome, tipo), checklists_publicacao(id, checklist_itens(id, concluido, nao_se_aplica))').order('codigo').order('nome'),
     supabase.from('funis').select('id, id_funil, nome, tipo, status, produto_id').order('nome'),
     supabase.from('especialistas').select('id, nome, ativo').eq('ativo', true).order('nome'),
     supabase.from('configuracoes').select('*').eq('ativo', true).order('categoria').order('ordem'),

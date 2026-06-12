@@ -485,9 +485,9 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
                     const rawCl = (p as Record<string, unknown>).checklists_publicacao
                     const cl = Array.isArray(rawCl) ? rawCl[0] : rawCl as { checklist_itens: { concluido: boolean }[] } | null
                     const itens = cl?.checklist_itens ?? []
-                    const total = itens.length
-                    const done = itens.filter((i: { concluido: boolean }) => i.concluido).length
-                    const pct = total > 0 ? Math.round((done / total) * 100) : null
+                    const aplic = itens.filter((i: { concluido: boolean; nao_se_aplica?: boolean }) => !i.nao_se_aplica)
+                    const done = aplic.filter((i: { concluido: boolean }) => i.concluido).length
+                    const pct = aplic.length > 0 ? Math.round((done / aplic.length) * 100) : null
 
                     return (
                       <div

@@ -62,6 +62,15 @@ export async function toggleItemChecklist(item_id: string, concluido: boolean) {
   if (error) throw error
 }
 
+export async function toggleNaoSeAplica(item_id: string, nao_se_aplica: boolean) {
+  const supabase = await createClient()
+  const { error } = await supabase
+    .from('checklist_itens')
+    .update({ nao_se_aplica, ...(nao_se_aplica ? { concluido: false } : {}) })
+    .eq('id', item_id)
+  if (error) throw error
+}
+
 export async function atualizarChecklistMeta(checklist_id: string, input: {
   vsl_ativo?: boolean
   observacao_geral?: string | null
