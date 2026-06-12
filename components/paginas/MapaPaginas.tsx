@@ -10,6 +10,8 @@ import { ModalPagina } from './ModalPagina'
 import { PainelChecklist } from './PainelChecklist'
 import { atualizarPagina, deletarPagina, duplicarPagina } from '@/lib/actions/paginas'
 import { iniciarAnaliseGtmetrix, verificarAnaliseGtmetrix } from '@/lib/actions/gtmetrix'
+import { buscarChecklist } from '@/lib/actions/checklists'
+import { buscarHistoricoStatus } from '@/lib/actions/historico'
 import type { Pagina, Funil, Especialista, Configuracao } from '@/lib/types'
 
 function parseHoras(val: string): number | null {
@@ -89,6 +91,15 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
   const [modalAberto, setModalAberto] = useState(false)
   const [editando, setEditando] = useState<Pagina | null>(null)
   const [checklistPagina, setChecklistPagina] = useState<Pagina | null>(null)
+  const checklistCache = useRef<Map<string, { checklist: unknown; historico: unknown }>>(new Map())
+
+  function prefetchChecklist(paginaId: string) {
+    if (checklistCache.current.has(paginaId)) return
+    checklistCache.current.set(paginaId, { checklist: null, historico: [] })
+    Promise.all([buscarChecklist(paginaId), buscarHistoricoStatus(paginaId)])
+      .then(([cl, hist]) => checklistCache.current.set(paginaId, { checklist: cl, historico: hist }))
+      .catch(() => checklistCache.current.delete(paginaId))
+  }
   const [distribuicaoAberta, setDistribuicaoAberta] = useState(true)
   const [visualizacao, setVisualizacao] = useState<'tabela' | 'kanban'>('tabela')
   const [draggingId, setDraggingId] = useState<string | null>(null)
@@ -539,6 +550,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
                             {['Implementada', 'Publicada'].includes(p.status) && (
                               <button
                                 onClick={() => setChecklistPagina(raw)}
+                                onMouseEnter={() => prefetchChecklist(raw.id)}
                                 className="p-1 hover:bg-gray-900 rounded transition-colors"
                                 title="Checklist"
                               >
@@ -919,6 +931,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
                               return (
                                 <button
                                   onClick={() => setChecklistPagina(p)}
+                                  onMouseEnter={() => prefetchChecklist(p.id)}
                                   className="flex items-center gap-1 p-1.5 hover:bg-gray-900 rounded transition-colors"
                                   title="Checklist de publicação"
                                 >
@@ -975,6 +988,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
       <PainelChecklist
         pagina={checklistPagina}
         onFechar={() => setChecklistPagina(null)}
+        dadosPreCarregados={checklistPagina ? checklistCache.current.get(checklistPagina.id) : undefined}
       />
     </div>
   )

@@ -33,9 +33,10 @@ const GRADE_COR: Record<string, string> = {
 interface Props {
   pagina: Pagina | null
   onFechar: () => void
+  dadosPreCarregados?: { checklist: unknown; historico: unknown }
 }
 
-export function PainelChecklist({ pagina, onFechar }: Props) {
+export function PainelChecklist({ pagina, onFechar, dadosPreCarregados }: Props) {
   const [checklist, setChecklist] = useState<Checklist | null>(null)
   const [historico, setHistorico] = useState<HistoricoItem[]>([])
   const [historicoAberto, setHistoricoAberto] = useState(false)
@@ -46,8 +47,16 @@ export function PainelChecklist({ pagina, onFechar }: Props) {
 
   useEffect(() => {
     if (!pagina) { setChecklist(null); setHistorico([]); return }
-    setCarregando(true)
     setHistoricoAberto(false)
+
+    if (dadosPreCarregados?.checklist !== undefined && dadosPreCarregados?.checklist !== null) {
+      setChecklist(dadosPreCarregados.checklist as Checklist | null)
+      setHistorico((dadosPreCarregados.historico ?? []) as HistoricoItem[])
+      setCarregando(false)
+      return
+    }
+
+    setCarregando(true)
     Promise.all([
       buscarChecklist(pagina.id),
       buscarHistoricoStatus(pagina.id),
@@ -55,7 +64,7 @@ export function PainelChecklist({ pagina, onFechar }: Props) {
       setChecklist(cl as Checklist | null)
       setHistorico(hist as HistoricoItem[])
     }).finally(() => setCarregando(false))
-  }, [pagina])
+  }, [pagina, dadosPreCarregados])
 
   async function handleToggleItem(item: Item) {
     if (!checklist || item.nao_se_aplica) return
