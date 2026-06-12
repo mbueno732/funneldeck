@@ -210,6 +210,12 @@ export function ListaFunis({ funis, produtos, especialistas, configs, initialEsp
                       <ExternalLink size={10} /> Leads
                     </a>
                   )}
+                  {f.planilha_pesquisa && (
+                    <a href={f.planilha_pesquisa} target="_blank" rel="noopener noreferrer"
+                      className="text-xs text-indigo-400 hover:text-indigo-300 flex items-center gap-1">
+                      <ExternalLink size={10} /> Pesquisa
+                    </a>
+                  )}
                 </div>
 
                 {/* Pipeline de etapas */}
