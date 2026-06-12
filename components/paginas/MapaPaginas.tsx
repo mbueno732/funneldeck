@@ -881,11 +881,11 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
                         <div className="flex items-center gap-1">
                             {['Implementada', 'Publicada'].includes(p.status) && (() => {
                               const raw_cl = (p as Record<string, unknown>).checklists_publicacao
-                              const cl = Array.isArray(raw_cl) ? raw_cl[0] : raw_cl as { checklist_itens: { concluido: boolean }[] } | null
+                              const cl = Array.isArray(raw_cl) ? raw_cl[0] : raw_cl as { checklist_itens: { concluido: boolean; nao_se_aplica?: boolean }[] } | null
                               const itens = cl?.checklist_itens ?? []
-                              const total = itens.length
-                              const done = itens.filter((i: { concluido: boolean }) => i.concluido).length
-                              const pct = total > 0 ? Math.round((done / total) * 100) : null
+                              const aplic = itens.filter(i => !i.nao_se_aplica)
+                              const done = aplic.filter(i => i.concluido).length
+                              const pct = aplic.length > 0 ? Math.round((done / aplic.length) * 100) : null
                               return (
                                 <button
                                   onClick={() => setChecklistPagina(p)}
