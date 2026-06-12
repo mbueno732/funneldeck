@@ -20,6 +20,7 @@ interface Props {
 
 export function ModalDuplicarFunil({ aberto, onFechar, onSalvo, funil, produtos, especialistas }: Props) {
   const [nome, setNome] = useState('')
+  const [codigo, setCodigo] = useState('')
   const [produtoId, setProdutoId] = useState('')
   const [incluirPaginas, setIncluirPaginas] = useState(true)
   const [salvando, setSalvando] = useState(false)
@@ -28,6 +29,7 @@ export function ModalDuplicarFunil({ aberto, onFechar, onSalvo, funil, produtos,
   useEffect(() => {
     if (funil && aberto) {
       setNome(funil.nome ? `Cópia de ${funil.nome}` : '')
+      setCodigo(funil.id_funil ?? '')
       setProdutoId(funil.produto_id ?? '')
       setIncluirPaginas(true)
       setErro('')
@@ -42,6 +44,7 @@ export function ModalDuplicarFunil({ aberto, onFechar, onSalvo, funil, produtos,
     try {
       await duplicarFunil(funil.id, {
         nome: nome.trim(),
+        id_funil: codigo.trim() || undefined,
         incluir_paginas: incluirPaginas,
         produto_id: produtoId || undefined,
       })
@@ -82,15 +85,27 @@ export function ModalDuplicarFunil({ aberto, onFechar, onSalvo, funil, produtos,
         <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Novo funil</p>
 
         <form onSubmit={handleSubmit} className="space-y-4 -mt-2">
-          <div className="space-y-1.5">
-            <Label className="text-gray-400 text-xs">Nome *</Label>
-            <Input
-              value={nome}
-              onChange={e => setNome(e.target.value)}
-              placeholder="Nome do novo funil"
-              required
-              className="bg-gray-900 border-gray-800 text-white placeholder-gray-600 focus:border-indigo-500"
-            />
+          <div className="flex gap-3">
+            <div className="space-y-1.5 flex-1">
+              <Label className="text-gray-400 text-xs">Nome *</Label>
+              <Input
+                value={nome}
+                onChange={e => setNome(e.target.value)}
+                placeholder="Nome do novo funil"
+                required
+                className="bg-gray-900 border-gray-800 text-white placeholder-gray-600 focus:border-indigo-500"
+              />
+            </div>
+            <div className="space-y-1.5 w-24">
+              <Label className="text-gray-400 text-xs">Código</Label>
+              <Input
+                value={codigo}
+                onChange={e => setCodigo(e.target.value.toUpperCase())}
+                placeholder="ex: LIV"
+                maxLength={10}
+                className="bg-gray-900 border-gray-800 text-white placeholder-gray-600 focus:border-indigo-500 font-mono"
+              />
+            </div>
           </div>
 
           <div className="space-y-1.5">
