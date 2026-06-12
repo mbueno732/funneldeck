@@ -51,7 +51,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
   const [overrides, setOverrides] = useState<Record<string, Partial<Pagina>>>({})
   const [editandoUrl, setEditandoUrl] = useState<string | null>(null)
   const [urlTemp, setUrlTemp] = useState('')
-  const [celula, setCelula] = useState<{ id: string; campo: 'horas_reais' | 'data_prevista' | 'codigo'; valor: string } | null>(null)
+  const [celula, setCelula] = useState<{ id: string; campo: 'horas_reais' | 'horas_estimadas' | 'data_prevista' | 'codigo'; valor: string } | null>(null)
   const [deletandoPagina, setDeletandoPagina] = useState<string | null>(null)
   const [deletadas, setDeletadas] = useState<Set<string>>(new Set())
   const [duplicandoPagina, setDuplicandoPagina] = useState<string | null>(null)
@@ -179,6 +179,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
     const { id, campo, valor } = celula
     const update: Partial<Pagina> =
       campo === 'horas_reais' ? { horas_reais: parseHoras(valor) } :
+      campo === 'horas_estimadas' ? { horas_estimadas: parseHoras(valor) } :
       campo === 'data_prevista' ? { data_prevista: valor || null } :
       { codigo: valor.trim() || null }
     setOverrides(o => ({ ...o, [id]: { ...o[id], ...update } }))
@@ -742,29 +743,42 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
                         </Select>
                       </td>
 
-                      {/* Horas — clicável para editar horas reais */}
+                      {/* Horas — P: estimado clicável, R: real clicável */}
                       <td className="px-4 py-3">
-                        {celula?.id === p.id && celula.campo === 'horas_reais' ? (
+                        {celula?.id === p.id && (celula.campo === 'horas_reais' || celula.campo === 'horas_estimadas') ? (
                           <div className="flex items-center gap-1">
+                            <span className="text-xs text-gray-500">{celula.campo === 'horas_estimadas' ? 'P:' : 'R:'}</span>
                             <input autoFocus type="text" value={celula.valor}
                               onChange={e => setCelula(c => c ? { ...c, valor: e.target.value } : c)}
                               onKeyDown={e => { if (e.key === 'Enter') handleSalvarCelula(); if (e.key === 'Escape') setCelula(null) }}
                               placeholder="ex: 1h30"
-                              className="w-20 px-1.5 py-0.5 text-xs bg-gray-900 border border-gray-800 rounded text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500"
+                              className="w-16 px-1.5 py-0.5 text-xs bg-gray-900 border border-gray-800 rounded text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500"
                             />
                             <button onClick={handleSalvarCelula} className="text-green-400 hover:text-green-300"><Check size={12} /></button>
                             <button onClick={() => setCelula(null)} className="text-gray-500 hover:text-gray-300"><X size={12} /></button>
                           </div>
-                        ) : p.horas_estimadas != null ? (
-                          <button
-                            onClick={() => setCelula({ id: p.id, campo: 'horas_reais', valor: formatHoras(p.horas_reais) === '—' ? '' : formatHoras(p.horas_reais) })}
-                            className={`flex items-center gap-1 text-xs hover:opacity-70 transition-opacity ${desvio ? 'text-yellow-400' : 'text-gray-400'}`}
-                            title="Clique para editar horas reais"
-                          >
-                            {desvio && <Clock size={11} />}
-                            <span>{formatHoras(p.horas_reais)} / {formatHoras(p.horas_estimadas)}</span>
-                          </button>
-                        ) : <span className="text-gray-600">—</span>}
+                        ) : (
+                          <div className="flex items-center gap-2 text-xs">
+                            <button
+                              onClick={() => setCelula({ id: p.id, campo: 'horas_estimadas', valor: p.horas_estimadas != null ? formatHoras(p.horas_estimadas) : '' })}
+                              className="flex items-center gap-0.5 hover:opacity-70 transition-opacity text-gray-400"
+                              title="Clique para editar horas previstas"
+                            >
+                              <span className="text-gray-600">P:</span>
+                              <span>{formatHoras(p.horas_estimadas)}</span>
+                            </button>
+                            <span className="text-gray-700">·</span>
+                            <button
+                              onClick={() => setCelula({ id: p.id, campo: 'horas_reais', valor: p.horas_reais != null ? formatHoras(p.horas_reais) : '' })}
+                              className={`flex items-center gap-0.5 hover:opacity-70 transition-opacity ${desvio ? 'text-yellow-400' : 'text-gray-400'}`}
+                              title="Clique para editar horas reais"
+                            >
+                              {desvio && <Clock size={11} />}
+                              <span className="text-gray-600">R:</span>
+                              <span>{formatHoras(p.horas_reais)}</span>
+                            </button>
+                          </div>
+                        )}
                       </td>
 
                       {/* Previsão — clicável para editar data */}
