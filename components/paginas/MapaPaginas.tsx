@@ -51,7 +51,7 @@ interface Props {
 export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialStatus, initialAtrasadas }: Props) {
   const router = useRouter()
   const [overrides, setOverrides] = useState<Record<string, Partial<Pagina>>>({})
-  const [paginasExtras, setPaginasExtras] = useState<Pagina[]>([])
+
   const [editandoUrl, setEditandoUrl] = useState<string | null>(null)
   const [urlTemp, setUrlTemp] = useState('')
   const [celula, setCelula] = useState<{ id: string; campo: 'horas_reais' | 'horas_estimadas' | 'data_prevista' | 'data_publicacao' | 'codigo'; valor: string } | null>(null)
@@ -141,7 +141,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
   const isDesvioHoras = (p: Pagina) =>
     p.horas_estimadas && p.horas_reais && p.horas_reais > p.horas_estimadas
 
-  const filtradas = useMemo(() => ([...(paginas ?? []), ...paginasExtras]).filter(p => {
+  const filtradas = useMemo(() => (paginas ?? []).filter(p => {
     if (deletadas.has(p.id)) return false
     if (busca && !p.nome.toLowerCase().includes(busca.toLowerCase())) return false
     if (filtroFunil && p.funil_id !== filtroFunil) return false
@@ -156,7 +156,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
     if (filtroAtrasadas && !isAtrasada(p)) return false
     return true
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }), [paginas, paginasExtras, deletadas, busca, filtroFunil, filtroTipo, filtroStatus, filtroEtapa, filtroPrioridade, filtroFerramenta, filtroAtrasadas, funis])
+  }), [paginas, deletadas, busca, filtroFunil, filtroTipo, filtroStatus, filtroEtapa, filtroPrioridade, filtroFerramenta, filtroAtrasadas, funis])
 
 
   async function handleMudarStatus(pagina: Pagina, novoStatus: string) {
@@ -253,8 +253,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
     setDuplicandoPagina(id)
     setErroDuplicar('')
     try {
-      const nova = await duplicarPagina(id)
-      setPaginasExtras(prev => [...prev, nova])
+      await duplicarPagina(id)
       router.refresh()
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Erro ao duplicar página.'

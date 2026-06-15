@@ -130,13 +130,7 @@ export async function duplicarPagina(id: string) {
   await registrarAuditoria('paginas', data.id, 'duplicar', { origem: id })
   revalidatePath('/paginas')
   revalidatePath('/funis')
-  // Retorna com joins para o componente poder renderizar imediatamente
-  const { data: completo } = await supabase
-    .from('paginas')
-    .select('*, funis(id, id_funil, nome, tipo), checklists_publicacao(id, checklist_itens(id, concluido, nao_se_aplica))')
-    .eq('id', data.id)
-    .single()
-  return (completo ?? data) as Pagina
+  return data as Pagina
 }
 
 export async function deletarPagina(id: string) {
