@@ -156,12 +156,14 @@ export function DashboardView({
   porEspecialista,
   statusConfigs,
   mesLabel,
+  mesAtual,
   horasKpis,
 }: {
   kpis: Kpis
   porEspecialista: EspecialistaResumo[]
   statusConfigs: StatusConfig[]
   mesLabel: string
+  mesAtual: string
   horasKpis: HorasKpis
 }) {
   const [horasAberto, setHorasAberto] = useState(false)
@@ -293,7 +295,7 @@ export function DashboardView({
             sub={mesLabel}
             icon={TrendingUp}
             cor={kpis.publicadas_mes > 0 ? 'green' : 'gray'}
-            href="/paginas?status=Publicada"
+            href={`/paginas?status=Publicada&mes=${mesAtual}`}
           />
         </div>
       </div>

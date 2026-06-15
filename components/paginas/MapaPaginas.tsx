@@ -46,9 +46,10 @@ interface Props {
   initialFunilId?: string
   initialStatus?: string
   initialAtrasadas?: boolean
+  initialMes?: string
 }
 
-export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialStatus, initialAtrasadas }: Props) {
+export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialStatus, initialAtrasadas, initialMes }: Props) {
   const router = useRouter()
   const [overrides, setOverrides] = useState<Record<string, Partial<Pagina>>>({})
 
@@ -84,6 +85,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
   const [busca, setBusca] = useState('')
   const [filtroFunil, setFiltroFunil] = useState(initialFunilId ?? '')
   const [filtroTipo, setFiltroTipo] = useState('')
+  const [filtroMes] = useState(initialMes ?? '')
   const [filtroStatus, setFiltroStatus] = useState(initialStatus ?? '')
   const [filtroAtrasadas, setFiltroAtrasadas] = useState(initialAtrasadas ?? false)
   const [filtroEtapa, setFiltroEtapa] = useState('')
@@ -154,9 +156,13 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
     if (filtroPrioridade && p.prioridade !== filtroPrioridade) return false
     if (filtroFerramenta && p.ferramenta !== filtroFerramenta) return false
     if (filtroAtrasadas && !isAtrasada(p)) return false
+    if (filtroMes) {
+      const dp = (p as unknown as Record<string, unknown>).data_publicacao as string | null
+      if (!dp || !dp.startsWith(filtroMes)) return false
+    }
     return true
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }), [paginas, deletadas, busca, filtroFunil, filtroTipo, filtroStatus, filtroEtapa, filtroPrioridade, filtroFerramenta, filtroAtrasadas, funis])
+  }), [paginas, deletadas, busca, filtroFunil, filtroTipo, filtroStatus, filtroEtapa, filtroPrioridade, filtroFerramenta, filtroAtrasadas, filtroMes, funis])
 
 
   async function handleMudarStatus(pagina: Pagina, novoStatus: string) {

@@ -161,6 +161,7 @@ export default async function DashboardPage({
         porEspecialista={porEspecialista}
         statusConfigs={(statusConfigs ?? []) as { valor: string; cor: string | null }[]}
         mesLabel={mesLabel}
+        mesAtual={`${mesRef.getFullYear()}-${String(mesRef.getMonth() + 1).padStart(2, '0')}`}
         horasKpis={horasKpis}
       />
     </div>

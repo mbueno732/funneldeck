@@ -4,7 +4,7 @@ import type { Pagina, Funil, Especialista, Configuracao } from '@/lib/types'
 
 export const dynamic = 'force-dynamic'
 
-export default async function PaginasPage({ searchParams }: { searchParams: { funil?: string; status?: string; atrasadas?: string } }) {
+export default async function PaginasPage({ searchParams }: { searchParams: { funil?: string; status?: string; atrasadas?: string; mes?: string } }) {
   const supabase = await createClient()
 
   const [
@@ -28,6 +28,7 @@ export default async function PaginasPage({ searchParams }: { searchParams: { fu
       initialFunilId={searchParams.funil}
       initialStatus={searchParams.status}
       initialAtrasadas={searchParams.atrasadas === '1'}
+      initialMes={searchParams.mes}
     />
   )
 }
