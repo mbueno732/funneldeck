@@ -83,9 +83,14 @@ export async function criarPagina(input: Omit<Pagina, 'id' | 'criado_em' | 'atua
 
 export async function atualizarPagina(id: string, input: Partial<Omit<Pagina, 'id' | 'criado_em' | 'atualizado_em' | 'funis'>>) {
   const supabase = await createClient()
+  const payload = { ...input }
+  if (input.status === 'Publicada' && !input.data_publicacao) {
+    const { data: atual } = await supabase.from('paginas').select('data_publicacao').eq('id', id).single()
+    if (!atual?.data_publicacao) payload.data_publicacao = new Date().toISOString().split('T')[0]
+  }
   const { data, error } = await supabase
     .from('paginas')
-    .update(input)
+    .update(payload)
     .eq('id', id)
     .select()
     .single()

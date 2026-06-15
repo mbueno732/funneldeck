@@ -53,7 +53,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
   const [overrides, setOverrides] = useState<Record<string, Partial<Pagina>>>({})
   const [editandoUrl, setEditandoUrl] = useState<string | null>(null)
   const [urlTemp, setUrlTemp] = useState('')
-  const [celula, setCelula] = useState<{ id: string; campo: 'horas_reais' | 'horas_estimadas' | 'data_prevista' | 'codigo'; valor: string } | null>(null)
+  const [celula, setCelula] = useState<{ id: string; campo: 'horas_reais' | 'horas_estimadas' | 'data_prevista' | 'data_publicacao' | 'codigo'; valor: string } | null>(null)
   const [deletandoPagina, setDeletandoPagina] = useState<string | null>(null)
   const [deletadas, setDeletadas] = useState<Set<string>>(new Set())
   const [duplicandoPagina, setDuplicandoPagina] = useState<string | null>(null)
@@ -197,6 +197,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
       campo === 'horas_reais' ? { horas_reais: parseHoras(valor) } :
       campo === 'horas_estimadas' ? { horas_estimadas: parseHoras(valor) } :
       campo === 'data_prevista' ? { data_prevista: valor || null } :
+      campo === 'data_publicacao' ? { data_publicacao: valor || null } :
       { codigo: valor.trim() || null }
     setOverrides(o => ({ ...o, [id]: { ...o[id], ...update } }))
     setCelula(null)
@@ -625,7 +626,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
                 <th className="px-4 py-3 text-left font-medium">Status</th>
                 <th className="px-4 py-3 text-left font-medium">Prioridade</th>
                 <th className="px-4 py-3 text-left font-medium">Horas</th>
-                <th className="px-4 py-3 text-left font-medium">Previsão</th>
+                <th className="px-4 py-3 text-left font-medium">Datas</th>
                 <th className="px-4 py-3 text-left font-medium">GTmetrix</th>
                 <th className="px-4 py-3 text-left font-medium w-10"></th>
               </tr>
@@ -809,10 +810,11 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
                         )}
                       </td>
 
-                      {/* Previsão — clicável para editar data */}
+                      {/* Datas — Previsão e Publicação */}
                       <td className="px-4 py-3">
-                        {celula?.id === p.id && celula.campo === 'data_prevista' ? (
+                        {celula?.id === p.id && (celula.campo === 'data_prevista' || celula.campo === 'data_publicacao') ? (
                           <div className="flex items-center gap-1">
+                            <span className="text-xs text-gray-500">{celula.campo === 'data_prevista' ? 'Prev:' : 'Pub:'}</span>
                             <input autoFocus type="date" value={celula.valor}
                               onChange={e => setCelula(c => c ? { ...c, valor: e.target.value } : c)}
                               onKeyDown={e => { if (e.key === 'Enter') handleSalvarCelula(); if (e.key === 'Escape') setCelula(null) }}
@@ -822,13 +824,24 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
                             <button onClick={() => setCelula(null)} className="text-gray-500 hover:text-gray-300"><X size={12} /></button>
                           </div>
                         ) : (
-                          <button
-                            onClick={() => setCelula({ id: p.id, campo: 'data_prevista', valor: p.data_prevista ?? '' })}
-                            className={`text-xs hover:opacity-70 transition-opacity ${atrasada ? 'text-red-400 font-medium' : p.data_prevista ? 'text-gray-400' : 'text-gray-600'}`}
-                            title="Clique para editar data"
-                          >
-                            {p.data_prevista ? new Date(p.data_prevista + 'T12:00:00').toLocaleDateString('pt-BR') : '—'}
-                          </button>
+                          <div className="flex flex-col gap-0.5">
+                            <button
+                              onClick={() => setCelula({ id: p.id, campo: 'data_prevista', valor: p.data_prevista ?? '' })}
+                              className={`text-xs hover:opacity-70 transition-opacity text-left flex items-center gap-1 ${atrasada ? 'text-red-400 font-medium' : p.data_prevista ? 'text-gray-400' : 'text-gray-600'}`}
+                              title="Clique para editar previsão"
+                            >
+                              <span className="text-gray-600">Prev:</span>
+                              {p.data_prevista ? new Date(p.data_prevista + 'T12:00:00').toLocaleDateString('pt-BR') : '—'}
+                            </button>
+                            <button
+                              onClick={() => setCelula({ id: p.id, campo: 'data_publicacao', valor: p.data_publicacao ?? '' })}
+                              className="text-xs hover:opacity-70 transition-opacity text-left flex items-center gap-1 text-gray-400"
+                              title="Clique para editar data de publicação"
+                            >
+                              <span className="text-gray-600">Pub:</span>
+                              {p.data_publicacao ? new Date(p.data_publicacao + 'T12:00:00').toLocaleDateString('pt-BR') : '—'}
+                            </button>
+                          </div>
                         )}
                       </td>
 

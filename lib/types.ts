@@ -75,6 +75,7 @@ export interface Pagina {
   horas_estimadas?: number | null
   horas_reais?: number | null
   data_prevista?: string | null
+  data_publicacao?: string | null
   url_planilha_pesquisa?: string | null
   url_documentacao?: string | null
   observacoes?: string | null
