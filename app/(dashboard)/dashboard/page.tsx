@@ -157,7 +157,14 @@ export default async function DashboardPage({
         </div>
         <div className="flex items-center gap-2">
           <Suspense>
-            <FiltroMes />
+            <FiltroMes mesesDisponiveis={
+              Array.from(new Set(
+                (todasPaginas ?? [])
+                  .map(x => (x as { data_publicacao?: string }).data_publicacao)
+                  .filter((d): d is string => !!d)
+                  .map(d => d.slice(0, 7))
+              )).sort().reverse()
+            } />
           </Suspense>
           <Suspense>
             <FiltroDashboard especialistas={(especialistas ?? []) as { id: string; nome: string; ativo: boolean; criado_em: string; atualizado_em: string }[]} />
