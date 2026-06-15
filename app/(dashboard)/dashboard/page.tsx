@@ -28,7 +28,7 @@ export default async function DashboardPage({
     { data: statusConfigs },
     { data: paginasImpl },
   ] = await Promise.all([
-    supabase.from('paginas').select('id, nome, status, data_prevista, funil_id, atualizado_em, horas_estimadas, horas_reais'),
+    supabase.from('paginas').select('id, nome, status, data_prevista, data_publicacao, funil_id, atualizado_em, horas_estimadas, horas_reais'),
     supabase.from('funis').select('id, status, produto_id, produtos(especialista_id, especialistas(id, nome))'),
     supabase.from('especialistas').select('id, nome').eq('ativo', true).order('nome'),
     supabase.from('configuracoes').select('valor, cor').eq('categoria', 'status_pagina').eq('ativo', true).order('ordem'),
@@ -88,10 +88,9 @@ export default async function DashboardPage({
     }).length,
     publicadas_mes: p.filter(x => {
       if (x.status !== 'Publicada') return false
-      const at = (x as { atualizado_em?: string }).atualizado_em
-      if (!at) return false
-      const d = new Date(at)
-      return d >= inicioMes && d < fimMes
+      const dataPub = (x as { data_publicacao?: string }).data_publicacao
+      if (!dataPub) return false
+      return dataPub >= inicioMes.toISOString().split('T')[0] && dataPub < fimMes.toISOString().split('T')[0]
     }).length,
   }
 
