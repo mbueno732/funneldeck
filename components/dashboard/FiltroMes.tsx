@@ -8,7 +8,7 @@ export function FiltroMes() {
   const mesSel = params.get('mes') ?? ''
   const espSel = params.get('especialista') ?? ''
 
-  const meses = Array.from({ length: 12 }, (_, i) => {
+  const meses = Array.from({ length: 24 }, (_, i) => {
     const d = new Date()
     d.setDate(1)
     d.setMonth(d.getMonth() - i)
@@ -20,18 +20,19 @@ export function FiltroMes() {
   function handleChange(mes: string) {
     const p = new URLSearchParams()
     if (espSel) p.set('especialista', espSel)
-    if (mes) p.set('mes', mes)
+    if (mes && mes !== '__all__') p.set('mes', mes)
     router.push(`/dashboard${p.toString() ? '?' + p.toString() : ''}`)
   }
 
-  const valorAtual = mesSel || (meses[0]?.valor ?? '')
+  const valorAtual = mesSel || '__all__'
 
   return (
     <Select value={valorAtual} onValueChange={handleChange}>
-      <SelectTrigger className="h-9 text-sm bg-gray-900 border-gray-800 text-gray-300 hover:bg-gray-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[130px]">
+      <SelectTrigger className="h-9 text-sm bg-gray-900 border-gray-800 text-gray-300 hover:bg-gray-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[150px]">
         <SelectValue />
       </SelectTrigger>
       <SelectContent className="bg-gray-900 border-gray-800">
+        <SelectItem value="__all__" className="text-gray-300 focus:bg-gray-800 focus:text-white">Todo o período</SelectItem>
         {meses.map(m => (
           <SelectItem key={m.valor} value={m.valor} className="text-gray-300 focus:bg-gray-800 focus:text-white">{m.label}</SelectItem>
         ))}

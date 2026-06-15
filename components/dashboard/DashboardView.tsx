@@ -310,7 +310,7 @@ export function DashboardView({
             <div className="flex items-center gap-2">
               <Timer size={14} className="text-indigo-400" />
               <span className="font-medium text-white">Horas</span>
-              <span className="text-gray-600 text-xs">estimado vs realizado</span>
+              <span className="text-gray-600 text-xs">estimado vs realizado · {mesLabel}</span>
             </div>
             <div className="flex items-center gap-3">
               {!horasAberto && horasKpis.desvio_pct !== 0 && (

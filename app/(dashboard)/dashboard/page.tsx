@@ -14,12 +14,13 @@ export default async function DashboardPage({
   const hoje = new Date().toISOString().split('T')[0]
   const espFiltro = searchParams.especialista
 
-  const mesRef = searchParams.mes
-    ? new Date(searchParams.mes + '-02')
-    : new Date()
-  const inicioMes = new Date(mesRef.getFullYear(), mesRef.getMonth(), 1)
-  const fimMes = new Date(mesRef.getFullYear(), mesRef.getMonth() + 1, 1)
-  const mesLabel = inicioMes.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
+  const mesSelecionado = searchParams.mes ?? ''
+  const mesRef = mesSelecionado ? new Date(mesSelecionado + '-02') : null
+  const inicioMes = mesRef ? new Date(mesRef.getFullYear(), mesRef.getMonth(), 1) : null
+  const fimMes = mesRef ? new Date(mesRef.getFullYear(), mesRef.getMonth() + 1, 1) : null
+  const mesLabel = mesRef
+    ? new Date(mesRef.getFullYear(), mesRef.getMonth(), 1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
+    : 'todo o período'
 
   const [
     { data: todasPaginas },
@@ -75,6 +76,7 @@ export default async function DashboardPage({
       }).length
     })(),
     taxa_entrega_mes: (() => {
+      if (!inicioMes || !fimMes) return null
       const previstas = p.filter(x => x.data_prevista && x.data_prevista >= inicioMes.toISOString().split('T')[0] && x.data_prevista < fimMes.toISOString().split('T')[0])
       if (previstas.length === 0) return null
       const publicadas = previstas.filter(x => x.status === 'Publicada').length
@@ -88,13 +90,19 @@ export default async function DashboardPage({
     }).length,
     publicadas_mes: p.filter(x => {
       if (x.status !== 'Publicada') return false
+      if (!inicioMes || !fimMes) return true
       const dataPub = (x as { data_publicacao?: string }).data_publicacao
       if (!dataPub) return false
       return dataPub >= inicioMes.toISOString().split('T')[0] && dataPub < fimMes.toISOString().split('T')[0]
     }).length,
   }
 
-  const paginasComHoras = p.filter(x => x.horas_estimadas != null)
+  const paginasComHoras = p.filter(x => {
+    if (x.horas_estimadas == null) return false
+    if (!inicioMes || !fimMes) return true
+    const dataPub = (x as { data_publicacao?: string }).data_publicacao
+    return dataPub && dataPub >= inicioMes.toISOString().split('T')[0] && dataPub < fimMes.toISOString().split('T')[0]
+  })
   const horasEstimadas = Math.round(paginasComHoras.reduce((s, x) => s + (x.horas_estimadas ?? 0), 0) * 10) / 10
   const horasReais = Math.round(paginasComHoras.filter(x => x.horas_reais != null).reduce((s, x) => s + (x.horas_reais ?? 0), 0) * 10) / 10
   const horasDesvio = horasEstimadas > 0 ? Math.round(((horasReais - horasEstimadas) / horasEstimadas) * 100) : 0
@@ -161,7 +169,7 @@ export default async function DashboardPage({
         porEspecialista={porEspecialista}
         statusConfigs={(statusConfigs ?? []) as { valor: string; cor: string | null }[]}
         mesLabel={mesLabel}
-        mesAtual={`${mesRef.getFullYear()}-${String(mesRef.getMonth() + 1).padStart(2, '0')}`}
+        mesAtual={mesSelecionado}
         horasKpis={horasKpis}
       />
     </div>
