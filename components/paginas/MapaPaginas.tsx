@@ -91,6 +91,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
   const [filtroFerramenta, setFiltroFerramenta] = useState('')
   const [modalAberto, setModalAberto] = useState(false)
   const [editando, setEditando] = useState<Pagina | null>(null)
+  const [erroDuplicar, setErroDuplicar] = useState('')
   const [checklistPagina, setChecklistPagina] = useState<Pagina | null>(null)
   const checklistCache = useRef<Map<string, { checklist: unknown; historico: unknown }>>(new Map())
 
@@ -250,13 +251,15 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
 
   async function handleDuplicar(id: string) {
     setDuplicandoPagina(id)
+    setErroDuplicar('')
     try {
       const nova = await duplicarPagina(id)
       setPaginasExtras(prev => [...prev, nova])
       router.refresh()
     } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Erro ao duplicar página.'
+      setErroDuplicar(msg)
       console.error('Erro ao duplicar página:', e)
-      router.refresh()
     } finally {
       setDuplicandoPagina(null)
     }
@@ -613,6 +616,13 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
               </div>
             )
           })}
+        </div>
+      )}
+
+      {erroDuplicar && (
+        <div className="flex items-center justify-between px-4 py-2.5 bg-red-500/10 border border-red-500/30 rounded-lg text-sm text-red-400">
+          <span>Erro ao duplicar: {erroDuplicar}</span>
+          <button onClick={() => setErroDuplicar('')} className="text-red-400 hover:text-red-300"><X size={14} /></button>
         </div>
       )}
 
