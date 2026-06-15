@@ -1012,7 +1012,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
 
       <PainelChecklist
         pagina={checklistPagina}
-        onFechar={() => setChecklistPagina(null)}
+        onFechar={() => { setChecklistPagina(null); router.refresh() }}
         dadosPreCarregados={checklistPagina ? checklistCache.current.get(checklistPagina.id) : undefined}
       />
     </div>
