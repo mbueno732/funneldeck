@@ -16,7 +16,7 @@ export async function iniciarAnaliseGtmetrix(url: string): Promise<string> {
       'Content-Type': 'application/vnd.api+json',
     },
     body: JSON.stringify({
-      data: { type: 'test', attributes: { url } },
+      data: { type: 'test', attributes: { url, location: 6 } },
     }),
   })
   if (!res.ok) {
