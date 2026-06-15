@@ -1,4 +1,5 @@
 'use server'
+import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 
 export async function criarChecklistManual(pagina_id: string) {
@@ -60,6 +61,7 @@ export async function toggleItemChecklist(item_id: string, concluido: boolean) {
     .update({ concluido })
     .eq('id', item_id)
   if (error) throw error
+  revalidatePath('/paginas')
 }
 
 export async function toggleNaoSeAplica(item_id: string, nao_se_aplica: boolean) {
@@ -69,6 +71,7 @@ export async function toggleNaoSeAplica(item_id: string, nao_se_aplica: boolean)
     .update({ nao_se_aplica, ...(nao_se_aplica ? { concluido: false } : {}) })
     .eq('id', item_id)
   if (error) throw error
+  revalidatePath('/paginas')
 }
 
 export async function atualizarChecklistMeta(checklist_id: string, input: {
