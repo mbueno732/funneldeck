@@ -24,6 +24,7 @@ const HEALTH_CONFIG: Record<EtapaHealth, { cor: string; label: string }> = {
 }
 
 interface FunilComMetricas extends Funil {
+  tem_movimento?: boolean
   total_paginas: number
   paginas_publicadas: number
   impl_nao_publicadas: number
@@ -33,14 +34,16 @@ interface FunilComMetricas extends Funil {
 interface Props {
   funis: FunilComMetricas[]
   initialEspecialistaId?: string
+  initialParados?: boolean
   produtos: Produto[]
   especialistas: Especialista[]
   configs: Configuracao[]
 }
 
-export function ListaFunis({ funis, produtos, especialistas, configs, initialEspecialistaId }: Props) {
+export function ListaFunis({ funis, produtos, especialistas, configs, initialEspecialistaId, initialParados }: Props) {
   const router = useRouter()
   const [filtroEsp, setFiltroEsp] = useState(initialEspecialistaId ?? '')
+  const [apenasParados] = useState(initialParados ?? false)
   const [filtroStatus, setFiltroStatus] = useState('')
   const [modalAberto, setModalAberto] = useState(false)
   const [editando, setEditando] = useState<Funil | null>(null)
@@ -60,6 +63,7 @@ export function ListaFunis({ funis, produtos, especialistas, configs, initialEsp
     const prod = produtos.find(p => p.id === f.produto_id)
     if (filtroEsp && prod?.especialista_id !== filtroEsp) return false
     if (filtroStatus && f.status !== filtroStatus) return false
+    if (apenasParados && (f.tem_movimento || (statusOverrides[f.id] ?? f.status) !== 'Ativo')) return false
     return true
   })
 
@@ -135,6 +139,13 @@ export function ListaFunis({ funis, produtos, especialistas, configs, initialEsp
         </div>
       )}
 
+      {apenasParados && (
+        <div className="flex items-center gap-2 px-4 py-2.5 bg-orange-500/10 border border-orange-500/30 rounded-lg text-sm text-orange-400">
+          <AlertCircle size={14} />
+          Exibindo apenas funis ativos sem páginas em andamento, implementadas ou publicadas.
+        </div>
+      )}
+
       {/* Cards */}
       {filtrados.length === 0 ? (
         <div className="rounded-xl border border-gray-800 p-12 text-center text-gray-500">
@@ -147,9 +158,10 @@ export function ListaFunis({ funis, produtos, especialistas, configs, initialEsp
             const pct = pctPublicadas(f)
             const temImpl = f.impl_nao_publicadas > 0
             const inativo = (statusOverrides[f.id] ?? f.status) === 'Inativo'
+            const parado = !inativo && (statusOverrides[f.id] ?? f.status) === 'Ativo' && !f.tem_movimento
 
             return (
-              <div key={f.id} className={`bg-gray-900 border border-gray-800 rounded-xl p-4 space-y-3 hover:border-gray-600 transition-colors ${inativo ? 'opacity-50 hover:opacity-75' : ''}`}>
+              <div key={f.id} className={`bg-gray-900 rounded-xl p-4 space-y-3 transition-colors ${inativo ? 'border border-gray-800 opacity-50 hover:opacity-75' : parado ? 'border border-orange-500/40 hover:border-orange-500/60' : 'border border-gray-800 hover:border-gray-600'}`}>
                 {/* Header do card */}
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">

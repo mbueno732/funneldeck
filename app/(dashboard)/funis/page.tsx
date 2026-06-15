@@ -4,7 +4,7 @@ import type { Produto, Especialista, Configuracao } from '@/lib/types'
 
 export const dynamic = 'force-dynamic'
 
-export default async function FunisPage({ searchParams }: { searchParams: { especialista?: string } }) {
+export default async function FunisPage({ searchParams }: { searchParams: { especialista?: string; parados?: string } }) {
   const supabase = await createClient()
 
   const [
@@ -56,6 +56,7 @@ export default async function FunisPage({ searchParams }: { searchParams: { espe
       paginas_publicadas: pagsFunil.filter(p => p.status === 'Publicada').length,
       impl_nao_publicadas: pagsFunil.filter(p => p.status === 'Implementada').length,
       etapas_pipeline: etapasComPaginas,
+      tem_movimento: pagsFunil.some(p => ['Em andamento', 'Implementada', 'Publicada'].includes(p.status)),
     }
   })
 
@@ -66,6 +67,7 @@ export default async function FunisPage({ searchParams }: { searchParams: { espe
       especialistas={(especialistas ?? []) as Especialista[]}
       configs={(configs ?? []) as Configuracao[]}
       initialEspecialistaId={searchParams.especialista}
+      initialParados={searchParams.parados === '1'}
     />
   )
 }

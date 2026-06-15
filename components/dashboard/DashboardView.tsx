@@ -279,7 +279,7 @@ export function DashboardView({
             sub="ativos sem páginas em prod."
             icon={PauseCircle}
             cor="orange"
-            href="/funis"
+            href="/funis?parados=1"
             badge={kpis.funis_sem_movimento > 0 ? 'requer atenção' : undefined}
           />
         </div>
