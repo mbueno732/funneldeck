@@ -253,8 +253,10 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
     try {
       const nova = await duplicarPagina(id)
       setPaginasExtras(prev => [...prev, nova])
+      router.refresh()
     } catch (e) {
       console.error('Erro ao duplicar página:', e)
+      router.refresh()
     } finally {
       setDuplicandoPagina(null)
     }
