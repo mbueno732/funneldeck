@@ -43,7 +43,7 @@ interface Props {
 export function ListaFunis({ funis, produtos, especialistas, configs, initialEspecialistaId, initialParados }: Props) {
   const router = useRouter()
   const [filtroEsp, setFiltroEsp] = useState(initialEspecialistaId ?? '')
-  const [apenasParados] = useState(initialParados ?? false)
+  const [apenasParados, setApenasParados] = useState(initialParados ?? false)
   const [filtroStatus, setFiltroStatus] = useState('')
   const [modalAberto, setModalAberto] = useState(false)
   const [editando, setEditando] = useState<Funil | null>(null)
@@ -140,9 +140,14 @@ export function ListaFunis({ funis, produtos, especialistas, configs, initialEsp
       )}
 
       {apenasParados && (
-        <div className="flex items-center gap-2 px-4 py-2.5 bg-orange-500/10 border border-orange-500/30 rounded-lg text-sm text-orange-400">
-          <AlertCircle size={14} />
-          Exibindo apenas funis ativos sem páginas em andamento, implementadas ou publicadas.
+        <div className="flex items-center justify-between gap-2 px-4 py-2.5 bg-orange-500/10 border border-orange-500/30 rounded-lg text-sm text-orange-400">
+          <div className="flex items-center gap-2">
+            <AlertCircle size={14} />
+            Exibindo apenas funis ativos sem páginas em andamento, implementadas ou publicadas.
+          </div>
+          <button onClick={() => setApenasParados(false)} className="shrink-0 hover:text-orange-300 transition-colors">
+            <X size={14} />
+          </button>
         </div>
       )}
 
