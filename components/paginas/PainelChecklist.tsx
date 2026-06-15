@@ -76,6 +76,18 @@ export function PainelChecklist({ pagina, onFechar, dadosPreCarregados }: Props)
     await toggleItemChecklist(item.id, novo)
   }
 
+  async function handleMarcarTodos() {
+    if (!checklist) return
+    const aplicaveis = checklist.checklist_itens.filter(i => !i.nao_se_aplica)
+    const todosConcluidos = aplicaveis.every(i => i.concluido)
+    const novoConcluido = !todosConcluidos
+    setChecklist(c => c ? {
+      ...c,
+      checklist_itens: c.checklist_itens.map(i => i.nao_se_aplica ? i : { ...i, concluido: novoConcluido })
+    } : c)
+    await Promise.all(aplicaveis.map(i => toggleItemChecklist(i.id, novoConcluido)))
+  }
+
   async function handleToggleNaoSeAplica(item: Item) {
     if (!checklist) return
     const novo = !item.nao_se_aplica
@@ -293,6 +305,22 @@ export function PainelChecklist({ pagina, onFechar, dadosPreCarregados }: Props)
                 )
               })}
             </div>
+
+            {/* Marcar / Desmarcar todos */}
+            {(() => {
+              const aplicaveis = checklist.checklist_itens.filter(i => !i.nao_se_aplica)
+              const todosConcluidos = aplicaveis.length > 0 && aplicaveis.every(i => i.concluido)
+              return (
+                <div className="px-5 pb-4 border-t border-gray-800 pt-4">
+                  <button
+                    onClick={handleMarcarTodos}
+                    className="w-full py-2 text-xs font-medium rounded-lg border border-gray-700 text-gray-400 hover:text-white hover:border-gray-500 transition-colors"
+                  >
+                    {todosConcluidos ? 'Desmarcar todos' : 'Marcar todos como concluído'}
+                  </button>
+                </div>
+              )
+            })()}
 
             {/* Observações */}
             <div className="p-5 border-t border-gray-800">
