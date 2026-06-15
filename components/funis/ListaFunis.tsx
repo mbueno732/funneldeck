@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Plus, Pencil, FileText, ExternalLink, AlertCircle, Copy, Trash2, Check, X } from 'lucide-react'
+import { Plus, Pencil, FileText, ExternalLink, AlertCircle, Copy, Trash2, Check, X, ChevronDown, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -50,6 +50,7 @@ export function ListaFunis({ funis, produtos, especialistas, configs, initialEsp
   const [deletados, setDeletados] = useState<Set<string>>(new Set())
   const [statusOverrides, setStatusOverrides] = useState<Record<string, string>>({})
   const [novaPaginaFunilId, setNovaPaginaFunilId] = useState<string | null>(null)
+  const [encerradosAbertos, setEncerradosAbertos] = useState(false)
 
   const colorMap = configs.reduce((acc, c) => ({ ...acc, [`${c.categoria}:${c.valor}`]: c.cor }), {} as Record<string, string | null | undefined>)
   const cor = (cat: string, val: string) => colorMap[`${cat}:${val}`] ?? null
@@ -145,9 +146,10 @@ export function ListaFunis({ funis, produtos, especialistas, configs, initialEsp
             const esp = especialistas.find(e => e.id === prod?.especialista_id)
             const pct = pctPublicadas(f)
             const temImpl = f.impl_nao_publicadas > 0
+            const inativo = (statusOverrides[f.id] ?? f.status) === 'Inativo'
 
             return (
-              <div key={f.id} className="bg-gray-900 border border-gray-800 rounded-xl p-4 space-y-3 hover:border-gray-600 transition-colors">
+              <div key={f.id} className={`bg-gray-900 border border-gray-800 rounded-xl p-4 space-y-3 hover:border-gray-600 transition-colors ${inativo ? 'opacity-50 hover:opacity-75' : ''}`}>
                 {/* Header do card */}
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
@@ -285,6 +287,23 @@ export function ListaFunis({ funis, produtos, especialistas, configs, initialEsp
                         <X size={12} /> Cancelar
                       </button>
                     </>
+                  ) : inativo ? (
+                    <>
+                      <Link
+                        href={`/paginas?funil=${f.id}`}
+                        className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-white py-1.5 px-2 hover:bg-gray-900 rounded-lg transition-colors"
+                      >
+                        <FileText size={12} />
+                        Ver histórico
+                      </Link>
+                      <button
+                        onClick={() => { setEditando(f); setModalAberto(true) }}
+                        className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-white py-1.5 px-2 hover:bg-gray-900 rounded-lg transition-colors"
+                      >
+                        <Pencil size={12} />
+                        Editar
+                      </button>
+                    </>
                   ) : (
                     <>
                       <button
@@ -367,10 +386,13 @@ export function ListaFunis({ funis, produtos, especialistas, configs, initialEsp
           return 'Ongoing'
         }
 
+        const ativos = filtrados.filter(f => (statusOverrides[f.id] ?? f.status) !== 'Inativo')
+        const inativos = filtrados.filter(f => (statusOverrides[f.id] ?? f.status) === 'Inativo')
+
         return (
           <div className="space-y-10">
             {GRUPOS.map(grupo => {
-              const itens = filtrados.filter(f => atribuirGrupo(f) === grupo.label)
+              const itens = ativos.filter(f => atribuirGrupo(f) === grupo.label)
               if (!itens.length) return null
               return (
                 <div key={grupo.label} className="space-y-4">
@@ -389,6 +411,32 @@ export function ListaFunis({ funis, produtos, especialistas, configs, initialEsp
                 </div>
               )
             })}
+
+            {inativos.length > 0 && (
+              <div className="space-y-4">
+                <button
+                  onClick={() => setEncerradosAbertos(v => !v)}
+                  className="flex items-center gap-3 w-full group"
+                >
+                  <span className="px-2.5 py-0.5 text-xs font-semibold uppercase tracking-widest rounded-full border bg-gray-800/50 text-gray-500 border-gray-700">
+                    Encerrados
+                  </span>
+                  <div className="flex-1 h-px bg-gradient-to-r from-gray-700/60 to-transparent" />
+                  <span className="text-xs font-medium text-gray-700">
+                    {inativos.length} funil{inativos.length !== 1 ? 's' : ''}
+                  </span>
+                  {encerradosAbertos
+                    ? <ChevronDown size={14} className="text-gray-600" />
+                    : <ChevronRight size={14} className="text-gray-600" />
+                  }
+                </button>
+                {encerradosAbertos && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                    {inativos.map(renderCard)}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )
       })()}
