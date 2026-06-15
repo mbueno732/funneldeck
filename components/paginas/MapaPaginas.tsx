@@ -51,6 +51,7 @@ interface Props {
 export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialStatus, initialAtrasadas }: Props) {
   const router = useRouter()
   const [overrides, setOverrides] = useState<Record<string, Partial<Pagina>>>({})
+  const [paginasExtras, setPaginasExtras] = useState<Pagina[]>([])
   const [editandoUrl, setEditandoUrl] = useState<string | null>(null)
   const [urlTemp, setUrlTemp] = useState('')
   const [celula, setCelula] = useState<{ id: string; campo: 'horas_reais' | 'horas_estimadas' | 'data_prevista' | 'data_publicacao' | 'codigo'; valor: string } | null>(null)
@@ -139,7 +140,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
   const isDesvioHoras = (p: Pagina) =>
     p.horas_estimadas && p.horas_reais && p.horas_reais > p.horas_estimadas
 
-  const filtradas = useMemo(() => (paginas ?? []).filter(p => {
+  const filtradas = useMemo(() => ([...(paginas ?? []), ...paginasExtras]).filter(p => {
     if (deletadas.has(p.id)) return false
     if (busca && !p.nome.toLowerCase().includes(busca.toLowerCase())) return false
     if (filtroFunil && p.funil_id !== filtroFunil) return false
@@ -154,7 +155,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
     if (filtroAtrasadas && !isAtrasada(p)) return false
     return true
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }), [paginas, deletadas, busca, filtroFunil, filtroTipo, filtroStatus, filtroEtapa, filtroPrioridade, filtroFerramenta, filtroAtrasadas, funis])
+  }), [paginas, paginasExtras, deletadas, busca, filtroFunil, filtroTipo, filtroStatus, filtroEtapa, filtroPrioridade, filtroFerramenta, filtroAtrasadas, funis])
 
 
   async function handleMudarStatus(pagina: Pagina, novoStatus: string) {
@@ -250,8 +251,8 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
   async function handleDuplicar(id: string) {
     setDuplicandoPagina(id)
     try {
-      await duplicarPagina(id)
-      router.refresh()
+      const nova = await duplicarPagina(id)
+      setPaginasExtras(prev => [...prev, nova])
     } catch (e) {
       console.error('Erro ao duplicar página:', e)
     } finally {
