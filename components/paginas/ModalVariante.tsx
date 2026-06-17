@@ -1,9 +1,10 @@
 'use client'
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Check, Copy } from 'lucide-react'
 import { criarVariante } from '@/lib/actions/paginas'
 import type { Pagina } from '@/lib/types'
 
@@ -94,6 +95,15 @@ export function ModalVariante({ aberto, onFechar, onCriada, pagina, todasPaginas
   const [urlEditada, setUrlEditada] = useState('')
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState('')
+  const [copiado, setCopiado] = useState(false)
+
+  const copiar = useCallback(() => {
+    if (!urlEditada) return
+    navigator.clipboard.writeText(urlEditada).then(() => {
+      setCopiado(true)
+      setTimeout(() => setCopiado(false), 2000)
+    })
+  }, [urlEditada])
 
   const info = useMemo(() => pagina ? parsearInfo(pagina) : null, [pagina])
 
@@ -280,14 +290,25 @@ export function ModalVariante({ aberto, onFechar, onCriada, pagina, todasPaginas
                 <Label className="text-gray-400 text-xs">
                   URL gerada <span className="text-gray-600">(editável)</span>
                 </Label>
-                <Input
-                  value={urlEditada}
-                  onChange={e => setUrlEditada(e.target.value)}
-                  placeholder="https://..."
-                  className={`bg-gray-950 border text-white text-sm font-mono placeholder-gray-600 focus:border-indigo-500 ${
-                    urlDuplicada ? 'border-red-500' : 'border-gray-800'
-                  }`}
-                />
+                <div className="flex items-center gap-2">
+                  <Input
+                    value={urlEditada}
+                    onChange={e => setUrlEditada(e.target.value)}
+                    placeholder="https://..."
+                    className={`bg-gray-950 border text-white text-sm font-mono placeholder-gray-600 focus:border-indigo-500 ${
+                      urlDuplicada ? 'border-red-500' : 'border-gray-800'
+                    }`}
+                  />
+                  <button
+                    type="button"
+                    onClick={copiar}
+                    disabled={!urlEditada}
+                    className="shrink-0 p-2 text-gray-500 hover:text-indigo-400 hover:bg-gray-800 rounded transition-colors disabled:opacity-30"
+                    title="Copiar URL"
+                  >
+                    {copiado ? <Check size={14} className="text-green-400" /> : <Copy size={14} />}
+                  </button>
+                </div>
                 {sugestao.aviso && !urlDuplicada && (
                   <p className="text-xs text-yellow-500/80">Variantes anteriores já existem — usando a próxima disponível.</p>
                 )}
