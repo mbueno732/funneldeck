@@ -167,6 +167,7 @@ export function DashboardView({
   horasKpis: HorasKpis
 }) {
   const [horasAberto, setHorasAberto] = useState(false)
+  const mesParaLink = mesAtual || new Date().toISOString().slice(0, 7)
 
   const colorMap = Object.fromEntries(statusConfigs.map(c => [c.valor, c.cor]))
   const getColor = (status: string) => colorMap[status] ?? STATUS_COR_DEFAULT[status] ?? '#4b5563'
@@ -295,7 +296,7 @@ export function DashboardView({
             sub={mesLabel}
             icon={TrendingUp}
             cor={kpis.publicadas_mes > 0 ? 'green' : 'gray'}
-            href={`/paginas?status=Publicada&mes=${mesAtual}`}
+            href={`/paginas?status=Publicada&mes=${mesParaLink}`}
           />
         </div>
       </div>
