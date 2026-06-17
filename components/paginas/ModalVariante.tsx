@@ -201,7 +201,7 @@ export function ModalVariante({ aberto, onFechar, onCriada, pagina, todasPaginas
 
   return (
     <Dialog open={aberto} onOpenChange={v => !v && onFechar()}>
-      <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-lg">
+      <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-white">
             Criar variante — <span className="text-indigo-400">{pagina?.nome}</span>
@@ -210,7 +210,7 @@ export function ModalVariante({ aberto, onFechar, onCriada, pagina, todasPaginas
 
         <div className="space-y-5 mt-2">
           {pagina?.url_pagina && (
-            <p className="text-xs text-gray-500 truncate">
+            <p className="text-xs text-gray-500 break-all">
               Original: <span className="text-gray-400 font-mono">{pagina.url_pagina}</span>
             </p>
           )}
