@@ -10,7 +10,7 @@ import { ModalFunil } from './ModalFunil'
 import { ModalDuplicarFunil } from './ModalDuplicarFunil'
 import { ModalPagina } from '@/components/paginas/ModalPagina'
 import { deletarFunil, atualizarFunil } from '@/lib/actions/funis'
-import type { Funil, Produto, Especialista, Configuracao } from '@/lib/types'
+import type { Funil, Produto, Especialista, Configuracao, Estrategia } from '@/lib/types'
 
 type EtapaHealth = 'publicada' | 'implementada' | 'andamento' | 'fazer' | 'atrasada' | 'pausada'
 
@@ -38,9 +38,10 @@ interface Props {
   produtos: Produto[]
   especialistas: Especialista[]
   configs: Configuracao[]
+  estrategias: Estrategia[]
 }
 
-export function ListaFunis({ funis, produtos, especialistas, configs, initialEspecialistaId, initialParados }: Props) {
+export function ListaFunis({ funis, produtos, especialistas, configs, estrategias, initialEspecialistaId, initialParados }: Props) {
   const router = useRouter()
   const [filtroEsp, setFiltroEsp] = useState(initialEspecialistaId ?? '')
   const [apenasParados, setApenasParados] = useState(initialParados ?? false)
@@ -464,6 +465,7 @@ export function ListaFunis({ funis, produtos, especialistas, configs, initialEsp
         onSalvo={() => { router.refresh(); setNovaPaginaFunilId(null) }}
         funis={funis}
         configs={configs}
+        estrategias={estrategias}
         funilPreSelecionado={novaPaginaFunilId ?? undefined}
       />
 

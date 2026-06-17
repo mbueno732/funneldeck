@@ -60,6 +60,16 @@ export interface Funil {
   impl_nao_publicadas?: number
 }
 
+export interface Estrategia {
+  id: string
+  funil_id: string
+  nome: string
+  caminho_url?: string | null
+  ordem: number
+  criado_em: string
+  atualizado_em: string
+}
+
 export interface Pagina {
   id: string
   funil_id: string
@@ -88,9 +98,11 @@ export interface Pagina {
   variante?: string | null
   versao?: number | null
   pagina_origem_id?: string | null
+  estrategia_id?: string | null
   criado_em: string
   atualizado_em: string
   funis?: Pick<Funil, 'id' | 'id_funil' | 'nome' | 'tipo'>
+  estrategias?: Pick<Estrategia, 'id' | 'nome' | 'caminho_url'> | null
 }
 
 export interface HistoricoStatusPagina {

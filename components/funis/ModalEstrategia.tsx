@@ -1,0 +1,101 @@
+'use client'
+import { useState, useEffect } from 'react'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { criarEstrategia, atualizarEstrategia } from '@/lib/actions/estrategias'
+import type { Estrategia } from '@/lib/types'
+
+interface Props {
+  aberto: boolean
+  onFechar: () => void
+  onSalvo: () => void
+  funilId: string
+  estrategia?: Estrategia | null
+}
+
+export function ModalEstrategia({ aberto, onFechar, onSalvo, funilId, estrategia }: Props) {
+  const [nome, setNome] = useState('')
+  const [caminhoUrl, setCaminhoUrl] = useState('')
+  const [salvando, setSalvando] = useState(false)
+  const [erro, setErro] = useState('')
+
+  useEffect(() => {
+    if (aberto) {
+      setNome(estrategia?.nome ?? '')
+      setCaminhoUrl(estrategia?.caminho_url ?? '')
+      setErro('')
+    }
+  }, [aberto, estrategia])
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!nome.trim()) { setErro('Nome é obrigatório.'); return }
+    setSalvando(true)
+    setErro('')
+    try {
+      if (estrategia) {
+        await atualizarEstrategia(estrategia.id, {
+          nome: nome.trim(),
+          caminho_url: caminhoUrl.trim() || null,
+        })
+      } else {
+        await criarEstrategia({
+          funil_id: funilId,
+          nome: nome.trim(),
+          caminho_url: caminhoUrl.trim() || null,
+        })
+      }
+      onSalvo()
+      onFechar()
+    } catch (e: unknown) {
+      setErro(e instanceof Error ? e.message : 'Erro ao salvar.')
+    } finally {
+      setSalvando(false)
+    }
+  }
+
+  return (
+    <Dialog open={aberto} onOpenChange={v => !v && onFechar()}>
+      <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-md">
+        <DialogHeader>
+          <DialogTitle className="text-white">
+            {estrategia ? 'Editar estratégia' : 'Nova estratégia'}
+          </DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4 mt-2">
+          <div className="space-y-1.5">
+            <Label className="text-gray-400 text-xs">Nome *</Label>
+            <Input
+              value={nome}
+              onChange={e => setNome(e.target.value)}
+              placeholder="Ex: Captação Normal, Aplicação, VSL..."
+              className="bg-gray-900 border-gray-800 text-white placeholder-gray-600 focus:border-indigo-500"
+              autoFocus
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-gray-400 text-xs">Caminho da URL <span className="text-gray-600">(opcional)</span></Label>
+            <Input
+              value={caminhoUrl}
+              onChange={e => setCaminhoUrl(e.target.value)}
+              placeholder="Ex: /captacao, /aplicacao"
+              className="bg-gray-900 border-gray-800 text-white placeholder-gray-600 focus:border-indigo-500 font-mono text-sm"
+            />
+            <p className="text-xs text-gray-600">Usado na geração de URL das páginas desta estratégia.</p>
+          </div>
+          {erro && <p className="text-red-400 text-sm">{erro}</p>}
+          <div className="flex justify-end gap-2 pt-1">
+            <Button type="button" variant="ghost" onClick={onFechar} className="text-gray-400 hover:text-white">
+              Cancelar
+            </Button>
+            <Button type="submit" disabled={salvando} className="bg-indigo-600 hover:bg-indigo-500 text-white">
+              {salvando ? 'Salvando...' : estrategia ? 'Salvar' : 'Criar'}
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  )
+}

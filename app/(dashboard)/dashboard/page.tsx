@@ -56,7 +56,7 @@ export default async function DashboardPage({
     paginas_em_andamento: p.filter(x => x.status === 'Em andamento').length,
     paginas_implementadas: p.filter(x => x.status === 'Implementada').length,
     paginas_atrasadas: p.filter(x =>
-      x.data_prevista && x.data_prevista < hoje && !['Publicada', 'Suspensa'].includes(x.status)
+      x.data_prevista && x.data_prevista < hoje && !['Publicada', 'Suspensa', 'Implementada'].includes(x.status)
     ).length,
     paginas_a_fazer: p.filter(x => x.status === 'A fazer').length,
     total_funis: funisVisiveis.length,
@@ -146,7 +146,7 @@ export default async function DashboardPage({
       total_paginas: paginasEsp.length,
       paginas_publicadas: paginasEsp.filter(pg => pg.status === 'Publicada').length,
       paginas_atrasadas: paginasEsp.filter(pg =>
-        pg.data_prevista && pg.data_prevista < hoje && !['Publicada', 'Suspensa'].includes(pg.status)
+        pg.data_prevista && pg.data_prevista < hoje && !['Publicada', 'Suspensa', 'Implementada'].includes(pg.status)
       ).length,
       horas_estimadas: Math.round(paginasEsp.reduce((s, pg) => s + (pg.horas_estimadas ?? 0), 0) * 10) / 10,
       horas_reais: Math.round(paginasEsp.filter(pg => pg.horas_reais != null).reduce((s, pg) => s + (pg.horas_reais ?? 0), 0) * 10) / 10,

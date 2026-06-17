@@ -1,7 +1,7 @@
 'use client'
 import { useState, useMemo, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { Plus, Search, ExternalLink, Pencil, Trash2, AlertTriangle, Clock, Copy, Link as LinkIcon, Check, X, ChevronRight, ChevronDown, ClipboardList, LayoutGrid, List, GitBranch } from 'lucide-react'
+import { Plus, Search, ExternalLink, Pencil, Trash2, AlertTriangle, Clock, Copy, Link as LinkIcon, Check, X, ChevronRight, ChevronDown, ClipboardList, LayoutGrid, List, GitBranch, Layers } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -13,7 +13,7 @@ import { atualizarPagina, deletarPagina, duplicarPagina } from '@/lib/actions/pa
 import { iniciarAnaliseGtmetrix, verificarAnaliseGtmetrix } from '@/lib/actions/gtmetrix'
 import { buscarChecklist } from '@/lib/actions/checklists'
 import { buscarHistoricoStatus } from '@/lib/actions/historico'
-import type { Pagina, Funil, Especialista, Configuracao } from '@/lib/types'
+import type { Pagina, Funil, Especialista, Configuracao, Estrategia } from '@/lib/types'
 
 function parseHoras(val: string): number | null {
   if (!val?.trim()) return null
@@ -44,13 +44,14 @@ interface Props {
   funis: Funil[]
   especialistas: Especialista[]
   configs: Configuracao[]
+  estrategias?: Estrategia[]
   initialFunilId?: string
   initialStatus?: string
   initialAtrasadas?: boolean
   initialMes?: string
 }
 
-export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialStatus, initialAtrasadas, initialMes }: Props) {
+export function MapaPaginas({ paginas, funis, configs, estrategias = [], initialFunilId, initialStatus, initialAtrasadas, initialMes }: Props) {
   const router = useRouter()
   const [overrides, setOverrides] = useState<Record<string, Partial<Pagina>>>({})
 
@@ -122,7 +123,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
   const configOpts = (cat: string) => configs.filter(c => c.categoria === cat && c.ativo)
 
   const isAtrasada = (p: Pagina) =>
-    p.data_prevista && p.data_prevista < hoje && !['Publicada', 'Suspensa'].includes(p.status)
+    p.data_prevista && p.data_prevista < hoje && !['Publicada', 'Suspensa', 'Implementada'].includes(p.status)
 
   const isDesvioHoras = (p: Pagina) =>
     p.horas_estimadas && p.horas_reais && p.horas_reais > p.horas_estimadas
@@ -308,6 +309,279 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
   )
 
   const totalAtrasadas = filtradas.filter(isAtrasada).length
+
+  const renderLinha = (raw: Pagina) => {
+    const p = { ...raw, ...overrides[raw.id] }
+    const atrasada = isAtrasada(p)
+    const desvio = isDesvioHoras(p)
+    return (
+      <tr
+        key={p.id}
+        className={`hover:bg-gray-900/40 transition-colors ${atrasada ? 'border-l-2 border-l-red-500' : ''}`}
+      >
+        {/* Nome */}
+        <td className="px-4 py-3">
+          <div className="flex items-center gap-1.5">
+            {celula?.id === p.id && celula.campo === 'codigo' ? (
+              <div className="flex items-center gap-1">
+                <input autoFocus value={celula.valor}
+                  onChange={e => setCelula(c => c ? { ...c, valor: e.target.value } : c)}
+                  onKeyDown={e => { if (e.key === 'Enter') handleSalvarCelula(); if (e.key === 'Escape') setCelula(null) }}
+                  className="w-20 px-1.5 py-0.5 text-xs bg-gray-900 border border-indigo-500 rounded text-indigo-300 font-mono focus:outline-none"
+                  placeholder="CP-01"
+                />
+                <button onClick={handleSalvarCelula} className="text-green-400 hover:text-green-300"><Check size={12} /></button>
+                <button onClick={() => setCelula(null)} className="text-gray-500 hover:text-gray-300"><X size={12} /></button>
+              </div>
+            ) : p.codigo ? (
+              <button
+                onClick={() => setCelula({ id: p.id, campo: 'codigo', valor: p.codigo ?? '' })}
+                className="text-indigo-400 font-mono text-xs bg-indigo-500/10 border border-indigo-500/20 px-1.5 py-0.5 rounded hover:border-indigo-400 transition-colors shrink-0"
+                title="Clique para editar código"
+              >
+                {p.codigo}
+              </button>
+            ) : (
+              <button
+                onClick={() => setCelula({ id: p.id, campo: 'codigo', valor: '' })}
+                className="text-gray-600 text-xs px-1.5 py-0.5 rounded border border-dashed border-gray-800 hover:border-gray-600 hover:text-gray-400 transition-colors shrink-0"
+                title="Adicionar código"
+              >
+                +código
+              </button>
+            )}
+            <span className="text-white font-medium">{p.nome}</span>
+            {p.url_pagina && (
+              <a href={p.url_pagina} target="_blank" rel="noopener noreferrer"
+                className="text-indigo-400 hover:text-indigo-300 shrink-0" title="Abrir página">
+                <ExternalLink size={12} />
+              </a>
+            )}
+            {atrasada && <span title="Prazo vencido"><AlertTriangle size={12} className="text-red-400 shrink-0" /></span>}
+          </div>
+          {editandoUrl === p.id && (
+            <div className="flex items-center gap-1 mt-1.5">
+              <input
+                autoFocus type="url" value={urlTemp}
+                onChange={e => setUrlTemp(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') handleSalvarUrl(p); if (e.key === 'Escape') setEditandoUrl(null) }}
+                placeholder="https://"
+                className="flex-1 px-2 py-1 text-xs bg-gray-900 border border-gray-800 rounded text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 min-w-0"
+              />
+              <button onClick={() => handleSalvarUrl(p)} className="p-1 text-green-400 hover:text-green-300"><Check size={13} /></button>
+              <button onClick={() => setEditandoUrl(null)} className="p-1 text-gray-500 hover:text-gray-300"><X size={13} /></button>
+            </div>
+          )}
+        </td>
+        {/* Funil */}
+        <td className="px-4 py-3">
+          <span className="text-gray-300 text-xs flex items-center gap-1.5">
+            {p.funis?.id_funil && <span className="text-indigo-400 font-mono shrink-0">[{p.funis.id_funil}]</span>}
+            {(!p.funis?.id_funil || p.funis.id_funil !== p.funis.nome) && <span className="truncate">{p.funis?.nome ?? '—'}</span>}
+          </span>
+        </td>
+        {/* Etapa */}
+        <td className="px-4 py-3">
+          <Select value={p.etapa ?? '__none__'} onValueChange={v => handleMudarEtapa(p, v === '__none__' ? '' : v)}>
+            <SelectTrigger className="border-0 bg-transparent p-0 h-auto w-auto text-xs font-medium focus:ring-0 focus:ring-offset-0 gap-0 [&>svg]:hidden" style={{ color: p.etapa ? '#9ca3af' : '#4b5563' }}>
+              <SelectValue placeholder="— etapa" />
+            </SelectTrigger>
+            <SelectContent className="bg-gray-900 border-gray-800">
+              <SelectItem value="__none__" className="text-gray-500 focus:bg-gray-800 focus:text-white">— etapa</SelectItem>
+              {configOpts('etapa').map(c => <SelectItem key={c.valor} value={c.valor} className="text-gray-300 focus:bg-gray-800 focus:text-white">{c.valor}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </td>
+        {/* Ferramenta */}
+        <td className="px-4 py-3">
+          <Select value={p.ferramenta ?? '__none__'} onValueChange={v => handleMudarFerramenta(p, v === '__none__' ? '' : v)}>
+            <SelectTrigger className="border-0 bg-transparent p-0 h-auto w-auto text-xs font-medium focus:ring-0 focus:ring-offset-0 gap-0 [&>svg]:hidden" style={{ color: p.ferramenta ? (cor('ferramenta', p.ferramenta) ?? '#9ca3af') : '#4b5563' }}>
+              <SelectValue placeholder="— ferramenta" />
+            </SelectTrigger>
+            <SelectContent className="bg-gray-900 border-gray-800">
+              <SelectItem value="__none__" className="text-gray-500 focus:bg-gray-800 focus:text-white">— ferramenta</SelectItem>
+              {configOpts('ferramenta').map(c => <SelectItem key={c.valor} value={c.valor} className="text-gray-300 focus:bg-gray-800 focus:text-white">{c.valor}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </td>
+        {/* Status */}
+        <td className="px-4 py-3">
+          <Select value={p.status} onValueChange={v => handleMudarStatus(p, v)}>
+            <SelectTrigger className="border-0 bg-transparent p-0 h-auto w-auto text-xs font-medium focus:ring-0 focus:ring-offset-0 gap-0 [&>svg]:hidden" style={{ color: cor('status_pagina', p.status) ?? '#6b7280' }}>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="bg-gray-900 border-gray-800">
+              {configOpts('status_pagina').map(c => <SelectItem key={c.valor} value={c.valor} className="text-gray-300 focus:bg-gray-800 focus:text-white">{c.valor}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </td>
+        {/* Prioridade */}
+        <td className="px-4 py-3">
+          <Select value={p.prioridade ?? '__none__'} onValueChange={v => handleMudarPrioridade(p, v === '__none__' ? '' : v)}>
+            <SelectTrigger className="border-0 bg-transparent p-0 h-auto w-auto text-xs font-medium focus:ring-0 focus:ring-offset-0 gap-0 [&>svg]:hidden" style={{ color: p.prioridade ? (cor('prioridade', p.prioridade) ?? '#6b7280') : '#4b5563' }}>
+              <SelectValue placeholder="— prioridade" />
+            </SelectTrigger>
+            <SelectContent className="bg-gray-900 border-gray-800">
+              <SelectItem value="__none__" className="text-gray-500 focus:bg-gray-800 focus:text-white">— prioridade</SelectItem>
+              {configOpts('prioridade').map(c => <SelectItem key={c.valor} value={c.valor} className="text-gray-300 focus:bg-gray-800 focus:text-white">{c.valor}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </td>
+        {/* Horas */}
+        <td className="px-4 py-3">
+          {celula?.id === p.id && (celula.campo === 'horas_reais' || celula.campo === 'horas_estimadas') ? (
+            <div className="flex items-center gap-1">
+              <span className="text-xs text-gray-500">{celula.campo === 'horas_estimadas' ? 'P:' : 'R:'}</span>
+              <input autoFocus type="text" value={celula.valor}
+                onChange={e => setCelula(c => c ? { ...c, valor: e.target.value } : c)}
+                onKeyDown={e => { if (e.key === 'Enter') handleSalvarCelula(); if (e.key === 'Escape') setCelula(null) }}
+                placeholder="ex: 1h30"
+                className="w-16 px-1.5 py-0.5 text-xs bg-gray-900 border border-gray-800 rounded text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500"
+              />
+              <button onClick={handleSalvarCelula} className="text-green-400 hover:text-green-300"><Check size={12} /></button>
+              <button onClick={() => setCelula(null)} className="text-gray-500 hover:text-gray-300"><X size={12} /></button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 text-xs">
+              <button onClick={() => setCelula({ id: p.id, campo: 'horas_estimadas', valor: p.horas_estimadas != null ? formatHoras(p.horas_estimadas) : '' })}
+                className="flex items-center gap-0.5 hover:opacity-70 transition-opacity text-gray-400" title="Clique para editar horas previstas">
+                <span className="text-gray-600">P:</span><span>{formatHoras(p.horas_estimadas)}</span>
+              </button>
+              <span className="text-gray-700">·</span>
+              <button onClick={() => setCelula({ id: p.id, campo: 'horas_reais', valor: p.horas_reais != null ? formatHoras(p.horas_reais) : '' })}
+                className={`flex items-center gap-0.5 hover:opacity-70 transition-opacity ${desvio ? 'text-yellow-400' : 'text-gray-400'}`} title="Clique para editar horas reais">
+                {desvio && <Clock size={11} />}
+                <span className="text-gray-600">R:</span><span>{formatHoras(p.horas_reais)}</span>
+              </button>
+            </div>
+          )}
+        </td>
+        {/* Datas */}
+        <td className="px-4 py-3">
+          {celula?.id === p.id && (celula.campo === 'data_prevista' || celula.campo === 'data_publicacao') ? (
+            <div className="flex items-center gap-1">
+              <span className="text-xs text-gray-500">{celula.campo === 'data_prevista' ? 'Prev:' : 'Pub:'}</span>
+              <input autoFocus type="date" value={celula.valor}
+                onChange={e => setCelula(c => c ? { ...c, valor: e.target.value } : c)}
+                onKeyDown={e => { if (e.key === 'Enter') handleSalvarCelula(); if (e.key === 'Escape') setCelula(null) }}
+                className="px-1.5 py-0.5 text-xs bg-gray-900 border border-gray-800 rounded text-white focus:outline-none focus:border-indigo-500"
+              />
+              <button onClick={handleSalvarCelula} className="text-green-400 hover:text-green-300"><Check size={12} /></button>
+              <button onClick={() => setCelula(null)} className="text-gray-500 hover:text-gray-300"><X size={12} /></button>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-0.5">
+              <button onClick={() => setCelula({ id: p.id, campo: 'data_prevista', valor: p.data_prevista ?? '' })}
+                className={`text-xs hover:opacity-70 transition-opacity text-left flex items-center gap-1 ${atrasada ? 'text-red-400 font-medium' : p.data_prevista ? 'text-gray-400' : 'text-gray-600'}`}
+                title="Clique para editar previsão">
+                <span className="text-gray-600">Prev:</span>
+                {p.data_prevista ? new Date(p.data_prevista + 'T12:00:00').toLocaleDateString('pt-BR') : '—'}
+              </button>
+              <button onClick={() => setCelula({ id: p.id, campo: 'data_publicacao', valor: p.data_publicacao ?? '' })}
+                className="text-xs hover:opacity-70 transition-opacity text-left flex items-center gap-1 text-gray-400"
+                title="Clique para editar data de publicação">
+                <span className="text-gray-600">Pub:</span>
+                {p.data_publicacao ? new Date(p.data_publicacao + 'T12:00:00').toLocaleDateString('pt-BR') : '—'}
+              </button>
+            </div>
+          )}
+        </td>
+        {/* GTmetrix */}
+        <td className="px-4 py-3">
+          {(() => {
+            const grade = (p.gtmetrix_grade ?? null) as string | null
+            const score = (p.gtmetrix_score ?? null) as number | null
+            const GRADE_COR: Record<string, string> = { A: '#22c55e', B: '#84cc16', C: '#eab308', D: '#f97316', E: '#ef4444', F: '#dc2626' }
+            if (analisando === p.id) return (
+              <div className="space-y-1 w-28">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-gray-500">{estadoGtmetrix || 'Analisando'}</span>
+                  <span className="text-xs text-gray-600">{Math.round(progressoGtmetrix)}%</span>
+                </div>
+                <div className="h-1.5 bg-gray-900 rounded-full overflow-hidden">
+                  <div className="h-full rounded-full transition-all duration-700" style={{ width: `${progressoGtmetrix}%`, backgroundColor: '#f97316' }} />
+                </div>
+              </div>
+            )
+            if (grade) {
+              const lcp = p.gtmetrix_lcp as number | null | undefined
+              const tempo = p.gtmetrix_tempo as number | null | undefined
+              const analisadoEm = p.gtmetrix_analisado_em ? new Date(p.gtmetrix_analisado_em).toLocaleDateString('pt-BR') : null
+              const expandido = expandidoGtmetrix === p.id
+              return (
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <button onClick={() => setExpandidoGtmetrix(expandido ? null : p.id)}
+                    className="text-xs font-bold px-1.5 py-0.5 rounded shrink-0 transition-all"
+                    style={{ backgroundColor: `${GRADE_COR[grade]}22`, color: GRADE_COR[grade], border: `1px solid ${GRADE_COR[grade]}44` }}
+                    title="Clique para ver detalhes">
+                    {grade} {score != null ? `${score}%` : ''}
+                  </button>
+                  {expandido && (<>
+                    {lcp != null && <span className="text-xs text-gray-500">LCP {lcp}s</span>}
+                    {tempo != null && <span className="text-xs text-gray-500">· {tempo}s</span>}
+                    {analisadoEm && <span className="text-xs text-gray-700">· {analisadoEm}</span>}
+                    {p.url_pagina && <button onClick={() => handleAnalisarGtmetrix(p)} className="text-gray-600 hover:text-gray-400 text-xs" title="Reanalisar">↻</button>}
+                  </>)}
+                </div>
+              )
+            }
+            if (p.url_pagina && p.status === 'Implementada') return (
+              <button onClick={() => handleAnalisarGtmetrix(p)} className="text-xs text-gray-500 hover:text-indigo-400 transition-colors" title="Analisar no GTmetrix">Analisar</button>
+            )
+            return <span className="text-gray-700">—</span>
+          })()}
+        </td>
+        {/* Ações */}
+        <td className="px-4 py-3">
+          {deletandoPagina === p.id ? (
+            <div className="flex items-center gap-2">
+              <button onClick={() => handleDeletar(p.id)} className="px-3 py-1.5 text-xs text-white bg-red-600 hover:bg-red-500 rounded-lg font-medium transition-colors">Excluir</button>
+              <button onClick={() => setDeletandoPagina(null)} className="px-3 py-1.5 text-xs text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors">Cancelar</button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-1">
+              {['Implementada', 'Publicada'].includes(p.status) && (() => {
+                const raw_cl = (p as Record<string, unknown>).checklists_publicacao
+                const cl = Array.isArray(raw_cl) ? raw_cl[0] : raw_cl as { checklist_itens: { concluido: boolean; nao_se_aplica?: boolean }[] } | null
+                const itens = cl?.checklist_itens ?? []
+                const aplic = itens.filter((i: { concluido: boolean; nao_se_aplica?: boolean }) => !i.nao_se_aplica)
+                const done = aplic.filter((i: { concluido: boolean }) => i.concluido).length
+                const pct = aplic.length > 0 ? Math.round((done / aplic.length) * 100) : null
+                return (
+                  <button onClick={() => setChecklistPagina(p)} onMouseEnter={() => prefetchChecklist(p.id)}
+                    className="flex items-center gap-1 p-1.5 hover:bg-gray-900 rounded transition-colors" title="Checklist de publicação">
+                    <ClipboardList size={13} className={pct === 100 ? 'text-green-400' : pct !== null ? 'text-yellow-400' : 'text-indigo-400'} />
+                    {pct !== null && <span className={`text-xs font-medium ${pct === 100 ? 'text-green-400' : 'text-yellow-400'}`}>{pct === 100 ? '✓' : `${pct}%`}</span>}
+                  </button>
+                )
+              })()}
+              <button onClick={() => { setEditandoUrl(p.id); setUrlTemp(p.url_pagina ?? '') }}
+                className="p-1.5 text-gray-500 hover:text-indigo-400 hover:bg-gray-900 rounded transition-colors"
+                title={p.url_pagina ? 'Editar URL' : 'Adicionar URL'}>
+                <LinkIcon size={13} />
+              </button>
+              <button onClick={() => setVariantePagina(raw)}
+                className="p-1.5 text-gray-500 hover:text-indigo-400 hover:bg-gray-900 rounded transition-colors" title="Criar variante">
+                <GitBranch size={13} />
+              </button>
+              <button onClick={() => handleDuplicar(p.id)} disabled={duplicandoPagina === p.id}
+                className="p-1.5 text-gray-500 hover:text-indigo-400 hover:bg-gray-900 rounded transition-colors disabled:opacity-40 disabled:cursor-wait" title="Duplicar">
+                <Copy size={13} className={duplicandoPagina === p.id ? 'animate-pulse' : ''} />
+              </button>
+              <button onClick={() => { setEditando(p); setModalAberto(true) }}
+                className="p-1.5 text-gray-500 hover:text-white hover:bg-gray-900 rounded transition-colors" title="Editar">
+                <Pencil size={13} />
+              </button>
+              <button onClick={() => setDeletandoPagina(p.id)}
+                className="p-1.5 text-gray-500 hover:text-red-400 hover:bg-gray-900 rounded transition-colors" title="Deletar">
+                <Trash2 size={13} />
+              </button>
+            </div>
+          )}
+        </td>
+      </tr>
+    )
+  }
 
   return (
     <div className="space-y-4">
@@ -657,354 +931,42 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
                     {paginas.length === 0 ? 'Nenhuma página cadastrada ainda.' : 'Nenhuma página encontrada com os filtros aplicados.'}
                   </td>
                 </tr>
-              ) : (
-                filtradas.map(raw => {
-                  const p = { ...raw, ...overrides[raw.id] }
-                  const atrasada = isAtrasada(p)
-                  const desvio = isDesvioHoras(p)
-                  return (
-                    <tr
-                      key={p.id}
-                      className={`hover:bg-gray-900/40 transition-colors ${atrasada ? 'border-l-2 border-l-red-500' : ''}`}
-                    >
-                      {/* Nome */}
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-1.5">
-                          {celula?.id === p.id && celula.campo === 'codigo' ? (
-                            <div className="flex items-center gap-1">
-                              <input autoFocus value={celula.valor}
-                                onChange={e => setCelula(c => c ? { ...c, valor: e.target.value } : c)}
-                                onKeyDown={e => { if (e.key === 'Enter') handleSalvarCelula(); if (e.key === 'Escape') setCelula(null) }}
-                                className="w-20 px-1.5 py-0.5 text-xs bg-gray-900 border border-indigo-500 rounded text-indigo-300 font-mono focus:outline-none"
-                                placeholder="CP-01"
-                              />
-                              <button onClick={handleSalvarCelula} className="text-green-400 hover:text-green-300"><Check size={12} /></button>
-                              <button onClick={() => setCelula(null)} className="text-gray-500 hover:text-gray-300"><X size={12} /></button>
-                            </div>
-                          ) : p.codigo ? (
-                            <button
-                              onClick={() => setCelula({ id: p.id, campo: 'codigo', valor: p.codigo ?? '' })}
-                              className="text-indigo-400 font-mono text-xs bg-indigo-500/10 border border-indigo-500/20 px-1.5 py-0.5 rounded hover:border-indigo-400 transition-colors shrink-0"
-                              title="Clique para editar código"
-                            >
-                              {p.codigo}
-                            </button>
-                          ) : (
-                            <button
-                              onClick={() => setCelula({ id: p.id, campo: 'codigo', valor: '' })}
-                              className="text-gray-600 text-xs px-1.5 py-0.5 rounded border border-dashed border-gray-800 hover:border-gray-600 hover:text-gray-400 transition-colors shrink-0"
-                              title="Adicionar código"
-                            >
-                              +código
-                            </button>
-                          )}
-                          <span className="text-white font-medium">{p.nome}</span>
-                          {p.url_pagina && (
-                            <a href={p.url_pagina} target="_blank" rel="noopener noreferrer"
-                              className="text-indigo-400 hover:text-indigo-300 shrink-0" title="Abrir página">
-                              <ExternalLink size={12} />
-                            </a>
-                          )}
-                          {atrasada && <span title="Prazo vencido"><AlertTriangle size={12} className="text-red-400 shrink-0" /></span>}
-                        </div>
-                        {editandoUrl === p.id && (
-                          <div className="flex items-center gap-1 mt-1.5">
-                            <input
-                              autoFocus
-                              type="url"
-                              value={urlTemp}
-                              onChange={e => setUrlTemp(e.target.value)}
-                              onKeyDown={e => { if (e.key === 'Enter') handleSalvarUrl(p); if (e.key === 'Escape') setEditandoUrl(null) }}
-                              placeholder="https://"
-                              className="flex-1 px-2 py-1 text-xs bg-gray-900 border border-gray-800 rounded text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 min-w-0"
-                            />
-                            <button onClick={() => handleSalvarUrl(p)} className="p-1 text-green-400 hover:text-green-300"><Check size={13} /></button>
-                            <button onClick={() => setEditandoUrl(null)} className="p-1 text-gray-500 hover:text-gray-300"><X size={13} /></button>
-                          </div>
-                        )}
-                      </td>
+              ) : (() => {
+                const estrategiasDeFunil = filtroFunil
+                  ? estrategias.filter(e => e.funil_id === filtroFunil)
+                  : []
+                const agrupar = estrategiasDeFunil.length > 0
 
-                      {/* Funil */}
-                      <td className="px-4 py-3">
-                        <span className="text-gray-300 text-xs flex items-center gap-1.5">
-                          {p.funis?.id_funil && (
-                            <span className="text-indigo-400 font-mono shrink-0">[{p.funis.id_funil}]</span>
-                          )}
-                          {(!p.funis?.id_funil || p.funis.id_funil !== p.funis.nome) && (
-                            <span className="truncate">{p.funis?.nome ?? '—'}</span>
-                          )}
+                if (!agrupar) return filtradas.map(raw => renderLinha(raw))
+
+                const grupos: { label: string; cor: string; rows: Pagina[] }[] = [
+                  ...estrategiasDeFunil.map(est => ({
+                    label: est.nome,
+                    cor: 'indigo',
+                    rows: filtradas.filter(p => p.estrategia_id === est.id),
+                  })),
+                  {
+                    label: 'Sem estratégia',
+                    cor: 'gray',
+                    rows: filtradas.filter(p => !p.estrategia_id),
+                  },
+                ].filter(g => g.rows.length > 0)
+
+                return grupos.flatMap(grupo => [
+                  <tr key={`grp-${grupo.label}`} className="bg-gray-900/60">
+                    <td colSpan={10} className="px-4 py-2">
+                      <div className="flex items-center gap-2">
+                        <Layers size={12} className={grupo.cor === 'indigo' ? 'text-indigo-400' : 'text-gray-600'} />
+                        <span className={`text-xs font-medium ${grupo.cor === 'indigo' ? 'text-indigo-300' : 'text-gray-500'}`}>
+                          {grupo.label}
                         </span>
-                      </td>
-
-                      {/* Etapa */}
-                      <td className="px-4 py-3">
-                        <Select value={p.etapa ?? '__none__'} onValueChange={v => handleMudarEtapa(p, v === '__none__' ? '' : v)}>
-                          <SelectTrigger className="border-0 bg-transparent p-0 h-auto w-auto text-xs font-medium focus:ring-0 focus:ring-offset-0 gap-0 [&>svg]:hidden"
-                            style={{ color: p.etapa ? '#9ca3af' : '#4b5563' }}>
-                            <SelectValue placeholder="— etapa" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-gray-900 border-gray-800">
-                            <SelectItem value="__none__" className="text-gray-500 focus:bg-gray-800 focus:text-white">— etapa</SelectItem>
-                            {configOpts('etapa').map(c => <SelectItem key={c.valor} value={c.valor} className="text-gray-300 focus:bg-gray-800 focus:text-white">{c.valor}</SelectItem>)}
-                          </SelectContent>
-                        </Select>
-                      </td>
-
-                      {/* Ferramenta */}
-                      <td className="px-4 py-3">
-                        <Select value={p.ferramenta ?? '__none__'} onValueChange={v => handleMudarFerramenta(p, v === '__none__' ? '' : v)}>
-                          <SelectTrigger className="border-0 bg-transparent p-0 h-auto w-auto text-xs font-medium focus:ring-0 focus:ring-offset-0 gap-0 [&>svg]:hidden"
-                            style={{ color: p.ferramenta ? (cor('ferramenta', p.ferramenta) ?? '#9ca3af') : '#4b5563' }}>
-                            <SelectValue placeholder="— ferramenta" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-gray-900 border-gray-800">
-                            <SelectItem value="__none__" className="text-gray-500 focus:bg-gray-800 focus:text-white">— ferramenta</SelectItem>
-                            {configOpts('ferramenta').map(c => <SelectItem key={c.valor} value={c.valor} className="text-gray-300 focus:bg-gray-800 focus:text-white">{c.valor}</SelectItem>)}
-                          </SelectContent>
-                        </Select>
-                      </td>
-
-                      {/* Status */}
-                      <td className="px-4 py-3">
-                        <Select value={p.status} onValueChange={v => handleMudarStatus(p, v)}>
-                          <SelectTrigger className="border-0 bg-transparent p-0 h-auto w-auto text-xs font-medium focus:ring-0 focus:ring-offset-0 gap-0 [&>svg]:hidden"
-                            style={{ color: cor('status_pagina', p.status) ?? '#6b7280' }}>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent className="bg-gray-900 border-gray-800">
-                            {configOpts('status_pagina').map(c => <SelectItem key={c.valor} value={c.valor} className="text-gray-300 focus:bg-gray-800 focus:text-white">{c.valor}</SelectItem>)}
-                          </SelectContent>
-                        </Select>
-                      </td>
-
-                      {/* Prioridade */}
-                      <td className="px-4 py-3">
-                        <Select value={p.prioridade ?? '__none__'} onValueChange={v => handleMudarPrioridade(p, v === '__none__' ? '' : v)}>
-                          <SelectTrigger className="border-0 bg-transparent p-0 h-auto w-auto text-xs font-medium focus:ring-0 focus:ring-offset-0 gap-0 [&>svg]:hidden"
-                            style={{ color: p.prioridade ? (cor('prioridade', p.prioridade) ?? '#6b7280') : '#4b5563' }}>
-                            <SelectValue placeholder="— prioridade" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-gray-900 border-gray-800">
-                            <SelectItem value="__none__" className="text-gray-500 focus:bg-gray-800 focus:text-white">— prioridade</SelectItem>
-                            {configOpts('prioridade').map(c => <SelectItem key={c.valor} value={c.valor} className="text-gray-300 focus:bg-gray-800 focus:text-white">{c.valor}</SelectItem>)}
-                          </SelectContent>
-                        </Select>
-                      </td>
-
-                      {/* Horas — P: estimado clicável, R: real clicável */}
-                      <td className="px-4 py-3">
-                        {celula?.id === p.id && (celula.campo === 'horas_reais' || celula.campo === 'horas_estimadas') ? (
-                          <div className="flex items-center gap-1">
-                            <span className="text-xs text-gray-500">{celula.campo === 'horas_estimadas' ? 'P:' : 'R:'}</span>
-                            <input autoFocus type="text" value={celula.valor}
-                              onChange={e => setCelula(c => c ? { ...c, valor: e.target.value } : c)}
-                              onKeyDown={e => { if (e.key === 'Enter') handleSalvarCelula(); if (e.key === 'Escape') setCelula(null) }}
-                              placeholder="ex: 1h30"
-                              className="w-16 px-1.5 py-0.5 text-xs bg-gray-900 border border-gray-800 rounded text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500"
-                            />
-                            <button onClick={handleSalvarCelula} className="text-green-400 hover:text-green-300"><Check size={12} /></button>
-                            <button onClick={() => setCelula(null)} className="text-gray-500 hover:text-gray-300"><X size={12} /></button>
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-2 text-xs">
-                            <button
-                              onClick={() => setCelula({ id: p.id, campo: 'horas_estimadas', valor: p.horas_estimadas != null ? formatHoras(p.horas_estimadas) : '' })}
-                              className="flex items-center gap-0.5 hover:opacity-70 transition-opacity text-gray-400"
-                              title="Clique para editar horas previstas"
-                            >
-                              <span className="text-gray-600">P:</span>
-                              <span>{formatHoras(p.horas_estimadas)}</span>
-                            </button>
-                            <span className="text-gray-700">·</span>
-                            <button
-                              onClick={() => setCelula({ id: p.id, campo: 'horas_reais', valor: p.horas_reais != null ? formatHoras(p.horas_reais) : '' })}
-                              className={`flex items-center gap-0.5 hover:opacity-70 transition-opacity ${desvio ? 'text-yellow-400' : 'text-gray-400'}`}
-                              title="Clique para editar horas reais"
-                            >
-                              {desvio && <Clock size={11} />}
-                              <span className="text-gray-600">R:</span>
-                              <span>{formatHoras(p.horas_reais)}</span>
-                            </button>
-                          </div>
-                        )}
-                      </td>
-
-                      {/* Datas — Previsão e Publicação */}
-                      <td className="px-4 py-3">
-                        {celula?.id === p.id && (celula.campo === 'data_prevista' || celula.campo === 'data_publicacao') ? (
-                          <div className="flex items-center gap-1">
-                            <span className="text-xs text-gray-500">{celula.campo === 'data_prevista' ? 'Prev:' : 'Pub:'}</span>
-                            <input autoFocus type="date" value={celula.valor}
-                              onChange={e => setCelula(c => c ? { ...c, valor: e.target.value } : c)}
-                              onKeyDown={e => { if (e.key === 'Enter') handleSalvarCelula(); if (e.key === 'Escape') setCelula(null) }}
-                              className="px-1.5 py-0.5 text-xs bg-gray-900 border border-gray-800 rounded text-white focus:outline-none focus:border-indigo-500"
-                            />
-                            <button onClick={handleSalvarCelula} className="text-green-400 hover:text-green-300"><Check size={12} /></button>
-                            <button onClick={() => setCelula(null)} className="text-gray-500 hover:text-gray-300"><X size={12} /></button>
-                          </div>
-                        ) : (
-                          <div className="flex flex-col gap-0.5">
-                            <button
-                              onClick={() => setCelula({ id: p.id, campo: 'data_prevista', valor: p.data_prevista ?? '' })}
-                              className={`text-xs hover:opacity-70 transition-opacity text-left flex items-center gap-1 ${atrasada ? 'text-red-400 font-medium' : p.data_prevista ? 'text-gray-400' : 'text-gray-600'}`}
-                              title="Clique para editar previsão"
-                            >
-                              <span className="text-gray-600">Prev:</span>
-                              {p.data_prevista ? new Date(p.data_prevista + 'T12:00:00').toLocaleDateString('pt-BR') : '—'}
-                            </button>
-                            <button
-                              onClick={() => setCelula({ id: p.id, campo: 'data_publicacao', valor: p.data_publicacao ?? '' })}
-                              className="text-xs hover:opacity-70 transition-opacity text-left flex items-center gap-1 text-gray-400"
-                              title="Clique para editar data de publicação"
-                            >
-                              <span className="text-gray-600">Pub:</span>
-                              {p.data_publicacao ? new Date(p.data_publicacao + 'T12:00:00').toLocaleDateString('pt-BR') : '—'}
-                            </button>
-                          </div>
-                        )}
-                      </td>
-
-                      {/* GTmetrix */}
-                      <td className="px-4 py-3">
-                        {(() => {
-                          const grade = (p.gtmetrix_grade ?? null) as string | null
-                          const score = (p.gtmetrix_score ?? null) as number | null
-                          const GRADE_COR: Record<string, string> = {
-                            A: '#22c55e', B: '#84cc16', C: '#eab308',
-                            D: '#f97316', E: '#ef4444', F: '#dc2626',
-                          }
-                          if (analisando === p.id) {
-                            return (
-                              <div className="space-y-1 w-28">
-                                <div className="flex items-center justify-between">
-                                  <span className="text-xs text-gray-500">{estadoGtmetrix || 'Analisando'}</span>
-                                  <span className="text-xs text-gray-600">{Math.round(progressoGtmetrix)}%</span>
-                                </div>
-                                <div className="h-1.5 bg-gray-900 rounded-full overflow-hidden">
-                                  <div
-                                    className="h-full rounded-full transition-all duration-700"
-                                    style={{ width: `${progressoGtmetrix}%`, backgroundColor: '#f97316' }}
-                                  />
-                                </div>
-                              </div>
-                            )
-                          }
-                          if (grade) {
-                            const lcp = p.gtmetrix_lcp as number | null | undefined
-                            const tempo = p.gtmetrix_tempo as number | null | undefined
-                            const analisadoEm = p.gtmetrix_analisado_em
-                              ? new Date(p.gtmetrix_analisado_em).toLocaleDateString('pt-BR')
-                              : null
-                            const expandido = expandidoGtmetrix === p.id
-                            return (
-                              <div className="flex items-center gap-1.5 flex-wrap">
-                                <button
-                                  onClick={() => setExpandidoGtmetrix(expandido ? null : p.id)}
-                                  className="text-xs font-bold px-1.5 py-0.5 rounded shrink-0 transition-all"
-                                  style={{ backgroundColor: `${GRADE_COR[grade]}22`, color: GRADE_COR[grade], border: `1px solid ${GRADE_COR[grade]}44` }}
-                                  title="Clique para ver detalhes"
-                                >
-                                  {grade} {score != null ? `${score}%` : ''}
-                                </button>
-                                {expandido && (
-                                  <>
-                                    {lcp != null && <span className="text-xs text-gray-500">LCP {lcp}s</span>}
-                                    {tempo != null && <span className="text-xs text-gray-500">· {tempo}s</span>}
-                                    {analisadoEm && <span className="text-xs text-gray-700">· {analisadoEm}</span>}
-                                    {p.url_pagina && (
-                                      <button onClick={() => handleAnalisarGtmetrix(p)} className="text-gray-600 hover:text-gray-400 text-xs" title="Reanalisar">↻</button>
-                                    )}
-                                  </>
-                                )}
-                              </div>
-                            )
-                          }
-                          if (p.url_pagina && p.status === 'Implementada') {
-                            return (
-                              <button
-                                onClick={() => handleAnalisarGtmetrix(p)}
-                                className="text-xs text-gray-500 hover:text-indigo-400 transition-colors"
-                                title="Analisar no GTmetrix"
-                              >
-                                Analisar
-                              </button>
-                            )
-                          }
-                          return <span className="text-gray-700">—</span>
-                        })()}
-                      </td>
-
-                      {/* Ações */}
-                      <td className="px-4 py-3">
-                        {deletandoPagina === p.id ? (
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={() => handleDeletar(p.id)}
-                              className="px-3 py-1.5 text-xs text-white bg-red-600 hover:bg-red-500 rounded-lg font-medium transition-colors"
-                            >
-                              Excluir
-                            </button>
-                            <button
-                              onClick={() => setDeletandoPagina(null)}
-                              className="px-3 py-1.5 text-xs text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors"
-                            >
-                              Cancelar
-                            </button>
-                          </div>
-                        ) : (
-                        <div className="flex items-center gap-1">
-                            {['Implementada', 'Publicada'].includes(p.status) && (() => {
-                              const raw_cl = (p as Record<string, unknown>).checklists_publicacao
-                              const cl = Array.isArray(raw_cl) ? raw_cl[0] : raw_cl as { checklist_itens: { concluido: boolean; nao_se_aplica?: boolean }[] } | null
-                              const itens = cl?.checklist_itens ?? []
-                              const aplic = itens.filter((i: { concluido: boolean; nao_se_aplica?: boolean }) => !i.nao_se_aplica)
-                              const done = aplic.filter((i: { concluido: boolean }) => i.concluido).length
-                              const pct = aplic.length > 0 ? Math.round((done / aplic.length) * 100) : null
-                              return (
-                                <button
-                                  onClick={() => setChecklistPagina(p)}
-                                  onMouseEnter={() => prefetchChecklist(p.id)}
-                                  className="flex items-center gap-1 p-1.5 hover:bg-gray-900 rounded transition-colors"
-                                  title="Checklist de publicação"
-                                >
-                                  <ClipboardList size={13} className={pct === 100 ? 'text-green-400' : pct !== null ? 'text-yellow-400' : 'text-indigo-400'} />
-                                  {pct !== null && (
-                                    <span className={`text-xs font-medium ${pct === 100 ? 'text-green-400' : 'text-yellow-400'}`}>
-                                      {pct === 100 ? '✓' : `${pct}%`}
-                                    </span>
-                                  )}
-                                </button>
-                              )
-                            })()}
-                            <button onClick={() => { setEditandoUrl(p.id); setUrlTemp(p.url_pagina ?? '') }}
-                              className="p-1.5 text-gray-500 hover:text-indigo-400 hover:bg-gray-900 rounded transition-colors"
-                              title={p.url_pagina ? 'Editar URL' : 'Adicionar URL'}>
-                              <LinkIcon size={13} />
-                            </button>
-                            <button onClick={() => setVariantePagina(raw)}
-                              className="p-1.5 text-gray-500 hover:text-indigo-400 hover:bg-gray-900 rounded transition-colors" title="Criar variante">
-                              <GitBranch size={13} />
-                            </button>
-                            <button onClick={() => handleDuplicar(p.id)}
-                              disabled={duplicandoPagina === p.id}
-                              className="p-1.5 text-gray-500 hover:text-indigo-400 hover:bg-gray-900 rounded transition-colors disabled:opacity-40 disabled:cursor-wait" title="Duplicar">
-                              <Copy size={13} className={duplicandoPagina === p.id ? 'animate-pulse' : ''} />
-                            </button>
-                            <button onClick={() => { setEditando(p); setModalAberto(true) }}
-                              className="p-1.5 text-gray-500 hover:text-white hover:bg-gray-900 rounded transition-colors" title="Editar">
-                              <Pencil size={13} />
-                            </button>
-                            <button onClick={() => setDeletandoPagina(p.id)}
-                              className="p-1.5 text-gray-500 hover:text-red-400 hover:bg-gray-900 rounded transition-colors" title="Deletar">
-                              <Trash2 size={13} />
-                            </button>
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-                  )
-                })
-              )}
+                        <span className="text-xs text-gray-600">· {grupo.rows.length} página{grupo.rows.length !== 1 ? 's' : ''}</span>
+                      </div>
+                    </td>
+                  </tr>,
+                  ...grupo.rows.map(raw => renderLinha(raw)),
+                ])
+              })()}
             </tbody>
           </table>
         </div>
@@ -1018,6 +980,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
         pagina={editando}
         funis={funis}
         configs={configs}
+        estrategias={estrategias}
         funilPreSelecionado={editando ? undefined : filtroFunil || undefined}
       />
 

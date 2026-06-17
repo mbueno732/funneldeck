@@ -20,7 +20,7 @@ export async function buscarKpis(): Promise<DashboardKpis> {
     supabase.from('paginas').select('*', { count: 'exact', head: true }).eq('status', 'Em andamento'),
     supabase.from('paginas').select('*', { count: 'exact', head: true })
       .lt('data_prevista', hoje)
-      .not('status', 'in', '("Publicada","Suspensa")'),
+      .not('status', 'in', '("Publicada","Suspensa","Implementada")'),
     supabase.from('funis').select('*', { count: 'exact', head: true }),
     supabase.from('funis').select('*', { count: 'exact', head: true }).eq('status', 'Ativo'),
     supabase.from('testes_ab').select('*', { count: 'exact', head: true }).eq('status', 'Ativo'),

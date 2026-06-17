@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { ListaFunis } from '@/components/funis/ListaFunis'
-import type { Produto, Especialista, Configuracao } from '@/lib/types'
+import type { Produto, Especialista, Configuracao, Estrategia } from '@/lib/types'
 
 export const dynamic = 'force-dynamic'
 
@@ -13,12 +13,14 @@ export default async function FunisPage({ searchParams }: { searchParams: { espe
     { data: produtos },
     { data: especialistas },
     { data: configs },
+    { data: estrategias },
   ] = await Promise.all([
     supabase.from('funis').select('*, produtos(id, nome, especialista_id, especialistas(id, nome))').order('nome'),
     supabase.from('paginas').select('funil_id, status, etapa, data_prevista'),
     supabase.from('produtos').select('*, especialistas(id, nome)').eq('ativo', true).order('nome'),
     supabase.from('especialistas').select('id, nome, ativo').eq('ativo', true).order('nome'),
     supabase.from('configuracoes').select('*').eq('ativo', true).order('categoria').order('ordem'),
+    supabase.from('estrategias').select('*').order('funil_id').order('ordem'),
   ])
 
   const hoje = new Date().toISOString().split('T')[0]
@@ -28,8 +30,8 @@ export default async function FunisPage({ searchParams }: { searchParams: { espe
     if (!pags.length) return 'vazia' as const
     const ativas = pags.filter(p => p.status !== 'Suspensa')
     if (!ativas.length) return 'vazia' as const
-    if (ativas.some(p => p.data_prevista && p.data_prevista < hoje && p.status !== 'Publicada')) return 'atrasada' as const
-    if (ativas.every(p => p.status === 'Publicada')) return 'publicada' as const
+    if (ativas.some(p => p.data_prevista && p.data_prevista < hoje && !['Publicada', 'Implementada'].includes(p.status))) return 'atrasada' as const
+    if (ativas.some(p => p.status === 'Publicada')) return 'publicada' as const
     if (ativas.some(p => p.status === 'Pausada')) return 'pausada' as const
     const naoPub = ativas.filter(p => p.status !== 'Publicada')
     if (naoPub.every(p => p.status === 'Implementada')) return 'implementada' as const
@@ -66,6 +68,7 @@ export default async function FunisPage({ searchParams }: { searchParams: { espe
       produtos={(produtos ?? []) as Produto[]}
       especialistas={(especialistas ?? []) as Especialista[]}
       configs={(configs ?? []) as Configuracao[]}
+      estrategias={(estrategias ?? []) as Estrategia[]}
       initialEspecialistaId={searchParams.especialista}
       initialParados={searchParams.parados === '1'}
     />

@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select as ShadSelect, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { criarPagina, atualizarPagina } from '@/lib/actions/paginas'
-import type { Pagina, Funil, Configuracao } from '@/lib/types'
+import type { Pagina, Funil, Configuracao, Estrategia } from '@/lib/types'
 
 interface Props {
   aberto: boolean
@@ -16,6 +16,7 @@ interface Props {
   pagina?: Pagina | null
   funis: Funil[]
   configs: Configuracao[]
+  estrategias: Estrategia[]
   funilPreSelecionado?: string
 }
 
@@ -91,12 +92,12 @@ const VAZIO = {
   prioridade: '', responsavel: '', url_pagina: '', referencia_dev: '',
   horas_estimadas: '', horas_reais: '', data_prevista: '',
   url_planilha_pesquisa: '', url_documentacao: '',
-  observacoes: '',
+  observacoes: '', estrategia_id: '',
 }
 
 const ETAPAS_TYP = ['TYP', 'Obrigado']
 
-export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs, funilPreSelecionado }: Props) {
+export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs, estrategias, funilPreSelecionado }: Props) {
   const [form, setForm] = useState(VAZIO)
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState('')
@@ -119,6 +120,7 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
         url_planilha_pesquisa: pagina.url_planilha_pesquisa ?? '',
         url_documentacao: pagina.url_documentacao ?? '',
         observacoes: pagina.observacoes ?? '',
+        estrategia_id: pagina.estrategia_id ?? '',
       })
     } else {
       setForm({ ...VAZIO, funil_id: funilPreSelecionado ?? '' })
@@ -159,6 +161,7 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
         url_planilha_pesquisa: isTYP ? (form.url_planilha_pesquisa || null) : null,
         url_documentacao: form.url_documentacao || null,
         observacoes: form.observacoes || null,
+        estrategia_id: form.estrategia_id || null,
       }
       if (pagina) {
         await atualizarPagina(pagina.id, payload)
@@ -190,10 +193,22 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
           <Select
             label="Funil *"
             value={form.funil_id}
-            onChange={set('funil_id')}
+            onChange={v => { set('funil_id')(v); set('estrategia_id')('') }}
             obrigatorio
             options={funis.map(f => ({ valor: f.id, label: `${f.id_funil && f.id_funil !== f.nome ? `[${f.id_funil}] ` : ''}${f.nome}` }))}
           />
+          {(() => {
+            const opts = estrategias.filter(e => e.funil_id === form.funil_id)
+            if (!opts.length) return null
+            return (
+              <Select
+                label="Estratégia"
+                value={form.estrategia_id}
+                onChange={set('estrategia_id')}
+                options={opts.map(e => ({ valor: e.id, label: e.nome }))}
+              />
+            )
+          })()}
           <Field label="Nome da Página *" value={form.nome} onChange={set('nome')} placeholder="Ex: A, Halo B, VSL longa, Confirmação" />
 
           {/* Campos essenciais — sempre visíveis */}

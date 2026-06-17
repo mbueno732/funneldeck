@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { DetalhesFunil } from '@/components/funis/DetalhesFunil'
-import type { Configuracao } from '@/lib/types'
+import type { Configuracao, Estrategia } from '@/lib/types'
 
 export default async function FunilDetalhePage({ params }: { params: { id: string } }) {
   const supabase = await createClient()
@@ -11,6 +11,7 @@ export default async function FunilDetalhePage({ params }: { params: { id: strin
     { data: funil },
     { data: paginasRaw },
     { data: configs },
+    { data: estrategias },
   ] = await Promise.all([
     supabase
       .from('funis')
@@ -28,6 +29,12 @@ export default async function FunilDetalhePage({ params }: { params: { id: strin
       .eq('ativo', true)
       .order('categoria')
       .order('ordem'),
+    supabase
+      .from('estrategias')
+      .select('*')
+      .eq('funil_id', params.id)
+      .order('ordem')
+      .order('criado_em'),
   ])
 
   if (!funil) notFound()
@@ -48,6 +55,7 @@ export default async function FunilDetalhePage({ params }: { params: { id: strin
       paginas={(paginasRaw ?? []) as never}
       historico={(historico ?? []) as never}
       configs={(configs ?? []) as Configuracao[]}
+      estrategias={(estrategias ?? []) as Estrategia[]}
     />
   )
 }

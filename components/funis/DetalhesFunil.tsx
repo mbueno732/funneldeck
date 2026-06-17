@@ -1,9 +1,12 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ChevronLeft, Clock, LayoutGrid } from 'lucide-react'
+import { ChevronLeft, Clock, LayoutGrid, Layers, Plus, Pencil, Trash2, Link as LinkIcon } from 'lucide-react'
 import { MapaPaginas } from '@/components/paginas/MapaPaginas'
-import type { Pagina, Funil, Configuracao } from '@/lib/types'
+import { ModalEstrategia } from './ModalEstrategia'
+import { deletarEstrategia } from '@/lib/actions/estrategias'
+import type { Pagina, Funil, Configuracao, Estrategia } from '@/lib/types'
 
 interface HistoricoEvento {
   id: string
@@ -19,6 +22,7 @@ interface Props {
   paginas: Pagina[]
   historico: HistoricoEvento[]
   configs: Configuracao[]
+  estrategias: Estrategia[]
 }
 
 const STATUS_COR: Record<string, string> = {
@@ -38,8 +42,12 @@ function formatarHora(iso: string) {
   return new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
 }
 
-export function DetalhesFunil({ funil, paginas, historico, configs }: Props) {
-  const [aba, setAba] = useState<'timeline' | 'paginas'>('timeline')
+export function DetalhesFunil({ funil, paginas, historico, configs, estrategias }: Props) {
+  const router = useRouter()
+  const [aba, setAba] = useState<'timeline' | 'paginas' | 'estrategias'>('timeline')
+  const [modalEstrategiaAberto, setModalEstrategiaAberto] = useState(false)
+  const [editandoEstrategia, setEditandoEstrategia] = useState<Estrategia | null>(null)
+  const [deletandoEstrategia, setDeletandoEstrategia] = useState<string | null>(null)
 
   const especialistaNome = funil.produtos?.especialistas?.nome
   const produtoNome = funil.produtos?.nome
@@ -147,8 +155,9 @@ export function DetalhesFunil({ funil, paginas, historico, configs }: Props) {
       {/* Abas */}
       <div className="flex gap-1 border-b border-gray-800">
         {([
-          { id: 'timeline', label: 'Timeline', icon: Clock },
-          { id: 'paginas',  label: 'Páginas',  icon: LayoutGrid },
+          { id: 'timeline',    label: 'Timeline',    icon: Clock },
+          { id: 'paginas',     label: 'Páginas',     icon: LayoutGrid },
+          { id: 'estrategias', label: 'Estratégias', icon: Layers },
         ] as const).map(({ id, label, icon: Icon }) => (
           <button
             key={id}
@@ -237,9 +246,160 @@ export function DetalhesFunil({ funil, paginas, historico, configs }: Props) {
           funis={[funil] as never}
           especialistas={[]}
           configs={configs}
+          estrategias={estrategias}
           initialFunilId={funil.id}
         />
       )}
+
+      {/* Aba Estratégias */}
+      {aba === 'estrategias' && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-gray-500">
+              {estrategias.length === 0
+                ? 'Nenhuma estratégia cadastrada.'
+                : `${estrategias.length} estratégia${estrategias.length !== 1 ? 's' : ''}`}
+            </p>
+            <button
+              onClick={() => { setEditandoEstrategia(null); setModalEstrategiaAberto(true) }}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition-colors"
+            >
+              <Plus size={14} />
+              Nova estratégia
+            </button>
+          </div>
+
+          {estrategias.length === 0 ? (
+            <div className="border border-dashed border-gray-800 rounded-xl p-10 text-center">
+              <Layers size={24} className="text-gray-700 mx-auto mb-3" />
+              <p className="text-gray-500 text-sm">Crie estratégias para organizar as páginas deste funil.</p>
+              <p className="text-gray-600 text-xs mt-1">Ex: Captação Normal, Aplicação, VSL...</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {estrategias.map(est => {
+                const paginasDaEst = paginas.filter(p => p.estrategia_id === est.id)
+                const semEstrategia = paginas.filter(p => !p.estrategia_id)
+                return (
+                  <div key={est.id} className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+                    <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800">
+                      <div className="flex items-center gap-2.5">
+                        <Layers size={14} className="text-indigo-400 shrink-0" />
+                        <span className="text-white font-medium text-sm">{est.nome}</span>
+                        {est.caminho_url && (
+                          <span className="flex items-center gap-1 text-xs text-gray-500 font-mono bg-gray-950 border border-gray-800 px-1.5 py-0.5 rounded">
+                            <LinkIcon size={10} />
+                            {est.caminho_url}
+                          </span>
+                        )}
+                        <span className="text-xs text-gray-600">{paginasDaEst.length} página{paginasDaEst.length !== 1 ? 's' : ''}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        {deletandoEstrategia === est.id ? (
+                          <>
+                            <button
+                              onClick={async () => {
+                                await deletarEstrategia(est.id)
+                                setDeletandoEstrategia(null)
+                                router.refresh()
+                              }}
+                              className="px-2.5 py-1 text-xs text-white bg-red-600 hover:bg-red-500 rounded-lg transition-colors"
+                            >
+                              Confirmar
+                            </button>
+                            <button
+                              onClick={() => setDeletandoEstrategia(null)}
+                              className="px-2.5 py-1 text-xs text-gray-400 hover:text-white bg-gray-800 rounded-lg transition-colors"
+                            >
+                              Cancelar
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <button
+                              onClick={() => { setEditandoEstrategia(est); setModalEstrategiaAberto(true) }}
+                              className="p-1.5 text-gray-500 hover:text-white hover:bg-gray-800 rounded transition-colors"
+                              title="Editar"
+                            >
+                              <Pencil size={13} />
+                            </button>
+                            <button
+                              onClick={() => setDeletandoEstrategia(est.id)}
+                              className="p-1.5 text-gray-500 hover:text-red-400 hover:bg-gray-800 rounded transition-colors"
+                              title="Deletar"
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                    {paginasDaEst.length > 0 ? (
+                      <div className="divide-y divide-white/[0.05]">
+                        {paginasDaEst.map(p => (
+                          <div key={p.id} className="flex items-center gap-2 px-4 py-2.5">
+                            {p.codigo && (
+                              <span className="text-indigo-400 font-mono text-xs bg-indigo-500/10 border border-indigo-500/20 px-1.5 py-0.5 rounded shrink-0">
+                                {p.codigo}
+                              </span>
+                            )}
+                            <span className="text-sm text-gray-300">{p.nome}</span>
+                            {p.etapa && <span className="text-xs text-gray-600">· {p.etapa}</span>}
+                            {p.url_pagina && (
+                              <a href={p.url_pagina} target="_blank" rel="noopener noreferrer" className="text-indigo-400 hover:text-indigo-300 ml-auto shrink-0">
+                                <LinkIcon size={11} />
+                              </a>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="px-4 py-3 text-xs text-gray-600">Nenhuma página associada a esta estratégia.</p>
+                    )}
+                  </div>
+                )
+
+                // Páginas sem estratégia (renderizadas fora do map)
+                void semEstrategia
+              })}
+
+              {/* Páginas sem estratégia */}
+              {(() => {
+                const semEst = paginas.filter(p => !p.estrategia_id)
+                if (semEst.length === 0) return null
+                return (
+                  <div className="bg-gray-900/50 border border-dashed border-gray-800 rounded-xl overflow-hidden">
+                    <div className="px-4 py-3 border-b border-gray-800">
+                      <span className="text-xs text-gray-600">{semEst.length} página{semEst.length !== 1 ? 's' : ''} sem estratégia definida</span>
+                    </div>
+                    <div className="divide-y divide-white/[0.05]">
+                      {semEst.map(p => (
+                        <div key={p.id} className="flex items-center gap-2 px-4 py-2.5">
+                          {p.codigo && (
+                            <span className="text-indigo-400 font-mono text-xs bg-indigo-500/10 border border-indigo-500/20 px-1.5 py-0.5 rounded shrink-0">
+                              {p.codigo}
+                            </span>
+                          )}
+                          <span className="text-sm text-gray-500">{p.nome}</span>
+                          {p.etapa && <span className="text-xs text-gray-700">· {p.etapa}</span>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )
+              })()}
+            </div>
+          )}
+        </div>
+      )}
+
+      <ModalEstrategia
+        aberto={modalEstrategiaAberto}
+        onFechar={() => { setModalEstrategiaAberto(false); setEditandoEstrategia(null) }}
+        onSalvo={() => router.refresh()}
+        funilId={funil.id}
+        estrategia={editandoEstrategia}
+      />
     </div>
   )
 }

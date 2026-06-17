@@ -29,7 +29,7 @@ export async function listarPaginas(filtros?: {
     const hoje = new Date().toISOString().split('T')[0]
     query = query
       .lt('data_prevista', hoje)
-      .not('status', 'in', '("Publicada","Suspensa")')
+      .not('status', 'in', '("Publicada","Suspensa","Implementada")')
   }
 
   const { data, error } = await query
