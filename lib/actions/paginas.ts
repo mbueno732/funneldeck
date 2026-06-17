@@ -134,6 +134,56 @@ export async function duplicarPagina(id: string) {
   return data as Pagina
 }
 
+export async function criarVariante(input: {
+  paginaOrigemId: string
+  urlPagina: string
+  slugRaiz: string
+  variante: string | null
+  versao: number
+  oQueMudou: string[]
+}): Promise<Pagina> {
+  const supabase = await createClient()
+  const { data: origem, error: errBusca } = await supabase
+    .from('paginas').select('*').eq('id', input.paginaOrigemId).single()
+  if (errBusca) throw errBusca
+
+  const { id: _id, criado_em: _c, atualizado_em: _a, ...campos } = origem
+  const codigo = await gerarCodigo(supabase, origem.funil_id, origem.etapa)
+
+  const { data, error } = await supabase
+    .from('paginas')
+    .insert({
+      ...campos,
+      codigo,
+      url_pagina: input.urlPagina || null,
+      slug_raiz: input.slugRaiz || null,
+      variante: input.variante || null,
+      versao: input.versao,
+      pagina_origem_id: input.paginaOrigemId,
+      status: 'A fazer',
+      horas_reais: null,
+      data_publicacao: null,
+      data_prevista: null,
+      gtmetrix_grade: null,
+      gtmetrix_score: null,
+      gtmetrix_lcp: null,
+      gtmetrix_tempo: null,
+      gtmetrix_analisado_em: null,
+    })
+    .select()
+    .single()
+  if (error) throw error
+
+  await registrarAuditoria('paginas', data.id, 'criar_variante', {
+    origem: input.paginaOrigemId,
+    o_que_mudou: input.oQueMudou,
+  })
+  revalidatePath('/paginas')
+  revalidatePath('/funis')
+  revalidatePath('/dashboard')
+  return data as Pagina
+}
+
 export async function deletarPagina(id: string) {
   const supabase = await createClient()
 

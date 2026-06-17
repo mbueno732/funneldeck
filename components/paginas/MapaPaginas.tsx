@@ -1,12 +1,13 @@
 'use client'
 import { useState, useMemo, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { Plus, Search, ExternalLink, Pencil, Trash2, AlertTriangle, Clock, Copy, Link as LinkIcon, Check, X, ChevronRight, ChevronDown, ClipboardList, LayoutGrid, List } from 'lucide-react'
+import { Plus, Search, ExternalLink, Pencil, Trash2, AlertTriangle, Clock, Copy, Link as LinkIcon, Check, X, ChevronRight, ChevronDown, ClipboardList, LayoutGrid, List, GitBranch } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { ModalPagina } from './ModalPagina'
+import { ModalVariante } from './ModalVariante'
 import { PainelChecklist } from './PainelChecklist'
 import { atualizarPagina, deletarPagina, duplicarPagina } from '@/lib/actions/paginas'
 import { iniciarAnaliseGtmetrix, verificarAnaliseGtmetrix } from '@/lib/actions/gtmetrix'
@@ -95,6 +96,7 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
   const [editando, setEditando] = useState<Pagina | null>(null)
   const [erroDuplicar, setErroDuplicar] = useState('')
   const [checklistPagina, setChecklistPagina] = useState<Pagina | null>(null)
+  const [variantePagina, setVariantePagina] = useState<Pagina | null>(null)
   const checklistCache = useRef<Map<string, { checklist: unknown; historico: unknown }>>(new Map())
 
   function prefetchChecklist(paginaId: string) {
@@ -118,24 +120,6 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
   const cor = (cat: string, val: string) => colorMap[`${cat}:${val}`] ?? null
 
   const configOpts = (cat: string) => configs.filter(c => c.categoria === cat && c.ativo)
-
-  const distribuicaoFerramenta = useMemo(() => {
-    const total = paginas.length
-    if (!total) return []
-    const mapa: Record<string, number> = {}
-    paginas.forEach(p => {
-      const chave = p.ferramenta ?? '__sem__'
-      mapa[chave] = (mapa[chave] ?? 0) + 1
-    })
-    return Object.entries(mapa)
-      .map(([ferramenta, count]) => ({
-        ferramenta,
-        label: ferramenta === '__sem__' ? 'Sem ferramenta' : ferramenta,
-        count,
-        pct: Math.round((count / total) * 100),
-      }))
-      .sort((a, b) => b.count - a.count)
-  }, [paginas])
 
   const isAtrasada = (p: Pagina) =>
     p.data_prevista && p.data_prevista < hoje && !['Publicada', 'Suspensa'].includes(p.status)
@@ -164,6 +148,23 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }), [paginas, deletadas, busca, filtroFunil, filtroTipo, filtroStatus, filtroEtapa, filtroPrioridade, filtroFerramenta, filtroAtrasadas, filtroMes, funis])
 
+  const distribuicaoFerramenta = useMemo(() => {
+    const total = filtradas.length
+    if (!total) return []
+    const mapa: Record<string, number> = {}
+    filtradas.forEach(p => {
+      const chave = p.ferramenta ?? '__sem__'
+      mapa[chave] = (mapa[chave] ?? 0) + 1
+    })
+    return Object.entries(mapa)
+      .map(([ferramenta, count]) => ({
+        ferramenta,
+        label: ferramenta === '__sem__' ? 'Sem ferramenta' : ferramenta,
+        count,
+        pct: Math.round((count / total) * 100),
+      }))
+      .sort((a, b) => b.count - a.count)
+  }, [filtradas])
 
   async function handleMudarStatus(pagina: Pagina, novoStatus: string) {
     setOverrides(o => ({ ...o, [pagina.id]: { ...o[pagina.id], status: novoStatus } }))
@@ -980,6 +981,10 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
                               title={p.url_pagina ? 'Editar URL' : 'Adicionar URL'}>
                               <LinkIcon size={13} />
                             </button>
+                            <button onClick={() => setVariantePagina(raw)}
+                              className="p-1.5 text-gray-500 hover:text-indigo-400 hover:bg-gray-900 rounded transition-colors" title="Criar variante">
+                              <GitBranch size={13} />
+                            </button>
                             <button onClick={() => handleDuplicar(p.id)}
                               disabled={duplicandoPagina === p.id}
                               className="p-1.5 text-gray-500 hover:text-indigo-400 hover:bg-gray-900 rounded transition-colors disabled:opacity-40 disabled:cursor-wait" title="Duplicar">
@@ -1020,6 +1025,14 @@ export function MapaPaginas({ paginas, funis, configs, initialFunilId, initialSt
         pagina={checklistPagina}
         onFechar={() => { setChecklistPagina(null); router.refresh() }}
         dadosPreCarregados={checklistPagina ? checklistCache.current.get(checklistPagina.id) : undefined}
+      />
+
+      <ModalVariante
+        aberto={!!variantePagina}
+        onFechar={() => setVariantePagina(null)}
+        onCriada={() => { setVariantePagina(null); router.refresh() }}
+        pagina={variantePagina}
+        todasPaginas={paginas}
       />
     </div>
   )

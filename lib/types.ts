@@ -84,6 +84,10 @@ export interface Pagina {
   gtmetrix_lcp?: number | null
   gtmetrix_tempo?: number | null
   gtmetrix_analisado_em?: string | null
+  slug_raiz?: string | null
+  variante?: string | null
+  versao?: number | null
+  pagina_origem_id?: string | null
   criado_em: string
   atualizado_em: string
   funis?: Pick<Funil, 'id' | 'id_funil' | 'nome' | 'tipo'>

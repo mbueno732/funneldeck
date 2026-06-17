@@ -18,9 +18,13 @@ export default async function DashboardPage({
   const mesRef = mesSelecionado ? new Date(mesSelecionado + '-02') : null
   const inicioMes = mesRef ? new Date(mesRef.getFullYear(), mesRef.getMonth(), 1) : null
   const fimMes = mesRef ? new Date(mesRef.getFullYear(), mesRef.getMonth() + 1, 1) : null
+  const hoje2 = new Date()
+  const inicioMesAtual = new Date(hoje2.getFullYear(), hoje2.getMonth(), 1)
+  const fimMesAtual = new Date(hoje2.getFullYear(), hoje2.getMonth() + 1, 1)
+
   const mesLabel = mesRef
     ? new Date(mesRef.getFullYear(), mesRef.getMonth(), 1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
-    : 'todo o período'
+    : inicioMesAtual.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
 
   const [
     { data: todasPaginas },
@@ -90,10 +94,11 @@ export default async function DashboardPage({
     }).length,
     publicadas_mes: p.filter(x => {
       if (x.status !== 'Publicada') return false
-      if (!inicioMes || !fimMes) return true
       const dataPub = (x as { data_publicacao?: string }).data_publicacao
       if (!dataPub) return false
-      return dataPub >= inicioMes.toISOString().split('T')[0] && dataPub < fimMes.toISOString().split('T')[0]
+      const inicio = (inicioMes ?? inicioMesAtual).toISOString().split('T')[0]
+      const fim = (fimMes ?? fimMesAtual).toISOString().split('T')[0]
+      return dataPub >= inicio && dataPub < fim
     }).length,
   }
 
