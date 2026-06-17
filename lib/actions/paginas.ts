@@ -78,6 +78,7 @@ export async function criarPagina(input: Omit<Pagina, 'id' | 'criado_em' | 'atua
   await registrarAuditoria('paginas', data.id, 'criar', { depois: data })
   revalidatePath('/paginas')
   revalidatePath('/funis')
+  revalidatePath('/dashboard')
   return data as Pagina
 }
 
@@ -98,6 +99,7 @@ export async function atualizarPagina(id: string, input: Partial<Omit<Pagina, 'i
   await registrarAuditoria('paginas', id, 'atualizar', { depois: data })
   revalidatePath('/paginas')
   revalidatePath('/funis')
+  revalidatePath('/dashboard')
   return data as Pagina
 }
 
@@ -128,6 +130,7 @@ export async function duplicarPagina(id: string) {
   await registrarAuditoria('paginas', data.id, 'duplicar', { origem: id })
   revalidatePath('/paginas')
   revalidatePath('/funis')
+  revalidatePath('/dashboard')
   return data as Pagina
 }
 
@@ -143,4 +146,5 @@ export async function deletarPagina(id: string) {
   await registrarAuditoria('paginas', id, 'deletar', {})
   revalidatePath('/paginas')
   revalidatePath('/funis')
+  revalidatePath('/dashboard')
 }
