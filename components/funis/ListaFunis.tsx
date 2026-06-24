@@ -177,7 +177,7 @@ export function ListaFunis({ funis, produtos, especialistas, configs, estrategia
                           {f.id_funil}
                         </span>
                       )}
-                      <span className="text-white font-semibold truncate">{f.nome}</span>
+                      <Link href={`/funis/${f.id}`} className="text-white font-semibold truncate hover:text-indigo-300 transition-colors">{f.nome}</Link>
                     </div>
                     {(esp || prod) && (
                       <p className="text-gray-500 text-xs mt-0.5">

@@ -39,7 +39,7 @@ export async function criarEstrategia(input: {
     .select()
     .single()
   if (error) throw error
-  revalidatePath('/funis')
+  revalidatePath('/funis', 'layout')
   revalidatePath('/paginas')
   return data as Estrategia
 }
@@ -53,16 +53,20 @@ export async function atualizarEstrategia(id: string, input: Partial<Pick<Estrat
     .select()
     .single()
   if (error) throw error
-  revalidatePath('/funis')
+  revalidatePath('/funis', 'layout')
   revalidatePath('/paginas')
   return data as Estrategia
 }
 
 export async function deletarEstrategia(id: string) {
   const supabase = await createClient()
-  await supabase.from('paginas').update({ estrategia_id: null }).eq('estrategia_id', id)
+  const { error: errUpdate } = await supabase.from('paginas').update({ estrategia_id: null }).eq('estrategia_id', id)
+  if (errUpdate) console.error('[deletarEstrategia] erro ao nullify paginas:', errUpdate)
   const { error } = await supabase.from('estrategias').delete().eq('id', id)
-  if (error) throw error
-  revalidatePath('/funis')
+  if (error) {
+    console.error('[deletarEstrategia] erro ao deletar:', error)
+    throw new Error(error.message)
+  }
+  revalidatePath('/funis', 'layout')
   revalidatePath('/paginas')
 }

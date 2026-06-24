@@ -20,8 +20,9 @@ const GRUPOS: { label: string; itens: { key: AbaAtiva; label: string }[] }[] = [
   {
     label: 'Funis',
     itens: [
-      { key: 'tipo_funil',   label: 'Tipos de Funil' },
-      { key: 'status_funil', label: 'Status do Funil' },
+      { key: 'tipo_funil',      label: 'Tipos de Funil' },
+      { key: 'status_funil',    label: 'Status do Funil' },
+      { key: 'tipo_estrategia', label: 'Tipos de Estratégia' },
     ],
   },
   {

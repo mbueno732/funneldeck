@@ -1,11 +1,12 @@
 'use client'
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { ChevronLeft, Clock, LayoutGrid, Layers, Plus, Pencil, Trash2, Link as LinkIcon } from 'lucide-react'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { MapaPaginas } from '@/components/paginas/MapaPaginas'
 import { ModalEstrategia } from './ModalEstrategia'
 import { deletarEstrategia } from '@/lib/actions/estrategias'
+import { atualizarPagina } from '@/lib/actions/paginas'
 import type { Pagina, Funil, Configuracao, Estrategia } from '@/lib/types'
 
 interface HistoricoEvento {
@@ -43,11 +44,19 @@ function formatarHora(iso: string) {
 }
 
 export function DetalhesFunil({ funil, paginas, historico, configs, estrategias }: Props) {
-  const router = useRouter()
+  const TAB_KEY = `funil-tab-${funil.id}`
   const [aba, setAba] = useState<'timeline' | 'paginas' | 'estrategias'>('timeline')
+
+  useEffect(() => {
+    const saved = sessionStorage.getItem(TAB_KEY) as 'timeline' | 'paginas' | 'estrategias' | null
+    if (saved) { setAba(saved); sessionStorage.removeItem(TAB_KEY) }
+  }, [TAB_KEY])
+
   const [modalEstrategiaAberto, setModalEstrategiaAberto] = useState(false)
   const [editandoEstrategia, setEditandoEstrategia] = useState<Estrategia | null>(null)
   const [deletandoEstrategia, setDeletandoEstrategia] = useState<string | null>(null)
+  const [erroDelete, setErroDelete] = useState<string | null>(null)
+  const [atribuindo, setAtribuindo] = useState<string | null>(null)
 
   const especialistaNome = funil.produtos?.especialistas?.nome
   const produtoNome = funil.produtos?.nome
@@ -254,7 +263,14 @@ export function DetalhesFunil({ funil, paginas, historico, configs, estrategias 
       {/* Aba Estratégias */}
       {aba === 'estrategias' && (
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
+          {erroDelete && (
+          <div className="p-3 rounded-lg border border-red-500/30 bg-red-500/10 text-red-400 text-sm flex items-center justify-between">
+            <span>{erroDelete}</span>
+            <button onClick={() => setErroDelete(null)} className="text-red-400 hover:text-red-300 ml-2">✕</button>
+          </div>
+        )}
+
+        <div className="flex items-center justify-between">
             <p className="text-sm text-gray-500">
               {estrategias.length === 0
                 ? 'Nenhuma estratégia cadastrada.'
@@ -286,12 +302,6 @@ export function DetalhesFunil({ funil, paginas, historico, configs, estrategias 
                       <div className="flex items-center gap-2.5">
                         <Layers size={14} className="text-indigo-400 shrink-0" />
                         <span className="text-white font-medium text-sm">{est.nome}</span>
-                        {est.caminho_url && (
-                          <span className="flex items-center gap-1 text-xs text-gray-500 font-mono bg-gray-950 border border-gray-800 px-1.5 py-0.5 rounded">
-                            <LinkIcon size={10} />
-                            {est.caminho_url}
-                          </span>
-                        )}
                         <span className="text-xs text-gray-600">{paginasDaEst.length} página{paginasDaEst.length !== 1 ? 's' : ''}</span>
                       </div>
                       <div className="flex items-center gap-1">
@@ -299,9 +309,14 @@ export function DetalhesFunil({ funil, paginas, historico, configs, estrategias 
                           <>
                             <button
                               onClick={async () => {
-                                await deletarEstrategia(est.id)
-                                setDeletandoEstrategia(null)
-                                router.refresh()
+                                try {
+                                  await deletarEstrategia(est.id)
+                                  sessionStorage.setItem(TAB_KEY, 'estrategias')
+                                  window.location.reload()
+                                } catch (e: unknown) {
+                                  setErroDelete(e instanceof Error ? e.message : 'Erro ao excluir.')
+                                  setDeletandoEstrategia(null)
+                                }
                               }}
                               className="px-2.5 py-1 text-xs text-white bg-red-600 hover:bg-red-500 rounded-lg transition-colors"
                             >
@@ -380,8 +395,36 @@ export function DetalhesFunil({ funil, paginas, historico, configs, estrategias 
                               {p.codigo}
                             </span>
                           )}
-                          <span className="text-sm text-gray-500">{p.nome}</span>
-                          {p.etapa && <span className="text-xs text-gray-700">· {p.etapa}</span>}
+                          <span className="text-sm text-gray-500 flex-1 truncate">{p.nome}</span>
+                          {p.etapa && <span className="text-xs text-gray-700 shrink-0">· {p.etapa}</span>}
+                          {estrategias.length > 0 && (
+                            <Select
+                              onValueChange={async (v) => {
+                                setAtribuindo(p.id)
+                                try {
+                                  await atualizarPagina(p.id, { estrategia_id: v })
+                                  sessionStorage.setItem(TAB_KEY, 'estrategias')
+                                  window.location.reload()
+                                } finally {
+                                  setAtribuindo(null)
+                                }
+                              }}
+                            >
+                              <SelectTrigger
+                                disabled={atribuindo === p.id}
+                                className="h-7 text-xs border-gray-700 bg-gray-900 text-gray-500 hover:text-white focus:ring-0 focus:ring-offset-0 w-36 shrink-0"
+                              >
+                                <SelectValue placeholder={atribuindo === p.id ? 'Salvando...' : 'Mover para...'} />
+                              </SelectTrigger>
+                              <SelectContent className="bg-gray-900 border-gray-800">
+                                {estrategias.map(est => (
+                                  <SelectItem key={est.id} value={est.id} className="text-gray-300 focus:bg-gray-800 focus:text-white text-xs">
+                                    {est.nome}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -396,7 +439,7 @@ export function DetalhesFunil({ funil, paginas, historico, configs, estrategias 
       <ModalEstrategia
         aberto={modalEstrategiaAberto}
         onFechar={() => { setModalEstrategiaAberto(false); setEditandoEstrategia(null) }}
-        onSalvo={() => router.refresh()}
+        onSalvo={() => { sessionStorage.setItem(TAB_KEY, 'estrategias'); window.location.reload() }}
         funilId={funil.id}
         estrategia={editandoEstrategia}
       />

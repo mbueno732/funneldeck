@@ -44,11 +44,16 @@ export async function verificarAnaliseGtmetrix(testeId: string, paginaId: string
   const attrs = json.data?.attributes ?? {}
   const state = attrs.state as string | undefined
 
+  console.log('[GTmetrix] estado:', state, '| attrs parciais:', JSON.stringify({ gtmetrix_grade: attrs.gtmetrix_grade, error: attrs.error, state: attrs.state }))
+
   // Quando completo, GTmetrix não retorna 'state' — retorna os resultados diretamente
   const concluido = state === 'completed' || (!state && !!attrs.gtmetrix_grade)
   const emErro = state === 'error' && !attrs.gtmetrix_grade
 
-  if (emErro) return { estado: 'erro', estadoRaw: 'GTmetrix não conseguiu analisar a página.' }
+  if (emErro) {
+    const motivo = attrs.error ?? 'GTmetrix não conseguiu analisar a página.'
+    return { estado: 'erro', estadoRaw: motivo }
+  }
   if (!concluido) return { estado: 'pendente', estadoRaw: state ?? 'queued' }
 
   const grade = (attrs.gtmetrix_grade ?? '') as string

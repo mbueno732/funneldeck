@@ -161,6 +161,7 @@ export interface DashboardKpis {
 export type CategoriaConfig =
   | 'tipo_funil'
   | 'status_funil'
+  | 'tipo_estrategia'
   | 'etapa'
   | 'ferramenta'
   | 'status_pagina'

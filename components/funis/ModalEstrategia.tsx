@@ -17,14 +17,12 @@ interface Props {
 
 export function ModalEstrategia({ aberto, onFechar, onSalvo, funilId, estrategia }: Props) {
   const [nome, setNome] = useState('')
-  const [caminhoUrl, setCaminhoUrl] = useState('')
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState('')
 
   useEffect(() => {
     if (aberto) {
       setNome(estrategia?.nome ?? '')
-      setCaminhoUrl(estrategia?.caminho_url ?? '')
       setErro('')
     }
   }, [aberto, estrategia])
@@ -36,16 +34,9 @@ export function ModalEstrategia({ aberto, onFechar, onSalvo, funilId, estrategia
     setErro('')
     try {
       if (estrategia) {
-        await atualizarEstrategia(estrategia.id, {
-          nome: nome.trim(),
-          caminho_url: caminhoUrl.trim() || null,
-        })
+        await atualizarEstrategia(estrategia.id, { nome: nome.trim() })
       } else {
-        await criarEstrategia({
-          funil_id: funilId,
-          nome: nome.trim(),
-          caminho_url: caminhoUrl.trim() || null,
-        })
+        await criarEstrategia({ funil_id: funilId, nome: nome.trim() })
       }
       onSalvo()
       onFechar()
@@ -70,20 +61,10 @@ export function ModalEstrategia({ aberto, onFechar, onSalvo, funilId, estrategia
             <Input
               value={nome}
               onChange={e => setNome(e.target.value)}
-              placeholder="Ex: Captação Normal, Aplicação, VSL..."
+              placeholder="Ex: Captação Normal, Aplicação..."
               className="bg-gray-900 border-gray-800 text-white placeholder-gray-600 focus:border-indigo-500"
               autoFocus
             />
-          </div>
-          <div className="space-y-1.5">
-            <Label className="text-gray-400 text-xs">Caminho da URL <span className="text-gray-600">(opcional)</span></Label>
-            <Input
-              value={caminhoUrl}
-              onChange={e => setCaminhoUrl(e.target.value)}
-              placeholder="Ex: /captacao, /aplicacao"
-              className="bg-gray-900 border-gray-800 text-white placeholder-gray-600 focus:border-indigo-500 font-mono text-sm"
-            />
-            <p className="text-xs text-gray-600">Usado na geração de URL das páginas desta estratégia.</p>
           </div>
           {erro && <p className="text-red-400 text-sm">{erro}</p>}
           <div className="flex justify-end gap-2 pt-1">
