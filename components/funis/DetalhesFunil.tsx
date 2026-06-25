@@ -471,6 +471,7 @@ export function DetalhesFunil({ funil, paginas, historico, configs, estrategias 
             const idx = prev.findIndex(e => e.id === salva.id)
             return idx >= 0 ? prev.map(e => e.id === salva.id ? salva : e) : [...prev, salva]
           })
+          sessionStorage.setItem(TAB_KEY, 'estrategias')
           setAba('estrategias')
         }}
         funilId={funil.id}
