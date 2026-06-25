@@ -6,7 +6,7 @@ import { ChevronLeft, Clock, LayoutGrid, Layers, Plus, Pencil, Trash2, Link as L
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { MapaPaginas } from '@/components/paginas/MapaPaginas'
 import { ModalEstrategia } from './ModalEstrategia'
-import { listarEstrategias, deletarEstrategia } from '@/lib/actions/estrategias'
+import { listarEstrategias, listarAtribuicoesPaginas, deletarEstrategia } from '@/lib/actions/estrategias'
 import { atualizarPagina } from '@/lib/actions/paginas'
 import type { Pagina, Funil, Configuracao, Estrategia } from '@/lib/types'
 
@@ -58,8 +58,16 @@ export function DetalhesFunil({ funil, paginas, historico, configs, estrategias 
   useEffect(() => {
     if (aba !== 'estrategias') return
     setCarregandoEstrategias(true)
-    listarEstrategias(funil.id)
-      .then(dados => setEstrategiasState(dados))
+    Promise.all([
+      listarEstrategias(funil.id),
+      listarAtribuicoesPaginas(funil.id),
+    ])
+      .then(([estrategiasDB, atribuicoes]) => {
+        setEstrategiasState(estrategiasDB)
+        const overrides: Record<string, string | null> = {}
+        atribuicoes.forEach(p => { overrides[p.id] = p.estrategia_id })
+        setEstategiaOverrides(overrides)
+      })
       .catch(() => {})
       .finally(() => setCarregandoEstrategias(false))
   }, [aba, funil.id])

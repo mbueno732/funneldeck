@@ -15,6 +15,15 @@ export async function listarEstrategias(funilId: string) {
   return data as Estrategia[]
 }
 
+export async function listarAtribuicoesPaginas(funilId: string): Promise<{ id: string; estrategia_id: string | null }[]> {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('paginas')
+    .select('id, estrategia_id')
+    .eq('funil_id', funilId)
+  return (data ?? []) as { id: string; estrategia_id: string | null }[]
+}
+
 export async function listarTodasEstrategias() {
   const supabase = await createClient()
   const { data, error } = await supabase
