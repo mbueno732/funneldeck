@@ -6,7 +6,7 @@ import { ChevronLeft, Clock, LayoutGrid, Layers, Plus, Pencil, Trash2, Link as L
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { MapaPaginas } from '@/components/paginas/MapaPaginas'
 import { ModalEstrategia } from './ModalEstrategia'
-import { deletarEstrategia, testarCRUDEstrategia } from '@/lib/actions/estrategias'
+import { listarEstrategias, deletarEstrategia } from '@/lib/actions/estrategias'
 import { atualizarPagina } from '@/lib/actions/paginas'
 import type { Pagina, Funil, Configuracao, Estrategia } from '@/lib/types'
 
@@ -54,13 +54,22 @@ export function DetalhesFunil({ funil, paginas, historico, configs, estrategias 
     if (saved) { setAba(saved); sessionStorage.removeItem(TAB_KEY) }
   }, [TAB_KEY])
 
+  // Sempre que a aba Estratégias for aberta, busca dados frescos do banco
+  useEffect(() => {
+    if (aba !== 'estrategias') return
+    setCarregandoEstrategias(true)
+    listarEstrategias(funil.id)
+      .then(dados => setEstrategiasState(dados))
+      .catch(() => {})
+      .finally(() => setCarregandoEstrategias(false))
+  }, [aba, funil.id])
+
   const [modalEstrategiaAberto, setModalEstrategiaAberto] = useState(false)
   const [editandoEstrategia, setEditandoEstrategia] = useState<Estrategia | null>(null)
   const [deletandoEstrategia, setDeletandoEstrategia] = useState<string | null>(null)
   const [deletandoConfirmado, setDeletandoConfirmado] = useState<string | null>(null)
   const [erroEstrategia, setErroEstrategia] = useState<string | null>(null)
-  const [diagResult, setDiagResult] = useState<string | null>(null)
-  const [diagLoading, setDiagLoading] = useState(false)
+  const [carregandoEstrategias, setCarregandoEstrategias] = useState(false)
   const [atribuindo, setAtribuindo] = useState<string | null>(null)
   const [estrategiaOverrides, setEstategiaOverrides] = useState<Record<string, string | null>>({})
 
@@ -282,38 +291,20 @@ export function DetalhesFunil({ funil, paginas, historico, configs, estrategias 
                 ? 'Nenhuma estratégia cadastrada.'
                 : `${estrategiasState.length} estratégia${estrategiasState.length !== 1 ? 's' : ''}`}
             </p>
-            <div className="flex items-center gap-2">
-              <button
-                disabled={diagLoading}
-                onClick={async () => {
-                  setDiagLoading(true)
-                  setDiagResult(null)
-                  const r = await testarCRUDEstrategia(funil.id)
-                  setDiagResult(JSON.stringify(r, null, 2))
-                  setDiagLoading(false)
-                }}
-                className="px-3 py-1.5 text-xs text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50"
-                title="Testar INSERT/SELECT/DELETE neste funil via server action"
-              >
-                {diagLoading ? 'Testando...' : '🔍 Testar banco'}
-              </button>
-              <button
-                onClick={() => { setEditandoEstrategia(null); setModalEstrategiaAberto(true) }}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition-colors"
-              >
-                <Plus size={14} />
-                Nova estratégia
-              </button>
-            </div>
+            <button
+              onClick={() => { setEditandoEstrategia(null); setModalEstrategiaAberto(true) }}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition-colors"
+            >
+              <Plus size={14} />
+              Nova estratégia
+            </button>
           </div>
 
-          {diagResult && (
-            <pre className="p-3 rounded-lg bg-gray-950 border border-gray-700 text-xs text-green-400 overflow-auto max-h-48">
-              {diagResult}
-            </pre>
+          {carregandoEstrategias && (
+            <p className="text-xs text-gray-600 text-center py-2">Carregando...</p>
           )}
 
-          {estrategiasState.length === 0 ? (
+          {!carregandoEstrategias && estrategiasState.length === 0 ? (
             <div className="border border-dashed border-gray-800 rounded-xl p-10 text-center">
               <Layers size={24} className="text-gray-700 mx-auto mb-3" />
               <p className="text-gray-500 text-sm">Crie estratégias para organizar as páginas deste funil.</p>
