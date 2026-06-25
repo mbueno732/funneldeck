@@ -59,6 +59,44 @@ export async function atualizarEstrategia(id: string, input: Partial<Pick<Estrat
   return data as Estrategia
 }
 
+export async function testarCRUDEstrategia(funilId: string): Promise<{
+  insert: { ok: boolean; id?: string; erro?: string }
+  select: { ok: boolean; encontrado?: boolean; erro?: string }
+  delete: { ok: boolean; count?: number; erro?: string }
+}> {
+  const supabase = await createClient()
+  const result = { insert: { ok: false }, select: { ok: false }, delete: { ok: false } } as ReturnType<typeof testarCRUDEstrategia> extends Promise<infer T> ? T : never
+
+  // INSERT
+  const { data: ins, error: insErr } = await supabase
+    .from('estrategias')
+    .insert({ funil_id: funilId, nome: '__crud_test__' })
+    .select()
+    .single()
+  if (insErr || !ins) {
+    result.insert = { ok: false, erro: insErr?.message ?? 'data null sem erro' }
+    return result
+  }
+  result.insert = { ok: true, id: (ins as { id: string }).id }
+
+  // SELECT para verificar
+  const { data: sel, error: selErr } = await supabase
+    .from('estrategias')
+    .select('id')
+    .eq('id', (ins as { id: string }).id)
+    .single()
+  result.select = { ok: !selErr, encontrado: !!sel, erro: selErr?.message }
+
+  // DELETE
+  const { error: delErr, count } = await supabase
+    .from('estrategias')
+    .delete({ count: 'exact' })
+    .eq('id', (ins as { id: string }).id)
+  result.delete = { ok: !delErr && (count ?? 0) > 0, count: count ?? 0, erro: delErr?.message }
+
+  return result
+}
+
 export async function deletarEstrategia(id: string): Promise<{ ok: boolean; erro?: string }> {
   try {
     const supabase = await createClient()
