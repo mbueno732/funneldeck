@@ -38,6 +38,7 @@ export async function criarEstrategia(input: {
     .insert(input)
     .select()
     .single()
+  console.log('[criarEstrategia] funil_id:', input.funil_id, '| error:', error?.message ?? null, '| id_criado:', (data as Estrategia | null)?.id ?? null)
   if (error) throw error
   revalidatePath('/funis', 'layout')
   revalidatePath('/paginas')
