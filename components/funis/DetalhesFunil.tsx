@@ -54,10 +54,9 @@ export function DetalhesFunil({ funil, paginas, historico, configs, estrategias 
     if (saved) { setAba(saved); sessionStorage.removeItem(TAB_KEY) }
   }, [TAB_KEY])
 
-  // Sempre que a aba Estratégias for aberta, busca dados frescos do banco
+  // Ao abrir a aba Estratégias, sincroniza silenciosamente com o banco
   useEffect(() => {
     if (aba !== 'estrategias') return
-    setCarregandoEstrategias(true)
     Promise.all([
       listarEstrategias(funil.id),
       listarAtribuicoesPaginas(funil.id),
@@ -69,7 +68,6 @@ export function DetalhesFunil({ funil, paginas, historico, configs, estrategias 
         setEstategiaOverrides(overrides)
       })
       .catch(() => {})
-      .finally(() => setCarregandoEstrategias(false))
   }, [aba, funil.id])
 
   const [modalEstrategiaAberto, setModalEstrategiaAberto] = useState(false)
@@ -77,9 +75,12 @@ export function DetalhesFunil({ funil, paginas, historico, configs, estrategias 
   const [deletandoEstrategia, setDeletandoEstrategia] = useState<string | null>(null)
   const [deletandoConfirmado, setDeletandoConfirmado] = useState<string | null>(null)
   const [erroEstrategia, setErroEstrategia] = useState<string | null>(null)
-  const [carregandoEstrategias, setCarregandoEstrategias] = useState(false)
   const [atribuindo, setAtribuindo] = useState<string | null>(null)
-  const [estrategiaOverrides, setEstategiaOverrides] = useState<Record<string, string | null>>({})
+  const [estrategiaOverrides, setEstategiaOverrides] = useState<Record<string, string | null>>(() => {
+    const init: Record<string, string | null> = {}
+    paginas.forEach(p => { init[p.id] = p.estrategia_id ?? null })
+    return init
+  })
 
   const especialistaNome = funil.produtos?.especialistas?.nome
   const produtoNome = funil.produtos?.nome
@@ -308,11 +309,7 @@ export function DetalhesFunil({ funil, paginas, historico, configs, estrategias 
             </button>
           </div>
 
-          {carregandoEstrategias && (
-            <p className="text-xs text-gray-600 text-center py-2">Carregando...</p>
-          )}
-
-          {!carregandoEstrategias && estrategiasState.length === 0 ? (
+          {estrategiasState.length === 0 ? (
             <div className="border border-dashed border-gray-800 rounded-xl p-10 text-center">
               <Layers size={24} className="text-gray-700 mx-auto mb-3" />
               <p className="text-gray-500 text-sm">Crie estratégias para organizar as páginas deste funil.</p>
