@@ -1,5 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ChevronLeft, Clock, LayoutGrid, Layers, Plus, Pencil, Trash2, Link as LinkIcon } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -45,6 +46,7 @@ function formatarHora(iso: string) {
 
 export function DetalhesFunil({ funil, paginas, historico, configs, estrategias }: Props) {
   const TAB_KEY = `funil-tab-${funil.id}`
+  const router = useRouter()
   const [aba, setAba] = useState<'timeline' | 'paginas' | 'estrategias'>('timeline')
 
   useEffect(() => {
@@ -55,6 +57,7 @@ export function DetalhesFunil({ funil, paginas, historico, configs, estrategias 
   const [modalEstrategiaAberto, setModalEstrategiaAberto] = useState(false)
   const [editandoEstrategia, setEditandoEstrategia] = useState<Estrategia | null>(null)
   const [deletandoEstrategia, setDeletandoEstrategia] = useState<string | null>(null)
+  const [deletandoConfirmado, setDeletandoConfirmado] = useState<string | null>(null)
   const [erroDelete, setErroDelete] = useState<string | null>(null)
   const [atribuindo, setAtribuindo] = useState<string | null>(null)
 
@@ -308,23 +311,29 @@ export function DetalhesFunil({ funil, paginas, historico, configs, estrategias 
                         {deletandoEstrategia === est.id ? (
                           <>
                             <button
+                              disabled={deletandoConfirmado === est.id}
                               onClick={async () => {
+                                setDeletandoConfirmado(est.id)
+                                setErroDelete(null)
                                 try {
                                   await deletarEstrategia(est.id)
-                                  sessionStorage.setItem(TAB_KEY, 'estrategias')
-                                  window.location.reload()
+                                  setAba('estrategias')
+                                  router.refresh()
                                 } catch (e: unknown) {
-                                  setErroDelete(e instanceof Error ? e.message : 'Erro ao excluir.')
+                                  setErroDelete(e instanceof Error ? e.message : 'Erro ao excluir estratégia.')
                                   setDeletandoEstrategia(null)
+                                } finally {
+                                  setDeletandoConfirmado(null)
                                 }
                               }}
-                              className="px-2.5 py-1 text-xs text-white bg-red-600 hover:bg-red-500 rounded-lg transition-colors"
+                              className="px-2.5 py-1 text-xs text-white bg-red-600 hover:bg-red-500 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                              Confirmar
+                              {deletandoConfirmado === est.id ? 'Excluindo...' : 'Confirmar'}
                             </button>
                             <button
+                              disabled={deletandoConfirmado === est.id}
                               onClick={() => setDeletandoEstrategia(null)}
-                              className="px-2.5 py-1 text-xs text-gray-400 hover:text-white bg-gray-800 rounded-lg transition-colors"
+                              className="px-2.5 py-1 text-xs text-gray-400 hover:text-white bg-gray-800 rounded-lg transition-colors disabled:opacity-50"
                             >
                               Cancelar
                             </button>
@@ -403,8 +412,8 @@ export function DetalhesFunil({ funil, paginas, historico, configs, estrategias 
                                 setAtribuindo(p.id)
                                 try {
                                   await atualizarPagina(p.id, { estrategia_id: v })
-                                  sessionStorage.setItem(TAB_KEY, 'estrategias')
-                                  window.location.reload()
+                                  setAba('estrategias')
+                                  router.refresh()
                                 } finally {
                                   setAtribuindo(null)
                                 }
@@ -439,7 +448,7 @@ export function DetalhesFunil({ funil, paginas, historico, configs, estrategias 
       <ModalEstrategia
         aberto={modalEstrategiaAberto}
         onFechar={() => { setModalEstrategiaAberto(false); setEditandoEstrategia(null) }}
-        onSalvo={() => { sessionStorage.setItem(TAB_KEY, 'estrategias'); window.location.reload() }}
+        onSalvo={() => { setAba('estrategias'); router.refresh() }}
         funilId={funil.id}
         estrategia={editandoEstrategia}
       />
