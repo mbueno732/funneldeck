@@ -38,8 +38,29 @@ export async function criarEstrategia(input: {
     .insert(input)
     .select()
     .single()
-  console.log('[criarEstrategia] funil_id:', input.funil_id, '| error:', error?.message ?? null, '| id_criado:', (data as Estrategia | null)?.id ?? null)
-  if (error) throw error
+
+  const id = (data as Estrategia | null)?.id ?? null
+  console.log('[criarEstrategia] funil_id:', input.funil_id, '| error:', error?.message ?? null, '| id_criado:', id)
+
+  if (error) throw new Error(`Erro ao inserir: ${error.message} (code: ${error.code})`)
+  if (!data || !id) throw new Error('INSERT retornou sem dados e sem erro — possível falha silenciosa no Supabase.')
+
+  // Verificação imediata: a linha realmente existe no banco?
+  const { data: verif, error: verifErr } = await supabase
+    .from('estrategias')
+    .select('id, funil_id')
+    .eq('id', id)
+    .single()
+
+  console.log('[criarEstrategia] verificação pós-insert:', verif ? `EXISTE funil_id=${verif.funil_id}` : `NÃO EXISTE | verifErr=${verifErr?.message}`)
+
+  if (!verif) {
+    throw new Error(
+      `INSERT retornou id=${id} mas a linha não foi encontrada num SELECT imediato. ` +
+      `Possível problema de schema ou trigger. verifErr: ${verifErr?.message ?? 'null'}`
+    )
+  }
+
   revalidatePath('/funis', 'layout')
   revalidatePath('/paginas')
   return data as Estrategia
