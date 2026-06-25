@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+
 import { ChevronLeft, Clock, LayoutGrid, Layers, Plus, Pencil, Trash2, Link as LinkIcon } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { MapaPaginas } from '@/components/paginas/MapaPaginas'
@@ -48,6 +49,7 @@ export function DetalhesFunil({ funil, paginas, historico, configs, estrategias 
   const TAB_KEY = `funil-tab-${funil.id}`
   const router = useRouter()
   const [aba, setAba] = useState<'timeline' | 'paginas' | 'estrategias'>('timeline')
+  const [estrategiasState, setEstrategiasState] = useState<Estrategia[]>(estrategias)
 
   useEffect(() => {
     const saved = sessionStorage.getItem(TAB_KEY) as 'timeline' | 'paginas' | 'estrategias' | null
@@ -58,7 +60,7 @@ export function DetalhesFunil({ funil, paginas, historico, configs, estrategias 
   const [editandoEstrategia, setEditandoEstrategia] = useState<Estrategia | null>(null)
   const [deletandoEstrategia, setDeletandoEstrategia] = useState<string | null>(null)
   const [deletandoConfirmado, setDeletandoConfirmado] = useState<string | null>(null)
-  const [erroDelete, setErroDelete] = useState<string | null>(null)
+  const [erroEstrategia, setErroEstrategia] = useState<string | null>(null)
   const [atribuindo, setAtribuindo] = useState<string | null>(null)
 
   const especialistaNome = funil.produtos?.especialistas?.nome
@@ -258,7 +260,7 @@ export function DetalhesFunil({ funil, paginas, historico, configs, estrategias 
           funis={[funil] as never}
           especialistas={[]}
           configs={configs}
-          estrategias={estrategias}
+          estrategias={estrategiasState}
           initialFunilId={funil.id}
         />
       )}
@@ -266,18 +268,18 @@ export function DetalhesFunil({ funil, paginas, historico, configs, estrategias 
       {/* Aba Estratégias */}
       {aba === 'estrategias' && (
         <div className="space-y-4">
-          {erroDelete && (
-          <div className="p-3 rounded-lg border border-red-500/30 bg-red-500/10 text-red-400 text-sm flex items-center justify-between">
-            <span>{erroDelete}</span>
-            <button onClick={() => setErroDelete(null)} className="text-red-400 hover:text-red-300 ml-2">✕</button>
-          </div>
-        )}
+          {erroEstrategia && (
+            <div className="p-3 rounded-lg border border-red-500/30 bg-red-500/10 text-red-400 text-sm flex items-center justify-between">
+              <span>{erroEstrategia}</span>
+              <button onClick={() => setErroEstrategia(null)} className="text-red-400 hover:text-red-300 ml-2">✕</button>
+            </div>
+          )}
 
-        <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between">
             <p className="text-sm text-gray-500">
-              {estrategias.length === 0
+              {estrategiasState.length === 0
                 ? 'Nenhuma estratégia cadastrada.'
-                : `${estrategias.length} estratégia${estrategias.length !== 1 ? 's' : ''}`}
+                : `${estrategiasState.length} estratégia${estrategiasState.length !== 1 ? 's' : ''}`}
             </p>
             <button
               onClick={() => { setEditandoEstrategia(null); setModalEstrategiaAberto(true) }}
@@ -288,7 +290,7 @@ export function DetalhesFunil({ funil, paginas, historico, configs, estrategias 
             </button>
           </div>
 
-          {estrategias.length === 0 ? (
+          {estrategiasState.length === 0 ? (
             <div className="border border-dashed border-gray-800 rounded-xl p-10 text-center">
               <Layers size={24} className="text-gray-700 mx-auto mb-3" />
               <p className="text-gray-500 text-sm">Crie estratégias para organizar as páginas deste funil.</p>
@@ -296,9 +298,8 @@ export function DetalhesFunil({ funil, paginas, historico, configs, estrategias 
             </div>
           ) : (
             <div className="space-y-3">
-              {estrategias.map(est => {
+              {estrategiasState.map(est => {
                 const paginasDaEst = paginas.filter(p => p.estrategia_id === est.id)
-                const semEstrategia = paginas.filter(p => !p.estrategia_id)
                 return (
                   <div key={est.id} className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
                     <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800">
@@ -314,16 +315,15 @@ export function DetalhesFunil({ funil, paginas, historico, configs, estrategias 
                               disabled={deletandoConfirmado === est.id}
                               onClick={async () => {
                                 setDeletandoConfirmado(est.id)
-                                setErroDelete(null)
+                                setErroEstrategia(null)
                                 try {
                                   await deletarEstrategia(est.id)
-                                  setAba('estrategias')
-                                  router.refresh()
+                                  setEstrategiasState(prev => prev.filter(e => e.id !== est.id))
                                 } catch (e: unknown) {
-                                  setErroDelete(e instanceof Error ? e.message : 'Erro ao excluir estratégia.')
-                                  setDeletandoEstrategia(null)
+                                  setErroEstrategia(e instanceof Error ? e.message : 'Erro ao excluir estratégia.')
                                 } finally {
                                   setDeletandoConfirmado(null)
+                                  setDeletandoEstrategia(null)
                                 }
                               }}
                               className="px-2.5 py-1 text-xs text-white bg-red-600 hover:bg-red-500 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -382,9 +382,6 @@ export function DetalhesFunil({ funil, paginas, historico, configs, estrategias 
                     )}
                   </div>
                 )
-
-                // Páginas sem estratégia (renderizadas fora do map)
-                void semEstrategia
               })}
 
               {/* Páginas sem estratégia */}
@@ -406,7 +403,7 @@ export function DetalhesFunil({ funil, paginas, historico, configs, estrategias 
                           )}
                           <span className="text-sm text-gray-500 flex-1 truncate">{p.nome}</span>
                           {p.etapa && <span className="text-xs text-gray-700 shrink-0">· {p.etapa}</span>}
-                          {estrategias.length > 0 && (
+                          {estrategiasState.length > 0 && (
                             <Select
                               onValueChange={async (v) => {
                                 setAtribuindo(p.id)
@@ -426,7 +423,7 @@ export function DetalhesFunil({ funil, paginas, historico, configs, estrategias 
                                 <SelectValue placeholder={atribuindo === p.id ? 'Salvando...' : 'Mover para...'} />
                               </SelectTrigger>
                               <SelectContent className="bg-gray-900 border-gray-800">
-                                {estrategias.map(est => (
+                                {estrategiasState.map(est => (
                                   <SelectItem key={est.id} value={est.id} className="text-gray-300 focus:bg-gray-800 focus:text-white text-xs">
                                     {est.nome}
                                   </SelectItem>
@@ -448,7 +445,13 @@ export function DetalhesFunil({ funil, paginas, historico, configs, estrategias 
       <ModalEstrategia
         aberto={modalEstrategiaAberto}
         onFechar={() => { setModalEstrategiaAberto(false); setEditandoEstrategia(null) }}
-        onSalvo={() => { setAba('estrategias'); router.refresh() }}
+        onSalvo={(salva) => {
+          setEstrategiasState(prev => {
+            const idx = prev.findIndex(e => e.id === salva.id)
+            return idx >= 0 ? prev.map(e => e.id === salva.id ? salva : e) : [...prev, salva]
+          })
+          setAba('estrategias')
+        }}
         funilId={funil.id}
         estrategia={editandoEstrategia}
       />

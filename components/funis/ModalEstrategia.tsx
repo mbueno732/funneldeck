@@ -10,7 +10,7 @@ import type { Estrategia } from '@/lib/types'
 interface Props {
   aberto: boolean
   onFechar: () => void
-  onSalvo: () => void
+  onSalvo: (estrategia: Estrategia) => void
   funilId: string
   estrategia?: Estrategia | null
 }
@@ -33,12 +33,13 @@ export function ModalEstrategia({ aberto, onFechar, onSalvo, funilId, estrategia
     setSalvando(true)
     setErro('')
     try {
+      let resultado: Estrategia
       if (estrategia) {
-        await atualizarEstrategia(estrategia.id, { nome: nome.trim() })
+        resultado = await atualizarEstrategia(estrategia.id, { nome: nome.trim() })
       } else {
-        await criarEstrategia({ funil_id: funilId, nome: nome.trim() })
+        resultado = await criarEstrategia({ funil_id: funilId, nome: nome.trim() })
       }
-      onSalvo()
+      onSalvo(resultado)
       onFechar()
     } catch (e: unknown) {
       setErro(e instanceof Error ? e.message : 'Erro ao salvar.')
