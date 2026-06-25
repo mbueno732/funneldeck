@@ -18,13 +18,12 @@ export async function GET() {
     .select('id, nome, funil_id')
     .limit(3)
 
-  // Teste 2: INSERT de uma linha teste
-  const testFunilId = '00000000-0000-0000-0000-000000000000'
-  const { data: insertData, error: insertError } = await supabase
-    .from('estrategias')
-    .insert({ funil_id: testFunilId, nome: '__debug_test__' })
-    .select()
-    .single()
+  // Teste 2: INSERT usando um funil_id real (primeiro que existir no banco)
+  const { data: funilRow } = await supabase.from('funis').select('id').limit(1).single()
+  const testFunilId = funilRow?.id ?? null
+  const { data: insertData, error: insertError } = testFunilId
+    ? await supabase.from('estrategias').insert({ funil_id: testFunilId, nome: '__debug_test__' }).select().single()
+    : { data: null, error: { message: 'Nenhum funil encontrado para teste' } as { message: string } }
 
   // Teste 3: DELETE da linha teste (se inseriu)
   let deleteCount: number | null = null
