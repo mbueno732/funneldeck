@@ -1,6 +1,5 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
 import { ChevronLeft, Clock, LayoutGrid, Layers, Plus, Pencil, Trash2, Link as LinkIcon } from 'lucide-react'
@@ -47,7 +46,6 @@ function formatarHora(iso: string) {
 
 export function DetalhesFunil({ funil, paginas, historico, configs, estrategias }: Props) {
   const TAB_KEY = `funil-tab-${funil.id}`
-  const router = useRouter()
   const [aba, setAba] = useState<'timeline' | 'paginas' | 'estrategias'>('timeline')
   const [estrategiasState, setEstrategiasState] = useState<Estrategia[]>(estrategias)
 
@@ -62,6 +60,7 @@ export function DetalhesFunil({ funil, paginas, historico, configs, estrategias 
   const [deletandoConfirmado, setDeletandoConfirmado] = useState<string | null>(null)
   const [erroEstrategia, setErroEstrategia] = useState<string | null>(null)
   const [atribuindo, setAtribuindo] = useState<string | null>(null)
+  const [estrategiaOverrides, setEstategiaOverrides] = useState<Record<string, string | null>>({})
 
   const especialistaNome = funil.produtos?.especialistas?.nome
   const produtoNome = funil.produtos?.nome
@@ -299,7 +298,7 @@ export function DetalhesFunil({ funil, paginas, historico, configs, estrategias 
           ) : (
             <div className="space-y-3">
               {estrategiasState.map(est => {
-                const paginasDaEst = paginas.filter(p => p.estrategia_id === est.id)
+                const paginasDaEst = paginas.filter(p => (Object.hasOwn(estrategiaOverrides, p.id) ? estrategiaOverrides[p.id] : p.estrategia_id) === est.id)
                 return (
                   <div key={est.id} className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
                     <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800">
@@ -386,7 +385,7 @@ export function DetalhesFunil({ funil, paginas, historico, configs, estrategias 
 
               {/* Páginas sem estratégia */}
               {(() => {
-                const semEst = paginas.filter(p => !p.estrategia_id)
+                const semEst = paginas.filter(p => !(Object.hasOwn(estrategiaOverrides, p.id) ? estrategiaOverrides[p.id] : p.estrategia_id))
                 if (semEst.length === 0) return null
                 return (
                   <div className="bg-gray-900/50 border border-dashed border-gray-800 rounded-xl overflow-hidden">
@@ -409,8 +408,7 @@ export function DetalhesFunil({ funil, paginas, historico, configs, estrategias 
                                 setAtribuindo(p.id)
                                 try {
                                   await atualizarPagina(p.id, { estrategia_id: v })
-                                  setAba('estrategias')
-                                  router.refresh()
+                                  setEstategiaOverrides(prev => ({ ...prev, [p.id]: v }))
                                 } finally {
                                   setAtribuindo(null)
                                 }
