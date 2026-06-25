@@ -60,13 +60,26 @@ export async function atualizarEstrategia(id: string, input: Partial<Pick<Estrat
 
 export async function deletarEstrategia(id: string) {
   const supabase = await createClient()
-  const { error: errUpdate } = await supabase.from('paginas').update({ estrategia_id: null }).eq('estrategia_id', id)
-  if (errUpdate) console.error('[deletarEstrategia] erro ao nullify paginas:', errUpdate)
-  const { error } = await supabase.from('estrategias').delete().eq('id', id)
-  if (error) {
-    console.error('[deletarEstrategia] erro ao deletar:', error)
-    throw new Error(error.message)
+
+  const { error: errUpdate } = await supabase
+    .from('paginas')
+    .update({ estrategia_id: null })
+    .eq('estrategia_id', id)
+  if (errUpdate) {
+    console.error('[deletarEstrategia] erro ao nullify paginas:', errUpdate)
+    throw new Error(`Erro ao desvincular páginas: ${errUpdate.message}`)
   }
+
+  const { error, count } = await supabase
+    .from('estrategias')
+    .delete({ count: 'exact' })
+    .eq('id', id)
+
+  console.log('[deletarEstrategia] id:', id, '| error:', error, '| count:', count)
+
+  if (error) throw new Error(error.message)
+  if (!count) throw new Error('Estratégia não foi excluída. Pode ser um problema de permissão no banco (RLS). Verifique se SUPABASE_SERVICE_ROLE_KEY está correto na Vercel.')
+
   revalidatePath('/funis', 'layout')
   revalidatePath('/paginas')
 }
