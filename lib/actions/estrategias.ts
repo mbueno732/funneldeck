@@ -58,28 +58,35 @@ export async function atualizarEstrategia(id: string, input: Partial<Pick<Estrat
   return data as Estrategia
 }
 
-export async function deletarEstrategia(id: string) {
-  const supabase = await createClient()
+export async function deletarEstrategia(id: string): Promise<{ ok: boolean; erro?: string }> {
+  try {
+    const supabase = await createClient()
 
-  const { error: errUpdate } = await supabase
-    .from('paginas')
-    .update({ estrategia_id: null })
-    .eq('estrategia_id', id)
-  if (errUpdate) {
-    console.error('[deletarEstrategia] erro ao nullify paginas:', errUpdate)
-    throw new Error(`Erro ao desvincular páginas: ${errUpdate.message}`)
+    const { error: errUpdate } = await supabase
+      .from('paginas')
+      .update({ estrategia_id: null })
+      .eq('estrategia_id', id)
+    if (errUpdate) {
+      console.error('[deletarEstrategia] erro ao nullify paginas:', errUpdate)
+      return { ok: false, erro: `Erro ao desvincular páginas: ${errUpdate.message}` }
+    }
+
+    const { error, count } = await supabase
+      .from('estrategias')
+      .delete({ count: 'exact' })
+      .eq('id', id)
+
+    console.log('[deletarEstrategia] id:', id, '| error:', error?.message ?? null, '| count:', count)
+
+    if (error) return { ok: false, erro: error.message }
+    if (count === 0) return { ok: false, erro: 'Nenhuma linha deletada — verifique se SUPABASE_SERVICE_ROLE_KEY está correto nas variáveis de ambiente da Vercel.' }
+
+    revalidatePath('/funis', 'layout')
+    revalidatePath('/paginas')
+    return { ok: true }
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : 'Erro inesperado ao excluir estratégia.'
+    console.error('[deletarEstrategia] exceção:', msg)
+    return { ok: false, erro: msg }
   }
-
-  const { error, count } = await supabase
-    .from('estrategias')
-    .delete({ count: 'exact' })
-    .eq('id', id)
-
-  console.log('[deletarEstrategia] id:', id, '| error:', error, '| count:', count)
-
-  if (error) throw new Error(error.message)
-  if (!count) throw new Error('Estratégia não foi excluída. Pode ser um problema de permissão no banco (RLS). Verifique se SUPABASE_SERVICE_ROLE_KEY está correto na Vercel.')
-
-  revalidatePath('/funis', 'layout')
-  revalidatePath('/paginas')
 }

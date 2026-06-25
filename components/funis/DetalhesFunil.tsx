@@ -315,15 +315,14 @@ export function DetalhesFunil({ funil, paginas, historico, configs, estrategias 
                               onClick={async () => {
                                 setDeletandoConfirmado(est.id)
                                 setErroEstrategia(null)
-                                try {
-                                  await deletarEstrategia(est.id)
+                                const resultado = await deletarEstrategia(est.id)
+                                if (resultado.ok) {
                                   setEstrategiasState(prev => prev.filter(e => e.id !== est.id))
-                                } catch (e: unknown) {
-                                  setErroEstrategia(e instanceof Error ? e.message : 'Erro ao excluir estratégia.')
-                                } finally {
-                                  setDeletandoConfirmado(null)
-                                  setDeletandoEstrategia(null)
+                                } else {
+                                  setErroEstrategia(resultado.erro ?? 'Erro ao excluir estratégia.')
                                 }
+                                setDeletandoConfirmado(null)
+                                setDeletandoEstrategia(null)
                               }}
                               className="px-2.5 py-1 text-xs text-white bg-red-600 hover:bg-red-500 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
