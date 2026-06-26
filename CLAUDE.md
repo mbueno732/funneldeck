@@ -77,8 +77,8 @@ Especialista → Produto → Funil → Estratégia → Página
 - **Especialistas** — CRUD
 - **Produtos** — CRUD vinculado a especialista
 - **Funis** — CRUD, duplicar, detalhe com abas (Timeline, Páginas, Estratégias)
-- **Estratégias** — CRUD dentro do detalhe do funil. Agrupa páginas por estratégia no Mapa de Páginas.
-- **Páginas (Mapa de Páginas)** — tabela + Kanban com drag & drop, edição inline, GTmetrix, checklist de publicação, sistema de variantes, agrupamento por estratégia
+- **Estratégias** — CRUD dentro do detalhe do funil. Agrupa páginas por estratégia no Mapa de Páginas. Estado gerenciado localmente com sync silencioso ao abrir a aba.
+- **Páginas (Mapa de Páginas)** — tabela + Kanban com drag & drop, edição inline, GTmetrix, checklist de publicação, sistema de variantes, agrupamento por estratégia, filtro por especialista
 - **Configurações** — listas dinâmicas editáveis (status, etapas, ferramentas, prioridades, etc.)
 
 ---
@@ -126,6 +126,17 @@ usuarios
 migracoes
 ```
 
+### Armadilha conhecida — tabela `estrategias`
+
+A tabela `estrategias` foi criada manualmente no Supabase dashboard (fora do sistema de migrations). Isso causou problemas de RLS silencioso em produção. A migration `009_estrategias_sem_rls.sql` garante:
+- `RLS DISABLED` na tabela
+- Todas as políticas removidas
+
+Se a tabela for recriada, rodar a migration ou executar manualmente no SQL Editor:
+```sql
+ALTER TABLE estrategias DISABLE ROW LEVEL SECURITY;
+```
+
 ### Colunas relevantes adicionadas pós-schema inicial
 
 **`funis`**
@@ -151,7 +162,7 @@ migracoes
 - `pagina_origem_id` UUID REFERENCES paginas(id)
 - `estrategia_id` UUID REFERENCES estrategias(id)
 
-**`estrategias`** (tabela nova)
+**`estrategias`**
 ```sql
 CREATE TABLE estrategias (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -162,8 +173,9 @@ CREATE TABLE estrategias (
   criado_em TIMESTAMPTZ DEFAULT NOW(),
   atualizado_em TIMESTAMPTZ DEFAULT NOW()
 );
-CREATE INDEX idx_estrategias_funil ON estrategias(funil_id);
-CREATE INDEX idx_paginas_estrategia ON paginas(estrategia_id);
+-- RLS DEVE estar DISABLED (ver armadilha acima)
+CREATE INDEX IF NOT EXISTS idx_estrategias_funil ON estrategias(funil_id);
+CREATE INDEX IF NOT EXISTS idx_paginas_estrategia ON paginas(estrategia_id);
 ```
 
 ---
@@ -172,28 +184,34 @@ CREATE INDEX idx_paginas_estrategia ON paginas(estrategia_id);
 
 ```
 app/(dashboard)/
-  dashboard/page.tsx       # KPIs computados server-side
-  funis/page.tsx           # Lista funis com métricas de etapas
-  funis/[id]/page.tsx      # Detalhe do funil (busca estrategias)
-  paginas/page.tsx         # Mapa de páginas (busca estrategias)
+  dashboard/page.tsx         # KPIs computados server-side
+  funis/page.tsx             # Lista funis com métricas de etapas
+  funis/[id]/page.tsx        # Detalhe do funil (busca estrategias)
+  paginas/page.tsx           # Mapa de páginas (funis com produtos.especialista_id)
 
 components/
   dashboard/DashboardView.tsx
   funis/ListaFunis.tsx
-  funis/DetalhesFunil.tsx  # Abas: Timeline, Páginas, Estratégias
+  funis/DetalhesFunil.tsx    # Abas: Timeline, Páginas, Estratégias
+                             # — estrategiasState + estrategiaOverrides gerenciados localmente
+                             # — sync silencioso com banco ao abrir aba Estratégias
   funis/ModalFunil.tsx
-  funis/ModalEstrategia.tsx # CRUD de estratégias
-  paginas/MapaPaginas.tsx  # Tabela + Kanban + agrupamento por estratégia
-  paginas/ModalPagina.tsx  # Inclui seletor de estratégia
-  paginas/ModalVariante.tsx # Sistema de slugs e variantes
+  funis/ModalEstrategia.tsx  # CRUD de estratégias (onSalvo retorna Estrategia criada/editada)
+  paginas/MapaPaginas.tsx    # Tabela + Kanban; filtros: especialista, funil, tipo, etapa, status...
+  paginas/ModalPagina.tsx    # Inclui seletor de estratégia
+  paginas/ModalVariante.tsx  # Sistema de slugs e variantes
   paginas/PainelChecklist.tsx
 
 lib/
-  actions/paginas.ts       # Inclui criarVariante()
-  actions/estrategias.ts   # CRUD de estratégias
+  actions/paginas.ts         # Inclui criarVariante()
+  actions/estrategias.ts     # CRUD + listarAtribuicoesPaginas()
   actions/funis.ts
   actions/dashboard.ts
-  types.ts                 # Interfaces: Pagina, Funil, Estrategia, etc.
+  types.ts                   # Interfaces: Pagina, Funil, Estrategia, etc.
+  supabase/server.ts         # createClient() com service role key (bypassa RLS)
+
+supabase/migrations/
+  009_estrategias_sem_rls.sql  # DISABLE RLS + remove políticas da tabela estrategias
 ```
 
 ---
@@ -205,6 +223,7 @@ lib/
 - Auth bypassed via service role key — não adicionar verificações de auth nas actions
 - Componentes de página são server components; interatividade em client components separados
 - Shadcn/UI como base — não criar componentes de UI do zero
+- Server actions NÃO devem usar `throw` para erros de negócio — retornar `{ ok: boolean; erro?: string }` para evitar "Server Components render error" no Next.js 14
 
 ---
 
