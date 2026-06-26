@@ -51,7 +51,7 @@ interface Props {
   initialMes?: string
 }
 
-export function MapaPaginas({ paginas, funis, configs, estrategias = [], initialFunilId, initialStatus, initialAtrasadas, initialMes }: Props) {
+export function MapaPaginas({ paginas, funis, especialistas, configs, estrategias = [], initialFunilId, initialStatus, initialAtrasadas, initialMes }: Props) {
   const router = useRouter()
   const [overrides, setOverrides] = useState<Record<string, Partial<Pagina>>>({})
 
@@ -85,6 +85,7 @@ export function MapaPaginas({ paginas, funis, configs, estrategias = [], initial
     return () => { if (progressoRef.current) clearInterval(progressoRef.current) }
   }, [analisando])
   const [busca, setBusca] = useState('')
+  const [filtroEspecialista, setFiltroEspecialista] = useState('')
   const [filtroFunil, setFiltroFunil] = useState(initialFunilId ?? '')
   const [filtroTipo, setFiltroTipo] = useState('')
   const [filtroMes] = useState(initialMes ?? '')
@@ -128,9 +129,19 @@ export function MapaPaginas({ paginas, funis, configs, estrategias = [], initial
   const isDesvioHoras = (p: Pagina) =>
     p.horas_estimadas && p.horas_reais && p.horas_reais > p.horas_estimadas
 
+  const funilEspecialista = useMemo(() => {
+    const map: Record<string, string> = {}
+    funis.forEach(f => {
+      const esp = (f as unknown as { produtos?: { especialista_id?: string } }).produtos?.especialista_id
+      if (esp) map[f.id] = esp
+    })
+    return map
+  }, [funis])
+
   const filtradas = useMemo(() => (paginas ?? []).filter(p => {
     if (deletadas.has(p.id)) return false
     if (busca && !p.nome.toLowerCase().includes(busca.toLowerCase())) return false
+    if (filtroEspecialista && funilEspecialista[p.funil_id] !== filtroEspecialista) return false
     if (filtroFunil && p.funil_id !== filtroFunil) return false
     if (filtroTipo) {
       const funil = funis.find(f => f.id === p.funil_id)
@@ -147,7 +158,7 @@ export function MapaPaginas({ paginas, funis, configs, estrategias = [], initial
     }
     return true
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }), [paginas, deletadas, busca, filtroFunil, filtroTipo, filtroStatus, filtroEtapa, filtroPrioridade, filtroFerramenta, filtroAtrasadas, filtroMes, funis])
+  }), [paginas, deletadas, busca, filtroEspecialista, filtroFunil, filtroTipo, filtroStatus, filtroEtapa, filtroPrioridade, filtroFerramenta, filtroAtrasadas, filtroMes, funis, funilEspecialista])
 
   const distribuicaoFerramenta = useMemo(() => {
     const total = filtradas.length
@@ -709,6 +720,17 @@ export function MapaPaginas({ paginas, funis, configs, estrategias = [], initial
             className="pl-8 bg-gray-900 border-gray-800 text-white placeholder-gray-500 h-9 w-52"
           />
         </div>
+        <Select value={filtroEspecialista || '__all__'} onValueChange={v => { setFiltroEspecialista(v === '__all__' ? '' : v); setFiltroFunil('') }}>
+          <SelectTrigger className="h-9 text-sm bg-gray-900 border-gray-800 text-gray-300 hover:bg-gray-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[150px]">
+            <SelectValue placeholder="Especialista" />
+          </SelectTrigger>
+          <SelectContent className="bg-gray-900 border-gray-800">
+            <SelectItem value="__all__" className="text-gray-400 focus:bg-gray-800 focus:text-white">Especialista</SelectItem>
+            {especialistas.map(e => (
+              <SelectItem key={e.id} value={e.id} className="text-gray-300 focus:bg-gray-800 focus:text-white">{e.nome}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <Select value={filtroFunil || '__all__'} onValueChange={v => setFiltroFunil(v === '__all__' ? '' : v)}>
           <SelectTrigger className="h-9 text-sm bg-gray-900 border-gray-800 text-gray-300 hover:bg-gray-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[140px]">
             <SelectValue placeholder="Todos os funis" />
@@ -746,9 +768,9 @@ export function MapaPaginas({ paginas, funis, configs, estrategias = [], initial
             Atrasadas <X size={12} />
           </button>
         )}
-        {(busca || filtroFunil || filtroTipo || filtroStatus || filtroEtapa || filtroPrioridade || filtroFerramenta || filtroAtrasadas) && (
+        {(busca || filtroEspecialista || filtroFunil || filtroTipo || filtroStatus || filtroEtapa || filtroPrioridade || filtroFerramenta || filtroAtrasadas) && (
           <button
-            onClick={() => { setBusca(''); setFiltroFunil(''); setFiltroTipo(''); setFiltroStatus(''); setFiltroEtapa(''); setFiltroPrioridade(''); setFiltroFerramenta(''); setFiltroAtrasadas(false) }}
+            onClick={() => { setBusca(''); setFiltroEspecialista(''); setFiltroFunil(''); setFiltroTipo(''); setFiltroStatus(''); setFiltroEtapa(''); setFiltroPrioridade(''); setFiltroFerramenta(''); setFiltroAtrasadas(false) }}
             className="px-3 py-1.5 text-xs text-gray-400 hover:text-white border border-gray-800 rounded-lg hover:border-gray-600 transition-colors"
           >
             Limpar filtros
