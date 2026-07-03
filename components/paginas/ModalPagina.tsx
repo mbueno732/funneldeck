@@ -7,7 +7,6 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select as ShadSelect, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { criarPagina, atualizarPagina } from '@/lib/actions/paginas'
-import { DESCRICOES_TIPO_PAGINA } from '@/lib/descricoes-tipo-pagina'
 import type { Pagina, Funil, Configuracao, Estrategia, Produto } from '@/lib/types'
 
 interface Props {
@@ -327,17 +326,9 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
               </SelectTrigger>
               <SelectContent className="bg-gray-900 border-gray-800">
                 <SelectItem value="__none__" className="text-gray-300 focus:bg-gray-800 focus:text-white">Selecionar...</SelectItem>
-                {configs.filter(c => c.categoria === 'funcao_pagina' && c.ativo).sort((a, b) => a.ordem - b.ordem).map(c => {
-                  const desc = DESCRICOES_TIPO_PAGINA[c.valor]
-                  return (
-                    <SelectItem key={c.valor} value={c.valor} textValue={c.valor} className="text-gray-300 focus:bg-gray-800 focus:text-white">
-                      <div>
-                        <div className="text-sm">{c.valor}</div>
-                        {desc && <div className="text-xs text-gray-500 font-normal">{desc}</div>}
-                      </div>
-                    </SelectItem>
-                  )
-                })}
+                {configs.filter(c => c.categoria === 'funcao_pagina' && c.ativo).sort((a, b) => a.ordem - b.ordem).map(c => (
+                  <SelectItem key={c.valor} value={c.valor} className="text-gray-300 focus:bg-gray-800 focus:text-white">{c.valor}</SelectItem>
+                ))}
               </SelectContent>
             </ShadSelect>
           </div>
