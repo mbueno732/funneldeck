@@ -65,26 +65,26 @@ function Field({ label, value, onChange, type = 'text', placeholder }: {
   )
 }
 
-function computeNome(funcao: string, variante: string, nomeLivre: string): string {
-  if (funcao === '__outro__') return nomeLivre.trim()
+function computeNome(funcao: string, variante: string): string {
   if (!funcao || funcao === '__none__') return ''
   return variante.trim() ? `${funcao} - ${variante.trim()}` : funcao
 }
 
-function parseName(nome: string, funcaoOpts: string[]): { funcao: string; variante: string; nomeLivre: string } {
+function parseName(nome: string, funcaoOpts: string[]): { funcao: string; variante: string } {
   const sep = ' - '
   const idx = nome.indexOf(sep)
   if (idx > 0) {
     const possibleFuncao = nome.substring(0, idx)
     const possibleVariante = nome.substring(idx + sep.length)
     if (funcaoOpts.includes(possibleFuncao)) {
-      return { funcao: possibleFuncao, variante: possibleVariante, nomeLivre: '' }
+      return { funcao: possibleFuncao, variante: possibleVariante }
     }
   }
   if (funcaoOpts.includes(nome)) {
-    return { funcao: nome, variante: '', nomeLivre: '' }
+    return { funcao: nome, variante: '' }
   }
-  return { funcao: '__outro__', variante: '', nomeLivre: nome }
+  // Nome fora do padrão: deixa vazio para forçar o usuário a escolher um tipo
+  return { funcao: '', variante: '' }
 }
 
 function parseHoras(val: string): number | null {
@@ -114,7 +114,7 @@ function formatHoras(val: number | null | undefined): string {
 const VAZIO = {
   escopo: 'funil' as 'funil' | 'produto',
   funil_id: '', produto_id: '',
-  funcao: '', variante: '', nome_livre: '',
+  funcao: '', variante: '',
   etapa: '', ferramenta: '', status: 'A fazer',
   prioridade: '', responsavel: '', url_pagina: '', referencia_dev: '',
   horas_estimadas: '', horas_reais: '', data_prevista: '',
@@ -140,7 +140,6 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
         produto_id: pagina.produto_id ?? '',
         funcao: parsed.funcao,
         variante: parsed.variante,
-        nome_livre: parsed.nomeLivre,
         etapa: pagina.etapa ?? '',
         ferramenta: pagina.ferramenta ?? '',
         status: pagina.status,
@@ -186,7 +185,7 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
       setErro('Selecione um produto.')
       return
     }
-    const nomeComputado = computeNome(form.funcao, form.variante, form.nome_livre)
+    const nomeComputado = computeNome(form.funcao, form.variante)
     if (!nomeComputado) {
       setErro('Selecione a função da página.')
       return
@@ -324,14 +323,11 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
                 {configs.filter(c => c.categoria === 'funcao_pagina' && c.ativo).sort((a, b) => a.ordem - b.ordem).map(c => (
                   <SelectItem key={c.valor} value={c.valor} className="text-gray-300 focus:bg-gray-800 focus:text-white">{c.valor}</SelectItem>
                 ))}
-                <SelectItem value="__outro__" className="text-gray-500 focus:bg-gray-800 focus:text-white italic">Outro (nome livre)</SelectItem>
               </SelectContent>
             </ShadSelect>
           </div>
 
-          {form.funcao === '__outro__' ? (
-            <Field label="Nome *" value={form.nome_livre} onChange={v => setForm(f => ({ ...f, nome_livre: v }))} placeholder="Nome da página" />
-          ) : form.funcao && form.funcao !== '__none__' ? (
+          {form.funcao && form.funcao !== '__none__' ? (
             <div className="space-y-1.5">
               <Label className="text-gray-400 text-xs">Variante</Label>
               <Input
@@ -341,7 +337,7 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
                 className="bg-gray-900 border-gray-800 text-white placeholder-gray-600 focus:border-indigo-500"
               />
               <p className="text-xs text-gray-600">
-                Nome: <span className="text-gray-400 font-medium">{computeNome(form.funcao, form.variante, form.nome_livre)}</span>
+                Nome: <span className="text-gray-400 font-medium">{computeNome(form.funcao, form.variante)}</span>
               </p>
             </div>
           ) : null}
