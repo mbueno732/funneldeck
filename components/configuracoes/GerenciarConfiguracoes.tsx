@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Plus, Check, X, Pencil, Trash2 } from 'lucide-react'
 import { criarConfiguracao, atualizarConfiguracao, deletarConfiguracao } from '@/lib/actions/configuracoes'
+import { DESCRICOES_TIPO_PAGINA } from '@/lib/descricoes-tipo-pagina'
 import type { Configuracao, CategoriaConfig } from '@/lib/types'
 
 type AbaAtiva = CategoriaConfig | 'checklist'
@@ -13,7 +14,7 @@ const GRUPOS: { label: string; itens: { key: AbaAtiva; label: string }[] }[] = [
     itens: [
       { key: 'status_pagina', label: 'Status' },
       { key: 'etapa',         label: 'Etapas' },
-      { key: 'funcao_pagina', label: 'Funções' },
+      { key: 'funcao_pagina', label: 'Nome da página' },
       { key: 'ferramenta',    label: 'Ferramentas' },
       { key: 'prioridade',    label: 'Prioridades' },
     ],
@@ -55,6 +56,7 @@ interface Props { configs: Configuracao[] }
 
 function ItemRow({
   item,
+  descricao,
   editando,
   confirmandoDelete,
   onEditar,
@@ -67,6 +69,7 @@ function ItemRow({
   setEditando,
 }: {
   item: Configuracao
+  descricao?: string
   editando: { id: string; valor: string; cor: string } | null
   confirmandoDelete: string | null
   onEditar: () => void
@@ -95,9 +98,12 @@ function ItemRow({
             <button onClick={onCancelarEdicao} className="text-gray-500 hover:text-gray-300"><X size={14} /></button>
           </div>
         ) : (
-          <span className={`font-medium ${item.ativo ? 'text-white' : 'text-gray-500 line-through'}`}>
-            {item.valor}
-          </span>
+          <div>
+            <span className={`font-medium ${item.ativo ? 'text-white' : 'text-gray-500 line-through'}`}>
+              {item.valor}
+            </span>
+            {descricao && <p className="text-xs text-gray-500 mt-0.5">{descricao}</p>}
+          </div>
         )}
       </td>
       <td className="px-4 py-3">
@@ -148,6 +154,7 @@ function ItemRow({
 
 function TabelaItens({
   itens,
+  descricoes,
   editando,
   confirmandoDelete,
   setEditando,
@@ -157,6 +164,7 @@ function TabelaItens({
   setConfirmandoDelete,
 }: {
   itens: Configuracao[]
+  descricoes?: Record<string, string>
   editando: { id: string; valor: string; cor: string } | null
   confirmandoDelete: string | null
   setEditando: (v: { id: string; valor: string; cor: string } | null) => void
@@ -187,6 +195,7 @@ function TabelaItens({
             <ItemRow
               key={item.id}
               item={item}
+              descricao={descricoes?.[item.valor]}
               editando={editando}
               confirmandoDelete={confirmandoDelete}
               onEditar={() => setEditando({ id: item.id, valor: item.valor, cor: item.cor ?? '' })}
@@ -382,6 +391,7 @@ export function GerenciarConfiguracoes({ configs }: Props) {
               </form>
               <TabelaItens
                 itens={itens}
+                descricoes={abaAtiva === 'funcao_pagina' ? DESCRICOES_TIPO_PAGINA : undefined}
                 editando={editando}
                 confirmandoDelete={confirmandoDelete}
                 setEditando={setEditando}

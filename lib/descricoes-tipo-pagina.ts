@@ -1,0 +1,15 @@
+export const DESCRICOES_TIPO_PAGINA: Record<string, string> = {
+  'Captura':            'Coleta de leads ou inscrições simples',
+  'Inscrições Abertas': 'Página de vendas do lançamento',
+  'Lista de Espera':    'Pré-inscrição após o fechamento das vagas',
+  'Obrigado':           'Confirmação após cadastro ou compra',
+  'Vendas':             'Oferta direta de produto ou serviço',
+  'OTO':                'Oferta única apresentada logo após a compra',
+  'Análise de Crédito': 'Qualificação financeira do lead',
+  'Compra Aprovada':    'Confirmação de pagamento aprovado',
+  'Boleto Gerado':      'Instrução de pagamento via boleto',
+  'Aplicação':          'Formulário de candidatura ou triagem do lead',
+  'Checkin':            'Confirmação de presença em evento ou aula',
+  'Cadastro':           'Registro em plataforma ou área de membros',
+  'Material':           'Entrega de conteúdo ou material gratuito',
+}
