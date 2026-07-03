@@ -63,9 +63,12 @@ export function ModalFunil({ aberto, onFechar, onSalvo, funil, produtos, especia
         planilha_leads: funil.planilha_leads ?? '',
         planilha_pesquisa: funil.planilha_pesquisa ?? '',
       })
-      const prod = produtos.find(p => p.id === funil.produto_id)
-      if (prod) setFiltroEsp(prod.especialista_id)
-      setNomeAuto(false) // funil existente: não sobrescrever nome
+      // Restaura especialista: direto do campo salvo, ou derivado do produto
+      const espId = funil.especialista_id
+        ?? produtos.find(p => p.id === funil.produto_id)?.especialista_id
+        ?? ''
+      setFiltroEsp(espId)
+      setNomeAuto(false)
     } else {
       setForm(VAZIO)
       setFiltroEsp('')
@@ -100,6 +103,7 @@ export function ModalFunil({ aberto, onFechar, onSalvo, funil, produtos, especia
     setErro('')
     try {
       const payload = {
+        especialista_id: filtroEsp || null,
         objetivo: form.objetivo,
         produto_id: form.produto_id || null,
         nome: form.nome,

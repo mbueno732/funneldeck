@@ -40,6 +40,7 @@ export interface Produto {
 
 export interface Funil {
   id: string
+  especialista_id?: string | null
   produto_id: string | null
   id_funil?: string | null
   nome: string
@@ -72,7 +73,8 @@ export interface Estrategia {
 
 export interface Pagina {
   id: string
-  funil_id: string
+  funil_id: string | null
+  produto_id?: string | null
   codigo?: string | null
   nome: string
   etapa?: string | null
@@ -101,7 +103,8 @@ export interface Pagina {
   estrategia_id?: string | null
   criado_em: string
   atualizado_em: string
-  funis?: Pick<Funil, 'id' | 'id_funil' | 'nome' | 'tipo'>
+  funis?: Pick<Funil, 'id' | 'id_funil' | 'nome' | 'tipo'> | null
+  produtos?: Pick<Produto, 'id' | 'nome'> | null
   estrategias?: Pick<Estrategia, 'id' | 'nome' | 'caminho_url'> | null
 }
 

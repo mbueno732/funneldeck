@@ -22,6 +22,7 @@ interface HistoricoEvento {
 interface Props {
   funil: Funil & { produtos?: { nome: string; especialistas?: { nome: string } | null } | null }
   paginas: Pagina[]
+  paginasProduto?: Pagina[]
   historico: HistoricoEvento[]
   configs: Configuracao[]
   estrategias: Estrategia[]
@@ -44,7 +45,7 @@ function formatarHora(iso: string) {
   return new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
 }
 
-export function DetalhesFunil({ funil, paginas, historico, configs, estrategias }: Props) {
+export function DetalhesFunil({ funil, paginas, paginasProduto = [], historico, configs, estrategias }: Props) {
   const TAB_KEY = `funil-tab-${funil.id}`
   const [aba, setAba] = useState<'timeline' | 'paginas' | 'estrategias'>('timeline')
   const [estrategiasState, setEstrategiasState] = useState<Estrategia[]>(estrategias)
@@ -274,14 +275,53 @@ export function DetalhesFunil({ funil, paginas, historico, configs, estrategias 
 
       {/* Aba Páginas */}
       {aba === 'paginas' && (
-        <MapaPaginas
-          paginas={paginas}
-          funis={[funil] as never}
-          especialistas={[]}
-          configs={configs}
-          estrategias={estrategiasState}
-          initialFunilId={funil.id}
-        />
+        <div className="space-y-4">
+          {paginasProduto.length > 0 && (
+            <div className="rounded-xl border border-indigo-500/20 overflow-hidden">
+              <div className="px-4 py-2.5 bg-indigo-500/10 border-b border-indigo-500/20 flex items-center gap-2">
+                <Layers size={13} className="text-indigo-400" />
+                <span className="text-xs font-medium text-indigo-300">
+                  Páginas do Produto{funil.produtos?.nome ? ` — ${funil.produtos.nome}` : ''}
+                </span>
+                <span className="text-xs text-indigo-500">· {paginasProduto.length} página{paginasProduto.length !== 1 ? 's' : ''}</span>
+              </div>
+              <table className="w-full text-sm">
+                <tbody className="divide-y divide-white/[0.05]">
+                  {paginasProduto.map(p => (
+                    <tr key={p.id} className="hover:bg-gray-900/30 transition-colors">
+                      <td className="px-4 py-2.5">
+                        <div className="flex items-center gap-2">
+                          {p.codigo && (
+                            <span className="text-indigo-400 font-mono text-xs bg-indigo-500/10 border border-indigo-500/20 px-1.5 py-0.5 rounded shrink-0">{p.codigo}</span>
+                          )}
+                          <span className="text-white text-sm">{p.nome}</span>
+                          {p.url_pagina && (
+                            <a href={p.url_pagina} target="_blank" rel="noopener noreferrer" className="text-indigo-400 hover:text-indigo-300 shrink-0">
+                              <LinkIcon size={11} />
+                            </a>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-4 py-2.5 text-xs text-gray-500">{p.etapa ?? '—'}</td>
+                      <td className="px-4 py-2.5">
+                        <span className="text-xs font-medium" style={{ color: STATUS_COR[p.status] ?? '#6b7280' }}>{p.status}</span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+          <MapaPaginas
+            paginas={paginas}
+            funis={[funil] as never}
+            especialistas={[]}
+            configs={configs}
+            estrategias={estrategiasState}
+            produtos={[]}
+            initialFunilId={funil.id}
+          />
+        </div>
       )}
 
       {/* Aba Estratégias */}

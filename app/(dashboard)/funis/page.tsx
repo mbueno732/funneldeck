@@ -4,7 +4,7 @@ import type { Produto, Especialista, Configuracao, Estrategia } from '@/lib/type
 
 export const dynamic = 'force-dynamic'
 
-export default async function FunisPage({ searchParams }: { searchParams: { especialista?: string; parados?: string } }) {
+export default async function FunisPage({ searchParams }: { searchParams: { especialista?: string; parados?: string; produto?: string } }) {
   const supabase = await createClient()
 
   const [
@@ -70,6 +70,7 @@ export default async function FunisPage({ searchParams }: { searchParams: { espe
       configs={(configs ?? []) as Configuracao[]}
       estrategias={(estrategias ?? []) as Estrategia[]}
       initialEspecialistaId={searchParams.especialista}
+      initialProdutoId={searchParams.produto}
       initialParados={searchParams.parados === '1'}
     />
   )

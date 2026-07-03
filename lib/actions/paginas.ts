@@ -52,13 +52,16 @@ const PREFIXOS: Record<string, string> = {
   'Captura': 'CP', 'Vendas': 'VD', 'TYP': 'TYP', 'OTO': 'OTO', 'Auxiliares': 'AUX',
 }
 
-async function gerarCodigo(supabase: ReturnType<typeof createClient> extends Promise<infer T> ? T : never, funil_id: string, etapa: string | null | undefined): Promise<string> {
-  const prefix = etapa ? (PREFIXOS[etapa] ?? 'PG') : 'PG'
-  const { data } = await supabase
-    .from('paginas')
-    .select('codigo')
-    .eq('funil_id', funil_id)
-    .like('codigo', `${prefix}-%`)
+async function gerarCodigo(
+  supabase: ReturnType<typeof createClient> extends Promise<infer T> ? T : never,
+  escopo: { funil_id?: string | null; produto_id?: string | null },
+  etapa: string | null | undefined
+): Promise<string> {
+  const prefix = escopo.produto_id ? 'PP' : (etapa ? (PREFIXOS[etapa] ?? 'PG') : 'PG')
+  let query = supabase.from('paginas').select('codigo').like('codigo', `${prefix}-%`)
+  if (escopo.produto_id) query = query.eq('produto_id', escopo.produto_id)
+  else if (escopo.funil_id) query = query.eq('funil_id', escopo.funil_id)
+  const { data } = await query
   const numeros = (data ?? [])
     .map((p: { codigo: string | null }) => parseInt(p.codigo?.split('-')[1] ?? '0'))
     .filter((n: number) => !isNaN(n))
@@ -66,9 +69,9 @@ async function gerarCodigo(supabase: ReturnType<typeof createClient> extends Pro
   return `${prefix}-${String(proximo).padStart(2, '0')}`
 }
 
-export async function criarPagina(input: Omit<Pagina, 'id' | 'criado_em' | 'atualizado_em' | 'funis'>) {
+export async function criarPagina(input: Omit<Pagina, 'id' | 'criado_em' | 'atualizado_em' | 'funis' | 'produtos'>) {
   const supabase = await createClient()
-  const codigo = input.codigo || await gerarCodigo(supabase, input.funil_id, input.etapa)
+  const codigo = input.codigo || await gerarCodigo(supabase, { funil_id: input.funil_id, produto_id: input.produto_id }, input.etapa)
   const { data, error } = await supabase
     .from('paginas')
     .insert({ ...input, codigo })
@@ -148,7 +151,7 @@ export async function criarVariante(input: {
   if (errBusca) throw errBusca
 
   const { id: _id, criado_em: _c, atualizado_em: _a, ...campos } = origem
-  const codigo = await gerarCodigo(supabase, origem.funil_id, origem.etapa)
+  const codigo = await gerarCodigo(supabase, { funil_id: origem.funil_id, produto_id: origem.produto_id }, origem.etapa)
 
   const { data, error } = await supabase
     .from('paginas')

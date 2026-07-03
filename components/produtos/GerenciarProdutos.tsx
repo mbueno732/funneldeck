@@ -1,6 +1,8 @@
 'use client'
 import { useState } from 'react'
-import { Plus, Pencil, Check, X, Trash2 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { Plus, Pencil, Check, X, Trash2, ChevronRight, FileText, GitBranch } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -10,14 +12,17 @@ import type { Produto, Especialista } from '@/lib/types'
 interface Props {
   produtos: Produto[]
   especialistas: Especialista[]
+  paginasCounts?: Record<string, number>
+  funisCounts?: Record<string, number>
 }
 
-export function GerenciarProdutos({ produtos, especialistas }: Props) {
+export function GerenciarProdutos({ produtos, especialistas, paginasCounts = {}, funisCounts = {} }: Props) {
+  const router = useRouter()
   const [lista, setLista] = useState<Produto[]>(produtos)
   const [filtroEsp, setFiltroEsp] = useState('')
   const [form, setForm] = useState({ nome: '', especialista_id: '', descricao: '' })
   const [criando, setCriando] = useState(false)
-  const [editando, setEditando] = useState<{ id: string; nome: string } | null>(null)
+  const [editando, setEditando] = useState<{ id: string; nome: string; especialista_id: string } | null>(null)
   const [confirmandoDelete, setConfirmandoDelete] = useState<string | null>(null)
   const [erroDelete, setErroDelete] = useState<string | null>(null)
   const [deletados, setDeletados] = useState<Set<string>>(new Set())
@@ -30,7 +35,6 @@ export function GerenciarProdutos({ produtos, especialistas }: Props) {
     if (!form.nome.trim() || !form.especialista_id) return
     setCriando(true)
 
-    // Optimistic: adiciona imediatamente na lista local
     const tempId = `temp-${Date.now()}`
     const esp = especialistas.find(e => e.id === form.especialista_id)
     const optimista: Produto = {
@@ -48,13 +52,11 @@ export function GerenciarProdutos({ produtos, especialistas }: Props) {
 
     try {
       const real = await criarProduto({ nome: optimista.nome, especialista_id: form.especialista_id, descricao: form.descricao || undefined })
-      // Substitui o item temporário pelo real vindo do servidor
       setLista(prev => prev.map(p => p.id === tempId
         ? { ...real, especialistas: esp ? { id: esp.id, nome: esp.nome } : undefined }
         : p
       ))
     } catch {
-      // Rollback se falhar
       setLista(prev => prev.filter(p => p.id !== tempId))
     } finally {
       setCriando(false)
@@ -63,9 +65,16 @@ export function GerenciarProdutos({ produtos, especialistas }: Props) {
 
   async function handleSalvarEdicao(id: string) {
     if (!editando?.nome.trim()) return
-    setLista(prev => prev.map(p => p.id === id ? { ...p, nome: editando.nome.trim() } : p))
+    const esp = especialistas.find(e => e.id === editando.especialista_id)
+    setLista(prev => prev.map(p => p.id === id ? {
+      ...p,
+      nome: editando.nome.trim(),
+      especialista_id: editando.especialista_id,
+      especialistas: esp ? { id: esp.id, nome: esp.nome } : p.especialistas,
+    } : p))
     setEditando(null)
-    await atualizarProduto(id, { nome: editando.nome.trim() })
+    await atualizarProduto(id, { nome: editando.nome.trim(), especialista_id: editando.especialista_id })
+    router.refresh()
   }
 
   async function handleToggleAtivo(p: Produto) {
@@ -150,14 +159,16 @@ export function GerenciarProdutos({ produtos, especialistas }: Props) {
             <tr className="bg-gray-900/60 text-gray-400 text-xs uppercase tracking-wide">
               <th className="px-4 py-3 text-left font-medium">Produto</th>
               <th className="px-4 py-3 text-left font-medium">Especialista</th>
+              <th className="px-4 py-3 text-left font-medium">Funis</th>
+              <th className="px-4 py-3 text-left font-medium">Páginas</th>
               <th className="px-4 py-3 text-left font-medium">Status</th>
-              <th className="px-4 py-3 w-20"></th>
+              <th className="px-4 py-3 w-28"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/[0.07]">
             {filtrados.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-4 py-10 text-center text-gray-500">
+                <td colSpan={6} className="px-4 py-10 text-center text-gray-500">
                   Nenhum produto cadastrado.
                 </td>
               </tr>
@@ -165,22 +176,51 @@ export function GerenciarProdutos({ produtos, especialistas }: Props) {
               <tr key={p.id} className="hover:bg-gray-900/40 transition-colors">
                 <td className="px-4 py-3">
                   {editando?.id === p.id ? (
-                    <div className="flex items-center gap-2">
-                      <Input
-                        value={editando.nome}
-                        onChange={e => setEditando({ id: p.id, nome: e.target.value })}
-                        className="bg-gray-900 border-gray-800 text-white h-8 text-sm"
-                        autoFocus
-                        onKeyDown={e => e.key === 'Enter' && handleSalvarEdicao(p.id)}
-                      />
-                      <button onClick={() => handleSalvarEdicao(p.id)} className="text-green-400 hover:text-green-300"><Check size={16} /></button>
-                      <button onClick={() => setEditando(null)} className="text-gray-500 hover:text-gray-300"><X size={16} /></button>
-                    </div>
+                    <Input
+                      value={editando.nome}
+                      onChange={e => setEditando(prev => prev ? { ...prev, nome: e.target.value } : null)}
+                      className="bg-gray-900 border-gray-800 text-white h-8 text-sm"
+                      autoFocus
+                      onKeyDown={e => e.key === 'Enter' && handleSalvarEdicao(p.id)}
+                    />
                   ) : (
                     <span className={`font-medium ${p.ativo ? 'text-white' : 'text-gray-500 line-through'}`}>{p.nome}</span>
                   )}
                 </td>
-                <td className="px-4 py-3 text-gray-400">{p.especialistas?.nome ?? '—'}</td>
+                <td className="px-4 py-3">
+                  {editando?.id === p.id ? (
+                    <Select value={editando.especialista_id || '__none__'} onValueChange={v => setEditando(prev => prev ? { ...prev, especialista_id: v === '__none__' ? '' : v } : null)}>
+                      <SelectTrigger className="h-8 text-xs bg-gray-900 border-gray-800 text-white focus:ring-0 focus:ring-offset-0 min-w-[120px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-gray-900 border-gray-800">
+                        {especialistas.map(e => <SelectItem key={e.id} value={e.id} className="text-gray-300 focus:bg-gray-800 focus:text-white text-xs">{e.nome}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <span className="text-gray-400">{p.especialistas?.nome ?? '—'}</span>
+                  )}
+                </td>
+                <td className="px-4 py-3">
+                  {(funisCounts[p.id] ?? 0) > 0 ? (
+                    <Link href={`/funis?produto=${p.id}`} className="flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300 transition-colors">
+                      <GitBranch size={11} />
+                      {funisCounts[p.id]}
+                    </Link>
+                  ) : (
+                    <span className="text-xs text-gray-600">—</span>
+                  )}
+                </td>
+                <td className="px-4 py-3">
+                  {(paginasCounts[p.id] ?? 0) > 0 ? (
+                    <Link href={`/paginas?produto=${p.id}`} className="flex items-center gap-1 text-xs text-violet-400 hover:text-violet-300 transition-colors">
+                      <FileText size={11} />
+                      {paginasCounts[p.id]}
+                    </Link>
+                  ) : (
+                    <span className="text-xs text-gray-600">—</span>
+                  )}
+                </td>
                 <td className="px-4 py-3">
                   <span className={`text-xs px-2 py-0.5 rounded-full border ${
                     p.ativo ? 'bg-green-500/10 text-green-400 border-green-500/30' : 'bg-gray-500/10 text-gray-500 border-gray-500/30'
@@ -188,24 +228,22 @@ export function GerenciarProdutos({ produtos, especialistas }: Props) {
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-1 justify-end">
-                    {confirmandoDelete === p.id ? (
+                    {editando?.id === p.id ? (
+                      <>
+                        <button onClick={() => handleSalvarEdicao(p.id)} className="text-green-400 hover:text-green-300 p-1"><Check size={15} /></button>
+                        <button onClick={() => setEditando(null)} className="text-gray-500 hover:text-gray-300 p-1"><X size={15} /></button>
+                      </>
+                    ) : confirmandoDelete === p.id ? (
                       <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => handleDeletar(p.id)}
-                          className="px-3 py-1.5 text-xs text-white bg-red-600 hover:bg-red-500 rounded-lg font-medium transition-colors"
-                        >
-                          Excluir
-                        </button>
-                        <button
-                          onClick={() => setConfirmandoDelete(null)}
-                          className="px-3 py-1.5 text-xs text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors"
-                        >
-                          Cancelar
-                        </button>
+                        <button onClick={() => handleDeletar(p.id)} className="px-3 py-1.5 text-xs text-white bg-red-600 hover:bg-red-500 rounded-lg font-medium transition-colors">Excluir</button>
+                        <button onClick={() => setConfirmandoDelete(null)} className="px-3 py-1.5 text-xs text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors">Cancelar</button>
                       </div>
                     ) : (
                       <>
-                        <button onClick={() => setEditando({ id: p.id, nome: p.nome })} className="p-1.5 text-gray-500 hover:text-white hover:bg-gray-900 rounded transition-colors">
+                        <Link href={`/produtos/${p.id}`} className="p-1.5 text-gray-500 hover:text-indigo-400 hover:bg-gray-900 rounded transition-colors" title="Ver produto">
+                          <ChevronRight size={13} />
+                        </Link>
+                        <button onClick={() => setEditando({ id: p.id, nome: p.nome, especialista_id: p.especialista_id })} className="p-1.5 text-gray-500 hover:text-white hover:bg-gray-900 rounded transition-colors" title="Editar">
                           <Pencil size={13} />
                         </button>
                         <button onClick={() => handleToggleAtivo(p)} className="p-1.5 text-gray-500 hover:text-yellow-400 hover:bg-gray-900 rounded transition-colors" title={p.ativo ? 'Desativar' : 'Ativar'}>

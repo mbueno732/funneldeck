@@ -39,6 +39,10 @@ export default async function FunilDetalhePage({ params }: { params: { id: strin
 
   if (!funil) notFound()
 
+  const { data: paginasProdutoRaw } = funil.produto_id
+    ? await supabase.from('paginas').select('*').eq('produto_id', funil.produto_id).order('nome')
+    : { data: [] }
+
   const paginaIds = (paginasRaw ?? []).map(p => p.id)
 
   const { data: historico } = paginaIds.length > 0
@@ -56,6 +60,7 @@ export default async function FunilDetalhePage({ params }: { params: { id: strin
       historico={(historico ?? []) as never}
       configs={(configs ?? []) as Configuracao[]}
       estrategias={(estrategias ?? []) as Estrategia[]}
+      paginasProduto={(paginasProdutoRaw ?? []) as never}
     />
   )
 }

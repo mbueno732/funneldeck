@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select as ShadSelect, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { criarPagina, atualizarPagina } from '@/lib/actions/paginas'
-import type { Pagina, Funil, Configuracao, Estrategia } from '@/lib/types'
+import type { Pagina, Funil, Configuracao, Estrategia, Produto } from '@/lib/types'
 
 interface Props {
   aberto: boolean
@@ -17,7 +17,9 @@ interface Props {
   funis: Funil[]
   configs: Configuracao[]
   estrategias: Estrategia[]
+  produtos: Produto[]
   funilPreSelecionado?: string
+  produtoPreSelecionado?: string
 }
 
 function Select({ label, value, onChange, options, obrigatorio }: {
@@ -88,7 +90,8 @@ function formatHoras(val: number | null | undefined): string {
 }
 
 const VAZIO = {
-  funil_id: '', nome: '', etapa: '', ferramenta: '', status: 'A fazer',
+  escopo: 'funil' as 'funil' | 'produto',
+  funil_id: '', produto_id: '', nome: '', etapa: '', ferramenta: '', status: 'A fazer',
   prioridade: '', responsavel: '', url_pagina: '', referencia_dev: '',
   horas_estimadas: '', horas_reais: '', data_prevista: '',
   url_planilha_pesquisa: '', url_documentacao: '',
@@ -97,7 +100,7 @@ const VAZIO = {
 
 const ETAPAS_TYP = ['TYP', 'Obrigado']
 
-export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs, estrategias, funilPreSelecionado }: Props) {
+export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs, estrategias, produtos, funilPreSelecionado, produtoPreSelecionado }: Props) {
   const [form, setForm] = useState(VAZIO)
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState('')
@@ -105,7 +108,9 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
   useEffect(() => {
     if (pagina) {
       setForm({
-        funil_id: pagina.funil_id,
+        escopo: pagina.produto_id ? 'produto' : 'funil',
+        funil_id: pagina.funil_id ?? '',
+        produto_id: pagina.produto_id ?? '',
         nome: pagina.nome,
         etapa: pagina.etapa ?? '',
         ferramenta: pagina.ferramenta ?? '',
@@ -123,10 +128,11 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
         estrategia_id: pagina.estrategia_id ?? '',
       })
     } else {
-      setForm({ ...VAZIO, funil_id: funilPreSelecionado ?? '' })
+      const escopo: 'funil' | 'produto' = produtoPreSelecionado ? 'produto' : 'funil'
+      setForm({ ...VAZIO, escopo, funil_id: funilPreSelecionado ?? '', produto_id: produtoPreSelecionado ?? '' })
     }
     setErro('')
-  }, [pagina, funilPreSelecionado, aberto])
+  }, [pagina, funilPreSelecionado, produtoPreSelecionado, aberto])
 
   const set = (field: string) => (value: string) =>
     setForm(f => ({ ...f, [field]: value }))
@@ -136,17 +142,31 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
 
   const isTYP = ETAPAS_TYP.includes(form.etapa)
 
+  const funilSelecionado = funis.find(f => f.id === form.funil_id)
+  const produtoDoFunil = funilSelecionado?.produto_id
+    ? produtos.find(p => p.id === funilSelecionado.produto_id)
+    : null
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!form.funil_id || !form.nome || !form.status) {
-      setErro('Funil, nome e status são obrigatórios.')
+    if (form.escopo === 'funil' && !form.funil_id) {
+      setErro('Selecione um funil.')
+      return
+    }
+    if (form.escopo === 'produto' && !form.produto_id) {
+      setErro('Selecione um produto.')
+      return
+    }
+    if (!form.nome || !form.status) {
+      setErro('Nome e status são obrigatórios.')
       return
     }
     setSalvando(true)
     setErro('')
     try {
       const payload = {
-        funil_id: form.funil_id,
+        funil_id: form.escopo === 'funil' ? form.funil_id : null,
+        produto_id: form.escopo === 'produto' ? form.produto_id : null,
         nome: form.nome,
         etapa: form.etapa || null,
         ferramenta: form.ferramenta || null,
@@ -161,7 +181,7 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
         url_planilha_pesquisa: isTYP ? (form.url_planilha_pesquisa || null) : null,
         url_documentacao: form.url_documentacao || null,
         observacoes: form.observacoes || null,
-        estrategia_id: form.estrategia_id || null,
+        estrategia_id: form.escopo === 'funil' ? (form.estrategia_id || null) : null,
       }
       if (pagina) {
         await atualizarPagina(pagina.id, payload)
@@ -189,29 +209,74 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 mt-2">
-          {/* Funil + Nome — sempre visíveis */}
-          <Select
-            label="Funil *"
-            value={form.funil_id}
-            onChange={v => { set('funil_id')(v); set('estrategia_id')('') }}
-            obrigatorio
-            options={funis.map(f => ({ valor: f.id, label: `${f.id_funil && f.id_funil !== f.nome ? `[${f.id_funil}] ` : ''}${f.nome}` }))}
-          />
-          {(() => {
-            const opts = estrategias.filter(e => e.funil_id === form.funil_id)
-            if (!opts.length) return null
-            return (
+
+          {/* Tipo da página */}
+          <div className="space-y-2">
+            <Label className="text-gray-400 text-xs">Tipo da página *</Label>
+            <div className="grid grid-cols-2 gap-2">
+              {(['funil', 'produto'] as const).map(op => (
+                <button
+                  key={op}
+                  type="button"
+                  onClick={() => setForm(f => ({ ...f, escopo: op, funil_id: '', produto_id: '', estrategia_id: '' }))}
+                  className={`flex flex-col items-start px-4 py-3 rounded-lg border transition-colors text-left ${
+                    form.escopo === op
+                      ? 'bg-indigo-600 border-indigo-500 text-white'
+                      : 'bg-gray-900 border-gray-800 text-gray-400 hover:border-gray-600'
+                  }`}
+                >
+                  <span className="text-sm font-medium">
+                    {op === 'funil' ? 'Página do funil' : 'Página do produto'}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Seletor contextual */}
+          {form.escopo === 'funil' ? (
+            <>
               <Select
-                label="Estratégia"
-                value={form.estrategia_id}
-                onChange={set('estrategia_id')}
-                options={opts.map(e => ({ valor: e.id, label: e.nome }))}
+                label="Funil *"
+                value={form.funil_id}
+                onChange={v => { set('funil_id')(v); set('estrategia_id')('') }}
+                obrigatorio
+                options={funis.map(f => ({ valor: f.id, label: `${f.id_funil && f.id_funil !== f.nome ? `[${f.id_funil}] ` : ''}${f.nome}` }))}
               />
-            )
-          })()}
+              {produtoDoFunil && (
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-indigo-500/10 border border-indigo-500/20">
+                  <span className="text-xs text-indigo-400">Produto vendido:</span>
+                  <span className="text-xs font-medium text-indigo-300">{produtoDoFunil.nome}</span>
+                </div>
+              )}
+              {(() => {
+                const opts = estrategias.filter(e => e.funil_id === form.funil_id)
+                if (!opts.length) return null
+                return (
+                  <div className="space-y-1">
+                    <Select
+                      label="Estratégia"
+                      value={form.estrategia_id}
+                      onChange={set('estrategia_id')}
+                      options={opts.map(e => ({ valor: e.id, label: e.nome }))}
+                    />
+                    <p className="text-xs text-gray-600">Caminhos alternativos do funil. Deixe em branco se a página for comum a todos.</p>
+                  </div>
+                )
+              })()}
+            </>
+          ) : (
+            <Select
+              label="Produto *"
+              value={form.produto_id}
+              onChange={set('produto_id')}
+              obrigatorio
+              options={produtos.map(p => ({ valor: p.id, label: p.nome }))}
+            />
+          )}
+
           <Field label="Nome da Página *" value={form.nome} onChange={set('nome')} placeholder="Ex: A, Halo B, VSL longa, Confirmação" />
 
-          {/* Campos essenciais — sempre visíveis */}
           <div className="grid grid-cols-2 gap-3">
             <Select label="Etapa" value={form.etapa} onChange={set('etapa')} options={configOpts('etapa')} />
             <Select label="Ferramenta" value={form.ferramenta} onChange={set('ferramenta')} options={configOpts('ferramenta')} />
@@ -220,7 +285,6 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
             <Select label="Status *" value={form.status} onChange={set('status')} obrigatorio options={configOpts('status_pagina')} />
             <Select label="Prioridade" value={form.prioridade} onChange={set('prioridade')} options={configOpts('prioridade')} />
           </div>
-
           <div className="grid grid-cols-2 gap-3">
             <Select label="Responsável" value={form.responsavel} onChange={set('responsavel')} options={configOpts('responsavel')} />
             <Field label="Data Prevista" value={form.data_prevista} onChange={set('data_prevista')} type="date" />

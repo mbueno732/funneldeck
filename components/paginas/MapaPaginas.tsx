@@ -13,7 +13,7 @@ import { atualizarPagina, deletarPagina, duplicarPagina } from '@/lib/actions/pa
 import { iniciarAnaliseGtmetrix, verificarAnaliseGtmetrix } from '@/lib/actions/gtmetrix'
 import { buscarChecklist } from '@/lib/actions/checklists'
 import { buscarHistoricoStatus } from '@/lib/actions/historico'
-import type { Pagina, Funil, Especialista, Configuracao, Estrategia } from '@/lib/types'
+import type { Pagina, Funil, Especialista, Configuracao, Estrategia, Produto } from '@/lib/types'
 
 function parseHoras(val: string): number | null {
   if (!val?.trim()) return null
@@ -45,13 +45,15 @@ interface Props {
   especialistas: Especialista[]
   configs: Configuracao[]
   estrategias?: Estrategia[]
+  produtos?: Produto[]
   initialFunilId?: string
+  initialProdutoId?: string
   initialStatus?: string
   initialAtrasadas?: boolean
   initialMes?: string
 }
 
-export function MapaPaginas({ paginas, funis, especialistas, configs, estrategias = [], initialFunilId, initialStatus, initialAtrasadas, initialMes }: Props) {
+export function MapaPaginas({ paginas, funis, especialistas, configs, estrategias = [], produtos = [], initialFunilId, initialProdutoId, initialStatus, initialAtrasadas, initialMes }: Props) {
   const router = useRouter()
   const [overrides, setOverrides] = useState<Record<string, Partial<Pagina>>>({})
 
@@ -86,6 +88,7 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
   }, [analisando])
   const [busca, setBusca] = useState('')
   const [filtroEspecialista, setFiltroEspecialista] = useState('')
+  const [filtroProduto, setFiltroProduto] = useState(initialProdutoId ?? '')
   const [filtroFunil, setFiltroFunil] = useState(initialFunilId ?? '')
   const [filtroTipo, setFiltroTipo] = useState('')
   const [filtroMes] = useState(initialMes ?? '')
@@ -138,12 +141,46 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
     return map
   }, [funis])
 
+  const produtoEspecialista = useMemo(() => {
+    const map: Record<string, string> = {}
+    produtos.forEach(p => { if (p.especialista_id) map[p.id] = p.especialista_id })
+    return map
+  }, [produtos])
+
+  const produtosDaEspecialista = useMemo(() =>
+    filtroEspecialista
+      ? produtos.filter(p => p.especialista_id === filtroEspecialista)
+      : produtos
+  , [produtos, filtroEspecialista])
+
+  const funisDoProduto = useMemo(() =>
+    filtroProduto
+      ? funis.filter(f => (f as unknown as { produto_id?: string }).produto_id === filtroProduto)
+      : funis
+  , [funis, filtroProduto])
+
   const filtradas = useMemo(() => (paginas ?? []).filter(p => {
     if (deletadas.has(p.id)) return false
     if (busca && !p.nome.toLowerCase().includes(busca.toLowerCase())) return false
-    if (filtroEspecialista && funilEspecialista[p.funil_id] !== filtroEspecialista) return false
-    if (filtroFunil && p.funil_id !== filtroFunil) return false
+    if (filtroEspecialista) {
+      const esp = p.produto_id ? produtoEspecialista[p.produto_id]
+                : p.funil_id ? funilEspecialista[p.funil_id] : null
+      if (esp !== filtroEspecialista) return false
+    }
+    if (filtroProduto) {
+      const funil = p.funil_id ? funis.find(f => f.id === p.funil_id) : null
+      const produtoViaFunil = (funil as unknown as { produto_id?: string } | undefined)?.produto_id
+      if (p.produto_id !== filtroProduto && produtoViaFunil !== filtroProduto) return false
+    }
+    if (filtroFunil) {
+      const funil = funis.find(f => f.id === filtroFunil)
+      const produtoDoFunil = (funil as unknown as { produto_id?: string })?.produto_id
+      const isPaginaDeFunil = p.funil_id === filtroFunil
+      const isPaginaDeProdutoDoFunil = !!(p.produto_id && produtoDoFunil && p.produto_id === produtoDoFunil)
+      if (!isPaginaDeFunil && !isPaginaDeProdutoDoFunil) return false
+    }
     if (filtroTipo) {
+      if (p.produto_id) return false
       const funil = funis.find(f => f.id === p.funil_id)
       if (funil?.tipo !== filtroTipo) return false
     }
@@ -158,7 +195,7 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
     }
     return true
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }), [paginas, deletadas, busca, filtroEspecialista, filtroFunil, filtroTipo, filtroStatus, filtroEtapa, filtroPrioridade, filtroFerramenta, filtroAtrasadas, filtroMes, funis, funilEspecialista])
+  }), [paginas, deletadas, busca, filtroEspecialista, filtroProduto, filtroFunil, filtroTipo, filtroStatus, filtroEtapa, filtroPrioridade, filtroFerramenta, filtroAtrasadas, filtroMes, funis, funilEspecialista, produtoEspecialista])
 
   const distribuicaoFerramenta = useMemo(() => {
     const total = filtradas.length
@@ -384,12 +421,19 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
             </div>
           )}
         </td>
-        {/* Funil */}
+        {/* Funil / Produto */}
         <td className="px-4 py-3">
-          <span className="text-gray-300 text-xs flex items-center gap-1.5">
-            {p.funis?.id_funil && <span className="text-indigo-400 font-mono shrink-0">[{p.funis.id_funil}]</span>}
-            {(!p.funis?.id_funil || p.funis.id_funil !== p.funis.nome) && <span className="truncate">{p.funis?.nome ?? '—'}</span>}
-          </span>
+          {p.produto_id && (p as unknown as { produtos?: { nome?: string } }).produtos?.nome ? (
+            <span className="flex items-center gap-1.5">
+              <span className="text-xs text-violet-400 bg-violet-500/10 border border-violet-500/20 px-1.5 py-0.5 rounded font-medium shrink-0">Produto</span>
+              <span className="text-gray-300 text-xs truncate">{(p as unknown as { produtos?: { nome?: string } }).produtos!.nome}</span>
+            </span>
+          ) : (
+            <span className="text-gray-300 text-xs flex items-center gap-1.5">
+              {p.funis?.id_funil && <span className="text-indigo-400 font-mono shrink-0">[{p.funis.id_funil}]</span>}
+              {(!p.funis?.id_funil || p.funis.id_funil !== p.funis.nome) && <span className="truncate">{p.funis?.nome ?? '—'}</span>}
+            </span>
+          )}
         </td>
         {/* Etapa */}
         <td className="px-4 py-3">
@@ -596,6 +640,21 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
 
   return (
     <div className="space-y-4">
+      {/* Breadcrumb quando filtrado por produto */}
+      {filtroProduto && (() => {
+        const produtoAtivo = produtos.find(p => p.id === filtroProduto)
+        return produtoAtivo ? (
+          <div className="flex items-center gap-1.5 text-sm">
+            <Link href="/produtos" className="text-gray-500 hover:text-white transition-colors">Produtos</Link>
+            <ChevronRight size={14} className="text-gray-700" />
+            <Link href={`/produtos/${produtoAtivo.id}`} className="text-violet-400 hover:text-violet-300 font-medium transition-colors">{produtoAtivo.nome}</Link>
+            <button onClick={() => { setFiltroProduto(''); setFiltroFunil('') }} className="ml-1 text-gray-600 hover:text-gray-400 transition-colors" title="Limpar filtro">
+              <X size={13} />
+            </button>
+          </div>
+        ) : null
+      })()}
+
       {/* Breadcrumb quando filtrado por funil */}
       {filtroFunil && (() => {
         const funilAtivo = funis.find(f => f.id === filtroFunil)
@@ -720,7 +779,7 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
             className="pl-8 bg-gray-900 border-gray-800 text-white placeholder-gray-500 h-9 w-52"
           />
         </div>
-        <Select value={filtroEspecialista || '__all__'} onValueChange={v => { setFiltroEspecialista(v === '__all__' ? '' : v); setFiltroFunil('') }}>
+        <Select value={filtroEspecialista || '__all__'} onValueChange={v => { setFiltroEspecialista(v === '__all__' ? '' : v); setFiltroProduto(''); setFiltroFunil('') }}>
           <SelectTrigger className="h-9 text-sm bg-gray-900 border-gray-800 text-gray-300 hover:bg-gray-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[150px]">
             <SelectValue placeholder="Especialista" />
           </SelectTrigger>
@@ -731,13 +790,26 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
             ))}
           </SelectContent>
         </Select>
+        {produtosDaEspecialista.length > 0 && (
+          <Select value={filtroProduto || '__all__'} onValueChange={v => { setFiltroProduto(v === '__all__' ? '' : v); setFiltroFunil('') }}>
+            <SelectTrigger className="h-9 text-sm bg-gray-900 border-gray-800 text-gray-300 hover:bg-gray-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[130px]">
+              <SelectValue placeholder="Produto" />
+            </SelectTrigger>
+            <SelectContent className="bg-gray-900 border-gray-800">
+              <SelectItem value="__all__" className="text-gray-400 focus:bg-gray-800 focus:text-white">Produto</SelectItem>
+              {produtosDaEspecialista.map(p => (
+                <SelectItem key={p.id} value={p.id} className="text-gray-300 focus:bg-gray-800 focus:text-white">{p.nome}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
         <Select value={filtroFunil || '__all__'} onValueChange={v => setFiltroFunil(v === '__all__' ? '' : v)}>
           <SelectTrigger className="h-9 text-sm bg-gray-900 border-gray-800 text-gray-300 hover:bg-gray-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[140px]">
             <SelectValue placeholder="Todos os funis" />
           </SelectTrigger>
           <SelectContent className="bg-gray-900 border-gray-800">
             <SelectItem value="__all__" className="text-gray-400 focus:bg-gray-800 focus:text-white">Todos os funis</SelectItem>
-            {funis.map(f => (
+            {funisDoProduto.map(f => (
               <SelectItem key={f.id} value={f.id} className="text-gray-300 focus:bg-gray-800 focus:text-white">
                 {f.id_funil ? `[${f.id_funil}] ` : ''}{f.nome}
               </SelectItem>
@@ -768,9 +840,9 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
             Atrasadas <X size={12} />
           </button>
         )}
-        {(busca || filtroEspecialista || filtroFunil || filtroTipo || filtroStatus || filtroEtapa || filtroPrioridade || filtroFerramenta || filtroAtrasadas) && (
+        {(busca || filtroEspecialista || filtroProduto || filtroFunil || filtroTipo || filtroStatus || filtroEtapa || filtroPrioridade || filtroFerramenta || filtroAtrasadas) && (
           <button
-            onClick={() => { setBusca(''); setFiltroEspecialista(''); setFiltroFunil(''); setFiltroTipo(''); setFiltroStatus(''); setFiltroEtapa(''); setFiltroPrioridade(''); setFiltroFerramenta(''); setFiltroAtrasadas(false) }}
+            onClick={() => { setBusca(''); setFiltroEspecialista(''); setFiltroProduto(''); setFiltroFunil(''); setFiltroTipo(''); setFiltroStatus(''); setFiltroEtapa(''); setFiltroPrioridade(''); setFiltroFerramenta(''); setFiltroAtrasadas(false) }}
             className="px-3 py-1.5 text-xs text-gray-400 hover:text-white border border-gray-800 rounded-lg hover:border-gray-600 transition-colors"
           >
             Limpar filtros
@@ -876,11 +948,17 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
                           </div>
                         </div>
 
-                        {/* Funil */}
+                        {/* Funil / Produto */}
                         <div className="mt-1.5 text-xs text-gray-500 truncate">
-                          {p.funis?.id_funil && <span className="text-indigo-400/70 font-mono">[{p.funis.id_funil}]</span>}
-                          {p.funis?.id_funil && ' '}
-                          {p.funis?.nome ?? '—'}
+                          {p.produto_id && (p as unknown as { produtos?: { nome?: string } }).produtos?.nome ? (
+                            <span className="text-violet-400/70">[Produto] {(p as unknown as { produtos?: { nome?: string } }).produtos!.nome}</span>
+                          ) : (
+                            <>
+                              {p.funis?.id_funil && <span className="text-indigo-400/70 font-mono">[{p.funis.id_funil}]</span>}
+                              {p.funis?.id_funil && ' '}
+                              {p.funis?.nome ?? '—'}
+                            </>
+                          )}
                         </div>
 
                         {/* Badges rodapé */}
@@ -954,6 +1032,29 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
                   </td>
                 </tr>
               ) : (() => {
+                // Agrupamento por funil quando produto selecionado sem funil específico
+                if (filtroProduto && !filtroFunil) {
+                  const paginasProduto = filtradas.filter(p => p.produto_id === filtroProduto)
+                  const funisComPaginas = funisDoProduto.filter(f => filtradas.some(p => p.funil_id === f.id))
+                  const grupos: { label: string; cor: string; rows: Pagina[] }[] = [
+                    ...(paginasProduto.length > 0 ? [{ label: 'Páginas do Produto', cor: 'violet', rows: paginasProduto }] : []),
+                    ...funisComPaginas.map(f => ({ label: f.nome, cor: 'indigo', rows: filtradas.filter(p => p.funil_id === f.id) })),
+                  ]
+                  return grupos.flatMap(grupo => [
+                    <tr key={`grp-${grupo.label}`} className="bg-gray-900/60">
+                      <td colSpan={10} className="px-4 py-2">
+                        <div className="flex items-center gap-2">
+                          <Layers size={12} className={grupo.cor === 'violet' ? 'text-violet-400' : 'text-indigo-400'} />
+                          <span className={`text-xs font-medium ${grupo.cor === 'violet' ? 'text-violet-300' : 'text-indigo-300'}`}>{grupo.label}</span>
+                          <span className="text-xs text-gray-600">· {grupo.rows.length} página{grupo.rows.length !== 1 ? 's' : ''}</span>
+                        </div>
+                      </td>
+                    </tr>,
+                    ...grupo.rows.map(raw => renderLinha(raw)),
+                  ])
+                }
+
+                // Agrupamento por estratégia quando funil selecionado tem estratégias
                 const estrategiasDeFunil = filtroFunil
                   ? estrategias.filter(e => e.funil_id === filtroFunil)
                   : []
@@ -1003,7 +1104,9 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
         funis={funis}
         configs={configs}
         estrategias={estrategias}
+        produtos={produtos}
         funilPreSelecionado={editando ? undefined : filtroFunil || undefined}
+        produtoPreSelecionado={editando ? undefined : filtroProduto || undefined}
       />
 
       <PainelChecklist

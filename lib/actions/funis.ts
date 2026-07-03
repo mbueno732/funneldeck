@@ -32,7 +32,9 @@ export async function buscarFunil(id: string) {
 }
 
 export async function criarFunil(input: {
+  especialista_id?: string | null
   produto_id?: string | null
+  objetivo?: string
   nome: string
   tipo: string
   id_funil?: string
@@ -52,6 +54,7 @@ export async function criarFunil(input: {
   if (error) throw error
   await registrarAuditoria('funis', data.id, 'criar', { depois: data })
   revalidatePath('/funis')
+  revalidatePath('/produtos')
   return data as Funil
 }
 
@@ -66,6 +69,7 @@ export async function atualizarFunil(id: string, input: Partial<Omit<Funil, 'id'
   if (error) throw error
   await registrarAuditoria('funis', id, 'atualizar', { depois: data })
   revalidatePath('/funis')
+  revalidatePath('/produtos')
   return data as Funil
 }
 
@@ -83,6 +87,7 @@ export async function deletarFunil(id: string) {
   if (error) throw error
   await registrarAuditoria('funis', id, 'deletar', {})
   revalidatePath('/funis')
+  revalidatePath('/produtos')
 }
 
 export async function duplicarFunil(

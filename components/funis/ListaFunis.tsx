@@ -34,6 +34,7 @@ interface FunilComMetricas extends Funil {
 interface Props {
   funis: FunilComMetricas[]
   initialEspecialistaId?: string
+  initialProdutoId?: string
   initialParados?: boolean
   produtos: Produto[]
   especialistas: Especialista[]
@@ -41,9 +42,10 @@ interface Props {
   estrategias: Estrategia[]
 }
 
-export function ListaFunis({ funis, produtos, especialistas, configs, estrategias, initialEspecialistaId, initialParados }: Props) {
+export function ListaFunis({ funis, produtos, especialistas, configs, estrategias, initialEspecialistaId, initialProdutoId, initialParados }: Props) {
   const router = useRouter()
   const [filtroEsp, setFiltroEsp] = useState(initialEspecialistaId ?? '')
+  const [filtroProduto, setFiltroProduto] = useState(initialProdutoId ?? '')
   const [apenasParados, setApenasParados] = useState(initialParados ?? false)
   const [filtroStatus, setFiltroStatus] = useState('')
   const [modalAberto, setModalAberto] = useState(false)
@@ -63,6 +65,7 @@ export function ListaFunis({ funis, produtos, especialistas, configs, estrategia
     if (deletados.has(f.id)) return false
     const prod = produtos.find(p => p.id === f.produto_id)
     if (filtroEsp && prod?.especialista_id !== filtroEsp) return false
+    if (filtroProduto && f.produto_id !== filtroProduto) return false
     if (filtroStatus && f.status !== filtroStatus) return false
     if (apenasParados && (f.tem_movimento || (statusOverrides[f.id] ?? f.status) !== 'Ativo')) return false
     return true
@@ -116,6 +119,15 @@ export function ListaFunis({ funis, produtos, especialistas, configs, estrategia
             {especialistas.map(e => <SelectItem key={e.id} value={e.id} className="text-gray-300 focus:bg-gray-800 focus:text-white">{e.nome}</SelectItem>)}
           </SelectContent>
         </Select>
+        <Select value={filtroProduto || '__all__'} onValueChange={v => setFiltroProduto(v === '__all__' ? '' : v)}>
+          <SelectTrigger className="h-9 text-sm bg-gray-900 border-gray-800 text-gray-300 hover:bg-gray-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[130px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="bg-gray-900 border-gray-800">
+            <SelectItem value="__all__" className="text-gray-300 focus:bg-gray-800 focus:text-white">Todos os produtos</SelectItem>
+            {produtos.map(p => <SelectItem key={p.id} value={p.id} className="text-gray-300 focus:bg-gray-800 focus:text-white">{p.nome}</SelectItem>)}
+          </SelectContent>
+        </Select>
         <Select value={filtroStatus || '__all__'} onValueChange={v => setFiltroStatus(v === '__all__' ? '' : v)}>
           <SelectTrigger className="h-9 text-sm bg-gray-900 border-gray-800 text-gray-300 hover:bg-gray-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[130px]">
             <SelectValue />
@@ -125,8 +137,8 @@ export function ListaFunis({ funis, produtos, especialistas, configs, estrategia
             {statusOpts.map(c => <SelectItem key={c.valor} value={c.valor} className="text-gray-300 focus:bg-gray-800 focus:text-white">{c.valor}</SelectItem>)}
           </SelectContent>
         </Select>
-        {(filtroEsp || filtroStatus) && (
-          <button onClick={() => { setFiltroEsp(''); setFiltroStatus('') }}
+        {(filtroEsp || filtroProduto || filtroStatus) && (
+          <button onClick={() => { setFiltroEsp(''); setFiltroProduto(''); setFiltroStatus('') }}
             className="px-3 py-1.5 text-xs text-gray-400 hover:text-white border border-gray-800 rounded-lg hover:border-gray-600 transition-colors">
             Limpar
           </button>
@@ -466,6 +478,7 @@ export function ListaFunis({ funis, produtos, especialistas, configs, estrategia
         funis={funis}
         configs={configs}
         estrategias={estrategias}
+        produtos={[]}
         funilPreSelecionado={novaPaginaFunilId ?? undefined}
       />
 

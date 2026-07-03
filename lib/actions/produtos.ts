@@ -30,7 +30,7 @@ export async function criarProduto(input: { especialista_id: string; nome: strin
   return data as Produto
 }
 
-export async function atualizarProduto(id: string, input: { nome?: string; descricao?: string; ativo?: boolean }) {
+export async function atualizarProduto(id: string, input: { nome?: string; descricao?: string; ativo?: boolean; especialista_id?: string }) {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('produtos')
