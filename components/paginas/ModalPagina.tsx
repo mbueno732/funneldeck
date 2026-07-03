@@ -129,6 +129,7 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState('')
 
+
   useEffect(() => {
     if (pagina) {
       const opts = configs.filter(c => c.categoria === 'funcao_pagina' && c.ativo).map(c => c.valor)
@@ -308,9 +309,9 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
             />
           )}
 
-          {/* Função + Variante */}
+          {/* Tipo + Variante */}
           <div className="space-y-1.5">
-            <Label className="text-gray-400 text-xs">Função *</Label>
+            <Label className="text-gray-400 text-xs">Tipo *</Label>
             <ShadSelect
               value={form.funcao || '__none__'}
               onValueChange={v => setForm(f => ({ ...f, funcao: v === '__none__' ? '' : v, variante: '', nome_livre: '' }))}
