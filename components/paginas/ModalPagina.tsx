@@ -65,6 +65,22 @@ function Field({ label, value, onChange, type = 'text', placeholder }: {
   )
 }
 
+const DESCRICOES_TIPO: Record<string, string> = {
+  'Captura':            'Coleta de leads ou inscrições simples',
+  'Inscrições Abertas': 'Página de vendas do lançamento',
+  'Lista de Espera':    'Pré-inscrição antes da abertura das vagas',
+  'Obrigado':           'Confirmação após cadastro ou compra',
+  'Vendas':             'Oferta direta de produto ou serviço',
+  'OTO':                'Oferta única apresentada logo após a compra',
+  'Análise de Crédito': 'Qualificação financeira do lead',
+  'Compra Aprovada':    'Confirmação de pagamento aprovado',
+  'Boleto Gerado':      'Instrução de pagamento via boleto',
+  'Aplicação':          'Formulário de candidatura ou triagem do lead',
+  'Checkin':            'Confirmação de presença em evento ou aula',
+  'Cadastro':           'Registro em plataforma ou área de membros',
+  'Material':           'Entrega de conteúdo ou material gratuito',
+}
+
 function computeNome(funcao: string, variante: string): string {
   if (!funcao || funcao === '__none__') return ''
   return variante.trim() ? `${funcao} - ${variante.trim()}` : funcao
@@ -313,16 +329,24 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
             <Label className="text-gray-400 text-xs">Nome da página *</Label>
             <ShadSelect
               value={form.funcao || '__none__'}
-              onValueChange={v => setForm(f => ({ ...f, funcao: v === '__none__' ? '' : v, variante: '', nome_livre: '' }))}
+              onValueChange={v => setForm(f => ({ ...f, funcao: v === '__none__' ? '' : v, variante: '' }))}
             >
               <SelectTrigger className="w-full bg-gray-900 border-gray-800 text-white focus:ring-0 focus:ring-offset-0 h-10">
                 <SelectValue placeholder="Selecionar..." />
               </SelectTrigger>
               <SelectContent className="bg-gray-900 border-gray-800">
                 <SelectItem value="__none__" className="text-gray-300 focus:bg-gray-800 focus:text-white">Selecionar...</SelectItem>
-                {configs.filter(c => c.categoria === 'funcao_pagina' && c.ativo).sort((a, b) => a.ordem - b.ordem).map(c => (
-                  <SelectItem key={c.valor} value={c.valor} className="text-gray-300 focus:bg-gray-800 focus:text-white">{c.valor}</SelectItem>
-                ))}
+                {configs.filter(c => c.categoria === 'funcao_pagina' && c.ativo).sort((a, b) => a.ordem - b.ordem).map(c => {
+                  const desc = DESCRICOES_TIPO[c.valor]
+                  return (
+                    <SelectItem key={c.valor} value={c.valor} className="text-gray-300 focus:bg-gray-800 focus:text-white">
+                      <div>
+                        <div className="text-sm">{c.valor}</div>
+                        {desc && <div className="text-xs text-gray-500 font-normal">{desc}</div>}
+                      </div>
+                    </SelectItem>
+                  )
+                })}
               </SelectContent>
             </ShadSelect>
           </div>
