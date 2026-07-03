@@ -68,7 +68,7 @@ function Field({ label, value, onChange, type = 'text', placeholder }: {
 const DESCRICOES_TIPO: Record<string, string> = {
   'Captura':            'Coleta de leads ou inscrições simples',
   'Inscrições Abertas': 'Página de vendas do lançamento',
-  'Lista de Espera':    'Pré-inscrição antes da abertura das vagas',
+  'Lista de Espera':    'Pré-inscrição após o fechamento das vagas',
   'Obrigado':           'Confirmação após cadastro ou compra',
   'Vendas':             'Oferta direta de produto ou serviço',
   'OTO':                'Oferta única apresentada logo após a compra',
