@@ -65,6 +65,28 @@ function Field({ label, value, onChange, type = 'text', placeholder }: {
   )
 }
 
+function computeNome(funcao: string, variante: string, nomeLivre: string): string {
+  if (funcao === '__outro__') return nomeLivre.trim()
+  if (!funcao || funcao === '__none__') return ''
+  return variante.trim() ? `${funcao} - ${variante.trim()}` : funcao
+}
+
+function parseName(nome: string, funcaoOpts: string[]): { funcao: string; variante: string; nomeLivre: string } {
+  const sep = ' - '
+  const idx = nome.indexOf(sep)
+  if (idx > 0) {
+    const possibleFuncao = nome.substring(0, idx)
+    const possibleVariante = nome.substring(idx + sep.length)
+    if (funcaoOpts.includes(possibleFuncao)) {
+      return { funcao: possibleFuncao, variante: possibleVariante, nomeLivre: '' }
+    }
+  }
+  if (funcaoOpts.includes(nome)) {
+    return { funcao: nome, variante: '', nomeLivre: '' }
+  }
+  return { funcao: '__outro__', variante: '', nomeLivre: nome }
+}
+
 function parseHoras(val: string): number | null {
   if (!val?.trim()) return null
   const v = val.trim().toLowerCase()
@@ -91,7 +113,9 @@ function formatHoras(val: number | null | undefined): string {
 
 const VAZIO = {
   escopo: 'funil' as 'funil' | 'produto',
-  funil_id: '', produto_id: '', nome: '', etapa: '', ferramenta: '', status: 'A fazer',
+  funil_id: '', produto_id: '',
+  funcao: '', variante: '', nome_livre: '',
+  etapa: '', ferramenta: '', status: 'A fazer',
   prioridade: '', responsavel: '', url_pagina: '', referencia_dev: '',
   horas_estimadas: '', horas_reais: '', data_prevista: '',
   url_planilha_pesquisa: '', url_documentacao: '',
@@ -107,11 +131,15 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
 
   useEffect(() => {
     if (pagina) {
+      const opts = configs.filter(c => c.categoria === 'funcao_pagina' && c.ativo).map(c => c.valor)
+      const parsed = parseName(pagina.nome, opts)
       setForm({
         escopo: pagina.produto_id ? 'produto' : 'funil',
         funil_id: pagina.funil_id ?? '',
         produto_id: pagina.produto_id ?? '',
-        nome: pagina.nome,
+        funcao: parsed.funcao,
+        variante: parsed.variante,
+        nome_livre: parsed.nomeLivre,
         etapa: pagina.etapa ?? '',
         ferramenta: pagina.ferramenta ?? '',
         status: pagina.status,
@@ -157,8 +185,13 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
       setErro('Selecione um produto.')
       return
     }
-    if (!form.nome || !form.status) {
-      setErro('Nome e status são obrigatórios.')
+    const nomeComputado = computeNome(form.funcao, form.variante, form.nome_livre)
+    if (!nomeComputado) {
+      setErro('Selecione a função da página.')
+      return
+    }
+    if (!form.status) {
+      setErro('Status é obrigatório.')
       return
     }
     setSalvando(true)
@@ -167,7 +200,7 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
       const payload = {
         funil_id: form.escopo === 'funil' ? form.funil_id : null,
         produto_id: form.escopo === 'produto' ? form.produto_id : null,
-        nome: form.nome,
+        nome: nomeComputado,
         etapa: form.etapa || null,
         ferramenta: form.ferramenta || null,
         status: form.status,
@@ -275,7 +308,42 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
             />
           )}
 
-          <Field label="Nome da Página *" value={form.nome} onChange={set('nome')} placeholder="Ex: A, Halo B, VSL longa, Confirmação" />
+          {/* Função + Variante */}
+          <div className="space-y-1.5">
+            <Label className="text-gray-400 text-xs">Função *</Label>
+            <ShadSelect
+              value={form.funcao || '__none__'}
+              onValueChange={v => setForm(f => ({ ...f, funcao: v === '__none__' ? '' : v, variante: '', nome_livre: '' }))}
+            >
+              <SelectTrigger className="w-full bg-gray-900 border-gray-800 text-white focus:ring-0 focus:ring-offset-0 h-10">
+                <SelectValue placeholder="Selecionar..." />
+              </SelectTrigger>
+              <SelectContent className="bg-gray-900 border-gray-800">
+                <SelectItem value="__none__" className="text-gray-300 focus:bg-gray-800 focus:text-white">Selecionar...</SelectItem>
+                {configs.filter(c => c.categoria === 'funcao_pagina' && c.ativo).sort((a, b) => a.ordem - b.ordem).map(c => (
+                  <SelectItem key={c.valor} value={c.valor} className="text-gray-300 focus:bg-gray-800 focus:text-white">{c.valor}</SelectItem>
+                ))}
+                <SelectItem value="__outro__" className="text-gray-500 focus:bg-gray-800 focus:text-white italic">Outro (nome livre)</SelectItem>
+              </SelectContent>
+            </ShadSelect>
+          </div>
+
+          {form.funcao === '__outro__' ? (
+            <Field label="Nome *" value={form.nome_livre} onChange={v => setForm(f => ({ ...f, nome_livre: v }))} placeholder="Nome da página" />
+          ) : form.funcao && form.funcao !== '__none__' ? (
+            <div className="space-y-1.5">
+              <Label className="text-gray-400 text-xs">Variante</Label>
+              <Input
+                value={form.variante}
+                onChange={e => setForm(f => ({ ...f, variante: e.target.value }))}
+                placeholder="A, B, Flash Opening, CPP..."
+                className="bg-gray-900 border-gray-800 text-white placeholder-gray-600 focus:border-indigo-500"
+              />
+              <p className="text-xs text-gray-600">
+                Nome: <span className="text-gray-400 font-medium">{computeNome(form.funcao, form.variante, form.nome_livre)}</span>
+              </p>
+            </div>
+          ) : null}
 
           <div className="grid grid-cols-2 gap-3">
             <Select label="Etapa" value={form.etapa} onChange={set('etapa')} options={configOpts('etapa')} />

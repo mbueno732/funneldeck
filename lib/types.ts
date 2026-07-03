@@ -166,6 +166,7 @@ export type CategoriaConfig =
   | 'status_funil'
   | 'tipo_estrategia'
   | 'etapa'
+  | 'funcao_pagina'
   | 'ferramenta'
   | 'status_pagina'
   | 'prioridade'

@@ -13,6 +13,7 @@ const GRUPOS: { label: string; itens: { key: AbaAtiva; label: string }[] }[] = [
     itens: [
       { key: 'status_pagina', label: 'Status' },
       { key: 'etapa',         label: 'Etapas' },
+      { key: 'funcao_pagina', label: 'Funções' },
       { key: 'ferramenta',    label: 'Ferramentas' },
       { key: 'prioridade',    label: 'Prioridades' },
     ],
