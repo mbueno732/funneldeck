@@ -308,9 +308,9 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
             />
           )}
 
-          {/* Tipo + Variante */}
+          {/* Nome da página */}
           <div className="space-y-1.5">
-            <Label className="text-gray-400 text-xs">Tipo *</Label>
+            <Label className="text-gray-400 text-xs">Nome da página *</Label>
             <ShadSelect
               value={form.funcao || '__none__'}
               onValueChange={v => setForm(f => ({ ...f, funcao: v === '__none__' ? '' : v, variante: '', nome_livre: '' }))}
