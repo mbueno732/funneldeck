@@ -330,7 +330,7 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
                 {configs.filter(c => c.categoria === 'funcao_pagina' && c.ativo).sort((a, b) => a.ordem - b.ordem).map(c => {
                   const desc = DESCRICOES_TIPO_PAGINA[c.valor]
                   return (
-                    <SelectItem key={c.valor} value={c.valor} className="text-gray-300 focus:bg-gray-800 focus:text-white">
+                    <SelectItem key={c.valor} value={c.valor} textValue={c.valor} className="text-gray-300 focus:bg-gray-800 focus:text-white">
                       <div>
                         <div className="text-sm">{c.valor}</div>
                         {desc && <div className="text-xs text-gray-500 font-normal">{desc}</div>}
