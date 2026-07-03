@@ -277,6 +277,11 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
                   <span className="text-sm font-medium">
                     {op === 'funil' ? 'Página do funil' : 'Página do produto'}
                   </span>
+                  <span className={`text-xs mt-0.5 ${form.escopo === op ? 'text-indigo-200' : 'text-gray-600'}`}>
+                    {op === 'funil'
+                      ? 'Usada em um lançamento ou campanha específica'
+                      : 'Permanente, reutilizada em qualquer funil'}
+                  </span>
                 </button>
               ))}
             </div>
