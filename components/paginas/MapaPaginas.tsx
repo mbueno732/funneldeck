@@ -1142,7 +1142,7 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
       <ModalVariante
         aberto={!!variantePagina}
         onFechar={() => setVariantePagina(null)}
-        onCriada={() => { setVariantePagina(null); router.refresh() }}
+        onCriada={nova => { setVariantePagina(null); router.refresh(); setDestaque({ id: nova.id, nome: nova.nome }) }}
         pagina={variantePagina}
         todasPaginas={paginas}
       />

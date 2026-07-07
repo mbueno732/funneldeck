@@ -11,7 +11,7 @@ import type { Pagina } from '@/lib/types'
 interface Props {
   aberto: boolean
   onFechar: () => void
-  onCriada: () => void
+  onCriada: (pagina: Pagina) => void
   pagina: Pagina | null
   todasPaginas: Pagina[]
 }
@@ -192,7 +192,7 @@ export function ModalVariante({ aberto, onFechar, onCriada, pagina, todasPaginas
     setSalvando(true)
     setErro('')
     try {
-      await criarVariante({
+      const nova = await criarVariante({
         paginaOrigemId: pagina.id,
         urlPagina: urlEditada,
         slugRaiz: info.slugRaiz,
@@ -200,7 +200,7 @@ export function ModalVariante({ aberto, onFechar, onCriada, pagina, todasPaginas
         versao: sugestao.novaVersao,
         oQueMudou: Array.from(selecionadas.values()),
       })
-      onCriada()
+      onCriada(nova)
       onFechar()
     } catch (e: unknown) {
       setErro(e instanceof Error ? e.message : 'Erro ao criar variante.')
