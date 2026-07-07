@@ -100,6 +100,7 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
   const [modalAberto, setModalAberto] = useState(false)
   const [editando, setEditando] = useState<Pagina | null>(null)
   const [erroDuplicar, setErroDuplicar] = useState('')
+  const [destaque, setDestaque] = useState<{ id: string; nome: string } | null>(null)
   const [checklistPagina, setChecklistPagina] = useState<Pagina | null>(null)
   const [variantePagina, setVariantePagina] = useState<Pagina | null>(null)
   const checklistCache = useRef<Map<string, { checklist: unknown; historico: unknown }>>(new Map())
@@ -216,6 +217,16 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
       .sort((a, b) => b.count - a.count)
   }, [filtradas])
 
+  // Rola até a página recém-duplicada e a destaca assim que ela aparece na lista atualizada
+  useEffect(() => {
+    if (!destaque) return
+    if (!paginas.some(p => p.id === destaque.id)) return
+    document.getElementById(`linha-pagina-${destaque.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    const timeout = setTimeout(() => setDestaque(null), 4000)
+    return () => clearTimeout(timeout)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [destaque, paginas])
+
   async function handleMudarStatus(pagina: Pagina, novoStatus: string) {
     setOverrides(o => ({ ...o, [pagina.id]: { ...o[pagina.id], status: novoStatus } }))
     await atualizarPagina(pagina.id, { status: novoStatus })
@@ -310,8 +321,9 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
     setDuplicandoPagina(id)
     setErroDuplicar('')
     try {
-      await duplicarPagina(id)
+      const nova = await duplicarPagina(id)
       router.refresh()
+      setDestaque({ id: nova.id, nome: nova.nome })
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Erro ao duplicar página.'
       setErroDuplicar(msg)
@@ -366,7 +378,8 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
     return (
       <tr
         key={p.id}
-        className={`hover:bg-gray-900/40 transition-colors ${atrasada ? 'border-l-2 border-l-red-500' : ''}`}
+        id={`linha-pagina-${p.id}`}
+        className={`hover:bg-gray-900/40 transition-colors duration-700 ${atrasada ? 'border-l-2 border-l-red-500' : ''} ${destaque?.id === p.id ? 'bg-indigo-500/15 ring-1 ring-inset ring-indigo-500/40' : ''}`}
       >
         {/* Nome */}
         <td className="px-4 py-3">
@@ -902,15 +915,18 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
                     return (
                       <div
                         key={p.id}
+                        id={`linha-pagina-${p.id}`}
                         draggable
                         onDragStart={() => setDraggingId(p.id)}
                         onDragEnd={() => { setDraggingId(null); setDragOverStatus(null) }}
                         className={`group bg-gray-900 border rounded-lg p-3 cursor-grab active:cursor-grabbing transition-all ${
                           draggingId === p.id
                             ? 'opacity-40 border-indigo-500'
-                            : atrasada
-                              ? 'border-l-2 border-l-red-500 border-gray-800 hover:border-gray-600'
-                              : 'border-gray-800 hover:border-gray-600'
+                            : destaque?.id === p.id
+                              ? 'bg-indigo-500/15 ring-1 ring-inset ring-indigo-500/40 border-indigo-500/40'
+                              : atrasada
+                                ? 'border-l-2 border-l-red-500 border-gray-800 hover:border-gray-600'
+                                : 'border-gray-800 hover:border-gray-600'
                         }`}
                       >
                         {/* Topo do card */}
@@ -1004,6 +1020,13 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
         <div className="flex items-center justify-between px-4 py-2.5 bg-red-500/10 border border-red-500/30 rounded-lg text-sm text-red-400">
           <span>Erro ao duplicar: {erroDuplicar}</span>
           <button onClick={() => setErroDuplicar('')} className="text-red-400 hover:text-red-300"><X size={14} /></button>
+        </div>
+      )}
+
+      {destaque && (
+        <div className="flex items-center justify-between px-4 py-2.5 bg-indigo-500/10 border border-indigo-500/30 rounded-lg text-sm text-indigo-300">
+          <span className="flex items-center gap-1.5"><Copy size={13} /> Página duplicada: <strong className="font-medium">{destaque.nome}</strong></span>
+          <button onClick={() => setDestaque(null)} className="text-indigo-300 hover:text-indigo-200"><X size={14} /></button>
         </div>
       )}
 
