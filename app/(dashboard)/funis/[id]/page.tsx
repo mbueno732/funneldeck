@@ -15,7 +15,7 @@ export default async function FunilDetalhePage({ params }: { params: { id: strin
   ] = await Promise.all([
     supabase
       .from('funis')
-      .select('*, produtos(id, nome, especialistas(id, nome))')
+      .select('*, especialistas(id, nome), produtos(id, nome, especialistas(id, nome))')
       .eq('id', params.id)
       .single(),
     supabase

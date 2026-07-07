@@ -20,7 +20,7 @@ interface HistoricoEvento {
 }
 
 interface Props {
-  funil: Funil & { produtos?: { nome: string; especialistas?: { nome: string } | null } | null }
+  funil: Funil & { produtos?: { nome: string; especialistas?: { nome: string } | null } | null; especialistas?: { nome: string } | null }
   paginas: Pagina[]
   paginasProduto?: Pagina[]
   historico: HistoricoEvento[]
@@ -83,7 +83,7 @@ export function DetalhesFunil({ funil, paginas, paginasProduto = [], historico, 
     return init
   })
 
-  const especialistaNome = funil.produtos?.especialistas?.nome
+  const especialistaNome = funil.especialistas?.nome ?? funil.produtos?.especialistas?.nome
   const produtoNome = funil.produtos?.nome
 
   // Monta eventos da timeline: criação do funil + histórico de status

@@ -92,7 +92,7 @@ export async function deletarFunil(id: string) {
 
 export async function duplicarFunil(
   id: string,
-  opcoes: { id_funil?: string; nome: string; incluir_paginas: boolean; produto_id?: string }
+  opcoes: { id_funil?: string; nome: string; incluir_paginas: boolean; produto_id: string | null; especialista_id: string | null }
 ) {
   const supabase = await createClient()
 
@@ -110,9 +110,10 @@ export async function duplicarFunil(
       ...campos,
       nome: opcoes.nome,
       status: 'Ativo',
+      produto_id: opcoes.produto_id,
+      especialista_id: opcoes.especialista_id,
       // id_funil mantido do original via ...campos (sem override)
       ...(opcoes.id_funil !== undefined ? { id_funil: opcoes.id_funil || null } : {}),
-      ...(opcoes.produto_id ? { produto_id: opcoes.produto_id } : {}),
     })
     .select()
     .single()

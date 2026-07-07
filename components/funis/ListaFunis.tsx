@@ -64,7 +64,8 @@ export function ListaFunis({ funis, produtos, especialistas, configs, estrategia
   const filtrados = funis.filter(f => {
     if (deletados.has(f.id)) return false
     const prod = produtos.find(p => p.id === f.produto_id)
-    if (filtroEsp && prod?.especialista_id !== filtroEsp) return false
+    const espId = f.especialista_id ?? prod?.especialista_id
+    if (filtroEsp && espId !== filtroEsp) return false
     if (filtroProduto && f.produto_id !== filtroProduto) return false
     if (filtroStatus && f.status !== filtroStatus) return false
     if (apenasParados && (f.tem_movimento || (statusOverrides[f.id] ?? f.status) !== 'Ativo')) return false
@@ -172,7 +173,7 @@ export function ListaFunis({ funis, produtos, especialistas, configs, estrategia
       ) : (() => {
         const renderCard = (f: FunilComMetricas) => {
             const prod = produtos.find(p => p.id === f.produto_id)
-            const esp = especialistas.find(e => e.id === prod?.especialista_id)
+            const esp = especialistas.find(e => e.id === (f.especialista_id ?? prod?.especialista_id))
             const pct = pctPublicadas(f)
             const temImpl = f.impl_nao_publicadas > 0
             const inativo = (statusOverrides[f.id] ?? f.status) === 'Inativo'

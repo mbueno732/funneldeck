@@ -16,7 +16,7 @@ export default async function PaginasPage({ searchParams }: { searchParams: { fu
     { data: produtos },
   ] = await Promise.all([
     supabase.from('paginas').select('*, funis(id, id_funil, nome, tipo), produtos(id, nome), checklists_publicacao(id, checklist_itens(id, concluido, nao_se_aplica))').order('codigo').order('nome'),
-    supabase.from('funis').select('id, id_funil, nome, tipo, status, produto_id, produtos(especialista_id)').order('nome'),
+    supabase.from('funis').select('id, id_funil, nome, tipo, status, produto_id, especialista_id, produtos(especialista_id)').order('nome'),
     supabase.from('especialistas').select('id, nome, ativo').eq('ativo', true).order('nome'),
     supabase.from('configuracoes').select('*').eq('ativo', true).order('categoria').order('ordem'),
     supabase.from('estrategias').select('*').order('funil_id').order('ordem'),

@@ -34,7 +34,7 @@ export default async function DashboardPage({
     { data: paginasImpl },
   ] = await Promise.all([
     supabase.from('paginas').select('id, nome, status, data_prevista, data_publicacao, funil_id, atualizado_em, horas_estimadas, horas_reais'),
-    supabase.from('funis').select('id, status, produto_id, produtos(especialista_id, especialistas(id, nome))'),
+    supabase.from('funis').select('id, status, produto_id, especialista_id, produtos(especialista_id, especialistas(id, nome))'),
     supabase.from('especialistas').select('id, nome').eq('ativo', true).order('nome'),
     supabase.from('configuracoes').select('valor, cor').eq('categoria', 'status_pagina').eq('ativo', true).order('ordem'),
     supabase.from('paginas').select('id, funil_id, checklists_publicacao(checklist_itens(concluido))').eq('status', 'Implementada'),
@@ -43,7 +43,8 @@ export default async function DashboardPage({
   const funisVisiveis = espFiltro
     ? (todosFunis ?? []).filter((f: Record<string, unknown>) => {
         const prod = f.produtos as Record<string, unknown> | null
-        return prod?.especialista_id === espFiltro
+        const espId = (f.especialista_id as string | null) ?? (prod?.especialista_id as string | undefined)
+        return espId === espFiltro
       })
     : (todosFunis ?? [])
 
@@ -134,7 +135,8 @@ export default async function DashboardPage({
   const porEspecialista = espFiltrados.map(esp => {
     const funisEsp = funisVisiveis.filter((fn: Record<string, unknown>) => {
       const prod = fn.produtos as Record<string, unknown> | null
-      return prod?.especialista_id === esp.id
+      const espId = (fn.especialista_id as string | null) ?? (prod?.especialista_id as string | undefined)
+      return espId === esp.id
     })
     const ids = funisEsp.map((fn: Record<string, unknown>) => fn.id as string)
     const paginasEsp = (todasPaginas ?? []).filter(pg => ids.includes(pg.funil_id))

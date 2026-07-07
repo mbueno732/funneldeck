@@ -21,6 +21,7 @@ interface Props {
 export function ModalDuplicarFunil({ aberto, onFechar, onSalvo, funil, produtos, especialistas }: Props) {
   const [nome, setNome] = useState('')
   const [codigo, setCodigo] = useState('')
+  const [especialistaId, setEspecialistaId] = useState('')
   const [produtoId, setProdutoId] = useState('')
   const [incluirPaginas, setIncluirPaginas] = useState(true)
   const [salvando, setSalvando] = useState(false)
@@ -31,10 +32,16 @@ export function ModalDuplicarFunil({ aberto, onFechar, onSalvo, funil, produtos,
       setNome(funil.nome ? `Cópia de ${funil.nome}` : '')
       setCodigo(funil.id_funil ?? '')
       setProdutoId(funil.produto_id ?? '')
+      // Especialista: direto do funil, ou derivado do produto vinculado
+      setEspecialistaId(funil.especialista_id ?? produtos.find(p => p.id === funil.produto_id)?.especialista_id ?? '')
       setIncluirPaginas(true)
       setErro('')
     }
-  }, [funil, aberto])
+  }, [funil, aberto, produtos])
+
+  const produtosFiltrados = especialistaId
+    ? produtos.filter(p => p.especialista_id === especialistaId)
+    : produtos
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -46,7 +53,8 @@ export function ModalDuplicarFunil({ aberto, onFechar, onSalvo, funil, produtos,
         nome: nome.trim(),
         id_funil: codigo.trim() || undefined,
         incluir_paginas: incluirPaginas,
-        produto_id: produtoId || undefined,
+        produto_id: produtoId || null,
+        especialista_id: especialistaId || null,
       })
       onSalvo()
       onFechar()
@@ -75,11 +83,13 @@ export function ModalDuplicarFunil({ aberto, onFechar, onSalvo, funil, produtos,
             {funil.id_funil && <span className="text-indigo-400 font-mono mr-2">[{funil.id_funil}]</span>}
             {funil.nome}
           </p>
-          {funil.produtos && (funil.produtos as { especialistas?: { nome: string } }).especialistas?.nome && (
-            <p className="text-xs text-gray-500 mt-0.5">
-              {(funil.produtos as { especialistas?: { nome: string } }).especialistas?.nome}
-            </p>
-          )}
+          {(() => {
+            const espOrigemNome = especialistas.find(e => e.id === funil.especialista_id)?.nome
+              ?? (funil.produtos as { especialistas?: { nome: string } } | undefined)?.especialistas?.nome
+            return espOrigemNome && (
+              <p className="text-xs text-gray-500 mt-0.5">{espOrigemNome}</p>
+            )
+          })()}
         </div>
 
         <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Novo funil</p>
@@ -109,6 +119,19 @@ export function ModalDuplicarFunil({ aberto, onFechar, onSalvo, funil, produtos,
           </div>
 
           <div className="space-y-1.5">
+            <Label className="text-gray-400 text-xs">Especialista</Label>
+            <Select value={especialistaId || '__none__'} onValueChange={v => { setEspecialistaId(v === '__none__' ? '' : v); setProdutoId('') }}>
+              <SelectTrigger className="w-full bg-gray-900 border-gray-800 text-white focus:ring-0 focus:ring-offset-0 h-10">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-gray-900 border-gray-800">
+                <SelectItem value="__none__" className="text-gray-300 focus:bg-gray-800 focus:text-white">Sem especialista</SelectItem>
+                {especialistas.map(e => <SelectItem key={e.id} value={e.id} className="text-gray-300 focus:bg-gray-800 focus:text-white">{e.nome}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-1.5">
             <Label className="text-gray-400 text-xs">Produto <span className="text-gray-600">(opcional)</span></Label>
             <Select value={produtoId || '__none__'} onValueChange={v => setProdutoId(v === '__none__' ? '' : v)}>
               <SelectTrigger className="w-full bg-gray-900 border-gray-800 text-white focus:ring-0 focus:ring-offset-0 h-10">
@@ -116,16 +139,9 @@ export function ModalDuplicarFunil({ aberto, onFechar, onSalvo, funil, produtos,
               </SelectTrigger>
               <SelectContent className="bg-gray-900 border-gray-800">
                 <SelectItem value="__none__" className="text-gray-300 focus:bg-gray-800 focus:text-white">Sem produto vinculado</SelectItem>
-                {especialistas.flatMap(esp => {
-                  const prods = produtos.filter(p => p.especialista_id === esp.id && p.ativo)
-                  if (!prods.length) return []
-                  return [
-                    <SelectItem key={`esp-${esp.id}`} value={`__esp_${esp.id}`} disabled className="text-gray-500 text-xs font-semibold uppercase tracking-wide cursor-default">{esp.nome}</SelectItem>,
-                    ...prods.map(p => (
-                      <SelectItem key={p.id} value={p.id} className="text-gray-300 focus:bg-gray-800 focus:text-white pl-4">{p.nome}</SelectItem>
-                    ))
-                  ]
-                })}
+                {produtosFiltrados.map(p => (
+                  <SelectItem key={p.id} value={p.id} className="text-gray-300 focus:bg-gray-800 focus:text-white">{p.nome}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

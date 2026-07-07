@@ -135,7 +135,8 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
   const funilEspecialista = useMemo(() => {
     const map: Record<string, string> = {}
     funis.forEach(f => {
-      const esp = (f as unknown as { produtos?: { especialista_id?: string } }).produtos?.especialista_id
+      const funilTipado = f as unknown as { especialista_id?: string | null; produtos?: { especialista_id?: string } }
+      const esp = funilTipado.especialista_id ?? funilTipado.produtos?.especialista_id
       if (esp) map[f.id] = esp
     })
     return map
