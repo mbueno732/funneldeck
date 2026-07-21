@@ -436,7 +436,12 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
               </a>
             )}
             {p.tem_teste_ativo && (
-              <span title="Teste A/B ativo"><FlaskConical size={12} className="text-indigo-400 shrink-0" fill="currentColor" /></span>
+              <span
+                title="Teste A/B ativo"
+                className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-violet-500/20 border border-violet-500/40 shrink-0"
+              >
+                <FlaskConical size={10} className="text-violet-300" fill="currentColor" />
+              </span>
             )}
             {atrasada && <span title="Prazo vencido"><AlertTriangle size={12} className="text-red-400 shrink-0" /></span>}
           </div>
@@ -988,7 +993,12 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
                               </a>
                             )}
                             {p.tem_teste_ativo && (
-                              <span title="Teste A/B ativo" className="mt-0.5"><FlaskConical size={11} className="text-indigo-400 shrink-0" fill="currentColor" /></span>
+                              <span
+                                title="Teste A/B ativo"
+                                className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-violet-500/20 border border-violet-500/40 shrink-0 mt-0.5"
+                              >
+                                <FlaskConical size={9} className="text-violet-300" fill="currentColor" />
+                              </span>
                             )}
                             {p.pagina_atual && (
                               <span title="Em veiculação (a versão real usada nas campanhas hoje)" className="mt-0.5 inline-flex items-center gap-0.5 text-[10px] font-medium text-green-400 bg-green-500/10 border border-green-500/20 rounded-full px-1.5 py-0.5 shrink-0">
