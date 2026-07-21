@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import {
-  ChevronRight, Trophy, Brain, Lightbulb, ImageOff, Loader2, CheckCircle2, Rocket,
+  ChevronRight, Trophy, Brain, Lightbulb, ImageOff, Loader2, CheckCircle2, Rocket, AlertTriangle,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea'
 import {
   atualizarMetricasVariante, atualizarAprendizado, atualizarHipotese, declararVencedora, aplicarVencedor, desfazerVencedora,
 } from '@/lib/actions/testes-ab'
+import { confiancaZTest, classificarConfianca, MIN_CONVERSOES_CONFIAVEL, MIN_DIAS_RECOMENDADO } from '@/lib/estatistica'
 import type { TesteAB, VarianteTeste } from '@/lib/types'
 
 const STATUS_COR: Record<string, string> = {
@@ -48,6 +49,18 @@ function deltaPct(valor: number, base: number): string | null {
   const pct = ((valor - base) / base) * 100
   const sinal = pct >= 0 ? '+' : ''
   return `${sinal}${pct.toFixed(1)}%`
+}
+
+function diasDeTeste(dataInicio?: string | null, dataFim?: string | null): number | null {
+  if (!dataInicio) return null
+  const fim = dataFim ? new Date(dataFim) : new Date()
+  return Math.max(0, Math.round((fim.getTime() - new Date(dataInicio).getTime()) / 86400000))
+}
+
+const CONFIANCA_COR: Record<string, string> = {
+  'Alta': 'text-green-400',
+  'Média': 'text-amber-400',
+  'Baixa': 'text-gray-400',
 }
 
 interface Props {
@@ -394,6 +407,34 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
                         <p className="text-white font-semibold">{m.sessoes_checkout.toLocaleString('pt-BR')}</p>
                       </div>
                     </div>
+
+                    {!v.is_controle && controle && (() => {
+                      const confianca = confiancaZTest(taxaConversao(metricasControle ?? metricasDe(controle)), (metricasControle ?? metricasDe(controle)).sessoes, cr, m.sessoes)
+                      if (confianca === null) return null
+                      const classificacao = classificarConfianca(confianca)
+                      const dias = diasDeTeste(teste.data_inicio, teste.data_fim)
+                      const amostraPequena = m.conversoes < MIN_CONVERSOES_CONFIAVEL || (metricasControle?.conversoes ?? 0) < MIN_CONVERSOES_CONFIAVEL
+                      const testeCurto = dias !== null && dias < MIN_DIAS_RECOMENDADO
+                      return (
+                        <div className="mb-4 p-3 rounded-lg bg-gray-950 border border-gray-800">
+                          <p className="text-[10px] uppercase text-gray-600 mb-1">Confiança estatística (vs. Controle)</p>
+                          <p className={`font-semibold ${CONFIANCA_COR[classificacao]}`}>
+                            {confianca.toFixed(1)}% <span className="text-xs font-normal">({classificacao})</span>
+                          </p>
+                          {(amostraPequena || testeCurto) && (
+                            <p className="flex items-start gap-1.5 text-[11px] text-amber-500 mt-1.5">
+                              <AlertTriangle size={12} className="shrink-0 mt-0.5" />
+                              {amostraPequena && testeCurto
+                                ? `Amostra pequena (< ${MIN_CONVERSOES_CONFIAVEL} conversões) e teste roda há só ${dias}d — resultado ainda pode mudar.`
+                                : amostraPequena
+                                ? `Amostra pequena (< ${MIN_CONVERSOES_CONFIAVEL} conversões) — resultado ainda pode mudar.`
+                                : `Teste roda há só ${dias}d (recomendado ${MIN_DIAS_RECOMENDADO}d+) — cuidado com viés de dia da semana.`}
+                            </p>
+                          )}
+                        </div>
+                      )
+                    })()}
+
                     <div className="flex gap-2">
                       <Button variant="ghost" onClick={() => setEditando(v.id)} className="flex-1 text-gray-400 hover:text-white border border-gray-800">
                         Editar métricas
