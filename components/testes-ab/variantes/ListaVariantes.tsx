@@ -531,11 +531,18 @@ export function ListaVariantes({ testes: testesProp, funis }: Props) {
                           {(t.elemento_testado || angulosDoTeste.length > 0) && (
                             <div className="flex flex-wrap gap-1 mt-1.5">
                               {t.elemento_testado && (
-                                <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-gray-800 text-gray-300 border border-gray-700">{t.elemento_testado}</span>
+                                <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-gray-800 text-gray-300 border border-gray-700">
+                                  Testando: {t.elemento_testado}
+                                </span>
                               )}
-                              {angulosDoTeste.map(a => (
-                                <span key={a} className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">{a}</span>
-                              ))}
+                              {angulosDoTeste.length > 0 && (
+                                <>
+                                  {t.elemento_testado && <span className="text-gray-700 text-xs">·</span>}
+                                  {angulosDoTeste.map(a => (
+                                    <span key={a} className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">{a}</span>
+                                  ))}
+                                </>
+                              )}
                             </div>
                           )}
                         </td>
