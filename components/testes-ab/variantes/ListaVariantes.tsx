@@ -78,6 +78,12 @@ function formatarMoeda(v: number): string {
   return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })
 }
 
+function numeroSequencial(codigo?: string | null): string | null {
+  if (!codigo) return null
+  const seq = codigo.split('_')[0]
+  return seq ? `#${seq}` : null
+}
+
 function slugDaUrl(url?: string | null): string | null {
   if (!url) return null
   try {
@@ -496,12 +502,13 @@ export function ListaVariantes({ testes: testesProp, funis }: Props) {
             </div>
           ) : (
             <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-x-auto">
-              <table className="w-full text-left border-collapse min-w-[1440px]">
+              <table className="w-full text-left border-collapse min-w-[1560px]">
                 <thead>
                   <tr className="border-b border-gray-800 bg-gray-900/60 text-gray-400 text-xs uppercase tracking-wide">
                     <th className="w-8 px-2 py-3"></th>
                     <th className="px-4 py-3 font-medium">Experimento</th>
                     <th className="px-4 py-3 font-medium">Funil</th>
+                    <th className="px-4 py-3 font-medium">Campanha</th>
                     <th className="px-4 py-3 font-medium">Elemento</th>
                     <th className="px-4 py-3 font-medium">Ângulos da Hero</th>
                     <th className="px-4 py-3 font-medium">Layout</th>
@@ -517,7 +524,7 @@ export function ListaVariantes({ testes: testesProp, funis }: Props) {
                     <Fragment key={grupo.funilId}>
                       {usarAgrupamento && (
                         <tr className="bg-gray-900/60">
-                          <td colSpan={11} className="px-4 py-2">
+                          <td colSpan={12} className="px-4 py-2">
                             <button
                               type="button"
                               onClick={() => toggleGrupo(grupo.funilId)}
@@ -562,7 +569,7 @@ export function ListaVariantes({ testes: testesProp, funis }: Props) {
                             <Link href={`/variantes/${t.id}`} className="text-white font-medium hover:text-indigo-400 transition-colors">
                               {t.nome}
                             </Link>
-                            <span className="text-gray-600 text-xs font-mono">{t.codigo ?? '—'}</span>
+                            <span className="text-gray-600 text-xs font-mono">{numeroSequencial(t.codigo) ?? '—'}</span>
                           </div>
                         </td>
                         {/* Funil */}
@@ -572,6 +579,14 @@ export function ListaVariantes({ testes: testesProp, funis }: Props) {
                               {t.funis.id_funil && <span className="font-mono text-gray-500 mr-1">[{t.funis.id_funil}]</span>}
                               {t.funis.nome}
                             </span>
+                          ) : (
+                            <span className="text-gray-600 text-xs">—</span>
+                          )}
+                        </td>
+                        {/* Campanha */}
+                        <td className="px-4 py-3">
+                          {t.campanhas?.codigo ? (
+                            <span className="text-xs text-gray-300 whitespace-nowrap">{t.campanhas.codigo}</span>
                           ) : (
                             <span className="text-gray-600 text-xs">—</span>
                           )}
@@ -730,12 +745,11 @@ export function ListaVariantes({ testes: testesProp, funis }: Props) {
                       {expandido && (
                         <tr className="bg-black/20">
                           <td></td>
-                          <td colSpan={10} className="px-4 py-3">
+                          <td colSpan={11} className="px-4 py-3">
                             <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-gray-400 mb-3 pb-3 border-b border-gray-800/60">
                               <span><span className="text-gray-600">Início:</span> {inicio ?? '—'}</span>
                               <span><span className="text-gray-600">Especialista:</span> {t.especialistas?.nome ?? '—'}</span>
                               <span><span className="text-gray-600">Responsável:</span> {t.responsavel ?? '—'}</span>
-                              <span><span className="text-gray-600">Campanha:</span> {t.campanhas?.codigo ?? '—'}</span>
                             </div>
                             <p className="text-[11px] text-gray-500 uppercase tracking-wide mb-2">Métricas por variante</p>
                             <div className="divide-y divide-gray-800/60">
