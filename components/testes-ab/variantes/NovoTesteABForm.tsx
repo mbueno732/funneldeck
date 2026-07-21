@@ -80,6 +80,22 @@ function hoje(): string {
   return new Date().toISOString().split('T')[0]
 }
 
+// URL de ativação do teste: URL de qualquer variante sem o último segmento do
+// path (a letra/versão, ex: /a, /a-v2) — é a URL "raiz" que o redirecionador
+// de split-test usa pra distribuir o tráfego entre as variantes.
+function urlAtivacaoDoTeste(variantes: { urlVariante: string }[]): string | null {
+  const primeira = variantes.find(v => v.urlVariante.trim())?.urlVariante
+  if (!primeira) return null
+  try {
+    const url = new URL(primeira)
+    const segmentos = url.pathname.split('/').filter(Boolean)
+    segmentos.pop()
+    return `${url.origin}${segmentos.length ? '/' + segmentos.join('/') : ''}`
+  } catch {
+    return null
+  }
+}
+
 function ehArquivoHtml(url: string): boolean {
   return /\.html?($|\?)/i.test(url)
 }
@@ -246,6 +262,7 @@ export function NovoTesteABForm({
     testesExistentes.filter(t => t.funil_id === funilId && (t.segmento ?? '') === segmento).length + 1
   ).padStart(3, '0')
   const codigoPreview = [sequencialPreview, segmento, novaCampanhaCodigo.trim() || campanhaSelecionada?.codigo].filter(Boolean).join('_')
+  const urlAtivacaoPreview = urlAtivacaoDoTeste(variantes)
 
   async function finalizar(status: 'Planejado' | 'Ativo') {
     setSalvando(status === 'Ativo' ? 'ativo' : 'planejado')
@@ -870,6 +887,12 @@ export function NovoTesteABForm({
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3 text-sm mb-6">
               <p className="text-gray-500">Código do teste <span className="text-gray-300 font-mono">{codigoPreview}</span> <span className="text-gray-600 text-xs">(número definido ao salvar)</span></p>
+              <p className="text-gray-500">
+                URL de ativação{' '}
+                {urlAtivacaoPreview
+                  ? <span className="text-gray-300 font-mono text-xs break-all">{urlAtivacaoPreview}</span>
+                  : <span className="text-gray-300">—</span>}
+              </p>
               <p className="text-gray-500">Nome <span className="text-gray-300">{nome || '—'}</span></p>
               <p className="text-gray-500">Funil <span className="text-gray-300">{funilSelecionado?.nome ?? '—'}</span></p>
               <p className="text-gray-500">Tipo <span className="text-gray-300">{tipoTeste === 'aquisicao' ? 'Aquisição' : 'Vendas'}</span></p>

@@ -10,7 +10,7 @@ export async function listarTestesAB(): Promise<TesteAB[]> {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('testes_ab')
-    .select('*, funis(id, id_funil, nome), paginas(id, nome, codigo, etapa), campanhas(id, codigo), especialistas(id, nome), variantes_teste(id, nome, is_controle, is_vencedor, sessoes, conversoes, receita, sessoes_checkout, url_variante, layout)')
+    .select('*, funis(id, id_funil, nome), paginas(id, nome, codigo, etapa), campanhas(id, codigo), especialistas(id, nome), variantes_teste(id, nome, is_controle, is_vencedor, sessoes, conversoes, receita, sessoes_checkout, url_variante, layout, headline, subheadline, url_preview, screenshot_url)')
     .order('criado_em', { ascending: false })
     .order('nome', { foreignTable: 'variantes_teste', ascending: true })
   if (error) throw error
@@ -440,11 +440,32 @@ export async function declararVencedora(
 
   const { error: errTeste } = await supabase
     .from('testes_ab')
-    .update({ status: 'Finalizado', data_fim: new Date().toISOString().split('T')[0] })
+    .update({ status: 'Finalizado', data_fim: new Date().toISOString().split('T')[0], resultado_final: 'vencedora' })
     .eq('id', testeId)
   if (errTeste) return { ok: false, erro: errTeste.message }
 
   await registrarAuditoria('testes_ab', testeId, 'declarar_vencedora', { variante_id: varianteId })
+  revalidatePath(`/variantes/${testeId}`)
+  revalidatePath('/variantes')
+  return { ok: true }
+}
+
+export async function encerrarSemVencedor(testeId: string): Promise<{ ok: boolean; erro?: string }> {
+  const supabase = await createClient()
+
+  const { error: errReset } = await supabase
+    .from('variantes_teste')
+    .update({ is_vencedor: false })
+    .eq('teste_id', testeId)
+  if (errReset) return { ok: false, erro: errReset.message }
+
+  const { error: errTeste } = await supabase
+    .from('testes_ab')
+    .update({ status: 'Finalizado', data_fim: new Date().toISOString().split('T')[0], resultado_final: 'sem_vencedor' })
+    .eq('id', testeId)
+  if (errTeste) return { ok: false, erro: errTeste.message }
+
+  await registrarAuditoria('testes_ab', testeId, 'encerrar_sem_vencedor')
   revalidatePath(`/variantes/${testeId}`)
   revalidatePath('/variantes')
   return { ok: true }
@@ -461,7 +482,7 @@ export async function desfazerVencedora(testeId: string): Promise<{ ok: boolean;
 
   const { error: errTeste } = await supabase
     .from('testes_ab')
-    .update({ status: 'Ativo', data_fim: null })
+    .update({ status: 'Ativo', data_fim: null, resultado_final: null })
     .eq('id', testeId)
   if (errTeste) return { ok: false, erro: errTeste.message }
 

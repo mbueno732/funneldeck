@@ -2,7 +2,10 @@
 import { Fragment, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Plus, FlaskConical, Trophy, Search, ChevronDown, ChevronRight, ChevronUp, ChevronsUpDown, Check, Info, Trash2, Pencil, Copy, Layers, Download } from 'lucide-react'
+import {
+  Plus, FlaskConical, Trophy, Search, ChevronDown, ChevronRight, ChevronUp, ChevronsUpDown, Check, Info,
+  Trash2, Pencil, Copy, Layers, Download, ZoomIn, FileCode2, X, ExternalLink,
+} from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { atualizarMetricasVariante, deletarTesteAB, duplicarTesteAB } from '@/lib/actions/testes-ab'
 import type { TesteAB, Funil } from '@/lib/types'
@@ -88,6 +91,37 @@ function numeroSequencial(codigo?: string | null): string | null {
   if (!codigo) return null
   const seq = codigo.split('_')[0]
   return seq ? `#${seq}` : null
+}
+
+function ehArquivoHtml(url: string): boolean {
+  return /\.html?($|\?)/i.test(url)
+}
+
+async function abrirReferenciaHtml(url: string) {
+  try {
+    const resp = await fetch(url)
+    const texto = await resp.text()
+    const blobUrl = URL.createObjectURL(new Blob([texto], { type: 'text/html' }))
+    window.open(blobUrl, '_blank')
+  } catch {
+    window.open(url, '_blank')
+  }
+}
+
+// URL de ativação do teste: URL da variante sem o último segmento do path
+// (que é a letra/versão da variante, ex: /a, /a-v2) — é a URL "raiz" que o
+// redirecionador de split-test usa pra distribuir o tráfego entre variantes.
+function urlAtivacaoDoTeste(variantes: { url_variante?: string | null }[]): string | null {
+  const primeira = variantes.find(v => v.url_variante)?.url_variante
+  if (!primeira) return null
+  try {
+    const url = new URL(primeira)
+    const segmentos = url.pathname.split('/').filter(Boolean)
+    segmentos.pop()
+    return `${url.origin}${segmentos.length ? '/' + segmentos.join('/') : ''}`
+  } catch {
+    return null
+  }
 }
 
 function slugDaUrl(url?: string | null): string | null {
@@ -257,6 +291,7 @@ export function ListaVariantes({ testes: testesProp, funis }: Props) {
 
   const [tipoAtivo, setTipoAtivo] = useState<'todos' | 'aquisicao' | 'vendas'>('todos')
   const [expandidos, setExpandidos] = useState<Set<string>>(new Set())
+  const [imagemAmpliada, setImagemAmpliada] = useState<string | null>(null)
   const [busca, setBusca] = useState('')
   const [filtroFunil, setFiltroFunil] = useState('__all__')
   const [filtroStatus, setFiltroStatus] = useState('__all__')
@@ -668,6 +703,7 @@ export function ListaVariantes({ testes: testesProp, funis }: Props) {
                     const lider = !vencedora ? liderAtual(t) : null
                     const angulosDoTeste = t.angulos ?? []
                     const layoutResumo = resumoLayout(t.variantes_teste ?? [])
+                    const urlAtivacao = urlAtivacaoDoTeste(t.variantes_teste ?? [])
                     const expandido = expandidos.has(t.id)
                     return (
                       <Fragment key={t.id}>
@@ -768,7 +804,11 @@ export function ListaVariantes({ testes: testesProp, funis }: Props) {
                         </td>
                         {/* Resultado: vencedora + lift */}
                         <td className="px-4 py-3">
-                          {vencedora ? (
+                          {t.resultado_final === 'sem_vencedor' ? (
+                            <Link href={`/variantes/${t.id}`} className="text-gray-400 hover:text-gray-300 text-xs transition-colors">
+                              Encerrado sem vencedor <span className="text-gray-600">(empate/inconclusivo)</span>
+                            </Link>
+                          ) : vencedora ? (
                             <span className="inline-flex items-center gap-1.5 text-green-400 text-xs font-medium">
                               <Trophy size={12} /> {vencedora.nome}
                               {lift !== null && cvr !== null && (
@@ -833,6 +873,17 @@ export function ListaVariantes({ testes: testesProp, funis }: Props) {
                             </div>
                           ) : (
                             <div className="flex items-center justify-end gap-2.5">
+                              {urlAtivacao && (
+                                <a
+                                  href={urlAtivacao}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-gray-600 hover:text-indigo-400 transition-colors"
+                                  title={`Acessar URL de ativação do teste (${urlAtivacao})`}
+                                >
+                                  <ExternalLink size={14} />
+                                </a>
+                              )}
                               <Link
                                 href={`/variantes/${t.id}/editar`}
                                 className="text-gray-600 hover:text-indigo-400 transition-colors"
@@ -869,6 +920,53 @@ export function ListaVariantes({ testes: testesProp, funis }: Props) {
                               <span><span className="text-gray-600">Início:</span> {inicio ?? '—'}</span>
                               <span><span className="text-gray-600">Especialista:</span> {t.especialistas?.nome ?? '—'}</span>
                               <span><span className="text-gray-600">Responsável:</span> {t.responsavel ?? '—'}</span>
+                            </div>
+                            <p className="text-[11px] text-gray-500 uppercase tracking-wide mb-2">Variantes</p>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 pb-4 border-b border-gray-800/60">
+                              {(t.variantes_teste ?? []).map(v => (
+                                <div key={v.id} className="flex gap-3 bg-gray-900/60 border border-gray-800 rounded-lg p-3">
+                                  {v.screenshot_url && ehArquivoHtml(v.screenshot_url) ? (
+                                    <button
+                                      type="button"
+                                      onClick={() => abrirReferenciaHtml(v.screenshot_url!)}
+                                      className="shrink-0 w-20 h-14 rounded border border-dashed border-gray-700 bg-gray-950 flex items-center justify-center text-indigo-400 hover:border-indigo-500/40 transition-colors"
+                                      title="Abrir referência HTML"
+                                    >
+                                      <FileCode2 size={16} />
+                                    </button>
+                                  ) : v.screenshot_url ? (
+                                    <button
+                                      type="button"
+                                      onClick={() => setImagemAmpliada(v.screenshot_url!)}
+                                      className="relative shrink-0 w-20 h-14 group"
+                                      title="Ampliar screenshot"
+                                    >
+                                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                                      <img src={v.screenshot_url} alt={nomeVariante(v)} className="w-full h-full object-cover rounded border border-gray-800" />
+                                      <span className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/40 rounded transition-colors">
+                                        <ZoomIn size={14} className="text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                                      </span>
+                                    </button>
+                                  ) : (
+                                    <div className="shrink-0 w-20 h-14 rounded border border-dashed border-gray-800 bg-gray-950" />
+                                  )}
+                                  <div className="min-w-0 flex-1">
+                                    <p className="text-xs text-gray-400 mb-0.5 flex items-center gap-1.5 flex-wrap">
+                                      {v.is_controle && <span className="text-gray-600">●</span>} {nomeVariante(v)}
+                                      {v.layout && <span className="text-[10px] text-gray-600">· {LAYOUT_LABEL[v.layout] ?? v.layout}</span>}
+                                    </p>
+                                    {v.headline ? (
+                                      <p className="text-sm text-white leading-snug truncate">{v.headline}</p>
+                                    ) : (
+                                      <p className="text-xs text-gray-600 italic">Sem headline registrada</p>
+                                    )}
+                                    {v.subheadline && <p className="text-xs text-gray-500 leading-snug truncate">{v.subheadline}</p>}
+                                    {v.url_preview && (
+                                      <a href={v.url_preview} target="_blank" rel="noreferrer" className="text-indigo-400 text-[11px] hover:underline">Preview ↗</a>
+                                    )}
+                                  </div>
+                                </div>
+                              ))}
                             </div>
                             <p className="text-[11px] text-gray-500 uppercase tracking-wide mb-2">Métricas por variante</p>
                             <div className="divide-y divide-gray-800/60">
@@ -907,6 +1005,29 @@ export function ListaVariantes({ testes: testesProp, funis }: Props) {
             </div>
           )}
         </>
+      )}
+
+      {imagemAmpliada && (
+        <div
+          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-6"
+          onClick={() => setImagemAmpliada(null)}
+        >
+          <button
+            type="button"
+            onClick={() => setImagemAmpliada(null)}
+            className="absolute top-5 right-5 p-2 bg-gray-900/80 hover:bg-gray-800 rounded-lg text-white transition-colors"
+            title="Fechar"
+          >
+            <X size={20} />
+          </button>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={imagemAmpliada}
+            alt="Screenshot ampliado"
+            className="max-w-[95vw] max-h-[95vh] object-contain rounded-lg"
+            onClick={e => e.stopPropagation()}
+          />
+        </div>
       )}
     </div>
   )

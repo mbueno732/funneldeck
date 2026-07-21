@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import {
   atualizarMetricasVariante, atualizarAprendizado, atualizarHipotese, declararVencedora, aplicarVencedor, desfazerVencedora,
+  encerrarSemVencedor,
 } from '@/lib/actions/testes-ab'
 import { confiancaZTest, classificarConfianca, MIN_CONVERSOES_CONFIAVEL, MIN_DIAS_RECOMENDADO } from '@/lib/estatistica'
 import type { TesteAB, VarianteTeste } from '@/lib/types'
@@ -99,6 +100,7 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
   const [salvandoHipotese, setSalvandoHipotese] = useState(false)
   const [declarando, setDeclarando] = useState<string | null>(null)
   const [desfazendo, setDesfazendo] = useState(false)
+  const [encerrando, setEncerrando] = useState(false)
   const [aplicando, setAplicando] = useState(false)
   const [erro, setErro] = useState('')
   const [imagemAmpliada, setImagemAmpliada] = useState<string | null>(null)
@@ -146,7 +148,22 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
     setTeste(t => ({
       ...t,
       status: 'Finalizado',
+      resultado_final: 'vencedora',
       variantes_teste: (t.variantes_teste ?? []).map(v => ({ ...v, is_vencedor: v.id === varianteId })),
+    }))
+  }
+
+  async function handleEncerrarSemVencedor() {
+    setEncerrando(true)
+    setErro('')
+    const res = await encerrarSemVencedor(teste.id)
+    setEncerrando(false)
+    if (!res.ok) { setErro(res.erro ?? 'Erro ao encerrar o teste.'); return }
+    setTeste(t => ({
+      ...t,
+      status: 'Finalizado',
+      resultado_final: 'sem_vencedor',
+      variantes_teste: (t.variantes_teste ?? []).map(v => ({ ...v, is_vencedor: false })),
     }))
   }
 
@@ -160,6 +177,7 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
       ...t,
       status: 'Ativo',
       data_fim: null,
+      resultado_final: null,
       variantes_teste: (t.variantes_teste ?? []).map(v => ({ ...v, is_vencedor: false })),
     }))
   }
@@ -189,6 +207,19 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
             <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium border ${STATUS_COR[teste.status] ?? 'bg-gray-800 text-gray-400 border-gray-700'}`}>
               {teste.status}
             </span>
+            {teste.resultado_final === 'sem_vencedor' && (
+              <span className="inline-flex items-center gap-1.5 text-[11px] font-medium bg-gray-800 text-gray-400 border border-gray-700 rounded-full px-2 py-0.5">
+                Sem vencedor (empate/inconclusivo)
+                <button
+                  type="button"
+                  onClick={handleDesfazerVencedora}
+                  disabled={desfazendo}
+                  className="underline decoration-dotted hover:text-red-400 disabled:opacity-40 transition-colors"
+                >
+                  {desfazendo ? 'Reabrindo...' : 'Reabrir'}
+                </button>
+              </span>
+            )}
           </div>
           <h2 className="text-2xl font-bold text-white">{teste.nome}</h2>
           {teste.funis?.nome && (
@@ -234,16 +265,29 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
           )}
         </div>
 
-        {vencedora && teste.status !== 'Vencedor implementado' && (
-          <Button
-            onClick={handleAplicarVencedor}
-            disabled={aplicando}
-            className="bg-green-600 hover:bg-green-500 text-white shrink-0 disabled:opacity-40"
-          >
-            {aplicando ? <Loader2 size={16} className="animate-spin mr-2" /> : <Trophy size={16} className="mr-2" />}
-            Aplicar Vencedor
-          </Button>
-        )}
+        <div className="flex items-center gap-2 shrink-0">
+          {teste.status === 'Ativo' && !vencedora && (
+            <Button
+              variant="ghost"
+              onClick={handleEncerrarSemVencedor}
+              disabled={encerrando}
+              className="text-gray-400 hover:text-white border border-gray-800 disabled:opacity-40"
+            >
+              {encerrando ? <Loader2 size={16} className="animate-spin mr-2" /> : null}
+              Encerrar sem vencedor
+            </Button>
+          )}
+          {vencedora && teste.status !== 'Vencedor implementado' && (
+            <Button
+              onClick={handleAplicarVencedor}
+              disabled={aplicando}
+              className="bg-green-600 hover:bg-green-500 text-white disabled:opacity-40"
+            >
+              {aplicando ? <Loader2 size={16} className="animate-spin mr-2" /> : <Trophy size={16} className="mr-2" />}
+              Aplicar Vencedor
+            </Button>
+          )}
+        </div>
       </div>
 
       <div className="space-y-6">

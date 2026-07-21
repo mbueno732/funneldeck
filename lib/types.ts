@@ -213,6 +213,7 @@ export interface TesteAB {
   data_inicio?: string | null
   data_fim?: string | null
   resultado?: string | null
+  resultado_final?: 'vencedora' | 'sem_vencedor' | null
   pagina_id?: string | null
   campanha_id?: string | null
   segmento?: string | null
