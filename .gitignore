@@ -31,6 +31,10 @@ yarn-error.log*
 # vercel
 .vercel
 
+# referências de design (exports do Stitch, não é código do produto)
+/stitch-exports/*
+!/stitch-exports/README.md
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
