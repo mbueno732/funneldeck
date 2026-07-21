@@ -227,8 +227,13 @@ function LinhaMetricasVariante({
     )
   }
 
+  const cvrGeral = taxaConversao(valores.sessoes, valores.conversoes)
+  const cvrCheckout = taxaConversao(valores.sessoes, valores.sessoes_checkout)
+  const cvrFechamento = taxaConversao(valores.sessoes_checkout, valores.conversoes)
+
   return (
-    <div className={`grid ${mostrarVendas ? 'grid-cols-6' : 'grid-cols-4'} gap-3 items-end py-2`}>
+    <div className="py-2">
+    <div className={`grid ${mostrarVendas ? 'grid-cols-6' : 'grid-cols-4'} gap-3 items-end`}>
       <div>
         <p className="text-xs text-gray-500 mb-1 flex items-center gap-1">
           {variante.is_controle && <span className="text-gray-600">●</span>} {nomeVariante(variante)}
@@ -253,6 +258,24 @@ function LinhaMetricasVariante({
           <span className="flex items-center gap-1 text-xs text-green-400"><Check size={14} /> Salvo</span>
         )}
       </div>
+    </div>
+    {valores.sessoes > 0 && (
+      <div className="flex items-center gap-3 mt-1.5 text-[11px] text-gray-500">
+        <span>CVR Geral <span className="text-white font-medium">{cvrGeral.toFixed(1)}%</span></span>
+        {mostrarVendas && (
+          <>
+            <span className="text-gray-700">·</span>
+            <span>Sessão → Checkout <span className="text-gray-300 font-medium">{cvrCheckout.toFixed(1)}%</span></span>
+            {valores.sessoes_checkout > 0 && (
+              <>
+                <span className="text-gray-700">·</span>
+                <span>Checkout → Venda <span className="text-gray-300 font-medium">{cvrFechamento.toFixed(1)}%</span></span>
+              </>
+            )}
+          </>
+        )}
+      </div>
+    )}
     </div>
   )
 }
