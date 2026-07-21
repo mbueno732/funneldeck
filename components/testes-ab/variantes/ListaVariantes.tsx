@@ -473,12 +473,9 @@ export function ListaVariantes({ testes: testesProp, funis }: Props) {
                           <p className="text-gray-600 text-xs font-mono mt-0.5">{t.codigo ?? '—'}</p>
                           {angulosDoTeste.length > 0 && (
                             <div className="flex flex-wrap gap-1 mt-1.5">
-                              {angulosDoTeste.slice(0, 2).map(a => (
-                                <span key={a} className="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-800 text-gray-400 border border-gray-700">{a}</span>
+                              {angulosDoTeste.map(a => (
+                                <span key={a} className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">{a}</span>
                               ))}
-                              {angulosDoTeste.length > 2 && (
-                                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-800 text-gray-500 border border-gray-700">+{angulosDoTeste.length - 2}</span>
-                              )}
                             </div>
                           )}
                         </td>
