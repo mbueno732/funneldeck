@@ -538,6 +538,7 @@ export function ListaVariantes({ testes: testesProp, funis }: Props) {
                               {angulosDoTeste.length > 0 && (
                                 <>
                                   {t.elemento_testado && <span className="text-gray-700 text-xs">·</span>}
+                                  <span className="text-[10px] text-gray-500 uppercase tracking-wide self-center" title="Ângulos da Hero testados">Ângulos:</span>
                                   {angulosDoTeste.map(a => (
                                     <span key={a} className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">{a}</span>
                                   ))}
