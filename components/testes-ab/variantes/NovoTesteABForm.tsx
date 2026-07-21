@@ -5,7 +5,7 @@ import Link from 'next/link'
 import {
   ChevronRight, Info, Brain, Rocket, Trash2, Upload,
   PlusCircle, SplitSquareHorizontal, MousePointerClick, Loader2, ImageOff,
-  CheckCircle2, Circle, ClipboardCheck, FileCode2, ZoomIn, X,
+  CheckCircle2, Circle, ClipboardCheck, FileCode2, ZoomIn, X, AlertTriangle,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -43,6 +43,7 @@ interface Props {
   angulos: string[]
   elementosTestados: string[]
   testesExistentes: { funil_id: string; segmento: string | null }[]
+  paginasEmTesteAtivo?: { pagina_id: string; teste_id: string; teste_nome: string }[]
   testeParaEditar?: TesteAB
 }
 
@@ -96,11 +97,17 @@ async function abrirReferenciaHtml(url: string) {
 
 export function NovoTesteABForm({
   funis, metricasVendas, metricasAquisicao, paginas, especialistas, campanhas, segmentos, responsaveis, angulos,
-  elementosTestados, testesExistentes, testeParaEditar,
+  elementosTestados, testesExistentes, paginasEmTesteAtivo, testeParaEditar,
 }: Props) {
   const router = useRouter()
   const refs = useRef<Record<string, HTMLDivElement | null>>({})
   const modoEdicao = !!testeParaEditar
+
+  const paginasEmUsoMap = useMemo(() => {
+    const mapa = new Map<string, string>()
+    for (const p of paginasEmTesteAtivo ?? []) mapa.set(p.pagina_id, p.teste_nome)
+    return mapa
+  }, [paginasEmTesteAtivo])
 
   const [nome, setNome] = useState(testeParaEditar?.nome ?? '')
   const [funilId, setFunilId] = useState(testeParaEditar?.funil_id ?? '')
@@ -707,6 +714,12 @@ export function NovoTesteABForm({
                         </SelectContent>
                       </Select>
                     </div>
+                    {v.paginaId && paginasEmUsoMap.has(v.paginaId) && (
+                      <p className="flex items-start gap-1.5 text-amber-400 text-xs bg-amber-500/10 border border-amber-500/20 rounded-lg px-2.5 py-1.5">
+                        <AlertTriangle size={13} className="shrink-0 mt-0.5" />
+                        Esta página já está em uso no teste ativo &quot;{paginasEmUsoMap.get(v.paginaId)}&quot;.
+                      </p>
+                    )}
                     <div className="space-y-1.5">
                       <Label className="text-gray-500 text-xs">URL da Página *</Label>
                       <Input

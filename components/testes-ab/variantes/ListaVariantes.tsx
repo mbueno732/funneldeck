@@ -2,7 +2,7 @@
 import { Fragment, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Plus, FlaskConical, Trophy, Search, ChevronDown, ChevronRight, Check, Info, Trash2, Pencil, Copy, Layers } from 'lucide-react'
+import { Plus, FlaskConical, Trophy, Search, ChevronDown, ChevronRight, ChevronUp, ChevronsUpDown, Check, Info, Trash2, Pencil, Copy, Layers, Download } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { atualizarMetricasVariante, deletarTesteAB, duplicarTesteAB } from '@/lib/actions/testes-ab'
 import type { TesteAB, Funil } from '@/lib/types'
@@ -17,6 +17,12 @@ const STATUS_COR: Record<string, string> = {
   'Vencedor implementado': 'bg-green-500/10 text-green-400 border-green-500/20',
 }
 const STATUS_OPCOES = Object.keys(STATUS_COR)
+const STATUS_PRIORIDADE: Record<string, number> = {
+  'Ativo': 0,
+  'Planejado': 1,
+  'Finalizado': 2,
+  'Vencedor implementado': 3,
+}
 
 const TIPO_LABEL: Record<string, string> = { vendas: 'Vendas', aquisicao: 'Aquisição' }
 const TIPO_COR: Record<string, string> = {
@@ -276,7 +282,7 @@ export function ListaVariantes({ testes: testesProp, funis }: Props) {
     [testes, tipoAtivo]
   )
 
-  const filtrados = useMemo(() => testesPorTipo.filter(t => {
+  const filtradosBase = useMemo(() => testesPorTipo.filter(t => {
     if (busca.trim()) {
       const alvo = `${t.nome} ${t.codigo ?? ''}`.toLowerCase()
       if (!alvo.includes(busca.trim().toLowerCase())) return false
@@ -301,9 +307,49 @@ export function ListaVariantes({ testes: testesProp, funis }: Props) {
     filtroCampanha, filtroResponsavel, filtroElemento, filtroAngulo, filtroLayout, filtroPeriodo,
   ])
 
+  type CampoOrdenacao = 'nome' | 'status' | 'resultado'
+  const [ordenacao, setOrdenacao] = useState<{ campo: CampoOrdenacao; direcao: 'asc' | 'desc' } | null>(null)
+
+  function valorOrdenacao(t: TesteAB, campo: CampoOrdenacao): string | number | null {
+    switch (campo) {
+      case 'nome': return t.nome.toLowerCase()
+      case 'status': return STATUS_PRIORIDADE[t.status] ?? 99
+      case 'resultado': return liftDaVencedora(t) ?? liderAtual(t)?.lift ?? null
+    }
+  }
+
+  function direcaoPadrao(campo: CampoOrdenacao): 'asc' | 'desc' {
+    return campo === 'resultado' ? 'desc' : 'asc'
+  }
+
+  function toggleOrdenacao(campo: CampoOrdenacao) {
+    setOrdenacao(prev => {
+      if (!prev || prev.campo !== campo) return { campo, direcao: direcaoPadrao(campo) }
+      if (prev.direcao === direcaoPadrao(campo)) return { campo, direcao: direcaoPadrao(campo) === 'asc' ? 'desc' : 'asc' }
+      return null
+    })
+  }
+
+  const filtrados = useMemo(() => {
+    if (!ordenacao) return filtradosBase
+    const { campo, direcao } = ordenacao
+    const comValor: TesteAB[] = []
+    const semValor: TesteAB[] = []
+    for (const t of filtradosBase) {
+      (valorOrdenacao(t, campo) === null ? semValor : comValor).push(t)
+    }
+    comValor.sort((a, b) => {
+      const va = valorOrdenacao(a, campo) as string | number
+      const vb = valorOrdenacao(b, campo) as string | number
+      const cmp = typeof va === 'string' ? va.localeCompare(vb as string) : (va as number) - (vb as number)
+      return direcao === 'asc' ? cmp : -cmp
+    })
+    return [...comValor, ...semValor]
+  }, [filtradosBase, ordenacao])
+
   const ITENS_POR_PAGINA = 30
   const [paginaAtual, setPaginaAtual] = useState(1)
-  useEffect(() => setPaginaAtual(1), [tipoAtivo, busca, filtroFunil, filtroStatus, filtroEspecialista, filtroSegmento, filtroCampanha, filtroResponsavel, filtroElemento, filtroAngulo, filtroLayout, filtroPeriodo])
+  useEffect(() => setPaginaAtual(1), [tipoAtivo, busca, filtroFunil, filtroStatus, filtroEspecialista, filtroSegmento, filtroCampanha, filtroResponsavel, filtroElemento, filtroAngulo, filtroLayout, filtroPeriodo, ordenacao])
 
   const visiveis = useMemo(() => filtrados.slice(0, paginaAtual * ITENS_POR_PAGINA), [filtrados, paginaAtual])
 
@@ -356,6 +402,69 @@ export function ListaVariantes({ testes: testesProp, funis }: Props) {
     })
   }
 
+  function ThOrdenavel({ campo, children }: { campo: CampoOrdenacao; children: React.ReactNode }) {
+    const ativo = ordenacao?.campo === campo
+    return (
+      <th className="px-4 py-3 font-medium">
+        <button
+          type="button"
+          onClick={() => toggleOrdenacao(campo)}
+          className={`flex items-center gap-1 transition-colors ${ativo ? 'text-white' : 'hover:text-white'}`}
+        >
+          {children}
+          {ativo
+            ? (ordenacao!.direcao === 'asc' ? <ChevronUp size={12} className="text-indigo-400" /> : <ChevronDown size={12} className="text-indigo-400" />)
+            : <ChevronsUpDown size={12} className="text-gray-700" />}
+        </button>
+      </th>
+    )
+  }
+
+  function exportarCSV() {
+    const cabecalho = [
+      'Nome', 'Código', 'Funil', 'Campanha', 'Elemento', 'Ângulos', 'Layout', 'Tipo', 'Segmento',
+      'Status', 'Início', 'Dias rodando', 'CVR Controle (%)', 'Resultado', 'Lift (%)', 'RPV',
+      'Especialista', 'Responsável',
+    ]
+    const linhas = filtrados.map(t => {
+      const lift = liftDaVencedora(t)
+      const rpv = rpvDe(t)
+      const cvr = cvrControle(t)
+      const vencedora = t.variantes_teste?.find(v => v.is_vencedor)
+      const lider = !vencedora ? liderAtual(t) : null
+      const dias = diasEntre(t.data_inicio, t.data_fim)
+      return [
+        t.nome,
+        t.codigo ?? '',
+        t.funis?.nome ?? '',
+        t.campanhas?.codigo ?? '',
+        t.elemento_testado ?? '',
+        (t.angulos ?? []).join('; '),
+        resumoLayout(t.variantes_teste ?? []) ?? '',
+        t.tipo_teste ? (TIPO_LABEL[t.tipo_teste] ?? t.tipo_teste) : '',
+        t.segmento ?? '',
+        t.status,
+        formatarData(t.data_inicio) ?? '',
+        dias !== null ? String(dias) : '',
+        cvr !== null ? cvr.toFixed(1) : '',
+        vencedora ? `Vencedora: ${vencedora.nome}` : lider ? `Líder: ${lider.variante.nome}` : '',
+        lift !== null ? lift.toFixed(1) : lider ? lider.lift.toFixed(1) : '',
+        rpv !== null ? rpv.toFixed(2) : '',
+        t.especialistas?.nome ?? '',
+        t.responsavel ?? '',
+      ]
+    })
+    const escapar = (v: string) => `"${v.replace(/"/g, '""')}"`
+    const csv = [cabecalho, ...linhas].map(linha => linha.map(escapar).join(',')).join('\r\n')
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `experimentos_${new Date().toISOString().split('T')[0]}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
@@ -363,11 +472,21 @@ export function ListaVariantes({ testes: testesProp, funis }: Props) {
           <h1 className="text-2xl font-bold text-white">Experimentos</h1>
           <p className="text-gray-500 text-sm mt-0.5">{testes.length} experimento{testes.length !== 1 ? 's' : ''}</p>
         </div>
-        <Link href="/variantes/novo">
-          <button className="bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
-            <Plus size={16} /> Novo experimento
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={exportarCSV}
+            className="bg-gray-900 border border-gray-800 hover:border-gray-700 text-gray-300 hover:text-white text-sm font-medium px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+            title="Exporta os experimentos filtrados na tela"
+          >
+            <Download size={16} /> Exportar CSV
           </button>
-        </Link>
+          <Link href="/variantes/novo">
+            <button className="bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
+              <Plus size={16} /> Novo experimento
+            </button>
+          </Link>
+        </div>
       </div>
 
       {testes.length === 0 ? (
@@ -506,15 +625,15 @@ export function ListaVariantes({ testes: testesProp, funis }: Props) {
                 <thead>
                   <tr className="border-b border-gray-800 bg-gray-900/60 text-gray-400 text-xs uppercase tracking-wide">
                     <th className="w-8 px-2 py-3"></th>
-                    <th className="px-4 py-3 font-medium">Experimento</th>
+                    <ThOrdenavel campo="nome">Experimento</ThOrdenavel>
                     <th className="px-4 py-3 font-medium">Funil</th>
                     <th className="px-4 py-3 font-medium">Campanha</th>
                     <th className="px-4 py-3 font-medium">Elemento</th>
                     <th className="px-4 py-3 font-medium">Ângulos da Hero</th>
                     <th className="px-4 py-3 font-medium">Layout</th>
                     <th className="px-4 py-3 font-medium">Segmentação</th>
-                    <th className="px-4 py-3 font-medium">Status</th>
-                    <th className="px-4 py-3 font-medium">Resultado</th>
+                    <ThOrdenavel campo="status">Status</ThOrdenavel>
+                    <ThOrdenavel campo="resultado">Resultado</ThOrdenavel>
                     <th className="px-4 py-3 font-medium text-right">Métrica / RPV</th>
                     <th className="px-4 py-3 font-medium text-right">Ações</th>
                   </tr>

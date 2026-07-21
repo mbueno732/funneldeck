@@ -17,6 +17,7 @@ export default async function NovoTesteABPage() {
     { data: configsAngulo },
     { data: configsElemento },
     { data: testesExistentes },
+    { data: variantesEmTesteAtivo },
   ] = await Promise.all([
     supabase.from('funis').select('id, id_funil, nome, objetivo, especialista_id, produtos(especialista_id)').order('nome'),
     supabase.from('configuracoes').select('valor').eq('categoria', 'metrica_teste').eq('ativo', true).order('ordem'),
@@ -29,7 +30,16 @@ export default async function NovoTesteABPage() {
     supabase.from('configuracoes').select('valor').eq('categoria', 'angulo_hero').eq('ativo', true).order('ordem'),
     supabase.from('configuracoes').select('valor').eq('categoria', 'elemento_testado').eq('ativo', true).order('ordem'),
     supabase.from('testes_ab').select('funil_id, segmento'),
+    supabase.from('variantes_teste').select('pagina_id, teste_id, testes_ab!inner(nome, status)').eq('testes_ab.status', 'Ativo'),
   ])
+
+  const paginasEmTesteAtivo = (variantesEmTesteAtivo ?? [])
+    .filter(v => v.pagina_id)
+    .map(v => ({
+      pagina_id: v.pagina_id as string,
+      teste_id: v.teste_id,
+      teste_nome: (v.testes_ab as unknown as { nome: string }).nome,
+    }))
 
   return (
     <NovoTesteABForm
@@ -44,6 +54,7 @@ export default async function NovoTesteABPage() {
       angulos={(configsAngulo ?? []).map(c => c.valor)}
       elementosTestados={(configsElemento ?? []).map(c => c.valor)}
       testesExistentes={testesExistentes ?? []}
+      paginasEmTesteAtivo={paginasEmTesteAtivo}
     />
   )
 }
