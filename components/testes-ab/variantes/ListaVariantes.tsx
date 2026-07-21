@@ -89,6 +89,16 @@ function slugDaUrl(url?: string | null): string | null {
   }
 }
 
+const LAYOUT_LABEL: Record<string, string> = { curto: 'Curto', longo: 'Longo' }
+
+function resumoLayout(variantes: { nome: string; layout?: string | null }[]): string | null {
+  const comLayout = variantes.filter(v => v.layout)
+  if (comLayout.length === 0) return null
+  const valores = new Set(comLayout.map(v => v.layout))
+  if (valores.size === 1) return LAYOUT_LABEL[comLayout[0].layout as string] ?? comLayout[0].layout ?? null
+  return comLayout.map(v => `${v.nome.match(/([A-Za-z])$/)?.[1] ?? v.nome}: ${LAYOUT_LABEL[v.layout as string] ?? v.layout}`).join(' · ')
+}
+
 function nomeVariante(v: { nome: string; is_controle: boolean; url_variante?: string | null }): string {
   const base = v.is_controle ? `Controle (${v.nome.match(/([A-Za-z])$/)?.[1] ?? 'A'})` : v.nome
   const slug = slugDaUrl(v.url_variante)
@@ -517,6 +527,7 @@ export function ListaVariantes({ testes: testesProp, funis }: Props) {
                     const vencedora = t.variantes_teste?.find(v => v.is_vencedor)
                     const lider = !vencedora ? liderAtual(t) : null
                     const angulosDoTeste = t.angulos ?? []
+                    const layoutResumo = resumoLayout(t.variantes_teste ?? [])
                     const expandido = expandidos.has(t.id)
                     return (
                       <Fragment key={t.id}>
@@ -539,23 +550,25 @@ export function ListaVariantes({ testes: testesProp, funis }: Props) {
                             </Link>
                             <span className="text-gray-600 text-xs font-mono">{t.codigo ?? '—'}</span>
                           </div>
-                          {(t.elemento_testado || angulosDoTeste.length > 0) && (
-                            <div className="flex flex-wrap gap-1 mt-1.5">
-                              {t.elemento_testado && (
-                                <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-gray-800 text-gray-300 border border-gray-700">
-                                  Testando: {t.elemento_testado}
-                                </span>
-                              )}
-                              {angulosDoTeste.length > 0 && (
-                                <>
-                                  {t.elemento_testado && <span className="text-gray-700 text-xs">·</span>}
-                                  <span className="text-[10px] text-gray-500 uppercase tracking-wide self-center" title="Ângulos da Hero testados">Ângulos:</span>
-                                  {angulosDoTeste.map(a => (
-                                    <span key={a} className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">{a}</span>
-                                  ))}
-                                </>
-                              )}
+                          {t.elemento_testado && (
+                            <div className="flex flex-wrap items-center gap-1 mt-1.5">
+                              <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-gray-800 text-gray-300 border border-gray-700">
+                                Testando: {t.elemento_testado}
+                              </span>
                             </div>
+                          )}
+                          {angulosDoTeste.length > 0 && (
+                            <div className="flex flex-wrap items-center gap-1 mt-1">
+                              <span className="text-[10px] text-gray-500 uppercase tracking-wide" title="Ângulos da Hero testados — só se aplica quando o elemento testado envolve a Hero">Ângulos da Hero:</span>
+                              {angulosDoTeste.map(a => (
+                                <span key={a} className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">{a}</span>
+                              ))}
+                            </div>
+                          )}
+                          {layoutResumo && (
+                            <p className="text-[10px] text-gray-500 mt-1">
+                              <span className="uppercase tracking-wide">Layout:</span> <span className="text-gray-400">{layoutResumo}</span>
+                            </p>
                           )}
                         </td>
                         {/* Segmentação: tipo + segmento */}
