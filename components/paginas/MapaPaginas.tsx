@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ModalPagina } from './ModalPagina'
 import { ModalVariante } from './ModalVariante'
 import { PainelChecklist } from './PainelChecklist'
-import { atualizarPagina, deletarPagina, duplicarPagina, marcarPaginaAtual } from '@/lib/actions/paginas'
+import { atualizarPagina, deletarPagina, duplicarPagina, definirVeiculacao } from '@/lib/actions/paginas'
 import { iniciarAnaliseGtmetrix, verificarAnaliseGtmetrix } from '@/lib/actions/gtmetrix'
 import { buscarChecklist } from '@/lib/actions/checklists'
 import { buscarHistoricoStatus } from '@/lib/actions/historico'
@@ -334,13 +334,13 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
     }
   }
 
-  async function handleMarcarAtual(id: string) {
+  async function handleMarcarAtual(id: string, emVeiculacao: boolean) {
     setMarcandoAtual(id)
     try {
-      await marcarPaginaAtual(id)
+      await definirVeiculacao(id, emVeiculacao)
       router.refresh()
     } catch (e) {
-      console.error('Erro ao marcar página atual:', e)
+      console.error('Erro ao definir veiculação:', e)
     } finally {
       setMarcandoAtual(null)
     }
@@ -436,8 +436,8 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
               <span title="Teste A/B ativo"><FlaskConical size={12} className="text-indigo-400 shrink-0" fill="currentColor" /></span>
             )}
             {p.pagina_atual && (
-              <span title="Página atual (rodando de fato no fluxo)" className="inline-flex items-center gap-0.5 text-[10px] font-medium text-green-400 bg-green-500/10 border border-green-500/20 rounded-full px-1.5 py-0.5 shrink-0">
-                <Pin size={10} fill="currentColor" /> Atual
+              <span title="Em veiculação (a versão real usada nas campanhas hoje)" className="inline-flex items-center gap-0.5 text-[10px] font-medium text-green-400 bg-green-500/10 border border-green-500/20 rounded-full px-1.5 py-0.5 shrink-0">
+                <Pin size={10} fill="currentColor" /> Em veiculação
               </span>
             )}
             {atrasada && <span title="Prazo vencido"><AlertTriangle size={12} className="text-red-400 shrink-0" /></span>}
@@ -654,9 +654,9 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
                 className="p-1.5 text-gray-500 hover:text-indigo-400 hover:bg-gray-900 rounded transition-colors" title="Criar variante">
                 <GitBranch size={13} />
               </button>
-              <button onClick={() => handleMarcarAtual(p.id)} disabled={marcandoAtual === p.id}
+              <button onClick={() => handleMarcarAtual(p.id, !p.pagina_atual)} disabled={marcandoAtual === p.id}
                 className={`p-1.5 hover:bg-gray-900 rounded transition-colors disabled:opacity-40 disabled:cursor-wait ${p.pagina_atual ? 'text-green-400' : 'text-gray-500 hover:text-green-400'}`}
-                title={p.pagina_atual ? 'Desmarcar como página atual' : 'Marcar como página atual (a que está rodando de fato)'}>
+                title={p.pagina_atual ? 'Tirar de veiculação' : 'Marcar como em veiculação (a versão real usada hoje)'}>
                 <Pin size={13} fill={p.pagina_atual ? 'currentColor' : 'none'} className={marcandoAtual === p.id ? 'animate-pulse' : ''} />
               </button>
               <button onClick={() => handleDuplicar(p.id)} disabled={duplicandoPagina === p.id}
@@ -973,17 +973,17 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
                               <span title="Teste A/B ativo" className="mt-0.5"><FlaskConical size={11} className="text-indigo-400 shrink-0" fill="currentColor" /></span>
                             )}
                             {p.pagina_atual && (
-                              <span title="Página atual (rodando de fato no fluxo)" className="mt-0.5 inline-flex items-center gap-0.5 text-[10px] font-medium text-green-400 bg-green-500/10 border border-green-500/20 rounded-full px-1.5 py-0.5 shrink-0">
-                                <Pin size={9} fill="currentColor" /> Atual
+                              <span title="Em veiculação (a versão real usada nas campanhas hoje)" className="mt-0.5 inline-flex items-center gap-0.5 text-[10px] font-medium text-green-400 bg-green-500/10 border border-green-500/20 rounded-full px-1.5 py-0.5 shrink-0">
+                                <Pin size={9} fill="currentColor" /> Em veiculação
                               </span>
                             )}
                           </div>
                           <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                             <button
-                              onClick={() => handleMarcarAtual(p.id)}
+                              onClick={() => handleMarcarAtual(p.id, !p.pagina_atual)}
                               disabled={marcandoAtual === p.id}
                               className={`p-1 hover:bg-gray-900 rounded transition-colors disabled:opacity-40 ${p.pagina_atual ? 'text-green-400' : 'text-gray-500 hover:text-green-400'}`}
-                              title={p.pagina_atual ? 'Desmarcar como página atual' : 'Marcar como página atual'}
+                              title={p.pagina_atual ? 'Tirar de veiculação' : 'Marcar como em veiculação'}
                             >
                               <Pin size={12} fill={p.pagina_atual ? 'currentColor' : 'none'} className={marcandoAtual === p.id ? 'animate-pulse' : ''} />
                             </button>

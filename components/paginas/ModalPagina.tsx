@@ -116,7 +116,7 @@ const VAZIO = {
   escopo: 'funil' as 'funil' | 'produto',
   funil_id: '', produto_id: '',
   funcao: '', variante: '',
-  etapa: '', ferramenta: '', status: 'A fazer',
+  etapa: '', ferramenta: '', status: 'A fazer', pagina_atual: 'true',
   prioridade: '', responsavel: '', url_pagina: '', referencia_dev: '',
   horas_estimadas: '', horas_reais: '', data_prevista: '',
   url_planilha_pesquisa: '', url_documentacao: '',
@@ -144,6 +144,7 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
         etapa: pagina.etapa ?? '',
         ferramenta: pagina.ferramenta ?? '',
         status: pagina.status,
+        pagina_atual: pagina.pagina_atual ? 'true' : 'false',
         prioridade: pagina.prioridade ?? '',
         responsavel: pagina.responsavel ?? '',
         url_pagina: pagina.url_pagina ?? '',
@@ -195,6 +196,10 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
       setErro('Status é obrigatório.')
       return
     }
+    if (!form.pagina_atual) {
+      setErro('Informe se a página está em veiculação.')
+      return
+    }
     setSalvando(true)
     setErro('')
     try {
@@ -205,6 +210,7 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
         etapa: form.etapa || null,
         ferramenta: form.ferramenta || null,
         status: form.status,
+        pagina_atual: form.pagina_atual === 'true',
         prioridade: form.prioridade || null,
         responsavel: form.responsavel || null,
         url_pagina: form.url_pagina || null,
@@ -354,6 +360,15 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
           </div>
           <div className="grid grid-cols-2 gap-3">
             <Select label="Status *" value={form.status} onChange={set('status')} obrigatorio options={configOpts('status_pagina')} />
+            <Select
+              label="Em veiculação? *" value={form.pagina_atual} onChange={set('pagina_atual')} obrigatorio
+              options={[
+                { valor: 'true', label: 'Em veiculação (é a que roda hoje)' },
+                { valor: 'false', label: 'Fora de veiculação' },
+              ]}
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
             <Select label="Prioridade" value={form.prioridade} onChange={set('prioridade')} options={configOpts('prioridade')} />
           </div>
           <div className="grid grid-cols-2 gap-3">
