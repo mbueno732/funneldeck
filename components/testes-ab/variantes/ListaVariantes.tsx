@@ -255,7 +255,7 @@ export function ListaVariantes({ testes: testesProp, funis }: Props) {
   function toggleExpandido(id: string) {
     setExpandidos(prev => {
       const novo = new Set(prev)
-      novo.has(id) ? novo.delete(id) : novo.add(id)
+      if (novo.has(id)) novo.delete(id); else novo.add(id)
       return novo
     })
   }
