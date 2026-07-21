@@ -1,0 +1,815 @@
+'use client'
+import { useMemo, useRef, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import {
+  ChevronRight, Info, Brain, Rocket, Trash2, Upload,
+  PlusCircle, SplitSquareHorizontal, MousePointerClick, Loader2, ImageOff,
+  CheckCircle2, Circle, ClipboardCheck,
+} from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { Select, SelectContent, SelectGroup, SelectLabel, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { criarTesteAB, uploadScreenshotVariante } from '@/lib/actions/testes-ab'
+import type { Funil, Pagina, Especialista, Campanha, Produto } from '@/lib/types'
+
+interface Variante {
+  letra: string
+  paginaId: string
+  urlVariante: string
+  urlPreview: string
+  headline: string
+  subheadline: string
+  layout: string
+  screenshotUrl: string
+  enviando: boolean
+  percentual: number
+}
+
+interface Props {
+  funis: (Pick<Funil, 'id' | 'id_funil' | 'nome' | 'objetivo' | 'especialista_id'> & {
+    produtos?: Pick<Produto, 'especialista_id'> | null
+  })[]
+  metricasVendas: string[]
+  metricasAquisicao: string[]
+  paginas: Pick<Pagina, 'id' | 'funil_id' | 'nome' | 'codigo' | 'etapa' | 'url_pagina'>[]
+  especialistas: Pick<Especialista, 'id' | 'nome'>[]
+  campanhas: Pick<Campanha, 'id' | 'codigo'>[]
+  segmentos: string[]
+  responsaveis: string[]
+  angulos: string[]
+  elementosTestados: string[]
+  testesExistentes: { funil_id: string; segmento: string | null }[]
+}
+
+const MAX_ANGULOS = 3
+
+const LETRAS = ['A', 'B', 'C', 'D']
+const LAYOUTS = [
+  { valor: 'curto', label: 'Curto' },
+  { valor: 'longo', label: 'Longo' },
+]
+const NOVA_CAMPANHA = '__nova__'
+
+const SECOES = [
+  { id: 'basicas',   label: 'Informações Básicas', icon: Info },
+  { id: 'hipotese',  label: 'Hipótese',             icon: Brain },
+  { id: 'variacoes', label: 'Variações',            icon: SplitSquareHorizontal },
+  { id: 'metricas',  label: 'Métricas',             icon: MousePointerClick },
+  { id: 'revisao',   label: 'Revisão',              icon: ClipboardCheck },
+] as const
+
+function varianteVazia(letra: string): Variante {
+  return { letra, paginaId: '', urlVariante: '', urlPreview: '', headline: '', subheadline: '', layout: '', screenshotUrl: '', enviando: false, percentual: 0 }
+}
+
+function redistribuir(lista: Variante[]): Variante[] {
+  const pct = Math.round((100 / lista.length) * 10) / 10
+  const arr = lista.map(v => ({ ...v, percentual: pct }))
+  const resto = Math.round((100 - arr.reduce((s, v) => s + v.percentual, 0)) * 10) / 10
+  if (arr[0]) arr[0].percentual = Math.round((arr[0].percentual + resto) * 10) / 10
+  return arr
+}
+
+function hoje(): string {
+  return new Date().toISOString().split('T')[0]
+}
+
+export function NovoTesteABForm({
+  funis, metricasVendas, metricasAquisicao, paginas, especialistas, campanhas, segmentos, responsaveis, angulos,
+  elementosTestados, testesExistentes,
+}: Props) {
+  const router = useRouter()
+  const refs = useRef<Record<string, HTMLDivElement | null>>({})
+
+  const [nome, setNome] = useState('')
+  const [funilId, setFunilId] = useState('')
+  const [campanhaId, setCampanhaId] = useState('')
+  const [novaCampanhaCodigo, setNovaCampanhaCodigo] = useState('')
+  const [segmento, setSegmento] = useState('')
+  const [responsavel, setResponsavel] = useState('')
+  const [dataInicio, setDataInicio] = useState(hoje())
+
+  const [hipotese, setHipotese] = useState('')
+  const [hipoteseMotivo, setHipoteseMotivo] = useState('')
+  const [resultadoEsperado, setResultadoEsperado] = useState('')
+  const [elementoTestado, setElementoTestado] = useState('')
+  const [angulosSelecionados, setAngulosSelecionados] = useState<string[]>([])
+
+  const [variantes, setVariantes] = useState<Variante[]>(() => redistribuir([varianteVazia('A'), varianteVazia('B')]))
+  const [metricaPrimaria, setMetricaPrimaria] = useState('')
+  const [nivelConfianca, setNivelConfianca] = useState(95)
+  const [poderEstatistico, setPoderEstatistico] = useState(80)
+
+  const [salvando, setSalvando] = useState<'planejado' | 'ativo' | null>(null)
+  const [erro, setErro] = useState('')
+
+  const paginasDoFunil = paginas.filter(p => p.funil_id === funilId)
+  const funilSelecionado = funis.find(f => f.id === funilId)
+  const campanhaSelecionada = campanhas.find(c => c.id === campanhaId)
+  const especialistaId = funilSelecionado?.especialista_id || funilSelecionado?.produtos?.especialista_id || ''
+  const especialistaNome = especialistas.find(e => e.id === especialistaId)?.nome || ''
+  const tipoTeste: 'aquisicao' | 'vendas' = funilSelecionado?.objetivo === 'Aquisição' ? 'aquisicao' : 'vendas'
+  const metricas = tipoTeste === 'aquisicao' ? metricasAquisicao : metricasVendas
+
+  const funisAgrupados = useMemo(() => {
+    const grupos = new Map<string, typeof funis>()
+    for (const f of funis) {
+      const espId = f.especialista_id || f.produtos?.especialista_id || ''
+      const nome = especialistas.find(e => e.id === espId)?.nome || 'Sem especialista'
+      grupos.set(nome, [...(grupos.get(nome) ?? []), f])
+    }
+    return Array.from(grupos.entries())
+      .sort(([a], [b]) => (a === 'Sem especialista' ? 1 : b === 'Sem especialista' ? -1 : a.localeCompare(b)))
+      .map(([nomeEspecialista, lista]) => ({ nomeEspecialista, funis: lista.sort((a, b) => a.nome.localeCompare(b.nome)) }))
+  }, [funis, especialistas])
+
+  function scrollPara(id: string) {
+    refs.current[id]?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
+  function toggleAngulo(valor: string) {
+    setAngulosSelecionados(list => {
+      if (list.includes(valor)) return list.filter(a => a !== valor)
+      if (list.length >= MAX_ANGULOS) return list
+      return [...list, valor]
+    })
+  }
+
+  function selecionarPaginaVariante(idx: number, pid: string) {
+    const pagina = paginasDoFunil.find(p => p.id === pid)
+    setVariantes(list => list.map((vv, i) => (i === idx
+      ? { ...vv, paginaId: pid, urlVariante: pagina?.url_pagina || vv.urlVariante }
+      : vv)))
+  }
+
+  function adicionarVariante() {
+    if (variantes.length >= 4) return
+    setVariantes(v => redistribuir([...v, varianteVazia(LETRAS[v.length])]))
+  }
+
+  function removerVariante(idx: number) {
+    if (variantes.length <= 2 || idx === 0) return
+    setVariantes(v => redistribuir(v.filter((_, i) => i !== idx).map((vv, i) => ({ ...vv, letra: LETRAS[i] }))))
+  }
+
+  function distribuirIgualmente() {
+    setVariantes(v => redistribuir(v))
+  }
+
+  async function handleArquivo(idx: number, file: File) {
+    setVariantes(v => v.map((vv, i) => (i === idx ? { ...vv, enviando: true } : vv)))
+    const fd = new FormData()
+    fd.append('file', file)
+    const res = await uploadScreenshotVariante(fd)
+    setVariantes(v => v.map((vv, i) => (i === idx
+      ? { ...vv, enviando: false, screenshotUrl: res.ok ? (res.url ?? '') : vv.screenshotUrl }
+      : vv)))
+    if (!res.ok) setErro(res.erro ?? 'Erro ao subir a imagem.')
+  }
+
+  // ── Progresso por seção (para o checklist lateral) ──────────────────────
+  const progresso = useMemo(() => {
+    const basicasCampos = [nome.trim(), funilId, segmento, especialistaId, responsavel]
+    const basicas = basicasCampos.filter(Boolean).length / basicasCampos.length
+
+    const hipoteseCampos = [hipotese.trim(), hipoteseMotivo.trim(), resultadoEsperado.trim(), elementoTestado, angulosSelecionados.length > 0]
+    const hipoteseP = hipoteseCampos.filter(Boolean).length / hipoteseCampos.length
+
+    const variacoes = variantes.every(v => v.paginaId && v.urlVariante.trim())
+      ? 1
+      : variantes.filter(v => v.paginaId && v.urlVariante.trim()).length / variantes.length
+
+    const metricasP = metricaPrimaria ? 1 : 0
+
+    const revisaoP = basicas === 1 && hipoteseP === 1 && variacoes === 1 && metricasP === 1 ? 1 : 0
+
+    return { basicas, hipotese: hipoteseP, variacoes, metricas: metricasP, revisao: revisaoP }
+  }, [nome, funilId, segmento, especialistaId, responsavel, hipotese, hipoteseMotivo, resultadoEsperado, elementoTestado, angulosSelecionados, variantes, metricaPrimaria])
+
+  const progressoGeral = Math.round(
+    ((progresso.basicas + progresso.hipotese + progresso.variacoes + progresso.metricas) / 4) * 100
+  )
+
+  const podeAvancarDefinicao = !!nome.trim() && !!funilId
+  const podeAvancarConfiguracao = variantes.every(v => v.paginaId && v.urlVariante.trim())
+  const podeFinalizar = podeAvancarDefinicao && podeAvancarConfiguracao && !!metricaPrimaria
+
+  const sequencialPreview = String(
+    testesExistentes.filter(t => t.funil_id === funilId && (t.segmento ?? '') === segmento).length + 1
+  ).padStart(3, '0')
+  const codigoPreview = [sequencialPreview, segmento, novaCampanhaCodigo.trim() || campanhaSelecionada?.codigo].filter(Boolean).join('_')
+
+  async function finalizar(status: 'Planejado' | 'Ativo') {
+    setSalvando(status === 'Ativo' ? 'ativo' : 'planejado')
+    setErro('')
+    const res = await criarTesteAB({
+      funil_id: funilId,
+      tipo_teste: tipoTeste,
+      nome,
+      hipotese,
+      hipotese_motivo: hipoteseMotivo,
+      resultado_esperado: resultadoEsperado,
+      elemento_testado: elementoTestado || undefined,
+      angulos: angulosSelecionados.length ? angulosSelecionados : undefined,
+      campanha_id: campanhaId && campanhaId !== NOVA_CAMPANHA ? campanhaId : undefined,
+      nova_campanha_codigo: campanhaId === NOVA_CAMPANHA ? novaCampanhaCodigo : undefined,
+      segmento: segmento || undefined,
+      especialista_id: especialistaId || undefined,
+      responsavel: responsavel || undefined,
+      data_inicio: dataInicio || undefined,
+      metrica_primaria: metricaPrimaria,
+      nivel_confianca: nivelConfianca,
+      poder_estatistico: poderEstatistico,
+      status,
+      variantes: variantes.map((v, i) => ({
+        nome: `Variação ${v.letra}`,
+        pagina_id: v.paginaId,
+        url_variante: v.urlVariante,
+        url_preview: v.urlPreview || undefined,
+        headline: v.headline || undefined,
+        subheadline: v.subheadline || undefined,
+        layout: v.layout || undefined,
+        screenshot_url: v.screenshotUrl || undefined,
+        percentual_trafego: v.percentual,
+        is_controle: i === 0,
+      })),
+    })
+    setSalvando(null)
+    if (!res.ok) { setErro(res.erro ?? 'Erro ao criar teste.'); return }
+    router.push('/variantes')
+  }
+
+  const inputCls = 'w-full bg-gray-900 border-gray-800 text-white placeholder-gray-500 focus:border-indigo-500'
+  const labelCls = 'text-gray-400 text-xs'
+  const cardCls = 'bg-gray-900 border border-gray-800 rounded-xl p-6'
+
+  return (
+    <div className="max-w-4xl mx-auto w-full">
+      {/* Breadcrumb + título */}
+      <div className="mb-8">
+        <nav className="flex items-center gap-2 text-gray-500 mb-2 text-sm">
+          <Link href="/variantes" className="hover:text-gray-300 transition-colors">Experimentos</Link>
+          <ChevronRight size={14} />
+          <span className="text-indigo-400 font-medium">Novo Experimento</span>
+        </nav>
+        <h2 className="text-2xl font-bold text-white">Criar Experimento</h2>
+        <p className="text-gray-500 text-sm mt-1">
+          Configure os parâmetros do seu teste estatístico para otimizar conversões.
+        </p>
+      </div>
+
+      <div className="flex gap-8 items-start">
+        {/* ── Conteúdo (página única, scroll) ─────────────────────────────── */}
+        <div className="flex-1 min-w-0 space-y-8">
+
+          {/* Informações Básicas */}
+          <div ref={el => { refs.current.basicas = el }} className={cardCls}>
+            <h3 className="text-white font-medium mb-6 flex items-center gap-2">
+              <Info size={16} className="text-indigo-400" /> Informações Básicas
+            </h3>
+            <div className="space-y-5">
+              <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-5">
+                <div className="space-y-1.5">
+                  <Label className={labelCls}>Nome do Experimento *</Label>
+                  <Input
+                    value={nome}
+                    onChange={e => setNome(e.target.value)}
+                    placeholder="Ex: [Checkout] Redução de campos no formulário"
+                    className={inputCls}
+                  />
+                  <p className="text-gray-600 text-xs">Use nomes descritivos para facilitar a busca depois.</p>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className={labelCls}>ID do Teste</Label>
+                  <div className="h-10 px-3 flex items-center bg-gray-900 border border-gray-800 rounded-md text-gray-400 text-sm font-mono whitespace-nowrap">
+                    {codigoPreview}
+                  </div>
+                  <p className="text-gray-600 text-xs">Gerado automaticamente</p>
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className={labelCls}>Funil de Atuação *</Label>
+                <div className="flex items-center gap-2">
+                  <Select
+                    value={funilId || '__none__'}
+                    onValueChange={v => {
+                      setFunilId(v === '__none__' ? '' : v)
+                      setVariantes(list => list.map(vv => ({ ...vv, paginaId: '', urlVariante: '' })))
+                      setMetricaPrimaria('')
+                    }}
+                  >
+                    <SelectTrigger className="w-full bg-gray-900 border-gray-800 text-white focus:ring-0 focus:ring-offset-0 h-10">
+                      <SelectValue placeholder="Selecionar funil..." />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-900 border-gray-800">
+                      <SelectItem value="__none__" className="text-gray-400 focus:bg-gray-800 focus:text-white">Selecionar funil...</SelectItem>
+                      {funisAgrupados.map(({ nomeEspecialista, funis: funisDoGrupo }) => (
+                        <SelectGroup key={nomeEspecialista}>
+                          <SelectLabel className="text-gray-500 text-[11px] uppercase tracking-wide">{nomeEspecialista}</SelectLabel>
+                          {funisDoGrupo.map(f => (
+                            <SelectItem key={f.id} value={f.id} className="text-gray-300 focus:bg-gray-800 focus:text-white">
+                              {f.id_funil ? `[${f.id_funil}] ` : ''}{f.nome}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {funilId && (
+                    <span className={`shrink-0 px-3 py-2 rounded-lg text-xs font-medium whitespace-nowrap ${
+                      tipoTeste === 'aquisicao' ? 'bg-blue-500/10 text-blue-400' : 'bg-emerald-500/10 text-emerald-400'
+                    }`}>
+                      {tipoTeste === 'aquisicao' ? 'Aquisição' : 'Vendas'}
+                    </span>
+                  )}
+                </div>
+                {funilId && paginasDoFunil.length === 0 && (
+                  <p className="text-amber-400 text-xs bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2 mt-1.5">
+                    Este funil não tem páginas cadastradas ainda. Cadastre-as no Mapa de Páginas antes de criar o teste —
+                    toda variante precisa estar vinculada a uma página do registro.
+                  </p>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="space-y-1.5">
+                  <Label className={labelCls}>Campanha</Label>
+                  <Select value={campanhaId || '__none__'} onValueChange={v => setCampanhaId(v === '__none__' ? '' : v)}>
+                    <SelectTrigger className="w-full bg-gray-900 border-gray-800 text-white focus:ring-0 focus:ring-offset-0 h-10">
+                      <SelectValue placeholder="Selecionar campanha..." />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-900 border-gray-800">
+                      <SelectItem value="__none__" className="text-gray-400 focus:bg-gray-800 focus:text-white">Sem campanha</SelectItem>
+                      {campanhas.map(c => (
+                        <SelectItem key={c.id} value={c.id} className="text-gray-300 focus:bg-gray-800 focus:text-white">{c.codigo}</SelectItem>
+                      ))}
+                      <SelectItem value={NOVA_CAMPANHA} className="text-indigo-400 focus:bg-gray-800 focus:text-indigo-300">+ Nova campanha</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {campanhaId === NOVA_CAMPANHA && (
+                    <Input
+                      value={novaCampanhaCodigo}
+                      onChange={e => setNovaCampanhaCodigo(e.target.value)}
+                      placeholder='Código da campanha, ex: "D90"'
+                      className={`${inputCls} mt-2`}
+                    />
+                  )}
+                  <p className="text-gray-600 text-xs">Uma campanha pode abranger mais de um funil (ex: aquisição + vendas do mesmo lançamento).</p>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className={labelCls}>Segmento (público)</Label>
+                  <Select value={segmento || '__none__'} onValueChange={v => setSegmento(v === '__none__' ? '' : v)}>
+                    <SelectTrigger className="w-full bg-gray-900 border-gray-800 text-white focus:ring-0 focus:ring-offset-0 h-10">
+                      <SelectValue placeholder="Selecionar segmento..." />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-900 border-gray-800">
+                      <SelectItem value="__none__" className="text-gray-400 focus:bg-gray-800 focus:text-white">Selecionar segmento...</SelectItem>
+                      {segmentos.map(s => (
+                        <SelectItem key={s} value={s} className="text-gray-300 focus:bg-gray-800 focus:text-white">{s}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="space-y-1.5">
+                  <Label className={labelCls}>Especialista</Label>
+                  <div className="h-10 px-3 flex items-center bg-gray-900 border border-gray-800 rounded-md text-sm">
+                    {especialistaNome
+                      ? <span className="text-white">{especialistaNome}</span>
+                      : <span className="text-gray-600">{funilId ? 'Funil sem especialista cadastrado' : 'Selecione um funil'}</span>}
+                  </div>
+                  <p className="text-gray-600 text-xs">Vem do especialista já cadastrado no Funil.</p>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className={labelCls}>Responsável</Label>
+                  <Select value={responsavel || '__none__'} onValueChange={v => setResponsavel(v === '__none__' ? '' : v)}>
+                    <SelectTrigger className="w-full bg-gray-900 border-gray-800 text-white focus:ring-0 focus:ring-offset-0 h-10">
+                      <SelectValue placeholder="Selecionar responsável..." />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-900 border-gray-800">
+                      <SelectItem value="__none__" className="text-gray-400 focus:bg-gray-800 focus:text-white">Selecionar responsável...</SelectItem>
+                      {responsaveis.map(r => (
+                        <SelectItem key={r} value={r} className="text-gray-300 focus:bg-gray-800 focus:text-white">{r}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className={labelCls}>Data de Início</Label>
+                <Input
+                  type="date"
+                  value={dataInicio}
+                  onChange={e => setDataInicio(e.target.value)}
+                  className={`${inputCls} h-10 max-w-[220px]`}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Hipótese */}
+          <div ref={el => { refs.current.hipotese = el }} className={cardCls}>
+            <div className="flex items-center justify-between gap-4 mb-6 flex-wrap">
+              <h3 className="text-white font-medium flex items-center gap-2 shrink-0">
+                <Brain size={16} className="text-indigo-400" /> Framework de Hipótese
+              </h3>
+              <div className="flex items-center gap-2">
+                <Label className="text-gray-500 text-xs shrink-0 whitespace-nowrap">O que vamos testar?</Label>
+                <Select value={elementoTestado || '__none__'} onValueChange={v => setElementoTestado(v === '__none__' ? '' : v)}>
+                  <SelectTrigger className="w-44 h-9 bg-gray-900 border-gray-800 text-white text-sm focus:ring-0 focus:ring-offset-0">
+                    <SelectValue placeholder="Selecionar..." />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-900 border-gray-800">
+                    <SelectItem value="__none__" className="text-gray-400 focus:bg-gray-800 focus:text-white">Selecionar...</SelectItem>
+                    {elementosTestados.map(el => (
+                      <SelectItem key={el} value={el} className="text-gray-300 focus:bg-gray-800 focus:text-white">{el}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
+              <div className="space-y-1.5">
+                <Label className={labelCls}>O QUE vamos mudar?</Label>
+                <Textarea
+                  value={hipotese}
+                  onChange={e => setHipotese(e.target.value)}
+                  placeholder="Descreva a alteração visual ou funcional..."
+                  rows={4}
+                  className={`${inputCls} resize-none`}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label className={labelCls}>POR QUE estamos mudando?</Label>
+                <Textarea
+                  value={hipoteseMotivo}
+                  onChange={e => setHipoteseMotivo(e.target.value)}
+                  placeholder="Baseado em quais dados ou feedbacks..."
+                  rows={4}
+                  className={`${inputCls} resize-none`}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label className={labelCls}>Resultado esperado</Label>
+                <Textarea
+                  value={resultadoEsperado}
+                  onChange={e => setResultadoEsperado(e.target.value)}
+                  placeholder="Qual o impacto quantitativo previsto..."
+                  rows={4}
+                  className={`${inputCls} resize-none`}
+                />
+              </div>
+            </div>
+
+            <div className="border-t border-gray-800 pt-6 space-y-3">
+              <div className="flex items-center justify-between">
+                <Label className={labelCls}>Assistente de Hipótese — Ângulo da Hero</Label>
+                <span className="text-gray-600 text-xs">{angulosSelecionados.length}/{MAX_ANGULOS} selecionados</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {angulos.map(a => {
+                  const ativo = angulosSelecionados.includes(a)
+                  const bloqueado = !ativo && angulosSelecionados.length >= MAX_ANGULOS
+                  return (
+                    <button
+                      key={a}
+                      type="button"
+                      disabled={bloqueado}
+                      onClick={() => toggleAngulo(a)}
+                      className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors disabled:opacity-30 ${
+                        ativo
+                          ? 'bg-indigo-500/15 border-indigo-500 text-indigo-300'
+                          : 'bg-gray-950 border-gray-800 text-gray-400 hover:text-white'
+                      }`}
+                    >
+                      {a}
+                    </button>
+                  )
+                })}
+              </div>
+              {angulosSelecionados.length > 0 && (
+                <div className="bg-gray-950 border border-gray-800 rounded-lg px-3 py-2">
+                  <p className="text-indigo-400 text-[10px] font-semibold uppercase tracking-wide mb-1">Hipótese Consolidada</p>
+                  <p className="text-gray-400 text-xs italic">
+                    &quot;Se eu testar <span className="text-indigo-300 font-medium not-italic">{elementoTestado || '[elemento]'}</span> com
+                    {' '}ângulo de <span className="text-indigo-300 font-medium not-italic">{angulosSelecionados.join(', ')}</span> no
+                    {' '}<span className="text-indigo-300 font-medium not-italic">{segmento ? `tráfego ${segmento.toLowerCase()}` : '[público]'}</span>,
+                    {' '}então <span className="text-indigo-300 font-medium not-italic">{metricaPrimaria || '[métrica]'}</span> vai
+                    {' '}aumentar, porque esse público tem características específicas.&quot;
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Variações */}
+          <div ref={el => { refs.current.variacoes = el }} className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h3 className="text-white font-medium flex items-center gap-2">
+                <SplitSquareHorizontal size={16} className="text-indigo-400" /> Variações
+              </h3>
+              <button type="button" onClick={distribuirIgualmente} className="text-indigo-400 text-sm hover:text-indigo-300 transition-colors">
+                Distribuir tráfego igualmente
+              </button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {variantes.map((v, idx) => (
+                <div key={v.letra} className={cardCls}>
+                  <div className="mb-4 space-y-1.5">
+                    <h3 className="text-white font-medium flex items-center gap-2">
+                      {idx === 0
+                        ? <CheckCircle2 size={16} className="text-green-400 shrink-0" />
+                        : <Rocket size={16} className="text-indigo-400 shrink-0" />}
+                      <span className="truncate">{idx === 0 ? `Controle (${v.letra})` : `Variação ${v.letra}`}</span>
+                      {idx > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => removerVariante(idx)}
+                          title="Remover variante"
+                          className="ml-auto text-gray-600 hover:text-red-400 transition-colors shrink-0"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      )}
+                    </h3>
+                    <div className="flex items-center gap-2 pl-6">
+                      <span className="ml-auto text-xs font-medium text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded-full">
+                        Tráfego {v.percentual}%
+                      </span>
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <label className="border-2 border-dashed border-gray-800 rounded-lg p-6 flex flex-col items-center justify-center bg-gray-950 hover:bg-gray-900 transition-colors cursor-pointer">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={e => { const f = e.target.files?.[0]; if (f) handleArquivo(idx, f) }}
+                      />
+                      {v.enviando ? (
+                        <Loader2 size={20} className="text-indigo-400 animate-spin mb-2" />
+                      ) : v.screenshotUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={v.screenshotUrl} alt={`Screenshot variação ${v.letra}`} className="max-h-24 rounded mb-2 object-contain" />
+                      ) : (
+                        <Upload size={20} className="text-gray-600 mb-2" />
+                      )}
+                      <p className="text-xs text-gray-500">
+                        {v.enviando ? 'Enviando...' : v.screenshotUrl ? 'Trocar screenshot' : 'Upload de Screenshot'}
+                      </p>
+                      {!v.enviando && !v.screenshotUrl && (
+                        <p className="text-[11px] text-gray-600 mt-0.5">Arraste ou clique aqui</p>
+                      )}
+                    </label>
+                    <div className="space-y-1.5">
+                      <Label className="text-gray-500 text-xs">Página *</Label>
+                      <Select
+                        value={v.paginaId || '__none__'}
+                        onValueChange={pid => selecionarPaginaVariante(idx, pid === '__none__' ? '' : pid)}
+                      >
+                        <SelectTrigger className="w-full bg-gray-900 border-gray-800 text-white text-sm h-9 focus:ring-0 focus:ring-offset-0">
+                          <SelectValue placeholder="Selecionar página cadastrada..." />
+                        </SelectTrigger>
+                        <SelectContent className="bg-gray-900 border-gray-800">
+                          <SelectItem value="__none__" className="text-gray-400 focus:bg-gray-800 focus:text-white">Selecionar página cadastrada...</SelectItem>
+                          {paginasDoFunil.map(p => (
+                            <SelectItem key={p.id} value={p.id} className="text-gray-300 focus:bg-gray-800 focus:text-white">
+                              {p.codigo ? `[${p.codigo}] ` : ''}{p.nome}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-gray-500 text-xs">URL da Página *</Label>
+                      <Input
+                        value={v.urlVariante}
+                        onChange={e => setVariantes(list => list.map((vv, i) => i === idx ? { ...vv, urlVariante: e.target.value } : vv))}
+                        placeholder="https://dominio.com/..."
+                        className={`${inputCls} text-sm`}
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-gray-500 text-xs">URL de Preview</Label>
+                      <Input
+                        value={v.urlPreview}
+                        onChange={e => setVariantes(list => list.map((vv, i) => i === idx ? { ...vv, urlPreview: e.target.value } : vv))}
+                        placeholder="Link de pré-visualização (antes de publicar)"
+                        className={`${inputCls} text-sm`}
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-gray-500 text-xs">Headline testada</Label>
+                      <Textarea
+                        value={v.headline}
+                        onChange={e => setVariantes(list => list.map((vv, i) => i === idx ? { ...vv, headline: e.target.value } : vv))}
+                        placeholder="Texto principal testado"
+                        rows={2}
+                        className={`${inputCls} text-sm resize-none`}
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-gray-500 text-xs">Subheadline testada</Label>
+                      <Textarea
+                        value={v.subheadline}
+                        onChange={e => setVariantes(list => list.map((vv, i) => i === idx ? { ...vv, subheadline: e.target.value } : vv))}
+                        placeholder="Texto de apoio"
+                        rows={2}
+                        className={`${inputCls} text-sm resize-none`}
+                      />
+                    </div>
+                    <div className="space-y-1.5 pt-2 border-t border-gray-800">
+                      <Label className="text-gray-500 text-xs">Layout</Label>
+                      <div className="flex gap-2">
+                        {LAYOUTS.map(l => (
+                          <button
+                            key={l.valor}
+                            type="button"
+                            onClick={() => setVariantes(list => list.map((vv, i) => i === idx ? { ...vv, layout: vv.layout === l.valor ? '' : l.valor } : vv))}
+                            className={`flex-1 h-9 rounded-lg text-xs font-medium border transition-colors ${
+                              v.layout === l.valor
+                                ? 'bg-indigo-500/15 border-indigo-500 text-indigo-300'
+                                : 'bg-gray-900 border-gray-800 text-gray-400 hover:text-white'
+                            }`}
+                          >
+                            {l.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              {variantes.length < 4 && (
+                <button
+                  type="button"
+                  onClick={adicionarVariante}
+                  className="bg-gray-950 border-2 border-dashed border-gray-800 rounded-xl flex flex-col items-center justify-center gap-2 hover:bg-gray-900 hover:border-gray-700 transition-colors min-h-[220px]"
+                >
+                  <PlusCircle size={28} className="text-indigo-400" />
+                  <p className="text-indigo-400 text-sm font-medium">Adicionar Variante</p>
+                  <p className="text-gray-600 text-xs text-center px-6">Até 4 variações neste teste.</p>
+                </button>
+              )}
+            </div>
+
+            <div className="flex h-2 w-full rounded-full overflow-hidden bg-gray-800 gap-px">
+              {variantes.map((v, i) => (
+                <div
+                  key={v.letra}
+                  className="h-full"
+                  style={{ width: `${v.percentual}%`, backgroundColor: ['#6366f1', '#818cf8', '#a5b4fc', '#c7d2fe'][i] }}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Métricas */}
+          <div ref={el => { refs.current.metricas = el }} className={cardCls}>
+            <h3 className="text-white font-medium mb-1 flex items-center gap-2">
+              <MousePointerClick size={16} className="text-indigo-400" /> Sucesso do Experimento
+            </h3>
+            <p className="text-gray-600 text-xs mb-6">
+              Métricas de {tipoTeste === 'aquisicao' ? 'Aquisição' : 'Vendas'}
+            </p>
+            <div className="space-y-8">
+              <div className="space-y-1.5">
+                <Label className={labelCls}>Métrica Primária *</Label>
+                {metricas.length > 0 ? (
+                  <Select value={metricaPrimaria || '__none__'} onValueChange={v => setMetricaPrimaria(v === '__none__' ? '' : v)}>
+                    <SelectTrigger className="w-full bg-gray-900 border-gray-800 text-white focus:ring-0 focus:ring-offset-0 h-10">
+                      <SelectValue placeholder="Selecionar métrica..." />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-900 border-gray-800">
+                      <SelectItem value="__none__" className="text-gray-400 focus:bg-gray-800 focus:text-white">Selecionar métrica...</SelectItem>
+                      {metricas.map(m => (
+                        <SelectItem key={m} value={m} className="text-gray-300 focus:bg-gray-800 focus:text-white">{m}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <div className="flex items-center gap-2 text-amber-400 text-xs bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2">
+                    <ImageOff size={13} />
+                    Nenhuma métrica de {tipoTeste === 'aquisicao' ? 'aquisição' : 'vendas'} cadastrada em Configurações ainda
+                    (Testes A/B → Métricas de {tipoTeste === 'aquisicao' ? 'Aquisição' : 'Vendas'}).
+                  </div>
+                )}
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-1.5">
+                  <Label className={labelCls}>Nível de Confiança Mínimo</Label>
+                  <div className="flex items-center gap-4">
+                    <input
+                      type="range" min={90} max={99} value={nivelConfianca}
+                      onChange={e => setNivelConfianca(Number(e.target.value))}
+                      className="flex-1 accent-indigo-500 h-2 rounded-full"
+                    />
+                    <span className="text-indigo-400 text-sm font-medium bg-indigo-500/10 px-3 py-1 rounded-full">{nivelConfianca}%</span>
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className={labelCls}>Poder Estatístico</Label>
+                  <div className="flex items-center gap-4">
+                    <input
+                      type="range" min={70} max={95} value={poderEstatistico}
+                      onChange={e => setPoderEstatistico(Number(e.target.value))}
+                      className="flex-1 accent-indigo-500 h-2 rounded-full"
+                    />
+                    <span className="text-indigo-400 text-sm font-medium bg-indigo-500/10 px-3 py-1 rounded-full">{poderEstatistico}%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Revisão */}
+          <div ref={el => { refs.current.revisao = el }} className={cardCls}>
+            <h3 className="text-white font-medium mb-6 flex items-center gap-2">
+              <ClipboardCheck size={16} className="text-indigo-400" /> Revisão
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3 text-sm mb-6">
+              <p className="text-gray-500">Código do teste <span className="text-gray-300 font-mono">{codigoPreview}</span> <span className="text-gray-600 text-xs">(número definido ao salvar)</span></p>
+              <p className="text-gray-500">Nome <span className="text-gray-300">{nome || '—'}</span></p>
+              <p className="text-gray-500">Funil <span className="text-gray-300">{funilSelecionado?.nome ?? '—'}</span></p>
+              <p className="text-gray-500">Tipo <span className="text-gray-300">{tipoTeste === 'aquisicao' ? 'Aquisição' : 'Vendas'}</span></p>
+              <p className="text-gray-500">Campanha <span className="text-gray-300">{campanhaId === NOVA_CAMPANHA ? (novaCampanhaCodigo || '—') : (campanhaSelecionada?.codigo ?? '—')}</span></p>
+              <p className="text-gray-500">Segmento <span className="text-gray-300">{segmento || '—'}</span></p>
+              <p className="text-gray-500">
+                Layout{' '}
+                <span className="text-gray-300">
+                  {variantes.map(v => `${v.letra}: ${LAYOUTS.find(l => l.valor === v.layout)?.label ?? '—'}`).join(' · ')}
+                </span>
+              </p>
+              <p className="text-gray-500">Variantes <span className="text-gray-300">{variantes.length}</span></p>
+              <p className="text-gray-500">Métrica primária <span className="text-gray-300">{metricaPrimaria || '—'}</span></p>
+            </div>
+
+            {erro && <p className="text-red-400 text-sm mb-4">{erro}</p>}
+
+            <div className="flex flex-col md:flex-row items-center justify-end gap-3 pt-4 border-t border-gray-800">
+              <Button
+                type="button"
+                disabled={!podeFinalizar || salvando !== null}
+                onClick={() => finalizar('Planejado')}
+                className="flex-1 md:flex-none bg-gray-800 hover:bg-gray-700 text-white border border-gray-700 disabled:opacity-40"
+              >
+                {salvando === 'planejado' ? 'Agendando...' : 'Agendar Início'}
+              </Button>
+              <Button
+                type="button"
+                disabled={!podeFinalizar || salvando !== null}
+                onClick={() => finalizar('Ativo')}
+                className="flex-1 md:flex-none bg-indigo-600 hover:bg-indigo-500 text-white disabled:opacity-40"
+              >
+                {salvando === 'ativo' ? 'Iniciando...' : 'Iniciar Agora'}
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Checklist de progresso lateral (direita) ─────────────────────── */}
+        <nav className="w-48 shrink-0 sticky top-6 space-y-1">
+          <div className="px-3 pb-3 mb-1 border-b border-gray-800">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[11px] text-gray-500 uppercase tracking-wide">Progresso Geral</span>
+              <span className="text-xs text-indigo-400 font-medium">{progressoGeral}%</span>
+            </div>
+            <div className="h-1.5 w-full rounded-full bg-gray-800 overflow-hidden">
+              <div className="h-full bg-indigo-500 rounded-full transition-all" style={{ width: `${progressoGeral}%` }} />
+            </div>
+          </div>
+          {SECOES.map(({ id, label, icon: Icon }) => {
+            const pct = Math.round((progresso[id as keyof typeof progresso] ?? 0) * 100)
+            const completo = pct === 100
+            const status = pct === 0 ? 'Pendente' : completo ? 'Completo' : 'Em andamento'
+            return (
+              <button
+                key={id}
+                type="button"
+                onClick={() => scrollPara(id)}
+                className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-left hover:bg-gray-900 transition-colors"
+              >
+                {completo ? <CheckCircle2 size={16} className="text-green-400 shrink-0" /> : <Circle size={16} className="text-gray-700 shrink-0" />}
+                <span className="flex-1 min-w-0">
+                  <span className="block text-sm text-gray-300">{label}</span>
+                  <span className="block text-[11px] text-gray-600">{status}</span>
+                </span>
+                <Icon size={14} className="text-gray-700 shrink-0" />
+              </button>
+            )
+          })}
+        </nav>
+      </div>
+    </div>
+  )
+}

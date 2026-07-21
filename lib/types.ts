@@ -59,6 +59,7 @@ export interface Funil {
   total_paginas?: number
   paginas_publicadas?: number
   impl_nao_publicadas?: number
+  tem_teste_ativo?: boolean
 }
 
 export interface Estrategia {
@@ -101,11 +102,14 @@ export interface Pagina {
   versao?: number | null
   pagina_origem_id?: string | null
   estrategia_id?: string | null
+  pagina_atual?: boolean
   criado_em: string
   atualizado_em: string
   funis?: Pick<Funil, 'id' | 'id_funil' | 'nome' | 'tipo'> | null
   produtos?: Pick<Produto, 'id' | 'nome'> | null
   estrategias?: Pick<Estrategia, 'id' | 'nome' | 'caminho_url'> | null
+  // computed
+  tem_teste_ativo?: boolean
 }
 
 export interface HistoricoStatusPagina {
@@ -175,3 +179,77 @@ export type CategoriaConfig =
   | 'checklist_desenvolvimento'
   | 'checklist_testes'
   | 'checklist_performance'
+  | 'metrica_teste'
+  | 'metrica_teste_aquisicao'
+  | 'status_teste'
+  | 'segmento_teste'
+  | 'angulo_hero'
+  | 'elemento_testado'
+
+export interface Campanha {
+  id: string
+  codigo: string
+  data_inicio?: string | null
+  data_fim?: string | null
+  criado_em: string
+  atualizado_em: string
+}
+
+export interface TesteAB {
+  id: string
+  funil_id: string
+  nome: string
+  hipotese?: string | null
+  hipotese_motivo?: string | null
+  resultado_esperado?: string | null
+  objetivo?: string | null
+  responsavel?: string | null
+  status: string
+  tipo_teste?: string | null
+  elemento_testado?: string | null
+  metrica_primaria?: string | null
+  nivel_confianca?: number | null
+  poder_estatistico?: number | null
+  data_inicio?: string | null
+  data_fim?: string | null
+  resultado?: string | null
+  pagina_id?: string | null
+  campanha_id?: string | null
+  segmento?: string | null
+  especialista_id?: string | null
+  layout?: string | null
+  codigo?: string | null
+  angulo_primario?: string | null
+  angulos_secundarios?: string[] | null
+  angulos?: string[] | null
+  criado_em: string
+  atualizado_em: string
+  funis?: Pick<Funil, 'id' | 'id_funil' | 'nome'>
+  paginas?: Pick<Pagina, 'id' | 'nome' | 'codigo' | 'etapa' | 'url_pagina'> | null
+  campanhas?: Pick<Campanha, 'id' | 'codigo'> | null
+  especialistas?: Pick<Especialista, 'id' | 'nome'> | null
+  variantes_teste?: VarianteTeste[]
+}
+
+export interface VarianteTeste {
+  id: string
+  teste_id: string
+  nome: string
+  url_variante?: string | null
+  descricao?: string | null
+  screenshot_url?: string | null
+  percentual_trafego?: number | null
+  is_controle: boolean
+  is_vencedor: boolean
+  sessoes: number
+  conversoes: number
+  receita: number
+  sessoes_checkout: number
+  headline?: string | null
+  subheadline?: string | null
+  url_preview?: string | null
+  pagina_id?: string | null
+  layout?: string | null
+  criado_em: string
+  paginas?: Pick<Pagina, 'id' | 'nome' | 'codigo'> | null
+}
