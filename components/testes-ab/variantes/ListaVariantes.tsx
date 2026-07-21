@@ -277,6 +277,11 @@ export function ListaVariantes({ testes: testesProp, funis }: Props) {
 
   const visiveis = useMemo(() => filtrados.slice(0, paginaAtual * ITENS_POR_PAGINA), [filtrados, paginaAtual])
 
+  // Agrupar por funil só compensa quando há volume real — com poucos testes só
+  // atrapalha (obriga clicar pra ver o que já cabia direto na tela).
+  const LIMIAR_AGRUPAMENTO = 15
+  const usarAgrupamento = filtrados.length > LIMIAR_AGRUPAMENTO
+
   const [gruposColapsados, setGruposColapsados] = useState<Set<string>>(new Set())
   function toggleGrupo(funilId: string) {
     setGruposColapsados(prev => {
@@ -287,6 +292,7 @@ export function ListaVariantes({ testes: testesProp, funis }: Props) {
   }
 
   const grupos = useMemo(() => {
+    if (!usarAgrupamento) return [{ funilId: '__flat__', nome: '', idFunil: null as string | null, testes: visiveis }]
     const porFunil = new Map<string, TesteAB[]>()
     for (const t of visiveis) {
       const lista = porFunil.get(t.funil_id) ?? []
@@ -474,22 +480,24 @@ export function ListaVariantes({ testes: testesProp, funis }: Props) {
                 <tbody className="text-sm divide-y divide-gray-800">
                   {grupos.map(grupo => (
                     <Fragment key={grupo.funilId}>
-                      <tr className="bg-gray-900/60">
-                        <td colSpan={7} className="px-4 py-2">
-                          <button
-                            type="button"
-                            onClick={() => toggleGrupo(grupo.funilId)}
-                            className="flex items-center gap-2 text-xs font-medium text-indigo-300 hover:text-indigo-200 transition-colors"
-                          >
-                            {gruposColapsados.has(grupo.funilId) ? <ChevronRight size={13} /> : <ChevronDown size={13} />}
-                            <Layers size={12} />
-                            {grupo.idFunil && <span className="font-mono text-indigo-400">[{grupo.idFunil}]</span>}
-                            {grupo.nome}
-                            <span className="text-gray-600 font-normal">· {grupo.testes.length} experimento{grupo.testes.length !== 1 ? 's' : ''}</span>
-                          </button>
-                        </td>
-                      </tr>
-                      {!gruposColapsados.has(grupo.funilId) && grupo.testes.map(t => {
+                      {usarAgrupamento && (
+                        <tr className="bg-gray-900/60">
+                          <td colSpan={7} className="px-4 py-2">
+                            <button
+                              type="button"
+                              onClick={() => toggleGrupo(grupo.funilId)}
+                              className="flex items-center gap-2 text-xs font-medium text-indigo-300 hover:text-indigo-200 transition-colors"
+                            >
+                              {gruposColapsados.has(grupo.funilId) ? <ChevronRight size={13} /> : <ChevronDown size={13} />}
+                              <Layers size={12} />
+                              {grupo.idFunil && <span className="font-mono text-indigo-400">[{grupo.idFunil}]</span>}
+                              {grupo.nome}
+                              <span className="text-gray-600 font-normal">· {grupo.testes.length} experimento{grupo.testes.length !== 1 ? 's' : ''}</span>
+                            </button>
+                          </td>
+                        </tr>
+                      )}
+                      {(!usarAgrupamento || !gruposColapsados.has(grupo.funilId)) && grupo.testes.map(t => {
                     const lift = liftDaVencedora(t)
                     const rpv = rpvDe(t)
                     const dias = diasEntre(t.data_inicio, t.data_fim)
