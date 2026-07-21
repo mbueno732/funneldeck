@@ -78,6 +78,8 @@ const CONFIANCA_COR: Record<string, string> = {
   'Baixa': 'text-gray-400',
 }
 
+const LAYOUT_LABEL: Record<string, string> = { curto: 'Curto', longo: 'Longo' }
+
 interface Props {
   teste: TesteAB
 }
@@ -368,10 +370,35 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
                   </div>
                 )}
 
-                {v.url_variante && (
-                  <a href={v.url_variante} target="_blank" rel="noreferrer" className="text-indigo-400 text-xs hover:underline break-all block mb-4">
-                    {v.url_variante}
-                  </a>
+                {(v.url_variante || v.url_preview) && (
+                  <div className="space-y-1 mb-4">
+                    {v.url_variante && (
+                      <a href={v.url_variante} target="_blank" rel="noreferrer" className="text-indigo-400 text-xs hover:underline break-all block">
+                        {v.url_variante}
+                      </a>
+                    )}
+                    {v.url_preview && (
+                      <a href={v.url_preview} target="_blank" rel="noreferrer" className="text-gray-500 text-xs hover:underline hover:text-gray-400 break-all block">
+                        Preview ↗
+                      </a>
+                    )}
+                  </div>
+                )}
+
+                {(v.layout || v.headline || v.subheadline) && (
+                  <div className="space-y-1.5 mb-4 pb-4 border-b border-gray-800">
+                    {v.layout && (
+                      <span className="inline-flex px-2 py-0.5 rounded text-xs font-medium border bg-gray-800 text-gray-300 border-gray-700">
+                        Layout: {LAYOUT_LABEL[v.layout] ?? v.layout}
+                      </span>
+                    )}
+                    {v.headline && (
+                      <p className="text-white text-sm font-medium leading-snug">{v.headline}</p>
+                    )}
+                    {v.subheadline && (
+                      <p className="text-gray-500 text-xs leading-snug">{v.subheadline}</p>
+                    )}
+                  </div>
                 )}
 
                 {emEdicao ? (
