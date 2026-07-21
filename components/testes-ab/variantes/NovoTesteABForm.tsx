@@ -5,7 +5,7 @@ import Link from 'next/link'
 import {
   ChevronRight, Info, Brain, Rocket, Trash2, Upload,
   PlusCircle, SplitSquareHorizontal, MousePointerClick, Loader2, ImageOff,
-  CheckCircle2, Circle, ClipboardCheck,
+  CheckCircle2, Circle, ClipboardCheck, FileCode2, ZoomIn, X,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -77,6 +77,21 @@ function hoje(): string {
   return new Date().toISOString().split('T')[0]
 }
 
+function ehArquivoHtml(url: string): boolean {
+  return /\.html?($|\?)/i.test(url)
+}
+
+async function abrirReferenciaHtml(url: string) {
+  try {
+    const resp = await fetch(url)
+    const texto = await resp.text()
+    const blobUrl = URL.createObjectURL(new Blob([texto], { type: 'text/html' }))
+    window.open(blobUrl, '_blank')
+  } catch {
+    window.open(url, '_blank')
+  }
+}
+
 export function NovoTesteABForm({
   funis, metricasVendas, metricasAquisicao, paginas, especialistas, campanhas, segmentos, responsaveis, angulos,
   elementosTestados, testesExistentes,
@@ -105,6 +120,7 @@ export function NovoTesteABForm({
 
   const [salvando, setSalvando] = useState<'planejado' | 'ativo' | null>(null)
   const [erro, setErro] = useState('')
+  const [imagemAmpliada, setImagemAmpliada] = useState<string | null>(null)
 
   const paginasDoFunil = paginas.filter(p => p.funil_id === funilId)
   const funilSelecionado = funis.find(f => f.id === funilId)
@@ -551,25 +567,50 @@ export function NovoTesteABForm({
                     <label className="border-2 border-dashed border-gray-800 rounded-lg p-6 flex flex-col items-center justify-center bg-gray-950 hover:bg-gray-900 transition-colors cursor-pointer">
                       <input
                         type="file"
-                        accept="image/*"
+                        accept="image/*,.html,.htm,text/html"
                         className="hidden"
                         onChange={e => { const f = e.target.files?.[0]; if (f) handleArquivo(idx, f) }}
                       />
                       {v.enviando ? (
                         <Loader2 size={20} className="text-indigo-400 animate-spin mb-2" />
+                      ) : v.screenshotUrl && ehArquivoHtml(v.screenshotUrl) ? (
+                        <FileCode2 size={28} className="text-indigo-400 mb-2" />
                       ) : v.screenshotUrl ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={v.screenshotUrl} alt={`Screenshot variação ${v.letra}`} className="max-h-24 rounded mb-2 object-contain" />
+                        <div className="relative w-full mb-2">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={v.screenshotUrl} alt={`Screenshot variação ${v.letra}`} className="max-h-[420px] w-full rounded object-contain" />
+                          <button
+                            type="button"
+                            onClick={e => { e.preventDefault(); e.stopPropagation(); setImagemAmpliada(v.screenshotUrl) }}
+                            className="absolute top-2 right-2 p-1.5 bg-black/60 hover:bg-black/80 rounded-lg text-white transition-colors"
+                            title="Ampliar"
+                          >
+                            <ZoomIn size={14} />
+                          </button>
+                        </div>
                       ) : (
                         <Upload size={20} className="text-gray-600 mb-2" />
                       )}
                       <p className="text-xs text-gray-500">
-                        {v.enviando ? 'Enviando...' : v.screenshotUrl ? 'Trocar screenshot' : 'Upload de Screenshot'}
+                        {v.enviando
+                          ? 'Enviando...'
+                          : v.screenshotUrl
+                          ? (ehArquivoHtml(v.screenshotUrl) ? 'Trocar referência HTML' : 'Trocar screenshot')
+                          : 'Upload de Screenshot ou HTML'}
                       </p>
                       {!v.enviando && !v.screenshotUrl && (
-                        <p className="text-[11px] text-gray-600 mt-0.5">Arraste ou clique aqui</p>
+                        <p className="text-[11px] text-gray-600 mt-0.5">Arraste ou clique aqui (imagem ou .html salvo com SingleFile)</p>
                       )}
                     </label>
+                    {v.screenshotUrl && ehArquivoHtml(v.screenshotUrl) && (
+                      <button
+                        type="button"
+                        onClick={() => abrirReferenciaHtml(v.screenshotUrl)}
+                        className="text-indigo-400 text-xs hover:underline -mt-2 block text-left"
+                      >
+                        Abrir referência HTML em nova aba ↗
+                      </button>
+                    )}
                     <div className="space-y-1.5">
                       <Label className="text-gray-500 text-xs">Página *</Label>
                       <Select
@@ -810,6 +851,29 @@ export function NovoTesteABForm({
           })}
         </nav>
       </div>
+
+      {imagemAmpliada && (
+        <div
+          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-6"
+          onClick={() => setImagemAmpliada(null)}
+        >
+          <button
+            type="button"
+            onClick={() => setImagemAmpliada(null)}
+            className="absolute top-5 right-5 p-2 bg-gray-900/80 hover:bg-gray-800 rounded-lg text-white transition-colors"
+            title="Fechar"
+          >
+            <X size={20} />
+          </button>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={imagemAmpliada}
+            alt="Screenshot ampliado"
+            className="max-w-[95vw] max-h-[95vh] object-contain rounded-lg"
+            onClick={e => e.stopPropagation()}
+          />
+        </div>
+      )}
     </div>
   )
 }

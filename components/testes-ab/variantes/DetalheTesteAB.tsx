@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import {
-  ChevronRight, Trophy, Brain, Lightbulb, ImageOff, Loader2, CheckCircle2, Rocket, AlertTriangle,
+  ChevronRight, Trophy, Brain, Lightbulb, ImageOff, Loader2, CheckCircle2, Rocket, AlertTriangle, FileCode2, ZoomIn, X,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -51,6 +51,21 @@ function deltaPct(valor: number, base: number): string | null {
   return `${sinal}${pct.toFixed(1)}%`
 }
 
+function ehArquivoHtml(url: string): boolean {
+  return /\.html?($|\?)/i.test(url)
+}
+
+async function abrirReferenciaHtml(url: string) {
+  try {
+    const resp = await fetch(url)
+    const texto = await resp.text()
+    const blobUrl = URL.createObjectURL(new Blob([texto], { type: 'text/html' }))
+    window.open(blobUrl, '_blank')
+  } catch {
+    window.open(url, '_blank')
+  }
+}
+
 function diasDeTeste(dataInicio?: string | null, dataFim?: string | null): number | null {
   if (!dataInicio) return null
   const fim = dataFim ? new Date(dataFim) : new Date()
@@ -84,6 +99,7 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
   const [desfazendo, setDesfazendo] = useState(false)
   const [aplicando, setAplicando] = useState(false)
   const [erro, setErro] = useState('')
+  const [imagemAmpliada, setImagemAmpliada] = useState<string | null>(null)
 
   const variantes = teste.variantes_teste ?? []
   const controle = variantes.find(v => v.is_controle)
@@ -324,9 +340,28 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
                   )}
                 </div>
 
-                {v.screenshot_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={v.screenshot_url} alt={`Screenshot ${v.nome}`} className="w-full rounded-lg border border-gray-800 mb-4 object-cover max-h-48" />
+                {v.screenshot_url && ehArquivoHtml(v.screenshot_url) ? (
+                  <button
+                    type="button"
+                    onClick={() => abrirReferenciaHtml(v.screenshot_url!)}
+                    className="w-full rounded-lg border border-dashed border-gray-800 bg-gray-950 flex flex-col items-center justify-center h-32 mb-4 text-indigo-400 hover:border-indigo-500/40 transition-colors gap-1.5"
+                  >
+                    <FileCode2 size={22} />
+                    <span className="text-xs">Abrir referência HTML ↗</span>
+                  </button>
+                ) : v.screenshot_url ? (
+                  <button
+                    type="button"
+                    onClick={() => setImagemAmpliada(v.screenshot_url!)}
+                    className="relative w-full mb-4 group"
+                    title="Ampliar screenshot"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={v.screenshot_url} alt={`Screenshot ${v.nome}`} className="w-full max-h-[420px] rounded-lg border border-gray-800 bg-gray-950 object-contain" />
+                    <span className="absolute top-2 right-2 p-1.5 bg-black/60 group-hover:bg-black/80 rounded-lg text-white transition-colors">
+                      <ZoomIn size={14} />
+                    </span>
+                  </button>
                 ) : (
                   <div className="w-full rounded-lg border border-dashed border-gray-800 bg-gray-950 flex items-center justify-center h-32 mb-4 text-gray-700">
                     <ImageOff size={20} />
@@ -516,6 +551,29 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
           </div>
         )}
       </div>
+
+      {imagemAmpliada && (
+        <div
+          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-6"
+          onClick={() => setImagemAmpliada(null)}
+        >
+          <button
+            type="button"
+            onClick={() => setImagemAmpliada(null)}
+            className="absolute top-5 right-5 p-2 bg-gray-900/80 hover:bg-gray-800 rounded-lg text-white transition-colors"
+            title="Fechar"
+          >
+            <X size={20} />
+          </button>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={imagemAmpliada}
+            alt="Screenshot ampliado"
+            className="max-w-[95vw] max-h-[95vh] object-contain rounded-lg"
+            onClick={e => e.stopPropagation()}
+          />
+        </div>
+      )}
     </div>
   )
 }

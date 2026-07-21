@@ -151,15 +151,20 @@ export async function uploadScreenshotVariante(
 ): Promise<{ ok: boolean; url?: string; erro?: string }> {
   const file = formData.get('file') as File | null
   if (!file || file.size === 0) return { ok: false, erro: 'Nenhum arquivo enviado.' }
-  if (!file.type.startsWith('image/')) return { ok: false, erro: 'Envie uma imagem (PNG, JPG...).' }
-  if (file.size > 5 * 1024 * 1024) return { ok: false, erro: 'Imagem maior que 5MB.' }
+
+  const ehHtml = file.type === 'text/html' || /\.html?$/i.test(file.name)
+  const ehImagem = file.type.startsWith('image/')
+  if (!ehImagem && !ehHtml) return { ok: false, erro: 'Envie uma imagem (PNG, JPG...) ou um arquivo HTML (ex: salvo com SingleFile).' }
+
+  const limite = ehHtml ? 15 * 1024 * 1024 : 5 * 1024 * 1024
+  if (file.size > limite) return { ok: false, erro: `Arquivo maior que ${ehHtml ? '15MB' : '5MB'}.` }
 
   const supabase = await createClient()
-  const extensao = file.name.split('.').pop() || 'png'
+  const extensao = ehHtml ? 'html' : (file.name.split('.').pop() || 'png')
   const nomeArquivo = `${crypto.randomUUID()}.${extensao}`
 
   const { error } = await supabase.storage.from(BUCKET).upload(nomeArquivo, file, {
-    contentType: file.type,
+    contentType: ehHtml ? 'text/html' : file.type,
     upsert: false,
   })
   if (error) return { ok: false, erro: error.message }
