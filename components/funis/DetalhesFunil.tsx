@@ -2,13 +2,13 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 
-import { ChevronLeft, Clock, LayoutGrid, Layers, Plus, Pencil, Trash2, Link as LinkIcon } from 'lucide-react'
+import { ChevronLeft, Clock, LayoutGrid, Layers, Plus, Pencil, Trash2, Link as LinkIcon, FlaskConical, Trophy } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { MapaPaginas } from '@/components/paginas/MapaPaginas'
 import { ModalEstrategia } from './ModalEstrategia'
 import { listarEstrategias, listarAtribuicoesPaginas, deletarEstrategia } from '@/lib/actions/estrategias'
 import { atualizarPagina } from '@/lib/actions/paginas'
-import type { Pagina, Funil, Configuracao, Estrategia } from '@/lib/types'
+import type { Pagina, Funil, Configuracao, Estrategia, TesteAB } from '@/lib/types'
 
 interface HistoricoEvento {
   id: string
@@ -26,6 +26,7 @@ interface Props {
   historico: HistoricoEvento[]
   configs: Configuracao[]
   estrategias: Estrategia[]
+  testesAB: TesteAB[]
 }
 
 const STATUS_COR: Record<string, string> = {
@@ -37,6 +38,13 @@ const STATUS_COR: Record<string, string> = {
   'Pausada':      '#f97316',
 }
 
+const STATUS_TESTE_COR: Record<string, string> = {
+  'Planejado':             'bg-gray-800 text-gray-400 border-gray-700',
+  'Ativo':                 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
+  'Finalizado':            'bg-green-500/10 text-green-400 border-green-500/20',
+  'Vencedor implementado': 'bg-green-500/10 text-green-400 border-green-500/20',
+}
+
 function formatarData(iso: string) {
   return new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })
 }
@@ -45,13 +53,13 @@ function formatarHora(iso: string) {
   return new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
 }
 
-export function DetalhesFunil({ funil, paginas, paginasProduto = [], historico, configs, estrategias }: Props) {
+export function DetalhesFunil({ funil, paginas, paginasProduto = [], historico, configs, estrategias, testesAB }: Props) {
   const TAB_KEY = `funil-tab-${funil.id}`
-  const [aba, setAba] = useState<'timeline' | 'paginas' | 'estrategias'>('timeline')
+  const [aba, setAba] = useState<'timeline' | 'paginas' | 'estrategias' | 'testes'>('timeline')
   const [estrategiasState, setEstrategiasState] = useState<Estrategia[]>(estrategias)
 
   useEffect(() => {
-    const saved = sessionStorage.getItem(TAB_KEY) as 'timeline' | 'paginas' | 'estrategias' | null
+    const saved = sessionStorage.getItem(TAB_KEY) as 'timeline' | 'paginas' | 'estrategias' | 'testes' | null
     if (saved) { setAba(saved); sessionStorage.removeItem(TAB_KEY) }
   }, [TAB_KEY])
 
@@ -192,6 +200,7 @@ export function DetalhesFunil({ funil, paginas, paginasProduto = [], historico, 
           { id: 'timeline',    label: 'Timeline',    icon: Clock },
           { id: 'paginas',     label: 'Páginas',     icon: LayoutGrid },
           { id: 'estrategias', label: 'Estratégias', icon: Layers },
+          { id: 'testes',      label: 'Testes A/B',  icon: FlaskConical },
         ] as const).map(({ id, label, icon: Icon }) => (
           <button
             key={id}
@@ -494,6 +503,53 @@ export function DetalhesFunil({ funil, paginas, paginasProduto = [], historico, 
                   </div>
                 )
               })()}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Aba Testes A/B */}
+      {aba === 'testes' && (
+        <div className="space-y-3">
+          {testesAB.length === 0 ? (
+            <div className="rounded-xl border border-gray-800 p-8 text-center space-y-2">
+              <FlaskConical size={24} className="text-gray-700 mx-auto" />
+              <p className="text-gray-500 text-sm">Nenhum teste A/B vinculado a este funil ainda.</p>
+              <Link href="/variantes/novo" className="text-indigo-400 hover:underline text-sm">
+                Criar experimento
+              </Link>
+            </div>
+          ) : (
+            <div className="rounded-xl border border-gray-800 divide-y divide-gray-800 overflow-hidden">
+              {testesAB.map(t => {
+                const vencedora = t.variantes_teste?.find(v => v.is_vencedor)
+                return (
+                  <Link
+                    key={t.id}
+                    href={`/variantes/${t.id}`}
+                    className="flex items-center justify-between gap-4 px-4 py-3 hover:bg-gray-900/40 transition-colors"
+                  >
+                    <div className="min-w-0">
+                      <p className="text-white text-sm font-medium truncate">{t.nome}</p>
+                      {t.paginas?.nome && (
+                        <p className="text-gray-500 text-xs mt-0.5">
+                          {t.paginas.codigo && `[${t.paginas.codigo}] `}{t.paginas.nome}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-3 shrink-0">
+                      {vencedora && (
+                        <span className="inline-flex items-center gap-1 text-green-400 text-xs font-medium">
+                          <Trophy size={12} /> {vencedora.nome}
+                        </span>
+                      )}
+                      <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium border ${STATUS_TESTE_COR[t.status] ?? 'bg-gray-800 text-gray-400 border-gray-700'}`}>
+                        {t.status}
+                      </span>
+                    </div>
+                  </Link>
+                )
+              })}
             </div>
           )}
         </div>

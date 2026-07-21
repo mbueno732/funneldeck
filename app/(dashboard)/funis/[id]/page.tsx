@@ -12,6 +12,7 @@ export default async function FunilDetalhePage({ params }: { params: { id: strin
     { data: paginasRaw },
     { data: configs },
     { data: estrategias },
+    { data: testesAB },
   ] = await Promise.all([
     supabase
       .from('funis')
@@ -35,6 +36,11 @@ export default async function FunilDetalhePage({ params }: { params: { id: strin
       .eq('funil_id', params.id)
       .order('ordem')
       .order('criado_em'),
+    supabase
+      .from('testes_ab')
+      .select('*, paginas(id, nome, codigo), variantes_teste(id, is_vencedor, nome)')
+      .eq('funil_id', params.id)
+      .order('criado_em', { ascending: false }),
   ])
 
   if (!funil) notFound()
@@ -61,6 +67,7 @@ export default async function FunilDetalhePage({ params }: { params: { id: strin
       configs={(configs ?? []) as Configuracao[]}
       estrategias={(estrategias ?? []) as Estrategia[]}
       paginasProduto={(paginasProdutoRaw ?? []) as never}
+      testesAB={(testesAB ?? []) as never}
     />
   )
 }

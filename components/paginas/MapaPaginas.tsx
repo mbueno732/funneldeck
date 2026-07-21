@@ -1,7 +1,7 @@
 'use client'
 import { useState, useMemo, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { Plus, Search, ExternalLink, Pencil, Trash2, AlertTriangle, Clock, Copy, Link as LinkIcon, Check, X, ChevronRight, ChevronDown, ClipboardList, LayoutGrid, List, GitBranch, Layers } from 'lucide-react'
+import { Plus, Search, ExternalLink, Pencil, Trash2, AlertTriangle, Clock, Copy, Link as LinkIcon, Check, X, ChevronRight, ChevronDown, ClipboardList, LayoutGrid, List, GitBranch, Layers, FlaskConical, Pin } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ModalPagina } from './ModalPagina'
 import { ModalVariante } from './ModalVariante'
 import { PainelChecklist } from './PainelChecklist'
-import { atualizarPagina, deletarPagina, duplicarPagina } from '@/lib/actions/paginas'
+import { atualizarPagina, deletarPagina, duplicarPagina, marcarPaginaAtual } from '@/lib/actions/paginas'
 import { iniciarAnaliseGtmetrix, verificarAnaliseGtmetrix } from '@/lib/actions/gtmetrix'
 import { buscarChecklist } from '@/lib/actions/checklists'
 import { buscarHistoricoStatus } from '@/lib/actions/historico'
@@ -63,6 +63,7 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
   const [deletandoPagina, setDeletandoPagina] = useState<string | null>(null)
   const [deletadas, setDeletadas] = useState<Set<string>>(new Set())
   const [duplicandoPagina, setDuplicandoPagina] = useState<string | null>(null)
+  const [marcandoAtual, setMarcandoAtual] = useState<string | null>(null)
   const [analisando, setAnalisando] = useState<string | null>(null)
   const [estadoGtmetrix, setEstadoGtmetrix] = useState<string>('')
   const [progressoGtmetrix, setProgressoGtmetrix] = useState(0)
@@ -333,6 +334,18 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
     }
   }
 
+  async function handleMarcarAtual(id: string) {
+    setMarcandoAtual(id)
+    try {
+      await marcarPaginaAtual(id)
+      router.refresh()
+    } catch (e) {
+      console.error('Erro ao marcar página atual:', e)
+    } finally {
+      setMarcandoAtual(null)
+    }
+  }
+
   async function handleDeletar(id: string) {
     setDeletadas(d => new Set(d).add(id))
     setDeletandoPagina(null)
@@ -418,6 +431,14 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
                 className="text-indigo-400 hover:text-indigo-300 shrink-0" title="Abrir página">
                 <ExternalLink size={12} />
               </a>
+            )}
+            {p.tem_teste_ativo && (
+              <span title="Teste A/B ativo"><FlaskConical size={12} className="text-indigo-400 shrink-0" fill="currentColor" /></span>
+            )}
+            {p.pagina_atual && (
+              <span title="Página atual (rodando de fato no fluxo)" className="inline-flex items-center gap-0.5 text-[10px] font-medium text-green-400 bg-green-500/10 border border-green-500/20 rounded-full px-1.5 py-0.5 shrink-0">
+                <Pin size={10} fill="currentColor" /> Atual
+              </span>
             )}
             {atrasada && <span title="Prazo vencido"><AlertTriangle size={12} className="text-red-400 shrink-0" /></span>}
           </div>
@@ -632,6 +653,11 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
               <button onClick={() => setVariantePagina(raw)}
                 className="p-1.5 text-gray-500 hover:text-indigo-400 hover:bg-gray-900 rounded transition-colors" title="Criar variante">
                 <GitBranch size={13} />
+              </button>
+              <button onClick={() => handleMarcarAtual(p.id)} disabled={marcandoAtual === p.id}
+                className={`p-1.5 hover:bg-gray-900 rounded transition-colors disabled:opacity-40 disabled:cursor-wait ${p.pagina_atual ? 'text-green-400' : 'text-gray-500 hover:text-green-400'}`}
+                title={p.pagina_atual ? 'Desmarcar como página atual' : 'Marcar como página atual (a que está rodando de fato)'}>
+                <Pin size={13} fill={p.pagina_atual ? 'currentColor' : 'none'} className={marcandoAtual === p.id ? 'animate-pulse' : ''} />
               </button>
               <button onClick={() => handleDuplicar(p.id)} disabled={duplicandoPagina === p.id}
                 className="p-1.5 text-gray-500 hover:text-indigo-400 hover:bg-gray-900 rounded transition-colors disabled:opacity-40 disabled:cursor-wait" title="Duplicar">
@@ -943,8 +969,24 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
                                 <ExternalLink size={11} />
                               </a>
                             )}
+                            {p.tem_teste_ativo && (
+                              <span title="Teste A/B ativo" className="mt-0.5"><FlaskConical size={11} className="text-indigo-400 shrink-0" fill="currentColor" /></span>
+                            )}
+                            {p.pagina_atual && (
+                              <span title="Página atual (rodando de fato no fluxo)" className="mt-0.5 inline-flex items-center gap-0.5 text-[10px] font-medium text-green-400 bg-green-500/10 border border-green-500/20 rounded-full px-1.5 py-0.5 shrink-0">
+                                <Pin size={9} fill="currentColor" /> Atual
+                              </span>
+                            )}
                           </div>
                           <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                            <button
+                              onClick={() => handleMarcarAtual(p.id)}
+                              disabled={marcandoAtual === p.id}
+                              className={`p-1 hover:bg-gray-900 rounded transition-colors disabled:opacity-40 ${p.pagina_atual ? 'text-green-400' : 'text-gray-500 hover:text-green-400'}`}
+                              title={p.pagina_atual ? 'Desmarcar como página atual' : 'Marcar como página atual'}
+                            >
+                              <Pin size={12} fill={p.pagina_atual ? 'currentColor' : 'none'} className={marcandoAtual === p.id ? 'animate-pulse' : ''} />
+                            </button>
                             {['Implementada', 'Publicada'].includes(p.status) && (
                               <button
                                 onClick={() => setChecklistPagina(raw)}

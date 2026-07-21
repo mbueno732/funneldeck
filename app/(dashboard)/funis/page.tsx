@@ -14,6 +14,7 @@ export default async function FunisPage({ searchParams }: { searchParams: { espe
     { data: especialistas },
     { data: configs },
     { data: estrategias },
+    { data: testesAtivosRaw },
   ] = await Promise.all([
     supabase.from('funis').select('*, produtos(id, nome, especialista_id, especialistas(id, nome))').order('nome'),
     supabase.from('paginas').select('funil_id, status, etapa, data_prevista'),
@@ -21,7 +22,10 @@ export default async function FunisPage({ searchParams }: { searchParams: { espe
     supabase.from('especialistas').select('id, nome, ativo').eq('ativo', true).order('nome'),
     supabase.from('configuracoes').select('*').eq('ativo', true).order('categoria').order('ordem'),
     supabase.from('estrategias').select('*').order('funil_id').order('ordem'),
+    supabase.from('testes_ab').select('funil_id').eq('status', 'Ativo'),
   ])
+
+  const funilIdsComTesteAtivo = new Set((testesAtivosRaw ?? []).map(t => t.funil_id))
 
   const hoje = new Date().toISOString().split('T')[0]
   const etapasOrdem = (configs ?? []).filter(c => c.categoria === 'etapa' && c.ativo).map(c => c.valor)
@@ -59,6 +63,7 @@ export default async function FunisPage({ searchParams }: { searchParams: { espe
       impl_nao_publicadas: pagsFunil.filter(p => p.status === 'Implementada').length,
       etapas_pipeline: etapasComPaginas,
       tem_movimento: pagsFunil.some(p => ['Em andamento', 'Implementada', 'Publicada'].includes(p.status)),
+      tem_teste_ativo: funilIdsComTesteAtivo.has(f.id),
     }
   })
 

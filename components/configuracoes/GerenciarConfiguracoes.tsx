@@ -39,6 +39,13 @@ const GRUPOS: { label: string; itens: { key: AbaAtiva; label: string }[] }[] = [
       { key: 'checklist', label: 'Checklist' },
     ],
   },
+  {
+    label: 'Testes A/B',
+    itens: [
+      { key: 'metrica_teste',            label: 'Métricas de Vendas' },
+      { key: 'metrica_teste_aquisicao',  label: 'Métricas de Aquisição' },
+    ],
+  },
 ]
 
 const CHECKLIST_FASES: { key: CategoriaConfig; label: string }[] = [

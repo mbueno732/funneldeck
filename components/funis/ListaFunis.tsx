@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Plus, Pencil, FileText, ExternalLink, AlertCircle, Copy, Trash2, Check, X, ChevronDown, ChevronRight } from 'lucide-react'
+import { Plus, Pencil, FileText, ExternalLink, AlertCircle, Copy, Trash2, Check, X, ChevronDown, ChevronRight, FlaskConical } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -236,6 +236,13 @@ export function ListaFunis({ funis, produtos, especialistas, configs, estrategia
                       {f.objetivo}
                     </span>
                   )}
+                  <span title={f.tem_teste_ativo ? 'Teste A/B ativo' : 'Sem teste A/B ativo'}>
+                    <FlaskConical
+                      size={14}
+                      className={f.tem_teste_ativo ? 'text-indigo-400' : 'text-gray-700'}
+                      fill={f.tem_teste_ativo ? 'currentColor' : 'none'}
+                    />
+                  </span>
 
                   {f.planilha_leads && (
                     <a href={f.planilha_leads} target="_blank" rel="noopener noreferrer"

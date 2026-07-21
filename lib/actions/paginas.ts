@@ -201,3 +201,29 @@ export async function deletarPagina(id: string) {
   revalidatePath('/funis', 'layout')
   revalidatePath('/dashboard')
 }
+
+export async function marcarPaginaAtual(id: string): Promise<{ ok: boolean; erro?: string }> {
+  const supabase = await createClient()
+
+  const { data: pagina, error: errBusca } = await supabase
+    .from('paginas').select('funil_id, etapa, pagina_atual').eq('id', id).single()
+  if (errBusca || !pagina) return { ok: false, erro: 'Página não encontrada.' }
+
+  if (pagina.pagina_atual) {
+    const { error } = await supabase.from('paginas').update({ pagina_atual: false }).eq('id', id)
+    if (error) return { ok: false, erro: error.message }
+  } else {
+    let queryReset = supabase.from('paginas').update({ pagina_atual: false }).eq('funil_id', pagina.funil_id)
+    queryReset = pagina.etapa ? queryReset.eq('etapa', pagina.etapa) : queryReset.is('etapa', null)
+    const { error: errReset } = await queryReset
+    if (errReset) return { ok: false, erro: errReset.message }
+
+    const { error: errSet } = await supabase.from('paginas').update({ pagina_atual: true }).eq('id', id)
+    if (errSet) return { ok: false, erro: errSet.message }
+  }
+
+  await registrarAuditoria('paginas', id, 'marcar_pagina_atual', { atual: !pagina.pagina_atual })
+  revalidatePath('/paginas')
+  revalidatePath('/funis', 'layout')
+  return { ok: true }
+}

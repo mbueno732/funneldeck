@@ -1,9 +1,6 @@
 export const dynamic = 'force-dynamic'
 import { createClient } from '@/lib/supabase/server'
-import { DashboardView } from '@/components/dashboard/DashboardView'
-import { FiltroDashboard } from '@/components/dashboard/FiltroDashboard'
-import { FiltroMes } from '@/components/dashboard/FiltroMes'
-import { Suspense } from 'react'
+import { DashboardV2View } from '@/components/testes-ab/DashboardV2View'
 
 export default async function DashboardPage({
   searchParams,
@@ -32,12 +29,16 @@ export default async function DashboardPage({
     { data: especialistas },
     { data: statusConfigs },
     { data: paginasImpl },
+    { count: totalVariantes },
+    { data: variantesFunis },
   ] = await Promise.all([
     supabase.from('paginas').select('id, nome, status, data_prevista, data_publicacao, funil_id, atualizado_em, horas_estimadas, horas_reais'),
     supabase.from('funis').select('id, status, produto_id, especialista_id, produtos(especialista_id, especialistas(id, nome))'),
     supabase.from('especialistas').select('id, nome').eq('ativo', true).order('nome'),
     supabase.from('configuracoes').select('valor, cor').eq('categoria', 'status_pagina').eq('ativo', true).order('ordem'),
     supabase.from('paginas').select('id, funil_id, checklists_publicacao(checklist_itens(concluido))').eq('status', 'Implementada'),
+    supabase.from('variantes_teste').select('id', { count: 'exact', head: true }),
+    supabase.from('variantes_teste').select('teste_id, testes_ab(funil_id)'),
   ])
 
   const funisVisiveis = espFiltro
@@ -155,37 +156,31 @@ export default async function DashboardPage({
     }
   })
 
+  const funisComVariantes = new Set(
+    (variantesFunis ?? [])
+      .map(v => (v.testes_ab as { funil_id?: string } | null)?.funil_id)
+      .filter(Boolean)
+  ).size
+
+  const mesesDisponiveis = Array.from(new Set(
+    (todasPaginas ?? [])
+      .map(x => (x as { data_publicacao?: string }).data_publicacao)
+      .filter((d): d is string => !!d)
+      .map(d => d.slice(0, 7))
+  )).sort().reverse()
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-white">Dashboard</h1>
-          <p className="text-gray-500 text-sm mt-1">Visão operacional geral</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Suspense>
-            <FiltroMes mesesDisponiveis={
-              Array.from(new Set(
-                (todasPaginas ?? [])
-                  .map(x => (x as { data_publicacao?: string }).data_publicacao)
-                  .filter((d): d is string => !!d)
-                  .map(d => d.slice(0, 7))
-              )).sort().reverse()
-            } />
-          </Suspense>
-          <Suspense>
-            <FiltroDashboard especialistas={(especialistas ?? []) as { id: string; nome: string; ativo: boolean; criado_em: string; atualizado_em: string }[]} />
-          </Suspense>
-        </div>
-      </div>
-      <DashboardView
-        kpis={kpis}
-        porEspecialista={porEspecialista}
-        statusConfigs={(statusConfigs ?? []) as { valor: string; cor: string | null }[]}
-        mesLabel={mesLabel}
-        mesAtual={mesSelecionado}
-        horasKpis={horasKpis}
-      />
-    </div>
+    <DashboardV2View
+      kpis={kpis}
+      porEspecialista={porEspecialista}
+      statusConfigs={(statusConfigs ?? []) as { valor: string; cor: string | null }[]}
+      mesLabel={mesLabel}
+      mesAtual={mesSelecionado}
+      horasKpis={horasKpis}
+      variantesAtivas={totalVariantes ?? 0}
+      funisComVariantes={funisComVariantes}
+      mesesDisponiveis={mesesDisponiveis}
+      especialistas={(especialistas ?? []) as { id: string; nome: string; ativo: boolean; criado_em: string; atualizado_em: string }[]}
+    />
   )
 }
