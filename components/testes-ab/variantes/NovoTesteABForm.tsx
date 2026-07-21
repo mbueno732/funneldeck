@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
@@ -141,7 +141,6 @@ export function NovoTesteABForm({
   const [salvando, setSalvando] = useState<'planejado' | 'ativo' | 'edicao' | null>(null)
   const [erro, setErro] = useState('')
   const [imagemAmpliada, setImagemAmpliada] = useState<string | null>(null)
-  const [nomeEditadoManualmente, setNomeEditadoManualmente] = useState(modoEdicao)
 
   const paginasDoFunil = paginas.filter(p => p.funil_id === funilId)
   const funilSelecionado = funis.find(f => f.id === funilId)
@@ -150,13 +149,6 @@ export function NovoTesteABForm({
   const especialistaNome = especialistas.find(e => e.id === especialistaId)?.nome || ''
   const tipoTeste: 'aquisicao' | 'vendas' = funilSelecionado?.objetivo === 'Aquisição' ? 'aquisicao' : 'vendas'
   const metricas = tipoTeste === 'aquisicao' ? metricasAquisicao : metricasVendas
-
-  // Nome sugerido automaticamente (Elemento testado + Funil) — só enquanto o usuário não editar na mão.
-  useEffect(() => {
-    if (nomeEditadoManualmente) return
-    const nomeAuto = [elementoTestado, funilSelecionado?.nome].filter(Boolean).join(' · ')
-    if (nomeAuto) setNome(nomeAuto)
-  }, [elementoTestado, funilSelecionado?.nome, nomeEditadoManualmente])
 
   const funisAgrupados = useMemo(() => {
     const grupos = new Map<string, typeof funis>()
@@ -364,14 +356,12 @@ export function NovoTesteABForm({
                   <Label className={labelCls}>Nome do Experimento *</Label>
                   <Input
                     value={nome}
-                    onChange={e => { setNome(e.target.value); setNomeEditadoManualmente(true) }}
-                    placeholder="Ex: [Checkout] Redução de campos no formulário"
+                    onChange={e => setNome(e.target.value)}
+                    placeholder="Ex: Formulário com 2 campos (email + nome)"
                     className={inputCls}
                   />
                   <p className="text-gray-600 text-xs">
-                    {nomeEditadoManualmente
-                      ? 'Use nomes descritivos para facilitar a busca depois.'
-                      : 'Gerado automaticamente (Elemento testado + Funil) — pode editar à vontade.'}
+                    Descreva a mudança testada, não o contexto — Funil, Campanha, Elemento e Segmento já aparecem em colunas próprias na lista.
                   </p>
                 </div>
                 <div className="space-y-1.5">
