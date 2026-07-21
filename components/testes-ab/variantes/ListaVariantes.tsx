@@ -78,10 +78,21 @@ function formatarMoeda(v: number): string {
   return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })
 }
 
-function nomeVariante(v: { nome: string; is_controle: boolean }): string {
-  if (!v.is_controle) return v.nome
-  const letra = v.nome.match(/([A-Za-z])$/)?.[1] ?? 'A'
-  return `Controle (${letra})`
+function slugDaUrl(url?: string | null): string | null {
+  if (!url) return null
+  try {
+    const path = new URL(url).pathname
+    const segmentos = path.split('/').filter(Boolean)
+    return segmentos[segmentos.length - 1] || null
+  } catch {
+    return null
+  }
+}
+
+function nomeVariante(v: { nome: string; is_controle: boolean; url_variante?: string | null }): string {
+  const base = v.is_controle ? `Controle (${v.nome.match(/([A-Za-z])$/)?.[1] ?? 'A'})` : v.nome
+  const slug = slugDaUrl(v.url_variante)
+  return slug ? `${base} (${slug})` : base
 }
 
 function diasEntre(dataInicio?: string | null, dataFim?: string | null): number | null {
