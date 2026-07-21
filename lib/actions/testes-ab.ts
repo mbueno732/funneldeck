@@ -278,6 +278,20 @@ export async function desfazerVencedora(testeId: string): Promise<{ ok: boolean;
   return { ok: true }
 }
 
+export async function deletarTesteAB(testeId: string): Promise<{ ok: boolean; erro?: string }> {
+  const supabase = await createClient()
+
+  const { error: errVariantes } = await supabase.from('variantes_teste').delete().eq('teste_id', testeId)
+  if (errVariantes) return { ok: false, erro: errVariantes.message }
+
+  const { error: errTeste } = await supabase.from('testes_ab').delete().eq('id', testeId)
+  if (errTeste) return { ok: false, erro: errTeste.message }
+
+  await registrarAuditoria('testes_ab', testeId, 'deletar')
+  revalidatePath('/variantes')
+  return { ok: true }
+}
+
 export async function aplicarVencedor(testeId: string): Promise<{ ok: boolean; erro?: string }> {
   const supabase = await createClient()
   const { error } = await supabase

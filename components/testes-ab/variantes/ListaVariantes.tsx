@@ -1,9 +1,9 @@
 'use client'
 import { Fragment, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
-import { Plus, FlaskConical, Trophy, Search, ChevronDown, ChevronRight, Check, Info } from 'lucide-react'
+import { Plus, FlaskConical, Trophy, Search, ChevronDown, ChevronRight, Check, Info, Trash2 } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { atualizarMetricasVariante } from '@/lib/actions/testes-ab'
+import { atualizarMetricasVariante, deletarTesteAB } from '@/lib/actions/testes-ab'
 import type { TesteAB, Funil } from '@/lib/types'
 
 type Variante = NonNullable<TesteAB['variantes_teste']>[number]
@@ -192,6 +192,17 @@ export function ListaVariantes({ testes: testesProp, funis }: Props) {
       ...t,
       variantes_teste: t.variantes_teste?.map(v => v.id !== varianteId ? v : { ...v, ...valores }),
     }))
+  }
+
+  const [confirmandoExclusao, setConfirmandoExclusao] = useState<string | null>(null)
+  const [excluindo, setExcluindo] = useState<string | null>(null)
+
+  async function handleExcluir(testeId: string) {
+    setExcluindo(testeId)
+    const r = await deletarTesteAB(testeId)
+    setExcluindo(null)
+    setConfirmandoExclusao(null)
+    if (r.ok) setTestes(prev => prev.filter(t => t.id !== testeId))
   }
 
   const [tipoAtivo, setTipoAtivo] = useState<'todos' | 'aquisicao' | 'vendas'>('todos')
@@ -399,7 +410,7 @@ export function ListaVariantes({ testes: testesProp, funis }: Props) {
             </div>
           ) : (
             <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-x-auto">
-              <table className="w-full text-left border-collapse min-w-[1100px]">
+              <table className="w-full text-left border-collapse min-w-[1180px]">
                 <thead>
                   <tr className="border-b border-gray-800 bg-gray-900/60 text-gray-400 text-xs uppercase tracking-wide">
                     <th className="w-8 px-2 py-3"></th>
@@ -410,6 +421,7 @@ export function ListaVariantes({ testes: testesProp, funis }: Props) {
                     <th className="px-4 py-3 font-medium">Variações</th>
                     <th className="px-4 py-3 font-medium">Resultado</th>
                     <th className="px-4 py-3 font-medium text-right">Métrica / RPV</th>
+                    <th className="px-4 py-3 font-medium text-right">Ações</th>
                   </tr>
                 </thead>
                 <tbody className="text-sm divide-y divide-gray-800">
@@ -540,11 +552,42 @@ export function ListaVariantes({ testes: testesProp, funis }: Props) {
                             {t.tipo_teste !== 'aquisicao' && rpv !== null && ` · RPV ${formatarMoeda(rpv)}`}
                           </p>
                         </td>
+                        {/* Ações */}
+                        <td className="px-4 py-3 text-right">
+                          {confirmandoExclusao === t.id ? (
+                            <div className="flex items-center justify-end gap-1.5">
+                              <button
+                                type="button"
+                                onClick={() => handleExcluir(t.id)}
+                                disabled={excluindo === t.id}
+                                className="px-2 py-1 text-[11px] text-white bg-red-600 hover:bg-red-500 rounded font-medium disabled:opacity-50 transition-colors"
+                              >
+                                {excluindo === t.id ? 'Excluindo...' : 'Excluir'}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setConfirmandoExclusao(null)}
+                                className="px-2 py-1 text-[11px] text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 rounded transition-colors"
+                              >
+                                Cancelar
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => setConfirmandoExclusao(t.id)}
+                              className="text-gray-600 hover:text-red-400 transition-colors"
+                              title="Excluir experimento"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          )}
+                        </td>
                       </tr>
                       {expandido && (
                         <tr className="bg-black/20">
                           <td></td>
-                          <td colSpan={6} className="px-4 py-3">
+                          <td colSpan={7} className="px-4 py-3">
                             <p className="text-[11px] text-gray-500 uppercase tracking-wide mb-2">Métricas por variante</p>
                             <div className="divide-y divide-gray-800/60">
                               {(t.variantes_teste ?? []).map(v => (
