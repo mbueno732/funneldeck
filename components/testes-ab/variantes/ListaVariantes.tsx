@@ -254,6 +254,7 @@ export function ListaVariantes({ testes: testesProp, funis }: Props) {
   const [filtroResponsavel, setFiltroResponsavel] = useState('__all__')
   const [filtroElemento, setFiltroElemento] = useState('__all__')
   const [filtroAngulo, setFiltroAngulo] = useState('__all__')
+  const [filtroLayout, setFiltroLayout] = useState('__all__')
   const [filtroPeriodo, setFiltroPeriodo] = useState('__all__')
 
   const especialistasOpcoes = useMemo(() => unicos(testes.map(t => t.especialistas?.nome)), [testes])
@@ -262,6 +263,7 @@ export function ListaVariantes({ testes: testesProp, funis }: Props) {
   const responsaveisOpcoes = useMemo(() => unicos(testes.map(t => t.responsavel)), [testes])
   const elementosOpcoes = useMemo(() => unicos(testes.map(t => t.elemento_testado)), [testes])
   const angulosOpcoes = useMemo(() => unicos(testes.flatMap(t => t.angulos ?? [])), [testes])
+  const layoutsOpcoes = useMemo(() => unicos(testes.flatMap(t => t.variantes_teste?.map(v => v.layout) ?? [])), [testes])
 
   const testesPorTipo = useMemo(
     () => (tipoAtivo === 'todos' ? testes : testes.filter(t => t.tipo_teste === tipoAtivo)),
@@ -281,6 +283,7 @@ export function ListaVariantes({ testes: testesProp, funis }: Props) {
     if (filtroResponsavel !== '__all__' && t.responsavel !== filtroResponsavel) return false
     if (filtroElemento !== '__all__' && t.elemento_testado !== filtroElemento) return false
     if (filtroAngulo !== '__all__' && !(t.angulos ?? []).includes(filtroAngulo)) return false
+    if (filtroLayout !== '__all__' && !(t.variantes_teste ?? []).some(v => v.layout === filtroLayout)) return false
     if (filtroPeriodo !== '__all__') {
       const limite = new Date()
       limite.setDate(limite.getDate() - Number(filtroPeriodo))
@@ -289,12 +292,12 @@ export function ListaVariantes({ testes: testesProp, funis }: Props) {
     return true
   }), [
     testesPorTipo, busca, filtroFunil, filtroStatus, filtroEspecialista, filtroSegmento,
-    filtroCampanha, filtroResponsavel, filtroElemento, filtroAngulo, filtroPeriodo,
+    filtroCampanha, filtroResponsavel, filtroElemento, filtroAngulo, filtroLayout, filtroPeriodo,
   ])
 
   const ITENS_POR_PAGINA = 30
   const [paginaAtual, setPaginaAtual] = useState(1)
-  useEffect(() => setPaginaAtual(1), [tipoAtivo, busca, filtroFunil, filtroStatus, filtroEspecialista, filtroSegmento, filtroCampanha, filtroResponsavel, filtroElemento, filtroAngulo, filtroPeriodo])
+  useEffect(() => setPaginaAtual(1), [tipoAtivo, busca, filtroFunil, filtroStatus, filtroEspecialista, filtroSegmento, filtroCampanha, filtroResponsavel, filtroElemento, filtroAngulo, filtroLayout, filtroPeriodo])
 
   const visiveis = useMemo(() => filtrados.slice(0, paginaAtual * ITENS_POR_PAGINA), [filtrados, paginaAtual])
 
@@ -465,6 +468,13 @@ export function ListaVariantes({ testes: testesProp, funis }: Props) {
                 {angulosOpcoes.map(a => <SelectItem key={a} value={a} className={itemCls}>{a}</SelectItem>)}
               </SelectContent>
             </Select>
+            <Select value={filtroLayout} onValueChange={setFiltroLayout}>
+              <SelectTrigger className={`w-36 ${selectCls}`}><SelectValue placeholder="Layout" /></SelectTrigger>
+              <SelectContent className="bg-gray-900 border-gray-800">
+                <SelectItem value="__all__" className={itemCls}>Todos layouts</SelectItem>
+                {layoutsOpcoes.map(l => <SelectItem key={l} value={l} className={itemCls}>{LAYOUT_LABEL[l] ?? l}</SelectItem>)}
+              </SelectContent>
+            </Select>
             <Select value={filtroStatus} onValueChange={setFiltroStatus}>
               <SelectTrigger className={`w-40 ${selectCls}`}><SelectValue placeholder="Status" /></SelectTrigger>
               <SelectContent className="bg-gray-900 border-gray-800">
@@ -486,11 +496,15 @@ export function ListaVariantes({ testes: testesProp, funis }: Props) {
             </div>
           ) : (
             <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-x-auto">
-              <table className="w-full text-left border-collapse min-w-[1080px]">
+              <table className="w-full text-left border-collapse min-w-[1440px]">
                 <thead>
                   <tr className="border-b border-gray-800 bg-gray-900/60 text-gray-400 text-xs uppercase tracking-wide">
                     <th className="w-8 px-2 py-3"></th>
                     <th className="px-4 py-3 font-medium">Experimento</th>
+                    <th className="px-4 py-3 font-medium">Funil</th>
+                    <th className="px-4 py-3 font-medium">Elemento</th>
+                    <th className="px-4 py-3 font-medium">Ângulos da Hero</th>
+                    <th className="px-4 py-3 font-medium">Layout</th>
                     <th className="px-4 py-3 font-medium">Segmentação</th>
                     <th className="px-4 py-3 font-medium">Status</th>
                     <th className="px-4 py-3 font-medium">Resultado</th>
@@ -503,7 +517,7 @@ export function ListaVariantes({ testes: testesProp, funis }: Props) {
                     <Fragment key={grupo.funilId}>
                       {usarAgrupamento && (
                         <tr className="bg-gray-900/60">
-                          <td colSpan={7} className="px-4 py-2">
+                          <td colSpan={11} className="px-4 py-2">
                             <button
                               type="button"
                               onClick={() => toggleGrupo(grupo.funilId)}
@@ -542,7 +556,7 @@ export function ListaVariantes({ testes: testesProp, funis }: Props) {
                             {expandido ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
                           </button>
                         </td>
-                        {/* Experimento: nome + código + elemento testado + ângulos */}
+                        {/* Experimento: nome + código */}
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-1.5 flex-wrap">
                             <Link href={`/variantes/${t.id}`} className="text-white font-medium hover:text-indigo-400 transition-colors">
@@ -550,25 +564,46 @@ export function ListaVariantes({ testes: testesProp, funis }: Props) {
                             </Link>
                             <span className="text-gray-600 text-xs font-mono">{t.codigo ?? '—'}</span>
                           </div>
-                          {t.elemento_testado && (
-                            <div className="flex flex-wrap items-center gap-1 mt-1.5">
-                              <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-gray-800 text-gray-300 border border-gray-700">
-                                Testando: {t.elemento_testado}
-                              </span>
-                            </div>
+                        </td>
+                        {/* Funil */}
+                        <td className="px-4 py-3">
+                          {t.funis ? (
+                            <span className="text-xs text-gray-300">
+                              {t.funis.id_funil && <span className="font-mono text-gray-500 mr-1">[{t.funis.id_funil}]</span>}
+                              {t.funis.nome}
+                            </span>
+                          ) : (
+                            <span className="text-gray-600 text-xs">—</span>
                           )}
-                          {angulosDoTeste.length > 0 && (
-                            <div className="flex flex-wrap items-center gap-1 mt-1">
-                              <span className="text-[10px] text-gray-500 uppercase tracking-wide" title="Ângulos da Hero testados — só se aplica quando o elemento testado envolve a Hero">Ângulos da Hero:</span>
+                        </td>
+                        {/* Elemento testado */}
+                        <td className="px-4 py-3">
+                          {t.elemento_testado ? (
+                            <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-gray-800 text-gray-300 border border-gray-700 whitespace-nowrap">
+                              {t.elemento_testado}
+                            </span>
+                          ) : (
+                            <span className="text-gray-600 text-xs">—</span>
+                          )}
+                        </td>
+                        {/* Ângulos da Hero */}
+                        <td className="px-4 py-3">
+                          {angulosDoTeste.length > 0 ? (
+                            <div className="flex flex-wrap items-center gap-1 max-w-[220px]">
                               {angulosDoTeste.map(a => (
-                                <span key={a} className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">{a}</span>
+                                <span key={a} className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 whitespace-nowrap">{a}</span>
                               ))}
                             </div>
+                          ) : (
+                            <span className="text-gray-600 text-xs">—</span>
                           )}
-                          {layoutResumo && (
-                            <p className="text-[10px] text-gray-500 mt-1">
-                              <span className="uppercase tracking-wide">Layout:</span> <span className="text-gray-400">{layoutResumo}</span>
-                            </p>
+                        </td>
+                        {/* Layout */}
+                        <td className="px-4 py-3">
+                          {layoutResumo ? (
+                            <span className="text-xs text-gray-400 whitespace-nowrap">{layoutResumo}</span>
+                          ) : (
+                            <span className="text-gray-600 text-xs">—</span>
                           )}
                         </td>
                         {/* Segmentação: tipo + segmento */}
@@ -695,7 +730,7 @@ export function ListaVariantes({ testes: testesProp, funis }: Props) {
                       {expandido && (
                         <tr className="bg-black/20">
                           <td></td>
-                          <td colSpan={6} className="px-4 py-3">
+                          <td colSpan={10} className="px-4 py-3">
                             <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-gray-400 mb-3 pb-3 border-b border-gray-800/60">
                               <span><span className="text-gray-600">Início:</span> {inicio ?? '—'}</span>
                               <span><span className="text-gray-600">Especialista:</span> {t.especialistas?.nome ?? '—'}</span>
