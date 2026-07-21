@@ -1,5 +1,5 @@
 'use client'
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
@@ -12,10 +12,11 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectGroup, SelectLabel, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { criarTesteAB, uploadScreenshotVariante } from '@/lib/actions/testes-ab'
-import type { Funil, Pagina, Especialista, Campanha, Produto } from '@/lib/types'
+import { criarTesteAB, atualizarTesteAB, uploadScreenshotVariante } from '@/lib/actions/testes-ab'
+import type { Funil, Pagina, Especialista, Campanha, Produto, TesteAB } from '@/lib/types'
 
 interface Variante {
+  id?: string
   letra: string
   paginaId: string
   urlVariante: string
@@ -42,6 +43,7 @@ interface Props {
   angulos: string[]
   elementosTestados: string[]
   testesExistentes: { funil_id: string; segmento: string | null }[]
+  testeParaEditar?: TesteAB
 }
 
 const MAX_ANGULOS = 3
@@ -94,33 +96,52 @@ async function abrirReferenciaHtml(url: string) {
 
 export function NovoTesteABForm({
   funis, metricasVendas, metricasAquisicao, paginas, especialistas, campanhas, segmentos, responsaveis, angulos,
-  elementosTestados, testesExistentes,
+  elementosTestados, testesExistentes, testeParaEditar,
 }: Props) {
   const router = useRouter()
   const refs = useRef<Record<string, HTMLDivElement | null>>({})
+  const modoEdicao = !!testeParaEditar
 
-  const [nome, setNome] = useState('')
-  const [funilId, setFunilId] = useState('')
-  const [campanhaId, setCampanhaId] = useState('')
+  const [nome, setNome] = useState(testeParaEditar?.nome ?? '')
+  const [funilId, setFunilId] = useState(testeParaEditar?.funil_id ?? '')
+  const [campanhaId, setCampanhaId] = useState(testeParaEditar?.campanha_id ?? '')
   const [novaCampanhaCodigo, setNovaCampanhaCodigo] = useState('')
-  const [segmento, setSegmento] = useState('')
-  const [responsavel, setResponsavel] = useState('')
-  const [dataInicio, setDataInicio] = useState(hoje())
+  const [segmento, setSegmento] = useState(testeParaEditar?.segmento ?? '')
+  const [responsavel, setResponsavel] = useState(testeParaEditar?.responsavel ?? '')
+  const [dataInicio, setDataInicio] = useState(testeParaEditar?.data_inicio ?? hoje())
 
-  const [hipotese, setHipotese] = useState('')
-  const [hipoteseMotivo, setHipoteseMotivo] = useState('')
-  const [resultadoEsperado, setResultadoEsperado] = useState('')
-  const [elementoTestado, setElementoTestado] = useState('')
-  const [angulosSelecionados, setAngulosSelecionados] = useState<string[]>([])
+  const [hipotese, setHipotese] = useState(testeParaEditar?.hipotese ?? '')
+  const [hipoteseMotivo, setHipoteseMotivo] = useState(testeParaEditar?.hipotese_motivo ?? '')
+  const [resultadoEsperado, setResultadoEsperado] = useState(testeParaEditar?.resultado_esperado ?? '')
+  const [elementoTestado, setElementoTestado] = useState(testeParaEditar?.elemento_testado ?? '')
+  const [angulosSelecionados, setAngulosSelecionados] = useState<string[]>(testeParaEditar?.angulos ?? [])
 
-  const [variantes, setVariantes] = useState<Variante[]>(() => redistribuir([varianteVazia('A'), varianteVazia('B')]))
-  const [metricaPrimaria, setMetricaPrimaria] = useState('')
-  const [nivelConfianca, setNivelConfianca] = useState(95)
-  const [poderEstatistico, setPoderEstatistico] = useState(80)
+  const [variantes, setVariantes] = useState<Variante[]>(() => {
+    if (!testeParaEditar?.variantes_teste?.length) return redistribuir([varianteVazia('A'), varianteVazia('B')])
+    return [...testeParaEditar.variantes_teste]
+      .sort((a, b) => (b.is_controle ? 1 : 0) - (a.is_controle ? 1 : 0))
+      .map((v, idx) => ({
+        id: v.id,
+        letra: LETRAS[idx] ?? String.fromCharCode(65 + idx),
+        paginaId: v.pagina_id ?? '',
+        urlVariante: v.url_variante ?? '',
+        urlPreview: v.url_preview ?? '',
+        headline: v.headline ?? '',
+        subheadline: v.subheadline ?? '',
+        layout: v.layout ?? '',
+        screenshotUrl: v.screenshot_url ?? '',
+        enviando: false,
+        percentual: v.percentual_trafego ?? 0,
+      }))
+  })
+  const [metricaPrimaria, setMetricaPrimaria] = useState(testeParaEditar?.metrica_primaria ?? '')
+  const [nivelConfianca, setNivelConfianca] = useState(testeParaEditar?.nivel_confianca ?? 95)
+  const [poderEstatistico, setPoderEstatistico] = useState(testeParaEditar?.poder_estatistico ?? 80)
 
-  const [salvando, setSalvando] = useState<'planejado' | 'ativo' | null>(null)
+  const [salvando, setSalvando] = useState<'planejado' | 'ativo' | 'edicao' | null>(null)
   const [erro, setErro] = useState('')
   const [imagemAmpliada, setImagemAmpliada] = useState<string | null>(null)
+  const [nomeEditadoManualmente, setNomeEditadoManualmente] = useState(modoEdicao)
 
   const paginasDoFunil = paginas.filter(p => p.funil_id === funilId)
   const funilSelecionado = funis.find(f => f.id === funilId)
@@ -129,6 +150,13 @@ export function NovoTesteABForm({
   const especialistaNome = especialistas.find(e => e.id === especialistaId)?.nome || ''
   const tipoTeste: 'aquisicao' | 'vendas' = funilSelecionado?.objetivo === 'Aquisição' ? 'aquisicao' : 'vendas'
   const metricas = tipoTeste === 'aquisicao' ? metricasAquisicao : metricasVendas
+
+  // Nome sugerido automaticamente (Elemento testado + Funil) — só enquanto o usuário não editar na mão.
+  useEffect(() => {
+    if (nomeEditadoManualmente) return
+    const nomeAuto = [elementoTestado, funilSelecionado?.nome].filter(Boolean).join(' · ')
+    if (nomeAuto) setNome(nomeAuto)
+  }, [elementoTestado, funilSelecionado?.nome, nomeEditadoManualmente])
 
   const funisAgrupados = useMemo(() => {
     const grupos = new Map<string, typeof funis>()
@@ -188,11 +216,13 @@ export function NovoTesteABForm({
 
   // ── Progresso por seção (para o checklist lateral) ──────────────────────
   const progresso = useMemo(() => {
-    const basicasCampos = [nome.trim(), funilId, segmento, especialistaId, responsavel]
-    const basicas = basicasCampos.filter(Boolean).length / basicasCampos.length
+    // Só os campos marcados com * contam pra "Completo" — o resto é complementar
+    // e não deve travar a seção em "Em andamento" pra sempre.
+    const basicasObrigatorios = [nome.trim(), funilId]
+    const basicas = basicasObrigatorios.filter(Boolean).length / basicasObrigatorios.length
 
-    const hipoteseCampos = [hipotese.trim(), hipoteseMotivo.trim(), resultadoEsperado.trim(), elementoTestado, angulosSelecionados.length > 0]
-    const hipoteseP = hipoteseCampos.filter(Boolean).length / hipoteseCampos.length
+    const hipoteseObrigatorios = [hipotese.trim(), resultadoEsperado.trim(), elementoTestado]
+    const hipoteseP = hipoteseObrigatorios.filter(Boolean).length / hipoteseObrigatorios.length
 
     const variacoes = variantes.every(v => v.paginaId && v.urlVariante.trim())
       ? 1
@@ -203,7 +233,7 @@ export function NovoTesteABForm({
     const revisaoP = basicas === 1 && hipoteseP === 1 && variacoes === 1 && metricasP === 1 ? 1 : 0
 
     return { basicas, hipotese: hipoteseP, variacoes, metricas: metricasP, revisao: revisaoP }
-  }, [nome, funilId, segmento, especialistaId, responsavel, hipotese, hipoteseMotivo, resultadoEsperado, elementoTestado, angulosSelecionados, variantes, metricaPrimaria])
+  }, [nome, funilId, hipotese, resultadoEsperado, elementoTestado, variantes, metricaPrimaria])
 
   const progressoGeral = Math.round(
     ((progresso.basicas + progresso.hipotese + progresso.variacoes + progresso.metricas) / 4) * 100
@@ -258,6 +288,48 @@ export function NovoTesteABForm({
     router.push('/variantes')
   }
 
+  async function salvarEdicao() {
+    if (!testeParaEditar) return
+    setSalvando('edicao')
+    setErro('')
+    const res = await atualizarTesteAB(testeParaEditar.id, {
+      funil_id: funilId,
+      tipo_teste: tipoTeste,
+      nome,
+      hipotese,
+      hipotese_motivo: hipoteseMotivo,
+      resultado_esperado: resultadoEsperado,
+      elemento_testado: elementoTestado || undefined,
+      angulos: angulosSelecionados.length ? angulosSelecionados : undefined,
+      campanha_id: campanhaId && campanhaId !== NOVA_CAMPANHA ? campanhaId : undefined,
+      nova_campanha_codigo: campanhaId === NOVA_CAMPANHA ? novaCampanhaCodigo : undefined,
+      segmento: segmento || undefined,
+      especialista_id: especialistaId || undefined,
+      responsavel: responsavel || undefined,
+      data_inicio: dataInicio || undefined,
+      metrica_primaria: metricaPrimaria,
+      nivel_confianca: nivelConfianca,
+      poder_estatistico: poderEstatistico,
+      status: testeParaEditar.status,
+      variantes: variantes.map((v, i) => ({
+        id: v.id,
+        nome: `Variação ${v.letra}`,
+        pagina_id: v.paginaId,
+        url_variante: v.urlVariante,
+        url_preview: v.urlPreview || undefined,
+        headline: v.headline || undefined,
+        subheadline: v.subheadline || undefined,
+        layout: v.layout || undefined,
+        screenshot_url: v.screenshotUrl || undefined,
+        percentual_trafego: v.percentual,
+        is_controle: i === 0,
+      })),
+    })
+    setSalvando(null)
+    if (!res.ok) { setErro(res.erro ?? 'Erro ao salvar alterações.'); return }
+    router.push(`/variantes/${testeParaEditar.id}`)
+  }
+
   const inputCls = 'w-full bg-gray-900 border-gray-800 text-white placeholder-gray-500 focus:border-indigo-500'
   const labelCls = 'text-gray-400 text-xs'
   const cardCls = 'bg-gray-900 border border-gray-800 rounded-xl p-6'
@@ -269,11 +341,11 @@ export function NovoTesteABForm({
         <nav className="flex items-center gap-2 text-gray-500 mb-2 text-sm">
           <Link href="/variantes" className="hover:text-gray-300 transition-colors">Experimentos</Link>
           <ChevronRight size={14} />
-          <span className="text-indigo-400 font-medium">Novo Experimento</span>
+          <span className="text-indigo-400 font-medium">{modoEdicao ? 'Editar Experimento' : 'Novo Experimento'}</span>
         </nav>
-        <h2 className="text-2xl font-bold text-white">Criar Experimento</h2>
+        <h2 className="text-2xl font-bold text-white">{modoEdicao ? 'Editar Experimento' : 'Criar Experimento'}</h2>
         <p className="text-gray-500 text-sm mt-1">
-          Configure os parâmetros do seu teste estatístico para otimizar conversões.
+          {modoEdicao ? 'Ajuste os parâmetros do experimento.' : 'Configure os parâmetros do seu teste estatístico para otimizar conversões.'}
         </p>
       </div>
 
@@ -292,11 +364,15 @@ export function NovoTesteABForm({
                   <Label className={labelCls}>Nome do Experimento *</Label>
                   <Input
                     value={nome}
-                    onChange={e => setNome(e.target.value)}
+                    onChange={e => { setNome(e.target.value); setNomeEditadoManualmente(true) }}
                     placeholder="Ex: [Checkout] Redução de campos no formulário"
                     className={inputCls}
                   />
-                  <p className="text-gray-600 text-xs">Use nomes descritivos para facilitar a busca depois.</p>
+                  <p className="text-gray-600 text-xs">
+                    {nomeEditadoManualmente
+                      ? 'Use nomes descritivos para facilitar a busca depois.'
+                      : 'Gerado automaticamente (Elemento testado + Funil) — pode editar à vontade.'}
+                  </p>
                 </div>
                 <div className="space-y-1.5">
                   <Label className={labelCls}>ID do Teste</Label>
@@ -512,15 +588,18 @@ export function NovoTesteABForm({
                   )
                 })}
               </div>
-              {angulosSelecionados.length > 0 && (
+              {(elementoTestado || hipotese.trim() || angulosSelecionados.length > 0) && (
                 <div className="bg-gray-950 border border-gray-800 rounded-lg px-3 py-2">
                   <p className="text-indigo-400 text-[10px] font-semibold uppercase tracking-wide mb-1">Hipótese Consolidada</p>
                   <p className="text-gray-400 text-xs italic">
-                    &quot;Se eu testar <span className="text-indigo-300 font-medium not-italic">{elementoTestado || '[elemento]'}</span> com
-                    {' '}ângulo de <span className="text-indigo-300 font-medium not-italic">{angulosSelecionados.join(', ')}</span> no
-                    {' '}<span className="text-indigo-300 font-medium not-italic">{segmento ? `tráfego ${segmento.toLowerCase()}` : '[público]'}</span>,
+                    &quot;Se eu testar <span className="text-indigo-300 font-medium not-italic">{elementoTestado || '[elemento]'}</span>
+                    {hipotese.trim() && <> (<span className="text-indigo-300 font-medium not-italic">{hipotese.trim()}</span>)</>}
+                    {angulosSelecionados.length > 0 && <>
+                      {' '}com ângulo de <span className="text-indigo-300 font-medium not-italic">{angulosSelecionados.join(', ')}</span>
+                    </>}
+                    {' '}no <span className="text-indigo-300 font-medium not-italic">{segmento ? `tráfego ${segmento.toLowerCase()}` : '[público]'}</span>,
                     {' '}então <span className="text-indigo-300 font-medium not-italic">{metricaPrimaria || '[métrica]'}</span> vai
-                    {' '}aumentar, porque esse público tem características específicas.&quot;
+                    {' '}melhorar, porque {hipoteseMotivo.trim() || 'esse público tem características específicas'}.&quot;
                   </p>
                 </div>
               )}
@@ -564,7 +643,15 @@ export function NovoTesteABForm({
                     </div>
                   </div>
                   <div className="space-y-4">
-                    <label className="border-2 border-dashed border-gray-800 rounded-lg p-6 flex flex-col items-center justify-center bg-gray-950 hover:bg-gray-900 transition-colors cursor-pointer">
+                    <label
+                      tabIndex={0}
+                      onPaste={e => {
+                        const item = Array.from(e.clipboardData.items).find(i => i.type.startsWith('image/'))
+                        const f = item?.getAsFile()
+                        if (f) handleArquivo(idx, f)
+                      }}
+                      className="border-2 border-dashed border-gray-800 rounded-lg p-6 flex flex-col items-center justify-center bg-gray-950 hover:bg-gray-900 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
+                    >
                       <input
                         type="file"
                         accept="image/*,.html,.htm,text/html"
@@ -599,7 +686,7 @@ export function NovoTesteABForm({
                           : 'Upload de Screenshot ou HTML'}
                       </p>
                       {!v.enviando && !v.screenshotUrl && (
-                        <p className="text-[11px] text-gray-600 mt-0.5">Arraste ou clique aqui (imagem ou .html salvo com SingleFile)</p>
+                        <p className="text-[11px] text-gray-600 mt-0.5">Clique e cole (Ctrl+V), arraste ou selecione (imagem ou .html salvo com SingleFile)</p>
                       )}
                     </label>
                     {v.screenshotUrl && ehArquivoHtml(v.screenshotUrl) && (
@@ -798,22 +885,35 @@ export function NovoTesteABForm({
             {erro && <p className="text-red-400 text-sm mb-4">{erro}</p>}
 
             <div className="flex flex-col md:flex-row items-center justify-end gap-3 pt-4 border-t border-gray-800">
-              <Button
-                type="button"
-                disabled={!podeFinalizar || salvando !== null}
-                onClick={() => finalizar('Planejado')}
-                className="flex-1 md:flex-none bg-gray-800 hover:bg-gray-700 text-white border border-gray-700 disabled:opacity-40"
-              >
-                {salvando === 'planejado' ? 'Agendando...' : 'Agendar Início'}
-              </Button>
-              <Button
-                type="button"
-                disabled={!podeFinalizar || salvando !== null}
-                onClick={() => finalizar('Ativo')}
-                className="flex-1 md:flex-none bg-indigo-600 hover:bg-indigo-500 text-white disabled:opacity-40"
-              >
-                {salvando === 'ativo' ? 'Iniciando...' : 'Iniciar Agora'}
-              </Button>
+              {modoEdicao ? (
+                <Button
+                  type="button"
+                  disabled={!podeFinalizar || salvando !== null}
+                  onClick={salvarEdicao}
+                  className="flex-1 md:flex-none bg-indigo-600 hover:bg-indigo-500 text-white disabled:opacity-40"
+                >
+                  {salvando === 'edicao' ? 'Salvando...' : 'Salvar Alterações'}
+                </Button>
+              ) : (
+                <>
+                  <Button
+                    type="button"
+                    disabled={!podeFinalizar || salvando !== null}
+                    onClick={() => finalizar('Planejado')}
+                    className="flex-1 md:flex-none bg-gray-800 hover:bg-gray-700 text-white border border-gray-700 disabled:opacity-40"
+                  >
+                    {salvando === 'planejado' ? 'Agendando...' : 'Agendar Início'}
+                  </Button>
+                  <Button
+                    type="button"
+                    disabled={!podeFinalizar || salvando !== null}
+                    onClick={() => finalizar('Ativo')}
+                    className="flex-1 md:flex-none bg-indigo-600 hover:bg-indigo-500 text-white disabled:opacity-40"
+                  >
+                    {salvando === 'ativo' ? 'Iniciando...' : 'Iniciar Agora'}
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </div>

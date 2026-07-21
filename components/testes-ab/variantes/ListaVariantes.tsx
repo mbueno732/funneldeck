@@ -1,9 +1,10 @@
 'use client'
 import { Fragment, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
-import { Plus, FlaskConical, Trophy, Search, ChevronDown, ChevronRight, Check, Info, Trash2 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { Plus, FlaskConical, Trophy, Search, ChevronDown, ChevronRight, Check, Info, Trash2, Pencil, Copy } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { atualizarMetricasVariante, deletarTesteAB } from '@/lib/actions/testes-ab'
+import { atualizarMetricasVariante, deletarTesteAB, duplicarTesteAB } from '@/lib/actions/testes-ab'
 import type { TesteAB, Funil } from '@/lib/types'
 
 type Variante = NonNullable<TesteAB['variantes_teste']>[number]
@@ -75,6 +76,12 @@ function rpvDe(t: TesteAB): number | null {
 
 function formatarMoeda(v: number): string {
   return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })
+}
+
+function nomeVariante(v: { nome: string; is_controle: boolean }): string {
+  if (!v.is_controle) return v.nome
+  const letra = v.nome.match(/([A-Za-z])$/)?.[1] ?? 'A'
+  return `Controle (${letra})`
 }
 
 function diasEntre(dataInicio?: string | null, dataFim?: string | null): number | null {
@@ -157,7 +164,7 @@ function LinhaMetricasVariante({
     <div className={`grid ${mostrarVendas ? 'grid-cols-6' : 'grid-cols-4'} gap-3 items-end py-2`}>
       <div>
         <p className="text-xs text-gray-500 mb-1 flex items-center gap-1">
-          {variante.is_controle && <span className="text-gray-600">●</span>} {variante.nome}
+          {variante.is_controle && <span className="text-gray-600">●</span>} {nomeVariante(variante)}
         </p>
       </div>
       {campo('Sessões', 'sessoes')}
@@ -184,6 +191,7 @@ function LinhaMetricasVariante({
 }
 
 export function ListaVariantes({ testes: testesProp, funis }: Props) {
+  const router = useRouter()
   const [testes, setTestes] = useState(testesProp)
   useEffect(() => setTestes(testesProp), [testesProp])
 
@@ -203,6 +211,15 @@ export function ListaVariantes({ testes: testesProp, funis }: Props) {
     setExcluindo(null)
     setConfirmandoExclusao(null)
     if (r.ok) setTestes(prev => prev.filter(t => t.id !== testeId))
+  }
+
+  const [duplicando, setDuplicando] = useState<string | null>(null)
+
+  async function handleDuplicar(testeId: string) {
+    setDuplicando(testeId)
+    const r = await duplicarTesteAB(testeId)
+    setDuplicando(null)
+    if (r.ok && r.id) router.push(`/variantes/${r.id}/editar`)
   }
 
   const [tipoAtivo, setTipoAtivo] = useState<'todos' | 'aquisicao' | 'vendas'>('todos')
@@ -573,14 +590,32 @@ export function ListaVariantes({ testes: testesProp, funis }: Props) {
                               </button>
                             </div>
                           ) : (
-                            <button
-                              type="button"
-                              onClick={() => setConfirmandoExclusao(t.id)}
-                              className="text-gray-600 hover:text-red-400 transition-colors"
-                              title="Excluir experimento"
-                            >
-                              <Trash2 size={14} />
-                            </button>
+                            <div className="flex items-center justify-end gap-2.5">
+                              <Link
+                                href={`/variantes/${t.id}/editar`}
+                                className="text-gray-600 hover:text-indigo-400 transition-colors"
+                                title="Editar experimento"
+                              >
+                                <Pencil size={14} />
+                              </Link>
+                              <button
+                                type="button"
+                                onClick={() => handleDuplicar(t.id)}
+                                disabled={duplicando === t.id}
+                                className="text-gray-600 hover:text-indigo-400 transition-colors disabled:opacity-50"
+                                title="Duplicar experimento"
+                              >
+                                <Copy size={14} className={duplicando === t.id ? 'animate-pulse' : ''} />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setConfirmandoExclusao(t.id)}
+                                className="text-gray-600 hover:text-red-400 transition-colors"
+                                title="Excluir experimento"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
                           )}
                         </td>
                       </tr>
