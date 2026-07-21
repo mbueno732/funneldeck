@@ -2,7 +2,7 @@
 import { Fragment, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Plus, FlaskConical, Trophy, Search, ChevronDown, ChevronRight, Check, Info, Trash2, Pencil, Copy } from 'lucide-react'
+import { Plus, FlaskConical, Trophy, Search, ChevronDown, ChevronRight, Check, Info, Trash2, Pencil, Copy, Layers } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { atualizarMetricasVariante, deletarTesteAB, duplicarTesteAB } from '@/lib/actions/testes-ab'
 import type { TesteAB, Funil } from '@/lib/types'
@@ -271,6 +271,38 @@ export function ListaVariantes({ testes: testesProp, funis }: Props) {
     filtroCampanha, filtroResponsavel, filtroElemento, filtroAngulo, filtroPeriodo,
   ])
 
+  const ITENS_POR_PAGINA = 30
+  const [paginaAtual, setPaginaAtual] = useState(1)
+  useEffect(() => setPaginaAtual(1), [tipoAtivo, busca, filtroFunil, filtroStatus, filtroEspecialista, filtroSegmento, filtroCampanha, filtroResponsavel, filtroElemento, filtroAngulo, filtroPeriodo])
+
+  const visiveis = useMemo(() => filtrados.slice(0, paginaAtual * ITENS_POR_PAGINA), [filtrados, paginaAtual])
+
+  const [gruposColapsados, setGruposColapsados] = useState<Set<string>>(new Set())
+  function toggleGrupo(funilId: string) {
+    setGruposColapsados(prev => {
+      const novo = new Set(prev)
+      if (novo.has(funilId)) novo.delete(funilId); else novo.add(funilId)
+      return novo
+    })
+  }
+
+  const grupos = useMemo(() => {
+    const porFunil = new Map<string, TesteAB[]>()
+    for (const t of visiveis) {
+      const lista = porFunil.get(t.funil_id) ?? []
+      lista.push(t)
+      porFunil.set(t.funil_id, lista)
+    }
+    return Array.from(porFunil.entries())
+      .map(([funilId, lista]) => ({
+        funilId,
+        nome: lista[0]?.funis?.nome ?? 'Sem funil',
+        idFunil: lista[0]?.funis?.id_funil ?? null,
+        testes: lista,
+      }))
+      .sort((a, b) => a.nome.localeCompare(b.nome))
+  }, [visiveis])
+
   const totalAtivos = testesPorTipo.filter(t => t.status === 'Ativo').length
   const funisAtivos = funis.filter(f => f.status === 'Ativo')
   const funisComTesteAtivo = new Set(testesPorTipo.filter(t => t.status === 'Ativo').map(t => t.funil_id))
@@ -427,22 +459,37 @@ export function ListaVariantes({ testes: testesProp, funis }: Props) {
             </div>
           ) : (
             <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-x-auto">
-              <table className="w-full text-left border-collapse min-w-[1180px]">
+              <table className="w-full text-left border-collapse min-w-[1080px]">
                 <thead>
                   <tr className="border-b border-gray-800 bg-gray-900/60 text-gray-400 text-xs uppercase tracking-wide">
                     <th className="w-8 px-2 py-3"></th>
                     <th className="px-4 py-3 font-medium">Experimento</th>
-                    <th className="px-4 py-3 font-medium">Contexto</th>
                     <th className="px-4 py-3 font-medium">Segmentação</th>
                     <th className="px-4 py-3 font-medium">Status</th>
-                    <th className="px-4 py-3 font-medium">Variações</th>
                     <th className="px-4 py-3 font-medium">Resultado</th>
                     <th className="px-4 py-3 font-medium text-right">Métrica / RPV</th>
                     <th className="px-4 py-3 font-medium text-right">Ações</th>
                   </tr>
                 </thead>
                 <tbody className="text-sm divide-y divide-gray-800">
-                  {filtrados.map(t => {
+                  {grupos.map(grupo => (
+                    <Fragment key={grupo.funilId}>
+                      <tr className="bg-gray-900/60">
+                        <td colSpan={7} className="px-4 py-2">
+                          <button
+                            type="button"
+                            onClick={() => toggleGrupo(grupo.funilId)}
+                            className="flex items-center gap-2 text-xs font-medium text-indigo-300 hover:text-indigo-200 transition-colors"
+                          >
+                            {gruposColapsados.has(grupo.funilId) ? <ChevronRight size={13} /> : <ChevronDown size={13} />}
+                            <Layers size={12} />
+                            {grupo.idFunil && <span className="font-mono text-indigo-400">[{grupo.idFunil}]</span>}
+                            {grupo.nome}
+                            <span className="text-gray-600 font-normal">· {grupo.testes.length} experimento{grupo.testes.length !== 1 ? 's' : ''}</span>
+                          </button>
+                        </td>
+                      </tr>
+                      {!gruposColapsados.has(grupo.funilId) && grupo.testes.map(t => {
                     const lift = liftDaVencedora(t)
                     const rpv = rpvDe(t)
                     const dias = diasEntre(t.data_inicio, t.data_fim)
@@ -465,31 +512,26 @@ export function ListaVariantes({ testes: testesProp, funis }: Props) {
                             {expandido ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
                           </button>
                         </td>
-                        {/* Experimento: nome + código + ângulos */}
+                        {/* Experimento: nome + código + elemento testado + ângulos */}
                         <td className="px-4 py-3">
-                          <Link href={`/variantes/${t.id}`} className="text-white font-medium hover:text-indigo-400 transition-colors">
-                            {t.nome}
-                          </Link>
-                          <p className="text-gray-600 text-xs font-mono mt-0.5">{t.codigo ?? '—'}</p>
-                          {angulosDoTeste.length > 0 && (
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <Link href={`/variantes/${t.id}`} className="text-white font-medium hover:text-indigo-400 transition-colors">
+                              {t.nome}
+                            </Link>
+                            <span className="text-gray-600 text-xs font-mono">{t.codigo ?? '—'}</span>
+                          </div>
+                          {(t.elemento_testado || angulosDoTeste.length > 0) && (
                             <div className="flex flex-wrap gap-1 mt-1.5">
+                              {t.elemento_testado && (
+                                <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-gray-800 text-gray-300 border border-gray-700">{t.elemento_testado}</span>
+                              )}
                               {angulosDoTeste.map(a => (
                                 <span key={a} className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">{a}</span>
                               ))}
                             </div>
                           )}
                         </td>
-                        {/* Contexto: funil + especialista/responsável */}
-                        <td className="px-4 py-3 text-gray-400">
-                          <p>
-                            {t.funis?.id_funil && <span className="text-indigo-400 font-mono text-xs mr-1">[{t.funis.id_funil}]</span>}
-                            {t.funis?.nome ?? '—'}
-                          </p>
-                          <p className="text-gray-600 text-xs mt-0.5">
-                            {[t.especialistas?.nome, t.responsavel].filter(Boolean).join(' · ') || '—'}
-                          </p>
-                        </td>
-                        {/* Segmentação: tipo + segmento + campanha */}
+                        {/* Segmentação: tipo + segmento */}
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-1.5 flex-wrap">
                             {t.tipo_teste && (
@@ -502,23 +544,18 @@ export function ListaVariantes({ testes: testesProp, funis }: Props) {
                                 {t.segmento}
                               </span>
                             )}
+                            {!t.tipo_teste && !t.segmento && <span className="text-gray-600 text-xs">—</span>}
                           </div>
-                          <p className="text-gray-600 text-xs mt-1">{t.campanhas?.codigo ?? '—'}</p>
                         </td>
                         {/* Status + duração */}
                         <td className="px-4 py-3">
-                          <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium border ${STATUS_COR[t.status] ?? 'bg-gray-800 text-gray-400 border-gray-700'}`}>
+                          <span
+                            className={`inline-flex px-2 py-0.5 rounded text-xs font-medium border ${STATUS_COR[t.status] ?? 'bg-gray-800 text-gray-400 border-gray-700'}`}
+                            title={inicio ? `Início ${inicio}` : undefined}
+                          >
                             {t.status}
                           </span>
-                          <p className="text-gray-600 text-xs mt-1">
-                            {inicio ? `Início ${inicio}` : '—'}
-                            {dias !== null && ` · ${dias}d`}
-                          </p>
-                        </td>
-                        {/* Variações: count + elemento testado */}
-                        <td className="px-4 py-3 text-gray-400">
-                          <p>{t.variantes_teste?.length ?? 0} variantes</p>
-                          <p className="text-gray-600 text-xs mt-0.5">{t.elemento_testado ?? '—'}</p>
+                          {dias !== null && <span className="text-gray-600 text-xs ml-1.5">{dias}d</span>}
                         </td>
                         {/* Resultado: vencedora + lift */}
                         <td className="px-4 py-3">
@@ -558,10 +595,9 @@ export function ListaVariantes({ testes: testesProp, funis }: Props) {
                           )}
                         </td>
                         {/* Métrica + RPV */}
-                        <td className="px-4 py-3 text-right">
-                          <p className="text-gray-400 text-xs">{t.metrica_primaria ?? '—'}</p>
-                          <p className="text-gray-600 text-xs mt-0.5">
-                            {cvr !== null ? `CVR Controle ${cvr.toFixed(1)}%` : '—'}
+                        <td className="px-4 py-3 text-right" title={t.metrica_primaria ?? undefined}>
+                          <p className="text-gray-400 text-xs">
+                            {cvr !== null ? `CVR ${cvr.toFixed(1)}%` : '—'}
                             {lider && ` · Líder ${lider.cr.toFixed(1)}%`}
                             {t.tipo_teste !== 'aquisicao' && rpv !== null && ` · RPV ${formatarMoeda(rpv)}`}
                           </p>
@@ -619,7 +655,13 @@ export function ListaVariantes({ testes: testesProp, funis }: Props) {
                       {expandido && (
                         <tr className="bg-black/20">
                           <td></td>
-                          <td colSpan={7} className="px-4 py-3">
+                          <td colSpan={6} className="px-4 py-3">
+                            <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-gray-400 mb-3 pb-3 border-b border-gray-800/60">
+                              <span><span className="text-gray-600">Início:</span> {inicio ?? '—'}</span>
+                              <span><span className="text-gray-600">Especialista:</span> {t.especialistas?.nome ?? '—'}</span>
+                              <span><span className="text-gray-600">Responsável:</span> {t.responsavel ?? '—'}</span>
+                              <span><span className="text-gray-600">Campanha:</span> {t.campanhas?.codigo ?? '—'}</span>
+                            </div>
                             <p className="text-[11px] text-gray-500 uppercase tracking-wide mb-2">Métricas por variante</p>
                             <div className="divide-y divide-gray-800/60">
                               {(t.variantes_teste ?? []).map(v => (
@@ -638,8 +680,22 @@ export function ListaVariantes({ testes: testesProp, funis }: Props) {
                       </Fragment>
                     )
                   })}
+                    </Fragment>
+                  ))}
                 </tbody>
               </table>
+            </div>
+          )}
+
+          {visiveis.length < filtrados.length && (
+            <div className="flex justify-center pt-2">
+              <button
+                type="button"
+                onClick={() => setPaginaAtual(p => p + 1)}
+                className="px-4 py-2 text-sm text-gray-400 hover:text-white bg-gray-900 border border-gray-800 hover:border-gray-700 rounded-lg transition-colors"
+              >
+                Carregar mais ({filtrados.length - visiveis.length} restantes)
+              </button>
             </div>
           )}
         </>
