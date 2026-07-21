@@ -220,6 +220,11 @@ export function NovoTesteABForm({
     setVariantes(v => redistribuir(v))
   }
 
+  function definirPercentual(idx: number, valor: number) {
+    const limitado = Math.max(0, Math.min(100, valor))
+    setVariantes(v => v.map((vv, i) => (i === idx ? { ...vv, percentual: limitado } : vv)))
+  }
+
   async function handleArquivo(idx: number, file: File) {
     setVariantes(v => v.map((vv, i) => (i === idx ? { ...vv, enviando: true } : vv)))
     const fd = new FormData()
@@ -259,6 +264,8 @@ export function NovoTesteABForm({
   const podeAvancarDefinicao = !!nome.trim() && !!funilId
   const podeAvancarConfiguracao = variantes.every(v => v.paginaId && v.urlVariante.trim())
   const podeFinalizar = podeAvancarDefinicao && podeAvancarConfiguracao && !!metricaPrimaria
+
+  const somaPercentuais = Math.round(variantes.reduce((s, v) => s + v.percentual, 0) * 10) / 10
 
   const sequencialPreview = String(
     testesExistentes.filter(t => t.funil_id === funilId && (t.segmento ?? '') === segmento).length + 1
@@ -637,9 +644,14 @@ export function NovoTesteABForm({
               <h3 className="text-white font-medium flex items-center gap-2">
                 <SplitSquareHorizontal size={16} className="text-indigo-400" /> Variações
               </h3>
-              <button type="button" onClick={distribuirIgualmente} className="text-indigo-400 text-sm hover:text-indigo-300 transition-colors">
-                Distribuir tráfego igualmente
-              </button>
+              <div className="flex items-center gap-3">
+                <span className={`text-xs font-medium ${somaPercentuais === 100 ? 'text-gray-500' : 'text-amber-400'}`}>
+                  Total: {somaPercentuais}%
+                </span>
+                <button type="button" onClick={distribuirIgualmente} className="text-indigo-400 text-sm hover:text-indigo-300 transition-colors">
+                  Distribuir tráfego igualmente
+                </button>
+              </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {variantes.map((v, idx) => (
@@ -662,9 +674,17 @@ export function NovoTesteABForm({
                       )}
                     </h3>
                     <div className="flex items-center gap-2 pl-6">
-                      <span className="ml-auto text-xs font-medium text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded-full">
-                        Tráfego {v.percentual}%
-                      </span>
+                      <label className="ml-auto flex items-center gap-1 text-xs font-medium text-indigo-400 bg-indigo-500/10 rounded-full pl-2 pr-1 py-0.5">
+                        Tráfego
+                        <input
+                          type="number" min={0} max={100}
+                          value={v.percentual}
+                          onChange={e => definirPercentual(idx, e.target.value === '' ? 0 : Number(e.target.value))}
+                          onFocus={e => e.target.select()}
+                          className="w-10 bg-transparent text-right focus:outline-none"
+                        />
+                        %
+                      </label>
                     </div>
                   </div>
                   <div className="space-y-4">
