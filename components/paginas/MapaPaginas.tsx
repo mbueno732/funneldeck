@@ -98,6 +98,7 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
   const [filtroEtapa, setFiltroEtapa] = useState('')
   const [filtroPrioridade, setFiltroPrioridade] = useState('')
   const [filtroFerramenta, setFiltroFerramenta] = useState('')
+  const [filtroVeiculacao, setFiltroVeiculacao] = useState('')
   const [modalAberto, setModalAberto] = useState(false)
   const [editando, setEditando] = useState<Pagina | null>(null)
   const [erroDuplicar, setErroDuplicar] = useState('')
@@ -191,6 +192,8 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
     if (filtroEtapa && p.etapa !== filtroEtapa) return false
     if (filtroPrioridade && p.prioridade !== filtroPrioridade) return false
     if (filtroFerramenta && p.ferramenta !== filtroFerramenta) return false
+    if (filtroVeiculacao === 'em_veiculacao' && !p.pagina_atual) return false
+    if (filtroVeiculacao === 'fora_veiculacao' && p.pagina_atual) return false
     if (filtroAtrasadas && !isAtrasada(p)) return false
     if (filtroMes) {
       const dp = (p as unknown as Record<string, unknown>).data_publicacao as string | null
@@ -198,7 +201,7 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
     }
     return true
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }), [paginas, deletadas, busca, filtroEspecialista, filtroProduto, filtroFunil, filtroTipo, filtroStatus, filtroEtapa, filtroPrioridade, filtroFerramenta, filtroAtrasadas, filtroMes, funis, funilEspecialista, produtoEspecialista])
+  }), [paginas, deletadas, busca, filtroEspecialista, filtroProduto, filtroFunil, filtroTipo, filtroStatus, filtroEtapa, filtroPrioridade, filtroFerramenta, filtroVeiculacao, filtroAtrasadas, filtroMes, funis, funilEspecialista, produtoEspecialista])
 
   const distribuicaoFerramenta = useMemo(() => {
     const total = filtradas.length
@@ -435,11 +438,6 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
             {p.tem_teste_ativo && (
               <span title="Teste A/B ativo"><FlaskConical size={12} className="text-indigo-400 shrink-0" fill="currentColor" /></span>
             )}
-            {p.pagina_atual && (
-              <span title="Em veiculação (a versão real usada nas campanhas hoje)" className="inline-flex items-center gap-0.5 text-[10px] font-medium text-green-400 bg-green-500/10 border border-green-500/20 rounded-full px-1.5 py-0.5 shrink-0">
-                <Pin size={10} fill="currentColor" /> Em veiculação
-              </span>
-            )}
             {atrasada && <span title="Prazo vencido"><AlertTriangle size={12} className="text-red-400 shrink-0" /></span>}
           </div>
           {editandoUrl === p.id && (
@@ -502,6 +500,21 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
             </SelectTrigger>
             <SelectContent className="bg-gray-900 border-gray-800">
               {configOpts('status_pagina').map(c => <SelectItem key={c.valor} value={c.valor} className="text-gray-300 focus:bg-gray-800 focus:text-white">{c.valor}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </td>
+        {/* Em Veiculação */}
+        <td className="px-4 py-3">
+          <Select
+            value={p.pagina_atual ? 'true' : 'false'}
+            onValueChange={v => handleMarcarAtual(p.id, v === 'true')}
+          >
+            <SelectTrigger className="border-0 bg-transparent p-0 h-auto w-auto text-xs font-medium focus:ring-0 focus:ring-offset-0 gap-0 [&>svg]:hidden" style={{ color: p.pagina_atual ? '#4ade80' : '#4b5563' }}>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="bg-gray-900 border-gray-800">
+              <SelectItem value="true" className="text-green-400 focus:bg-gray-800 focus:text-green-300">Em veiculação</SelectItem>
+              <SelectItem value="false" className="text-gray-400 focus:bg-gray-800 focus:text-white">Fora de veiculação</SelectItem>
             </SelectContent>
           </Select>
         </td>
@@ -653,11 +666,6 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
               <button onClick={() => setVariantePagina(raw)}
                 className="p-1.5 text-gray-500 hover:text-indigo-400 hover:bg-gray-900 rounded transition-colors" title="Criar variante">
                 <GitBranch size={13} />
-              </button>
-              <button onClick={() => handleMarcarAtual(p.id, !p.pagina_atual)} disabled={marcandoAtual === p.id}
-                className={`p-1.5 hover:bg-gray-900 rounded transition-colors disabled:opacity-40 disabled:cursor-wait ${p.pagina_atual ? 'text-green-400' : 'text-gray-500 hover:text-green-400'}`}
-                title={p.pagina_atual ? 'Tirar de veiculação' : 'Marcar como em veiculação (a versão real usada hoje)'}>
-                <Pin size={13} fill={p.pagina_atual ? 'currentColor' : 'none'} className={marcandoAtual === p.id ? 'animate-pulse' : ''} />
               </button>
               <button onClick={() => handleDuplicar(p.id)} disabled={duplicandoPagina === p.id}
                 className="p-1.5 text-gray-500 hover:text-indigo-400 hover:bg-gray-900 rounded transition-colors disabled:opacity-40 disabled:cursor-wait" title="Duplicar">
@@ -871,6 +879,16 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
         {filtroSelect('Status', filtroStatus, setFiltroStatus, 'status_pagina')}
         {filtroSelect('Prioridade', filtroPrioridade, setFiltroPrioridade, 'prioridade')}
         {filtroSelect('Ferramenta', filtroFerramenta, setFiltroFerramenta, 'ferramenta')}
+        <Select value={filtroVeiculacao || '__all__'} onValueChange={v => setFiltroVeiculacao(v === '__all__' ? '' : v)}>
+          <SelectTrigger className="h-9 text-sm bg-gray-900 border-gray-800 text-gray-300 hover:bg-gray-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[110px]">
+            <SelectValue placeholder="Veiculação" />
+          </SelectTrigger>
+          <SelectContent className="bg-gray-900 border-gray-800">
+            <SelectItem value="__all__" className="text-gray-400 focus:bg-gray-800 focus:text-white">Veiculação</SelectItem>
+            <SelectItem value="em_veiculacao" className="text-gray-300 focus:bg-gray-800 focus:text-white">Em veiculação</SelectItem>
+            <SelectItem value="fora_veiculacao" className="text-gray-300 focus:bg-gray-800 focus:text-white">Fora de veiculação</SelectItem>
+          </SelectContent>
+        </Select>
 
         {filtroAtrasadas && (
           <button
@@ -882,7 +900,7 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
         )}
         {(busca || filtroEspecialista || filtroProduto || filtroFunil || filtroTipo || filtroStatus || filtroEtapa || filtroPrioridade || filtroFerramenta || filtroAtrasadas) && (
           <button
-            onClick={() => { setBusca(''); setFiltroEspecialista(''); setFiltroProduto(''); setFiltroFunil(''); setFiltroTipo(''); setFiltroStatus(''); setFiltroEtapa(''); setFiltroPrioridade(''); setFiltroFerramenta(''); setFiltroAtrasadas(false) }}
+            onClick={() => { setBusca(''); setFiltroEspecialista(''); setFiltroProduto(''); setFiltroFunil(''); setFiltroTipo(''); setFiltroStatus(''); setFiltroEtapa(''); setFiltroPrioridade(''); setFiltroFerramenta(''); setFiltroVeiculacao(''); setFiltroAtrasadas(false) }}
             className="px-3 py-1.5 text-xs text-gray-400 hover:text-white border border-gray-800 rounded-lg hover:border-gray-600 transition-colors"
           >
             Limpar filtros
@@ -1083,6 +1101,7 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
                 <th className="px-4 py-3 text-left font-medium">Etapa</th>
                 <th className="px-4 py-3 text-left font-medium">Ferramenta</th>
                 <th className="px-4 py-3 text-left font-medium">Status</th>
+                <th className="px-4 py-3 text-left font-medium">Veiculação</th>
                 <th className="px-4 py-3 text-left font-medium">Prioridade</th>
                 <th className="px-4 py-3 text-left font-medium">Horas</th>
                 <th className="px-4 py-3 text-left font-medium">Datas</th>
@@ -1093,7 +1112,7 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
             <tbody className="divide-y divide-white/[0.07]">
               {filtradas.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="px-4 py-12 text-center text-gray-500">
+                  <td colSpan={10} className="px-4 py-12 text-center text-gray-500">
                     {paginas.length === 0 ? 'Nenhuma página cadastrada ainda.' : 'Nenhuma página encontrada com os filtros aplicados.'}
                   </td>
                 </tr>
@@ -1108,7 +1127,7 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
                   ]
                   return grupos.flatMap(grupo => [
                     <tr key={`grp-${grupo.label}`} className="bg-gray-900/60">
-                      <td colSpan={10} className="px-4 py-2">
+                      <td colSpan={11} className="px-4 py-2">
                         <div className="flex items-center gap-2">
                           <Layers size={12} className={grupo.cor === 'violet' ? 'text-violet-400' : 'text-indigo-400'} />
                           <span className={`text-xs font-medium ${grupo.cor === 'violet' ? 'text-violet-300' : 'text-indigo-300'}`}>{grupo.label}</span>
@@ -1143,7 +1162,7 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
 
                 return grupos.flatMap(grupo => [
                   <tr key={`grp-${grupo.label}`} className="bg-gray-900/60">
-                    <td colSpan={10} className="px-4 py-2">
+                    <td colSpan={11} className="px-4 py-2">
                       <div className="flex items-center gap-2">
                         <Layers size={12} className={grupo.cor === 'indigo' ? 'text-indigo-400' : 'text-gray-600'} />
                         <span className={`text-xs font-medium ${grupo.cor === 'indigo' ? 'text-indigo-300' : 'text-gray-500'}`}>
