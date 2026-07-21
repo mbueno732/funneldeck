@@ -703,7 +703,7 @@ export function ListaVariantes({ testes: testesProp, funis }: Props) {
                     const lider = !vencedora ? liderAtual(t) : null
                     const angulosDoTeste = t.angulos ?? []
                     const layoutResumo = resumoLayout(t.variantes_teste ?? [])
-                    const urlAtivacao = urlAtivacaoDoTeste(t.variantes_teste ?? [])
+                    const urlAtivacao = t.url_ativacao || urlAtivacaoDoTeste(t.variantes_teste ?? [])
                     const expandido = expandidos.has(t.id)
                     return (
                       <Fragment key={t.id}>

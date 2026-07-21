@@ -1,5 +1,5 @@
 'use client'
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
@@ -160,6 +160,8 @@ export function NovoTesteABForm({
   const [metricaPrimaria, setMetricaPrimaria] = useState(testeParaEditar?.metrica_primaria ?? '')
   const [nivelConfianca, setNivelConfianca] = useState(testeParaEditar?.nivel_confianca ?? 95)
   const [poderEstatistico, setPoderEstatistico] = useState(testeParaEditar?.poder_estatistico ?? 80)
+  const [urlAtivacao, setUrlAtivacao] = useState(testeParaEditar?.url_ativacao ?? '')
+  const [urlAtivacaoEditada, setUrlAtivacaoEditada] = useState(!!testeParaEditar?.url_ativacao)
 
   const [salvando, setSalvando] = useState<'planejado' | 'ativo' | 'edicao' | null>(null)
   const [erro, setErro] = useState('')
@@ -262,7 +264,14 @@ export function NovoTesteABForm({
     testesExistentes.filter(t => t.funil_id === funilId && (t.segmento ?? '') === segmento).length + 1
   ).padStart(3, '0')
   const codigoPreview = [sequencialPreview, segmento, novaCampanhaCodigo.trim() || campanhaSelecionada?.codigo].filter(Boolean).join('_')
-  const urlAtivacaoPreview = urlAtivacaoDoTeste(variantes)
+
+  // Recalcula a URL de ativação a partir das variantes só enquanto o usuário
+  // não editar manualmente na Revisão (ex: quando o cálculo automático erra).
+  useEffect(() => {
+    if (urlAtivacaoEditada) return
+    const auto = urlAtivacaoDoTeste(variantes)
+    if (auto) setUrlAtivacao(auto)
+  }, [variantes, urlAtivacaoEditada])
 
   async function finalizar(status: 'Planejado' | 'Ativo') {
     setSalvando(status === 'Ativo' ? 'ativo' : 'planejado')
@@ -285,6 +294,7 @@ export function NovoTesteABForm({
       metrica_primaria: metricaPrimaria,
       nivel_confianca: nivelConfianca,
       poder_estatistico: poderEstatistico,
+      url_ativacao: urlAtivacao || undefined,
       status,
       variantes: variantes.map((v, i) => ({
         nome: `Variação ${v.letra}`,
@@ -326,6 +336,7 @@ export function NovoTesteABForm({
       metrica_primaria: metricaPrimaria,
       nivel_confianca: nivelConfianca,
       poder_estatistico: poderEstatistico,
+      url_ativacao: urlAtivacao || undefined,
       status: testeParaEditar.status,
       variantes: variantes.map((v, i) => ({
         id: v.id,
@@ -887,12 +898,6 @@ export function NovoTesteABForm({
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3 text-sm mb-6">
               <p className="text-gray-500">Código do teste <span className="text-gray-300 font-mono">{codigoPreview}</span> <span className="text-gray-600 text-xs">(número definido ao salvar)</span></p>
-              <p className="text-gray-500">
-                URL de ativação{' '}
-                {urlAtivacaoPreview
-                  ? <span className="text-gray-300 font-mono text-xs break-all">{urlAtivacaoPreview}</span>
-                  : <span className="text-gray-300">—</span>}
-              </p>
               <p className="text-gray-500">Nome <span className="text-gray-300">{nome || '—'}</span></p>
               <p className="text-gray-500">Funil <span className="text-gray-300">{funilSelecionado?.nome ?? '—'}</span></p>
               <p className="text-gray-500">Tipo <span className="text-gray-300">{tipoTeste === 'aquisicao' ? 'Aquisição' : 'Vendas'}</span></p>
@@ -906,6 +911,20 @@ export function NovoTesteABForm({
               </p>
               <p className="text-gray-500">Variantes <span className="text-gray-300">{variantes.length}</span></p>
               <p className="text-gray-500">Métrica primária <span className="text-gray-300">{metricaPrimaria || '—'}</span></p>
+            </div>
+
+            <div className="space-y-1.5 mb-6">
+              <Label className={labelCls}>URL de Ativação do Teste</Label>
+              <Input
+                value={urlAtivacao}
+                onChange={e => { setUrlAtivacao(e.target.value); setUrlAtivacaoEditada(true) }}
+                placeholder="Gerada automaticamente a partir da URL das variantes"
+                className={`${inputCls} text-xs font-mono`}
+              />
+              <p className="text-gray-600 text-xs">
+                Calculada automaticamente a partir da URL das variantes (remove a letra/versão do final) — edite aqui se sair errada.
+                É a mesma URL usada no botão de acesso rápido na Lista de Experimentos.
+              </p>
             </div>
 
             {erro && <p className="text-red-400 text-sm mb-4">{erro}</p>}

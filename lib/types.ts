@@ -214,6 +214,7 @@ export interface TesteAB {
   data_fim?: string | null
   resultado?: string | null
   resultado_final?: 'vencedora' | 'sem_vencedor' | null
+  url_ativacao?: string | null
   pagina_id?: string | null
   campanha_id?: string | null
   segmento?: string | null

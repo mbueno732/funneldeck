@@ -47,6 +47,7 @@ export async function criarTesteAB(input: {
   metrica_primaria?: string
   nivel_confianca?: number
   poder_estatistico?: number
+  url_ativacao?: string
   status: 'Planejado' | 'Ativo'
   variantes: {
     nome: string
@@ -115,6 +116,7 @@ export async function criarTesteAB(input: {
         metrica_primaria: input.metrica_primaria || null,
         nivel_confianca: input.nivel_confianca ?? 95,
         poder_estatistico: input.poder_estatistico ?? 80,
+        url_ativacao: input.url_ativacao || null,
         status: input.status,
         data_inicio: input.data_inicio || (input.status === 'Ativo' ? new Date().toISOString().split('T')[0] : null),
       })
@@ -165,6 +167,7 @@ export async function atualizarTesteAB(testeId: string, input: {
   metrica_primaria?: string
   nivel_confianca?: number
   poder_estatistico?: number
+  url_ativacao?: string
   status: string
   variantes: {
     id?: string
@@ -221,6 +224,7 @@ export async function atualizarTesteAB(testeId: string, input: {
         metrica_primaria: input.metrica_primaria || null,
         nivel_confianca: input.nivel_confianca ?? 95,
         poder_estatistico: input.poder_estatistico ?? 80,
+        url_ativacao: input.url_ativacao || null,
         status: input.status,
         data_inicio: input.data_inicio || null,
       })
@@ -299,6 +303,7 @@ export async function duplicarTesteAB(testeId: string): Promise<{ ok: boolean; e
         metrica_primaria: original.metrica_primaria,
         nivel_confianca: original.nivel_confianca,
         poder_estatistico: original.poder_estatistico,
+        url_ativacao: original.url_ativacao,
         status: 'Planejado',
         data_inicio: null,
       })
