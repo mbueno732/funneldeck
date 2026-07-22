@@ -984,9 +984,23 @@ export function ListaVariantes({ testes: testesProp, funis }: Props) {
                                       <p className="text-xs text-gray-600 italic">Sem headline registrada</p>
                                     )}
                                     {v.subheadline && <p className="text-xs text-gray-500 leading-snug truncate">{v.subheadline}</p>}
-                                    {v.url_preview && (
-                                      <a href={v.url_preview} target="_blank" rel="noreferrer" className="text-indigo-400 text-[11px] hover:underline">Preview ↗</a>
-                                    )}
+                                    <div className="flex items-center gap-3 mt-0.5">
+                                      {v.url_variante && (
+                                        <a
+                                          href={v.url_variante}
+                                          target="_blank"
+                                          rel="noreferrer"
+                                          className="text-indigo-400 text-[11px] hover:underline inline-flex items-center gap-1"
+                                        >
+                                          <ExternalLink size={10} /> Abrir página
+                                        </a>
+                                      )}
+                                      {v.url_preview && (
+                                        <a href={v.url_preview} target="_blank" rel="noreferrer" className="text-gray-500 text-[11px] hover:underline hover:text-gray-400">
+                                          Preview ↗
+                                        </a>
+                                      )}
+                                    </div>
                                   </div>
                                 </div>
                               ))}
