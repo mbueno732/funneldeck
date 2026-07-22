@@ -743,14 +743,17 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
                             {expandido ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
                           </button>
                         </td>
-                        {/* Experimento: nome + código */}
-                        <td className="px-4 py-3">
+                        {/* Experimento: nome + código + hipótese resumida */}
+                        <td className="px-4 py-3 max-w-[260px]">
                           <div className="flex items-center gap-1.5 flex-wrap">
                             <Link href={`/variantes/${t.id}`} className="text-white font-medium hover:text-indigo-400 transition-colors">
                               {t.nome}
                             </Link>
                             <span className="text-gray-600 text-xs font-mono">{numeroSequencial(t.codigo) ?? '—'}</span>
                           </div>
+                          {t.hipotese && (
+                            <p className="text-gray-500 text-xs truncate mt-0.5" title={t.hipotese}>{t.hipotese}</p>
+                          )}
                         </td>
                         {/* Funil */}
                         <td className="px-4 py-3">
