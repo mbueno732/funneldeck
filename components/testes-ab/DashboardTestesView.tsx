@@ -2,8 +2,9 @@
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { FlaskConical, ExternalLink, Trophy } from 'lucide-react'
+import { FlaskConical, ExternalLink, Trophy, Rocket, TrendingDown, TrendingUp, Equal, Percent, Target } from 'lucide-react'
 import { calcularKpis, agruparPor, type LinhaAgrupada, type KpisDashboard } from '@/lib/dashboard-testes'
+import { SectionLabel } from '@/components/dashboard/DashboardView'
 import type { TesteAB } from '@/lib/types'
 
 interface Props {
@@ -49,15 +50,22 @@ function urlAtivacaoDoTeste(t: TesteAB): string | null {
   }
 }
 
-const KPI_CARDS: { chave: keyof KpisDashboard; label: string; cor: string; formato: 'int' | 'pct0' | 'pct1' | 'lift' }[] = [
-  { chave: 'testesTotais', label: 'Testes Totais', cor: '#6366f1', formato: 'int' },
-  { chave: 'ativos', label: 'Ativos', cor: '#0ea5e9', formato: 'int' },
-  { chave: 'vencedores', label: 'Vencedores', cor: '#22c55e', formato: 'int' },
-  { chave: 'perdedores', label: 'Perdedores', cor: '#ef4444', formato: 'int' },
-  { chave: 'empates', label: 'Empates', cor: '#9ca3af', formato: 'int' },
-  { chave: 'winRate', label: 'Win Rate', cor: '#a78bfa', formato: 'pct0' },
-  { chave: 'cvrMedioVencedor', label: 'CVR Médio (Vencedoras)', cor: '#2dd4bf', formato: 'pct1' },
-  { chave: 'liftMedioVencedor', label: 'Lift Médio (Vencedoras)', cor: '#34d399', formato: 'lift' },
+const KPI_CARDS: {
+  chave: keyof KpisDashboard
+  label: string
+  cor: string
+  formato: 'int' | 'pct0' | 'pct1' | 'lift'
+  icon: React.ElementType
+  status?: string
+}[] = [
+  { chave: 'testesTotais', label: 'Testes Totais', cor: '#6366f1', formato: 'int', icon: FlaskConical },
+  { chave: 'ativos', label: 'Ativos', cor: '#0ea5e9', formato: 'int', icon: Rocket, status: 'Ativo' },
+  { chave: 'vencedores', label: 'Vencedores', cor: '#22c55e', formato: 'int', icon: Trophy },
+  { chave: 'perdedores', label: 'Perdedores', cor: '#ef4444', formato: 'int', icon: TrendingDown },
+  { chave: 'empates', label: 'Empates', cor: '#9ca3af', formato: 'int', icon: Equal },
+  { chave: 'winRate', label: 'Win Rate', cor: '#a78bfa', formato: 'pct0', icon: Percent },
+  { chave: 'cvrMedioVencedor', label: 'CVR Médio (Vencedoras)', cor: '#2dd4bf', formato: 'pct1', icon: Target },
+  { chave: 'liftMedioVencedor', label: 'Lift Médio (Vencedoras)', cor: '#34d399', formato: 'lift', icon: TrendingUp },
 ]
 
 function TabelaAgrupada({ titulo, subtitulo, linhas, rotuloChave }: { titulo: string; subtitulo?: string; linhas: LinhaAgrupada[]; rotuloChave: string }) {
@@ -178,39 +186,72 @@ export function DashboardTestesView({ testes }: Props) {
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {KPI_CARDS.map(({ chave, label, cor, formato }) => {
-          const valorBruto = kpis[chave]
-          const valor = formato === 'int'
-            ? String(valorBruto ?? 0)
-            : formato === 'pct0'
-            ? fmtPct(valorBruto, 0)
-            : formato === 'pct1'
-            ? fmtPct(valorBruto, 1)
-            : fmtLift(valorBruto)
-          return (
-            <div key={chave} className="rounded-xl p-4" style={{ backgroundColor: `${cor}15`, border: `1px solid ${cor}35` }}>
-              <p className="text-[10px] uppercase tracking-wide font-medium mb-1.5" style={{ color: cor }}>{label}</p>
-              <p className="text-2xl font-bold text-white">{valor}</p>
-            </div>
-          )
-        })}
+      <div>
+        <SectionLabel>Visão Geral</SectionLabel>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {KPI_CARDS.map(({ chave, label, cor, formato, icon: Icon, status }) => {
+            const valorBruto = kpis[chave]
+            const valor = formato === 'int'
+              ? String(valorBruto ?? 0)
+              : formato === 'pct0'
+              ? fmtPct(valorBruto, 0)
+              : formato === 'pct1'
+              ? fmtPct(valorBruto, 1)
+              : fmtLift(valorBruto)
+
+            const href = chave === 'testesTotais' || status
+              ? (() => {
+                  const params = new URLSearchParams()
+                  if (status) params.set('status', status)
+                  if (tipoAtivo !== 'todos') params.set('tipo', tipoAtivo)
+                  const qs = params.toString()
+                  return `/variantes${qs ? `?${qs}` : ''}`
+                })()
+              : undefined
+
+            const conteudo = (
+              <div
+                className={`rounded-xl p-4 h-full transition-colors ${href ? 'hover:border-opacity-70 cursor-pointer' : ''}`}
+                style={{ backgroundColor: `${cor}15`, border: `1px solid ${cor}35` }}
+              >
+                <div className="flex items-center justify-between mb-1.5">
+                  <p className="text-[10px] uppercase tracking-wide font-medium" style={{ color: cor }}>{label}</p>
+                  <Icon size={14} style={{ color: cor }} />
+                </div>
+                <p className="text-[28px] leading-none font-medium text-white">{valor}</p>
+              </div>
+            )
+
+            return href ? (
+              <Link key={chave} href={href} className="block h-full">{conteudo}</Link>
+            ) : (
+              <div key={chave}>{conteudo}</div>
+            )
+          })}
+        </div>
       </div>
 
       {/* Breakdowns */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <TabelaAgrupada titulo="Win Rate por Segmento" linhas={porSegmento} rotuloChave="Segmento" />
-        <TabelaAgrupada titulo="Win Rate por Elemento Testado" linhas={porElemento} rotuloChave="Elemento" />
+      <div>
+        <SectionLabel>Padrões de Sucesso</SectionLabel>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <TabelaAgrupada titulo="Win Rate por Segmento" linhas={porSegmento} rotuloChave="Segmento" />
+          <TabelaAgrupada titulo="Win Rate por Elemento Testado" linhas={porElemento} rotuloChave="Elemento" />
+        </div>
+        <div className="mt-4">
+          <TabelaAgrupada
+            titulo="Ângulos presentes em testes vencedores"
+            subtitulo="Descreve a mensagem da Hero no teste, não necessariamente a variável testada — não interprete como causa da vitória sem cruzar com o Elemento Testado."
+            linhas={porAngulo}
+            rotuloChave="Ângulo"
+          />
+        </div>
       </div>
-      <TabelaAgrupada
-        titulo="Ângulos presentes em testes vencedores"
-        subtitulo="Descreve a mensagem da Hero no teste, não necessariamente a variável testada — não interprete como causa da vitória sem cruzar com o Elemento Testado."
-        linhas={porAngulo}
-        rotuloChave="Ângulo"
-      />
 
       {/* Testes Ativos */}
-      <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
+      <div>
+        <SectionLabel>Em Andamento</SectionLabel>
+        <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
         <h3 className="text-white font-medium mb-4 flex items-center gap-2">
           <FlaskConical size={15} className="text-indigo-400" /> Testes Ativos ({testesAtivos.length})
         </h3>
@@ -264,6 +305,7 @@ export function DashboardTestesView({ testes }: Props) {
             </table>
           </div>
         )}
+        </div>
       </div>
     </div>
   )

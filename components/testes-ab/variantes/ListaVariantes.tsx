@@ -176,6 +176,8 @@ function unicos<T>(lista: (T | null | undefined)[]): T[] {
 interface Props {
   testes: TesteAB[]
   funis: Pick<Funil, 'id' | 'id_funil' | 'nome' | 'status'>[]
+  initialStatus?: string
+  initialTipo?: 'todos' | 'aquisicao' | 'vendas'
 }
 
 function LinhaMetricasVariante({
@@ -280,7 +282,7 @@ function LinhaMetricasVariante({
   )
 }
 
-export function ListaVariantes({ testes: testesProp, funis }: Props) {
+export function ListaVariantes({ testes: testesProp, funis, initialStatus, initialTipo }: Props) {
   const router = useRouter()
   const [testes, setTestes] = useState(testesProp)
   useEffect(() => setTestes(testesProp), [testesProp])
@@ -312,12 +314,12 @@ export function ListaVariantes({ testes: testesProp, funis }: Props) {
     if (r.ok && r.id) router.push(`/variantes/${r.id}/editar`)
   }
 
-  const [tipoAtivo, setTipoAtivo] = useState<'todos' | 'aquisicao' | 'vendas'>('todos')
+  const [tipoAtivo, setTipoAtivo] = useState<'todos' | 'aquisicao' | 'vendas'>(initialTipo ?? 'todos')
   const [expandidos, setExpandidos] = useState<Set<string>>(new Set())
   const [imagemAmpliada, setImagemAmpliada] = useState<string | null>(null)
   const [busca, setBusca] = useState('')
   const [filtroFunil, setFiltroFunil] = useState('__all__')
-  const [filtroStatus, setFiltroStatus] = useState('__all__')
+  const [filtroStatus, setFiltroStatus] = useState(initialStatus ?? '__all__')
   const [filtroEspecialista, setFiltroEspecialista] = useState('__all__')
   const [filtroSegmento, setFiltroSegmento] = useState('__all__')
   const [filtroCampanha, setFiltroCampanha] = useState('__all__')

@@ -64,7 +64,7 @@ const ICON_BG: Record<CardCor, string> = {
   gray:   'bg-gray-900 text-gray-400',
 }
 
-function SectionLabel({ children }: { children: React.ReactNode }) {
+export function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
     <p className="text-[10px] font-medium tracking-[.06em] text-gray-500 uppercase mb-2">
       {children}
