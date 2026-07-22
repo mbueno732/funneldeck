@@ -1,9 +1,10 @@
 'use client'
 import { useState, Suspense } from 'react'
-import { FlaskConical, RefreshCw } from 'lucide-react'
 import { DashboardView } from '@/components/dashboard/DashboardView'
 import { FiltroDashboard } from '@/components/dashboard/FiltroDashboard'
 import { FiltroMes } from '@/components/dashboard/FiltroMes'
+import { DashboardTestesView } from '@/components/testes-ab/DashboardTestesView'
+import type { TesteAB } from '@/lib/types'
 
 interface Kpis {
   total_paginas: number
@@ -53,15 +54,14 @@ interface Props {
   mesLabel: string
   mesAtual: string
   horasKpis: HorasKpis
-  variantesAtivas: number
-  funisComVariantes: number
+  testesAB: TesteAB[]
   mesesDisponiveis: string[]
   especialistas: { id: string; nome: string; ativo: boolean; criado_em: string; atualizado_em: string }[]
 }
 
 export function DashboardV2View({
   kpis, porEspecialista, statusConfigs, mesLabel, mesAtual, horasKpis,
-  variantesAtivas, funisComVariantes, mesesDisponiveis, especialistas,
+  testesAB, mesesDisponiveis, especialistas,
 }: Props) {
   const [aba, setAba] = useState<'operacao' | 'ab'>('operacao')
 
@@ -116,21 +116,7 @@ export function DashboardV2View({
           horasKpis={horasKpis}
         />
       ) : (
-        /* Aba INTELIGÊNCIA A/B — aguardando design do Stitch */
-        <div className="bg-gray-900 border border-dashed border-gray-800 rounded-xl p-14 flex flex-col items-center justify-center text-center gap-3">
-          <div className="w-12 h-12 rounded-full bg-indigo-500/10 border border-indigo-500/25 flex items-center justify-center text-indigo-400">
-            <FlaskConical size={22} />
-          </div>
-          <h3 className="text-lg font-semibold text-white">Inteligência A/B</h3>
-          <p className="text-sm text-gray-500 max-w-md">
-            Esta visão vai mostrar os testes A/B — variante A vs B, taxa de conversão, receita e o vencedor.
-            Aguardando o design desta tela no Stitch para construir.
-          </p>
-          <div className="flex items-center gap-2 text-xs text-gray-600 mt-2 font-medium uppercase tracking-wide">
-            <RefreshCw size={12} /> {variantesAtivas} variante{variantesAtivas === 1 ? '' : 's'} no banco
-            {funisComVariantes > 0 && ` · em ${funisComVariantes} ${funisComVariantes === 1 ? 'funil' : 'funis'}`}
-          </div>
-        </div>
+        <DashboardTestesView testes={testesAB} />
       )}
     </div>
   )

@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic'
 import { createClient } from '@/lib/supabase/server'
 import { DashboardV2View } from '@/components/testes-ab/DashboardV2View'
+import { listarTestesAB } from '@/lib/actions/testes-ab'
 
 export default async function DashboardPage({
   searchParams,
@@ -29,16 +30,14 @@ export default async function DashboardPage({
     { data: especialistas },
     { data: statusConfigs },
     { data: paginasImpl },
-    { count: totalVariantes },
-    { data: variantesFunis },
+    testesAB,
   ] = await Promise.all([
     supabase.from('paginas').select('id, nome, status, data_prevista, data_publicacao, funil_id, atualizado_em, horas_estimadas, horas_reais'),
     supabase.from('funis').select('id, status, produto_id, especialista_id, produtos(especialista_id, especialistas(id, nome))'),
     supabase.from('especialistas').select('id, nome').eq('ativo', true).order('nome'),
     supabase.from('configuracoes').select('valor, cor').eq('categoria', 'status_pagina').eq('ativo', true).order('ordem'),
     supabase.from('paginas').select('id, funil_id, checklists_publicacao(checklist_itens(concluido))').eq('status', 'Implementada'),
-    supabase.from('variantes_teste').select('id', { count: 'exact', head: true }),
-    supabase.from('variantes_teste').select('teste_id, testes_ab(funil_id)'),
+    listarTestesAB(),
   ])
 
   const funisVisiveis = espFiltro
@@ -156,12 +155,6 @@ export default async function DashboardPage({
     }
   })
 
-  const funisComVariantes = new Set(
-    (variantesFunis ?? [])
-      .map(v => (v.testes_ab as { funil_id?: string } | null)?.funil_id)
-      .filter(Boolean)
-  ).size
-
   const mesesDisponiveis = Array.from(new Set(
     (todasPaginas ?? [])
       .map(x => (x as { data_publicacao?: string }).data_publicacao)
@@ -177,8 +170,7 @@ export default async function DashboardPage({
       mesLabel={mesLabel}
       mesAtual={mesSelecionado}
       horasKpis={horasKpis}
-      variantesAtivas={totalVariantes ?? 0}
-      funisComVariantes={funisComVariantes}
+      testesAB={testesAB}
       mesesDisponiveis={mesesDisponiveis}
       especialistas={(especialistas ?? []) as { id: string; nome: string; ativo: boolean; criado_em: string; atualizado_em: string }[]}
     />
