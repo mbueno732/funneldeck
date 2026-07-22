@@ -952,7 +952,7 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
                             <p className="text-[11px] text-gray-500 uppercase tracking-wide mb-2">Variantes</p>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 pb-4 border-b border-gray-800/60">
                               {(t.variantes_teste ?? []).map(v => (
-                                <div key={v.id} className="flex gap-3 bg-gray-900/60 border border-gray-800 rounded-lg p-3">
+                                <div key={v.id} className={`flex gap-3 bg-gray-900/60 border rounded-lg p-3 ${v.is_vencedor ? 'border-green-500/40' : 'border-gray-800'}`}>
                                   {v.screenshot_url && ehArquivoHtml(v.screenshot_url) ? (
                                     <button
                                       type="button"
@@ -982,6 +982,11 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
                                     <p className="text-xs text-gray-400 mb-0.5 flex items-center gap-1.5 flex-wrap">
                                       {v.is_controle && <span className="text-gray-600">●</span>} {nomeVariante(v)}
                                       {v.layout && <span className="text-[10px] text-gray-600">· {LAYOUT_LABEL[v.layout] ?? v.layout}</span>}
+                                      {v.is_vencedor && (
+                                        <span className="inline-flex items-center gap-1 text-[11px] font-medium bg-green-500/10 text-green-400 border border-green-500/20 rounded-full px-2 py-0.5">
+                                          <Trophy size={11} /> WINNER
+                                        </span>
+                                      )}
                                     </p>
                                     {v.headline ? (
                                       <p className="text-sm text-white leading-snug truncate">{v.headline}</p>
