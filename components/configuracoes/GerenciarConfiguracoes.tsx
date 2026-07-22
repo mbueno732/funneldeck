@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Plus, Check, X, Pencil, Trash2 } from 'lucide-react'
+import { Plus, Check, X, Pencil, Trash2, ArrowUp, ArrowDown } from 'lucide-react'
 import { criarConfiguracao, atualizarConfiguracao, deletarConfiguracao } from '@/lib/actions/configuracoes'
 import { DESCRICOES_TIPO_PAGINA } from '@/lib/descricoes-tipo-pagina'
 import { GerenciarEspecialistas } from '@/components/especialistas/GerenciarEspecialistas'
@@ -76,6 +76,8 @@ function ItemRow({
   descricao,
   editando,
   confirmandoDelete,
+  podeSubir,
+  podeDescer,
   onEditar,
   onSalvar,
   onCancelarEdicao,
@@ -83,12 +85,15 @@ function ItemRow({
   onConfirmarDelete,
   onCancelarDelete,
   onDeletar,
+  onMover,
   setEditando,
 }: {
   item: Configuracao
   descricao?: string
   editando: { id: string; valor: string; cor: string } | null
   confirmandoDelete: string | null
+  podeSubir: boolean
+  podeDescer: boolean
   onEditar: () => void
   onSalvar: () => void
   onCancelarEdicao: () => void
@@ -96,6 +101,7 @@ function ItemRow({
   onConfirmarDelete: () => void
   onCancelarDelete: () => void
   onDeletar: () => void
+  onMover: (direcao: 'cima' | 'baixo') => void
   setEditando: (v: { id: string; valor: string; cor: string } | null) => void
 }) {
   const isEditando = editando?.id === item.id
@@ -157,6 +163,18 @@ function ItemRow({
           </div>
         ) : (
           <div className="flex items-center gap-1 justify-end">
+            <button
+              onClick={() => onMover('cima')}
+              disabled={!podeSubir}
+              className="p-1.5 text-gray-500 hover:text-white hover:bg-gray-900 rounded transition-colors disabled:opacity-20 disabled:pointer-events-none"
+              title="Mover pra cima"
+            ><ArrowUp size={12} /></button>
+            <button
+              onClick={() => onMover('baixo')}
+              disabled={!podeDescer}
+              className="p-1.5 text-gray-500 hover:text-white hover:bg-gray-900 rounded transition-colors disabled:opacity-20 disabled:pointer-events-none"
+              title="Mover pra baixo"
+            ><ArrowDown size={12} /></button>
             <button onClick={onEditar} className="p-1.5 text-gray-500 hover:text-white hover:bg-gray-900 rounded transition-colors"><Pencil size={12} /></button>
             <button onClick={onToggleAtivo} className="p-1.5 text-gray-500 hover:text-yellow-400 hover:bg-gray-900 rounded transition-colors" title={item.ativo ? 'Desativar' : 'Ativar'}>{item.ativo ? <X size={12} /> : <Check size={12} />}</button>
             <button onClick={onConfirmarDelete} className="p-1.5 text-gray-500 hover:text-red-400 hover:bg-gray-900 rounded transition-colors"><Trash2 size={12} /></button>
@@ -178,6 +196,7 @@ function TabelaItens({
   onSalvarEdicao,
   onToggleAtivo,
   onDeletar,
+  onMover,
   setConfirmandoDelete,
 }: {
   itens: Configuracao[]
@@ -188,6 +207,7 @@ function TabelaItens({
   onSalvarEdicao: () => void
   onToggleAtivo: (item: Configuracao) => void
   onDeletar: (id: string) => void
+  onMover: (itens: Configuracao[], index: number, direcao: 'cima' | 'baixo') => void
   setConfirmandoDelete: (id: string | null) => void
 }) {
   return (
@@ -208,13 +228,15 @@ function TabelaItens({
                 Nenhum item cadastrado.
               </td>
             </tr>
-          ) : itens.map(item => (
+          ) : itens.map((item, index) => (
             <ItemRow
               key={item.id}
               item={item}
               descricao={descricoes?.[item.valor]}
               editando={editando}
               confirmandoDelete={confirmandoDelete}
+              podeSubir={index > 0}
+              podeDescer={index < itens.length - 1}
               onEditar={() => setEditando({ id: item.id, valor: item.valor, cor: item.cor ?? '' })}
               onSalvar={onSalvarEdicao}
               onCancelarEdicao={() => setEditando(null)}
@@ -222,6 +244,7 @@ function TabelaItens({
               onConfirmarDelete={() => setConfirmandoDelete(item.id)}
               onCancelarDelete={() => setConfirmandoDelete(null)}
               onDeletar={() => onDeletar(item.id)}
+              onMover={direcao => onMover(itens, index, direcao)}
               setEditando={setEditando}
             />
           ))}
@@ -298,6 +321,18 @@ export function GerenciarConfiguracoes({ configs, especialistas }: Props) {
     }
   }
 
+  async function handleMover(itensOrdenados: Configuracao[], index: number, direcao: 'cima' | 'baixo') {
+    const alvo = direcao === 'cima' ? index - 1 : index + 1
+    if (alvo < 0 || alvo >= itensOrdenados.length) return
+    const atual = itensOrdenados[index]
+    const vizinho = itensOrdenados[alvo]
+    await Promise.all([
+      atualizarConfiguracao(atual.id, { ordem: vizinho.ordem }),
+      atualizarConfiguracao(vizinho.id, { ordem: atual.ordem }),
+    ])
+    router.refresh()
+  }
+
   const abaLabel = GRUPOS.flatMap(g => g.itens).find(i => i.key === abaAtiva)?.label ?? ''
 
   return (
@@ -359,6 +394,7 @@ export function GerenciarConfiguracoes({ configs, especialistas }: Props) {
                       onSalvarEdicao={handleSalvarEdicao}
                       onToggleAtivo={handleToggleAtivo}
                       onDeletar={handleDeletar}
+                      onMover={handleMover}
                       setConfirmandoDelete={setConfirmandoDelete}
                     />
                     <form onSubmit={e => handleAdicionarChecklist(e, fase.key)} className="flex gap-2">
@@ -417,6 +453,7 @@ export function GerenciarConfiguracoes({ configs, especialistas }: Props) {
                 onSalvarEdicao={handleSalvarEdicao}
                 onToggleAtivo={handleToggleAtivo}
                 onDeletar={handleDeletar}
+                onMover={handleMover}
                 setConfirmandoDelete={setConfirmandoDelete}
               />
             </>
