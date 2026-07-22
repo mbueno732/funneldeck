@@ -11,6 +11,12 @@ type AbaAtiva = CategoriaConfig | 'checklist' | 'especialistas'
 
 const GRUPOS: { label: string; itens: { key: AbaAtiva; label: string }[] }[] = [
   {
+    label: 'Negócio',
+    itens: [
+      { key: 'especialistas', label: 'Especialistas' },
+    ],
+  },
+  {
     label: 'Páginas',
     itens: [
       { key: 'status_pagina', label: 'Status' },
@@ -31,8 +37,7 @@ const GRUPOS: { label: string; itens: { key: AbaAtiva; label: string }[] }[] = [
   {
     label: 'Time',
     itens: [
-      { key: 'especialistas', label: 'Especialistas' },
-      { key: 'responsavel',   label: 'Responsáveis' },
+      { key: 'responsavel', label: 'Responsáveis' },
     ],
   },
   {
