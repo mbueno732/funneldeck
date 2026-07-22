@@ -122,5 +122,11 @@ export function agruparPor(testes: TesteAB[], valorDe: (t: TesteAB) => string[] 
         cvrMedio: kpis.cvrMedioVencedor,
       }
     })
-    .sort((a, b) => b.total - a.total)
+    .sort((a, b) => {
+      if (a.winRate === null && b.winRate === null) return b.total - a.total
+      if (a.winRate === null) return 1
+      if (b.winRate === null) return -1
+      if (a.winRate !== b.winRate) return b.winRate - a.winRate
+      return b.total - a.total
+    })
 }
