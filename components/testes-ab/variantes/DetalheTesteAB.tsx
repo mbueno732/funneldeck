@@ -79,6 +79,8 @@ const CONFIANCA_COR: Record<string, string> = {
   'Baixa': 'text-gray-400',
 }
 
+const LIMITE_HIPOTESE = 200
+
 const LAYOUT_LABEL: Record<string, string> = { curto: 'Curto', longo: 'Longo' }
 
 interface Props {
@@ -306,10 +308,13 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
                 value={hipotese}
                 onChange={e => setHipotese(e.target.value)}
                 onBlur={() => { if (hipotese !== (teste.hipotese ?? '')) salvarHipotese() }}
-                placeholder="Descreva a alteração visual ou funcional..."
+                placeholder="Ex: Reduzir o formulário de 3 campos para 2 (email + nome)"
                 rows={4}
                 className={`${inputCls} resize-none text-sm`}
               />
+              <p className={`text-xs text-right ${hipotese.length > LIMITE_HIPOTESE ? 'text-amber-400' : 'text-gray-600'}`}>
+                {hipotese.length}/{LIMITE_HIPOTESE}
+              </p>
             </div>
             <div className="space-y-1.5">
               <label className="text-gray-500 text-xs">POR QUE estamos mudando?</label>
@@ -317,7 +322,7 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
                 value={hipoteseMotivo}
                 onChange={e => setHipoteseMotivo(e.target.value)}
                 onBlur={() => { if (hipoteseMotivo !== (teste.hipotese_motivo ?? '')) salvarHipotese() }}
-                placeholder="Baseado em quais dados ou feedbacks..."
+                placeholder="Ex: Gravações mostram abandono alto no campo telefone"
                 rows={4}
                 className={`${inputCls} resize-none text-sm`}
               />
@@ -328,7 +333,7 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
                 value={resultadoEsperado}
                 onChange={e => setResultadoEsperado(e.target.value)}
                 onBlur={() => { if (resultadoEsperado !== (teste.resultado_esperado ?? '')) salvarHipotese() }}
-                placeholder="Qual o impacto quantitativo previsto..."
+                placeholder="Ex: Aumento de 15% na taxa de conversão do formulário"
                 rows={4}
                 className={`${inputCls} resize-none text-sm`}
               />

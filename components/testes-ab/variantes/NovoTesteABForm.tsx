@@ -48,6 +48,7 @@ interface Props {
 }
 
 const MAX_ANGULOS = 3
+const LIMITE_HIPOTESE = 200
 
 const LETRAS = ['A', 'B', 'C', 'D']
 const LAYOUTS = [
@@ -567,17 +568,20 @@ export function NovoTesteABForm({
                 <Textarea
                   value={hipotese}
                   onChange={e => setHipotese(e.target.value)}
-                  placeholder="Descreva a alteração visual ou funcional..."
+                  placeholder="Ex: Reduzir o formulário de 3 campos para 2 (email + nome)"
                   rows={4}
                   className={`${inputCls} resize-none`}
                 />
+                <p className={`text-xs text-right ${hipotese.length > LIMITE_HIPOTESE ? 'text-amber-400' : 'text-gray-600'}`}>
+                  {hipotese.length}/{LIMITE_HIPOTESE} — uma hipótese cabe numa frase só
+                </p>
               </div>
               <div className="space-y-1.5">
                 <Label className={labelCls}>POR QUE estamos mudando?</Label>
                 <Textarea
                   value={hipoteseMotivo}
                   onChange={e => setHipoteseMotivo(e.target.value)}
-                  placeholder="Baseado em quais dados ou feedbacks..."
+                  placeholder="Ex: Gravações mostram abandono alto no campo telefone"
                   rows={4}
                   className={`${inputCls} resize-none`}
                 />
@@ -587,7 +591,7 @@ export function NovoTesteABForm({
                 <Textarea
                   value={resultadoEsperado}
                   onChange={e => setResultadoEsperado(e.target.value)}
-                  placeholder="Qual o impacto quantitativo previsto..."
+                  placeholder="Ex: Aumento de 15% na taxa de conversão do formulário"
                   rows={4}
                   className={`${inputCls} resize-none`}
                 />
