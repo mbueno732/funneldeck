@@ -91,61 +91,115 @@ Stitch, comparo campo a campo contra o modelo de dados combinado (ver plano ativ
 ### Estado atual
 
 - **Dashboard** (`/dashboard`) — consolidado, com toggle "Operação / Inteligência A/B".
-- **Experimentos** (menu lateral; rotas ainda em `/variantes`, `/variantes/novo`, `/variantes/[id]`
-  — só o rótulo do menu e os títulos de tela viraram "Experimentos", as URLs não mudaram) —
-  ligado às tabelas `testes_ab`/`variantes_teste` (migrations `001`/`004`/`013` a `019`). Upload
-  de screenshot funcional (bucket Storage `teste-ab-screenshots`). Indicador de teste ativo
+- **Experimentos** (menu lateral; rotas ainda em `/variantes`, `/variantes/novo`,
+  `/variantes/[id]`, `/variantes/[id]/editar` — só o rótulo do menu e os títulos de tela viraram
+  "Experimentos", as URLs não mudaram) — ligado às tabelas `testes_ab`/`variantes_teste`
+  (migrations `001`/`004`/`013` a `021`). Upload de screenshot funcional (bucket Storage
+  `teste-ab-screenshots`, aceita imagem ou HTML salvo com SingleFile). Indicador de teste ativo
   visível em Funis, Páginas e no detalhe do Funil (aba "Testes A/B") — calculado a partir de
   `variantes_teste.pagina_id` (todas as páginas com variante ativa acendem, não só uma). Marcador
   manual "Página atual" no Mapa de Páginas indica qual página está genuinamente no ar.
-- **Tela de Cadastro do Teste** (`/variantes/novo`, `NovoTesteABForm.tsx`) — **pronta**, já passou
-  por várias rodadas de revisão de UX com o Marcelo. Estrutura final:
+- **Tela de Cadastro/Edição do Teste** (`/variantes/novo` e `/variantes/[id]/editar`, ambas
+  reaproveitando `NovoTesteABForm.tsx` via prop `testeParaEditar`) — **pronta**:
   - Página única com scroll, coluna central (`max-w-4xl`), checklist de progresso na **direita**
-    (barra de "Progresso Geral" + status por seção: Pendente/Em andamento/Completo).
-  - `tipo_teste` (Aquisição/Vendas) deriva automaticamente do `objetivo` do Funil escolhido — sem
-    toggle manual, só uma tag de leitura ao lado do select de Funil.
-  - `especialista_id` deriva automaticamente do Funil (direto ou via `produtos.especialista_id`)
-    — campo somente-leitura, não é mais selecionável na tela.
+    (barra de "Progresso Geral" + status por seção: Pendente/Em andamento/Completo). Só os campos
+    obrigatórios (nome, funil, hipótese, resultado esperado, elemento testado, páginas das
+    variantes, métrica primária) contam pra "Completo" — o resto é complementar.
+  - `tipo_teste` (Aquisição/Vendas) deriva automaticamente do `objetivo` do Funil escolhido;
+    `especialista_id` deriva automaticamente do Funil (direto ou via `produtos.especialista_id`)
+    — ambos somente-leitura, não são mais selecionáveis na tela.
   - Funil de Atuação agrupado por Especialista no dropdown (`SelectGroup`/`SelectLabel`).
-  - Campanha, Segmento, Responsável, Data de Início, Elemento Testado (`O que vamos testar?`) e
-    Assistente de Hipótese (até 3 ângulos, sem distinção Primário/Secundário) — todos em
-    Informações Básicas / Framework de Hipótese.
+  - **Nome do Experimento é texto livre, sem auto-preenchimento** — já teve um auto-fill
+    (`Elemento · Funil`) que foi removido por ficar redundante com as colunas dedicadas da Lista;
+    hoje só tem placeholder de exemplo + texto de ajuda orientando a descrever a mudança testada,
+    não o contexto (que já vive em colunas/campos próprios).
+  - Campanha (com opção de criar nova inline), Segmento, Responsável, Data de Início, Elemento
+    Testado (`O que vamos testar?`) e Assistente de Hipótese (até 3 ângulos) — em Informações
+    Básicas / Framework de Hipótese.
   - **Toda variante precisa estar vinculada a uma página cadastrada no Mapa de Páginas**
-    (`variantes_teste.pagina_id`, obrigatório, validado em `criarTesteAB`) — substituiu o antigo
-    campo único "Página testada" do teste inteiro. Autofill da URL a partir da página escolhida,
-    mas a URL continua editável (ex: pra acrescentar UTM).
-  - **Layout (Curto/Longo) é por variante**, não mais do teste inteiro — testar página curta vs.
-    longa é um teste CRO clássico, não fazia sentido travar todas as variantes no mesmo layout.
+    (`variantes_teste.pagina_id`, obrigatório, validado em `criarTesteAB`/`atualizarTesteAB`).
+    Autofill da URL a partir da página escolhida, mas a URL continua editável (ex: pra UTM).
+  - Alerta (**não bloqueante**) se a página escolhida numa variante já está vinculada a outro
+    teste com status `Ativo` — cruza com uma query de `variantes_teste` filtrada por
+    `testes_ab.status = 'Ativo'`, passada como prop `paginasEmTesteAtivo`.
+  - **Percentual de tráfego é editável por variante** (input numérico) — antes só existia o botão
+    "Distribuir tráfego igualmente" sem nenhum jeito de deixar desigual, o que fazia o botão
+    parecer quebrado (nunca havia nada pra redistribuir). Indicador "Total: X%" ao lado do botão
+    fica âmbar se a soma não bater 100%.
+  - **Layout (Curto/Longo) é por variante**, não do teste inteiro.
+  - **URL de Ativação do Teste** — campo editável na seção Revisão. Calculada automaticamente a
+    partir da URL de qualquer variante (remove o último segmento do path — a letra/versão, ex:
+    `/a`, `/a-v2`), com fallback automático enquanto o campo não for editado manualmente
+    (`testes_ab.url_ativacao`, migration `021`). É a mesma URL usada no botão de acesso rápido da
+    Lista de Experimentos — edite aqui se o cálculo automático sair errado.
   - Primeira variante é sempre o Controle (fixo, não removível) — rotulada "Controle (A)" na UI.
   - `codigo` do teste auto-gerado (`{sequencial}_{Segmento}_{Campanha}`), sequencial escopado por
-    Funil + Segmento.
-- Ainda **não existem** as telas de Métricas (etapas de funil dinâmicas) e Detalhe do
-  Experimento redesenhadas — dependem de novos designs do Stitch ainda não revisados.
-- **Tela de Lista de Experimentos** (`ListaVariantes.tsx`, `/variantes`) — **pronta**, remodelada
-  a partir da planilha real que o Marcelo usava (`CRO Intelligence System_Pedro Sobral`, aba
-  "Funil de Aquisição" e "Funil de Vendas"). Toggle Todos/Aquisição/Vendas, filtros por Funil,
-  Especialista, Responsável, Segmento, Campanha, Elemento Testado, Ângulo, Status, Período,
-  busca por nome/código. Colunas com 2 linhas de informação (Experimento+código+ângulos,
-  Contexto, Segmentação, Status+duração, Variações+elemento, Resultado+lift, Métrica+RPV).
+    Funil + Segmento. Não muda ao editar um teste existente.
+  - Lightbox/zoom nos screenshots; upload aceita colar (Ctrl+V) direto na área de upload.
+- **Tela de Detalhe do Experimento** (`/variantes/[id]`, `DetalheTesteAB.tsx`) — **pronta**:
+  - Header com Segmento, Campanha, Elemento Testado e Ângulos visíveis (badges), Especialista e
+    Responsável.
+  - Confiança estatística real por variante vs. Controle (`lib/estatistica.ts` — z-test de duas
+    proporções, classificação Alta/Média/Baixa), com aviso (não bloqueante) de amostra pequena
+    (`< MIN_CONVERSOES_CONFIAVEL`) ou teste rodando há pouco tempo (`< MIN_DIAS_RECOMENDADO`).
+  - Cada variante exibe Layout, Headline, Subheadline e URL de Preview (antes só apareciam
+    reabrindo o formulário de Edição).
+  - "Marcar vencedora" (por variante) / "Desfazer" (reverte pra Ativo) / "Aplicar Vencedor"
+    (muda status pra `Vencedor implementado`).
+  - **"Encerrar sem vencedor"** — fecha o teste em empate/inconclusivo sem declarar vencedora
+    (`testes_ab.resultado_final = 'sem_vencedor'`, migration `020`), com opção de "Reabrir". Antes
+    disso, um teste sem resultado claro só podia ficar "Ativo" pra sempre ou forçar uma vencedora
+    artificial.
+  - Screenshot com lightbox/zoom; referência HTML (SingleFile) abre em nova aba já com o
+    `Content-Type` corrigido (Supabase Storage serve HTML como `text/plain` por padrão em bucket
+    público — contorna buscando o texto e reembrulhando num Blob `text/html`).
+- **Tela de Lista de Experimentos** (`ListaVariantes.tsx`, `/variantes`) — **pronta**:
+  - Toggle Todos/Aquisição/Vendas; filtros por Funil, Especialista, Responsável, Segmento,
+    Campanha, Elemento Testado, Ângulo, Layout, Status, Período; busca por nome/código.
+  - Colunas dedicadas (não mais texto empilhado): Experimento (nome + `#sequencial`), Funil,
+    Campanha, Elemento, Ângulos da Hero, Layout, Segmentação, Status, Resultado, Métrica/RPV,
+    Ações. Todas viraram filtro também — pensadas pra alimentar a futura tela de Inteligência.
+  - Cabeçalhos **Experimento / Status / Resultado são clicáveis pra ordenar** (nome, prioridade de
+    status, ou lift da vencedora/líder) — sem isso só dava pra filtrar, não rankear.
+  - **Exportar CSV** (botão no topo) — baixa os experimentos filtrados na tela, com BOM UTF-8
+    (acentuação correta no Excel).
+  - Agrupamento por funil só ativa quando há **mais de 15** experimentos filtrados
+    (`LIMIAR_AGRUPAMENTO`) — com poucos testes o agrupamento só atrapalhava (2 níveis de expand
+    pra ver o que já cabia direto na tela). Paginação client-side, 30 por página.
+  - **Expand rápido por linha** (seta à esquerda) mostra, por variante: screenshot/referência
+    HTML, headline, subheadline, layout, link de preview — e, na edição de métricas, o **CVR
+    calculado ao vivo** (CVR Geral sempre; em testes de Vendas também Sessão → Checkout e
+    Checkout → Venda) conforme os números são digitados.
+  - Botão de acesso rápido à **URL de Ativação do teste** (ícone `ExternalLink`, mesmo padrão do
+    Mapa de Páginas) — abre em nova aba, não copia.
+  - Ações por linha: acessar URL de ativação, editar, duplicar (`duplicarTesteAB` — clona teste +
+    variantes com status `Planejado`, sem as métricas), excluir (com confirmação inline).
 
 ### Pendências conhecidas (levantadas comparando com a planilha antiga do Marcelo)
 
-- **Confiança estatística real** — a planilha usa um teste de proporção de duas amostras
-  (z-test): `=1-2*(1-NORMDIST(ABS(CVRv-CVRc)/SQRT(CVRv*(1-CVRv)/Nv + CVRc*(1-CVRc)/Nc), 0, 1, TRUE))`.
-  Classificação: Alta (≥90%), Média (≥80%), Baixa (<80%). Ainda não implementado — hoje o
-  "Vencedor" continua sendo só a declaração manual (`declararVencedora`). Entra na tela de
-  Detalhe (ainda não redesenhada).
-- **Resultado com 3 estados** — a planilha tem Vencedora/Perdedora/**Empate**; hoje só temos
-  `is_vencedor` binário. Precisa virar um enum de verdade quando a tela de Detalhe for refeita.
 - **Aprendizado Aplicável (escopo Universal/outro)** — existe na planilha, não em Funneldeck
-  ainda (era a ideia do antigo `aprendizado_escopo` da Fase 4 do plano, nunca implementada).
+  ainda (era a ideia do antigo `aprendizado_escopo` da Fase 4 do plano, nunca implementada). Hoje
+  só existe o campo "Aprendizado" livre (`testes_ab.resultado`), sem o escopo.
 - **Lista de Ângulos incompleta** — a planilha usa Tempo, Dor/Problema, Acesso/Exclusividade,
   que não estão na categoria `angulo_hero` seedada hoje. Reconciliar antes de confiar na análise
   de "Padrões de Sucesso" futura.
-- **URL de ativação do teste A/B** — o Marcelo vai passar o padrão exato de URL que ativa o
-  teste (provavelmente algum parâmetro/rota de split de tráfego). Quando definido, precisa: (1)
-  gerar essa URL automaticamente na tela de Cadastro, (2) mostrar um botão de atalho/copiar pra
-  ela na tela de Lista de Experimentos. Ainda não implementado — aguardando o padrão exato.
+
+Resolvidas nesta sessão: confiança estatística real (z-test), resultado com estado "sem vencedor"
+(empate/inconclusivo, `resultado_final`), URL de ativação do teste (calculada + editável).
+
+### Roadmap discutido em 2026-07-21 (prioridade ainda não definida)
+
+Marcelo quer construir a seguir, nesta ordem a confirmar:
+- **Backlog de Testes** — ainda em aberto se é uma tela nova leve (só hipótese + prioridade, sem
+  exigir página/variante cadastrada, "promovendo" pra Experimento formal quando for construir de
+  verdade) ou um filtro dos testes já com status `Planejado` na Lista atual.
+- **Inteligência / Padrões de Sucesso** — tela que agrega os experimentos já rodados pra mostrar
+  quais ângulos/elementos/layouts tendem a vencer. Já estava no radar desde o início do módulo
+  (Fase 6 do plano em `~/.claude/plans/`); só faz sentido com volume real de testes com ângulo
+  preenchido, que já está acontecendo desde que `angulos` virou campo obrigatório-de-fato no
+  Cadastro.
+- **Dashboard de Testes** — KPIs focados só no módulo de Experimentos, separado do Dashboard
+  operacional que já existe (que cobre Funis/Páginas/Especialistas, não testes A/B).
 
 ---
 
@@ -179,8 +233,9 @@ Especialista → Produto → Funil → Estratégia → Página
 - **Estratégias** — CRUD dentro do detalhe do funil. Agrupa páginas por estratégia no Mapa de Páginas. Estado gerenciado localmente com sync silencioso ao abrir a aba.
 - **Páginas (Mapa de Páginas)** — tabela + Kanban com drag & drop, edição inline, GTmetrix, checklist de publicação, sistema de variantes, agrupamento por estratégia, filtro por especialista
 - **Configurações** — listas dinâmicas editáveis (status, etapas, ferramentas, prioridades, etc.)
-- **Experimentos (Inteligência A/B)** — Cadastro pronto (ver seção "Inteligência A/B" acima);
-  Lista e Detalhe ainda no formato antigo, aguardando redesenho no Stitch
+- **Experimentos (Inteligência A/B)** — Cadastro, Edição, Detalhe e Lista prontos (ver seção
+  "Inteligência A/B" acima). Backlog de Testes, Inteligência/Padrões de Sucesso e Dashboard de
+  Testes ainda não construídos (ver "Roadmap discutido em 2026-07-21").
 
 ---
 
@@ -257,6 +312,10 @@ Cadastro do Teste nesta sessão):
   `angulo_primario`/`angulos_secundarios`), seeds de `configuracoes` categoria `elemento_testado`.
 - `019_layout_por_variante.sql` — `variantes_teste.layout` (Curto/Longo por variante, substitui
   `testes_ab.layout` do teste inteiro).
+- `020_resultado_final_teste.sql` — `testes_ab.resultado_final` (`'vencedora'` | `'sem_vencedor'`)
+  — permite encerrar um teste em empate/inconclusivo sem forçar uma vencedora artificial.
+- `021_url_ativacao_teste.sql` — `testes_ab.url_ativacao` — versão editável da URL de ativação do
+  teste, com fallback automático calculado a partir da URL das variantes.
 
 **Colunas antigas não são dropadas** (`testes_ab.pagina_id`, `testes_ab.layout`,
 `testes_ab.angulo_primario`, `testes_ab.angulos_secundarios`) — ficam no banco por compatibilidade
@@ -342,23 +401,31 @@ supabase/migrations/
   017_variante_pagina_id.sql      # variantes_teste.pagina_id (vínculo obrigatório por variante)
   018_elemento_testado_angulos.sql # testes_ab.angulos (lista única até 3) + config elemento_testado
   019_layout_por_variante.sql     # variantes_teste.layout (Curto/Longo por variante)
+  020_resultado_final_teste.sql   # testes_ab.resultado_final ('vencedora' | 'sem_vencedor')
+  021_url_ativacao_teste.sql      # testes_ab.url_ativacao (editável, fallback automático)
 
 app/(dashboard)/
   dashboard/page.tsx              # reaproveita DashboardView real; toggle Operação/Inteligência A/B
   variantes/page.tsx              # lista de experimentos (ListaVariantes) — rota mantida por compat.
   variantes/novo/page.tsx         # cadastro de experimento (NovoTesteABForm) — tela pronta
-  variantes/[id]/page.tsx         # detalhe do experimento (DetalheTesteAB) — ainda não redesenhada
+  variantes/[id]/page.tsx         # detalhe do experimento (DetalheTesteAB) — tela pronta
+  variantes/[id]/editar/page.tsx  # edição de experimento (reaproveita NovoTesteABForm)
 
 components/testes-ab/             # nome de pasta renomeado de components/v2/ (era confuso, dava
                                    # a entender que existia uma "v1" sendo substituída — não existe)
   DashboardV2View.tsx
-  variantes/NovoTesteABForm.tsx   # tela de Cadastro — ver "Estado atual" acima
-  variantes/DetalheTesteAB.tsx
-  variantes/ListaVariantes.tsx
+  variantes/NovoTesteABForm.tsx   # tela de Cadastro/Edição — ver "Estado atual" acima
+  variantes/DetalheTesteAB.tsx    # tela de Detalhe — ver "Estado atual" acima
+  variantes/ListaVariantes.tsx    # tela de Lista — ver "Estado atual" acima
 
-lib/actions/testes-ab.ts          # criarTesteAB, uploadScreenshotVariante, listarTestesAB, buscarTesteAB
-                                   # segue padrão { ok, erro } (não throw)
+lib/actions/testes-ab.ts          # criarTesteAB, atualizarTesteAB, duplicarTesteAB,
+                                   # uploadScreenshotVariante, listarTestesAB, buscarTesteAB,
+                                   # atualizarMetricasVariante, atualizarHipotese, atualizarAprendizado,
+                                   # declararVencedora, desfazerVencedora, encerrarSemVencedor,
+                                   # aplicarVencedor, deletarTesteAB — todas seguem { ok, erro } (não throw)
 lib/actions/campanhas.ts          # listarCampanhas, criarCampanha
+lib/estatistica.ts                # confiancaZTest, classificarConfianca (z-test de duas proporções),
+                                   # MIN_CONVERSOES_CONFIAVEL, MIN_DIAS_RECOMENDADO
 
 components/layout/Sidebar.tsx     # item de menu "Experimentos" (ícone FlaskConical) aponta pra /variantes
 

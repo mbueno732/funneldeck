@@ -197,8 +197,8 @@ export function PainelChecklist({ pagina, onFechar, dadosPreCarregados }: Props)
             <div className="px-5 py-4 border-b border-gray-800">
               <label className="flex items-center justify-between cursor-pointer">
                 <div>
-                  <p className="text-sm text-white font-medium">Página tem VSL</p>
-                  <p className="text-xs text-gray-500 mt-0.5">Score GTmetrix esperado é menor com VSL</p>
+                  <p className="text-sm text-white font-medium">Página tem elementos embedados</p>
+                  <p className="text-xs text-gray-500 mt-0.5">VSL no Panda, formulários multi-step e outros embeds — score da página esperado é menor</p>
                 </div>
                 <button
                   onClick={() => handleVsl(!vsl)}
