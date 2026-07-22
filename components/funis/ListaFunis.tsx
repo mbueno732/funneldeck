@@ -101,7 +101,7 @@ export function ListaFunis({ funis, produtos, especialistas, configs, estrategia
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Funis</h1>
+          <h1 className="text-2xl font-bold text-white">Central de Funis</h1>
           <p className="text-gray-500 text-sm mt-0.5">{filtrados.length} funil{filtrados.length !== 1 ? 's' : ''}</p>
         </div>
         <Button onClick={() => { setEditando(null); setModalAberto(true) }} className="bg-indigo-600 hover:bg-indigo-500 text-white gap-2">
