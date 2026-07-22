@@ -464,7 +464,7 @@ export function DashboardView({
           <p className="text-gray-400">Nenhum dado ainda.</p>
           <p className="text-gray-600 text-sm">
             Comece cadastrando{' '}
-            <Link href="/especialistas" className="text-orange-400 hover:underline">especialistas</Link>,{' '}
+            <Link href="/configuracoes" className="text-orange-400 hover:underline">especialistas</Link>,{' '}
             <Link href="/produtos" className="text-orange-400 hover:underline">produtos</Link> e{' '}
             <Link href="/funis" className="text-orange-400 hover:underline">funis</Link>.
           </p>

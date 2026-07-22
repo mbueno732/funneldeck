@@ -42,12 +42,7 @@ export function GerenciarEspecialistas({ especialistas }: { especialistas: Espec
   }
 
   return (
-    <div className="space-y-6 max-w-2xl">
-      <div>
-        <h1 className="text-2xl font-bold text-white">Especialistas</h1>
-        <p className="text-gray-500 text-sm mt-1">Criadores e experts cujos produtos são gerenciados.</p>
-      </div>
-
+    <div className="space-y-4">
       {/* Adicionar */}
       <form onSubmit={handleCriar} className="flex gap-2">
         <Input
