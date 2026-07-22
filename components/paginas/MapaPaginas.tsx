@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { ModalPagina } from './ModalPagina'
 import { ModalVariante } from './ModalVariante'
+import { ModalScoreManual } from './ModalScoreManual'
 import { PainelChecklist } from './PainelChecklist'
 import { atualizarPagina, deletarPagina, duplicarPagina, definirVeiculacao } from '@/lib/actions/paginas'
 import { iniciarAnaliseGtmetrix, verificarAnaliseGtmetrix } from '@/lib/actions/gtmetrix'
@@ -69,6 +70,7 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
   const [progressoGtmetrix, setProgressoGtmetrix] = useState(0)
   const [erroGtmetrix, setErroGtmetrix] = useState<string | null>(null)
   const [expandidoGtmetrix, setExpandidoGtmetrix] = useState<string | null>(null)
+  const [paginaScoreManual, setPaginaScoreManual] = useState<Pagina | null>(null)
   const progressoRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   useEffect(() => {
@@ -633,10 +635,38 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
                 </div>
               )
             }
+            // Sem GTmetrix: score manual entra como complemento (nunca substitui o automático)
+            const manualGrade = p.score_manual_grade ?? null
+            const manualPct = p.score_manual_pct ?? null
+            if (manualGrade || manualPct != null) {
+              const manualData = p.score_manual_data ? new Date(p.score_manual_data + 'T12:00:00').toLocaleDateString('pt-BR') : null
+              const tooltip = [p.score_manual_nota, manualData ? `Registrado em ${manualData}` : null].filter(Boolean).join(' · ')
+              const cor = manualGrade ? GRADE_COR[manualGrade] : '#818cf8'
+              return (
+                <button
+                  onClick={() => setPaginaScoreManual(p)}
+                  className="inline-flex items-center gap-1 text-xs font-bold px-1.5 py-0.5 rounded transition-all"
+                  style={{ backgroundColor: `${cor}22`, color: cor, border: `1px solid ${cor}44` }}
+                  title={tooltip || 'Score manual — clique para editar'}
+                >
+                  <Pencil size={10} />
+                  {manualGrade ?? ''} {manualPct != null ? `${manualPct}%` : ''}
+                  <span className="text-[9px] uppercase opacity-70">manual</span>
+                </button>
+              )
+            }
             if (p.url_pagina && p.status === 'Implementada') return (
-              <button onClick={() => handleAnalisarGtmetrix(p)} className="text-xs text-gray-500 hover:text-indigo-400 transition-colors" title="Analisar no GTmetrix">Analisar</button>
+              <div className="flex items-center gap-2">
+                <button onClick={() => handleAnalisarGtmetrix(p)} className="text-xs text-gray-500 hover:text-indigo-400 transition-colors" title="Analisar no GTmetrix">Analisar</button>
+                <button onClick={() => setPaginaScoreManual(p)} className="text-xs text-gray-700 hover:text-gray-400 transition-colors" title="Registrar score manual">+ manual</button>
+              </div>
             )
-            return <span className="text-gray-700">—</span>
+            return (
+              <div className="flex items-center gap-2">
+                <span className="text-gray-700">—</span>
+                <button onClick={() => setPaginaScoreManual(p)} className="text-xs text-gray-700 hover:text-gray-400 transition-colors" title="Registrar score manual">+ manual</button>
+              </div>
+            )
           })()}
         </td>
         {/* Ações */}
@@ -1115,7 +1145,7 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
                 <th className="px-4 py-3 text-left font-medium">Prioridade</th>
                 <th className="px-4 py-3 text-left font-medium">Horas</th>
                 <th className="px-4 py-3 text-left font-medium">Datas</th>
-                <th className="px-4 py-3 text-left font-medium">GTmetrix</th>
+                <th className="px-4 py-3 text-left font-medium">Score da Página</th>
                 <th className="px-4 py-3 text-left font-medium w-10"></th>
               </tr>
             </thead>
@@ -1216,6 +1246,12 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
         onCriada={nova => { setVariantePagina(null); router.refresh(); setDestaque({ id: nova.id, nome: nova.nome }) }}
         pagina={variantePagina}
         todasPaginas={paginas}
+      />
+
+      <ModalScoreManual
+        pagina={paginaScoreManual}
+        onFechar={() => setPaginaScoreManual(null)}
+        onSalvo={(id, update) => setOverrides(o => ({ ...o, [id]: { ...o[id], ...update } }))}
       />
     </div>
   )

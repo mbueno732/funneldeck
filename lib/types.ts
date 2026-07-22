@@ -97,6 +97,10 @@ export interface Pagina {
   gtmetrix_lcp?: number | null
   gtmetrix_tempo?: number | null
   gtmetrix_analisado_em?: string | null
+  score_manual_grade?: string | null
+  score_manual_pct?: number | null
+  score_manual_nota?: string | null
+  score_manual_data?: string | null
   slug_raiz?: string | null
   variante?: string | null
   versao?: number | null
