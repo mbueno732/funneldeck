@@ -32,14 +32,9 @@ export default async function FunisPage({ searchParams }: { searchParams: { espe
 
   function etapaHealth(pags: { status: string; data_prevista?: string | null }[]) {
     if (!pags.length) return 'vazia' as const
-    const ativas = pags.filter(p => p.status !== 'Suspensa')
-    if (!ativas.length) return 'vazia' as const
-    if (ativas.some(p => p.data_prevista && p.data_prevista < hoje && !['Publicada', 'Implementada'].includes(p.status))) return 'atrasada' as const
-    if (ativas.some(p => p.status === 'Publicada')) return 'publicada' as const
-    if (ativas.some(p => p.status === 'Pausada')) return 'pausada' as const
-    const naoPub = ativas.filter(p => p.status !== 'Publicada')
-    if (naoPub.every(p => p.status === 'Implementada')) return 'implementada' as const
-    if (naoPub.some(p => p.status === 'Em andamento')) return 'andamento' as const
+    if (pags.some(p => p.data_prevista && p.data_prevista < hoje && !['Publicada', 'Implementada'].includes(p.status))) return 'atrasada' as const
+    if (pags.some(p => p.status === 'Publicada')) return 'publicada' as const
+    if (pags.every(p => p.status === 'Implementada')) return 'implementada' as const
     return 'fazer' as const
   }
 
@@ -62,7 +57,7 @@ export default async function FunisPage({ searchParams }: { searchParams: { espe
       paginas_publicadas: pagsFunil.filter(p => p.status === 'Publicada').length,
       impl_nao_publicadas: pagsFunil.filter(p => p.status === 'Implementada').length,
       etapas_pipeline: etapasComPaginas,
-      tem_movimento: pagsFunil.some(p => ['Em andamento', 'Implementada', 'Publicada'].includes(p.status)),
+      tem_movimento: pagsFunil.some(p => ['Implementada', 'Publicada'].includes(p.status)),
       tem_teste_ativo: funilIdsComTesteAtivo.has(f.id),
     }
   })

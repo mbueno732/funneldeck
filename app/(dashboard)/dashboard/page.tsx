@@ -54,10 +54,9 @@ export default async function DashboardPage({
   const kpis = {
     total_paginas: p.length,
     paginas_publicadas: p.filter(x => x.status === 'Publicada').length,
-    paginas_em_andamento: p.filter(x => x.status === 'Em andamento').length,
     paginas_implementadas: p.filter(x => x.status === 'Implementada').length,
     paginas_atrasadas: p.filter(x =>
-      x.data_prevista && x.data_prevista < hoje && !['Publicada', 'Suspensa', 'Implementada'].includes(x.status)
+      x.data_prevista && x.data_prevista < hoje && !['Publicada', 'Implementada'].includes(x.status)
     ).length,
     paginas_a_fazer: p.filter(x => x.status === 'A fazer').length,
     total_funis: funisVisiveis.length,
@@ -75,7 +74,7 @@ export default async function DashboardPage({
       const limite = new Date()
       limite.setDate(limite.getDate() - 7)
       return p.filter(x => {
-        if (x.status !== 'Em andamento') return false
+        if (x.status !== 'Implementada') return false
         const at = (x as { atualizado_em?: string }).atualizado_em
         return at ? new Date(at) < limite : false
       }).length
@@ -90,7 +89,7 @@ export default async function DashboardPage({
     funis_sem_movimento: funisVisiveis.filter((fn: Record<string, unknown>) => {
       if (fn.status !== 'Ativo') return false
       return !p.filter(pg => pg.funil_id === fn.id).some(pg =>
-        ['Em andamento', 'Implementada', 'Publicada'].includes(pg.status)
+        ['Implementada', 'Publicada'].includes(pg.status)
       )
     }).length,
     publicadas_mes: p.filter(x => {
@@ -148,7 +147,7 @@ export default async function DashboardPage({
       total_paginas: paginasEsp.length,
       paginas_publicadas: paginasEsp.filter(pg => pg.status === 'Publicada').length,
       paginas_atrasadas: paginasEsp.filter(pg =>
-        pg.data_prevista && pg.data_prevista < hoje && !['Publicada', 'Suspensa', 'Implementada'].includes(pg.status)
+        pg.data_prevista && pg.data_prevista < hoje && !['Publicada', 'Implementada'].includes(pg.status)
       ).length,
       horas_estimadas: Math.round(paginasEsp.reduce((s, pg) => s + (pg.horas_estimadas ?? 0), 0) * 10) / 10,
       horas_reais: Math.round(paginasEsp.filter(pg => pg.horas_reais != null).reduce((s, pg) => s + (pg.horas_reais ?? 0), 0) * 10) / 10,

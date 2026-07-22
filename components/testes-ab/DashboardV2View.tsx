@@ -9,7 +9,6 @@ import type { TesteAB } from '@/lib/types'
 interface Kpis {
   total_paginas: number
   paginas_publicadas: number
-  paginas_em_andamento: number
   paginas_implementadas: number
   paginas_atrasadas: number
   paginas_a_fazer: number

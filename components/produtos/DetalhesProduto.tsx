@@ -12,9 +12,7 @@ import type { Produto, Pagina, Funil, Configuracao, Estrategia, Especialista } f
 const STATUS_COR: Record<string, string> = {
   'Publicada':    '#22c55e',
   'Implementada': '#f59e0b',
-  'Em andamento': '#6366f1',
   'A fazer':      '#6b7280',
-  'Suspensa':     '#ef4444',
 }
 
 const TIPO_COR: Record<string, string> = {

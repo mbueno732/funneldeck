@@ -1,7 +1,7 @@
 'use client'
 import { useState, useMemo, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { Plus, Search, ExternalLink, Pencil, Trash2, AlertTriangle, Clock, Copy, Link as LinkIcon, Check, X, ChevronRight, ChevronDown, ClipboardList, LayoutGrid, List, GitBranch, Layers, FlaskConical, Pin } from 'lucide-react'
+import { Plus, Search, ExternalLink, Pencil, Trash2, AlertTriangle, Clock, Copy, Link as LinkIcon, Check, X, ChevronRight, ChevronDown, ClipboardList, LayoutGrid, List, GitBranch, Layers, FlaskConical, Pin, Info } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -132,7 +132,7 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
   const configOpts = (cat: string) => configs.filter(c => c.categoria === cat && c.ativo)
 
   const isAtrasada = (p: Pagina) =>
-    p.data_prevista && p.data_prevista < hoje && !['Publicada', 'Suspensa', 'Implementada'].includes(p.status)
+    p.data_prevista && p.data_prevista < hoje && !['Publicada', 'Implementada'].includes(p.status)
 
   const isDesvioHoras = (p: Pagina) =>
     p.horas_estimadas && p.horas_reais && p.horas_reais > p.horas_estimadas
@@ -340,11 +340,13 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
   }
 
   async function handleMarcarAtual(id: string, emVeiculacao: boolean) {
+    setOverrides(o => ({ ...o, [id]: { ...o[id], pagina_atual: emVeiculacao } }))
     setMarcandoAtual(id)
     try {
       await definirVeiculacao(id, emVeiculacao)
       router.refresh()
     } catch (e) {
+      setOverrides(o => ({ ...o, [id]: { ...o[id], pagina_atual: !emVeiculacao } }))
       console.error('Erro ao definir veiculação:', e)
     } finally {
       setMarcandoAtual(null)
@@ -915,7 +917,10 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
         {filtroSelect('Prioridade', filtroPrioridade, setFiltroPrioridade, 'prioridade')}
         {filtroSelect('Ferramenta', filtroFerramenta, setFiltroFerramenta, 'ferramenta')}
         <Select value={filtroVeiculacao || '__all__'} onValueChange={v => setFiltroVeiculacao(v === '__all__' ? '' : v)}>
-          <SelectTrigger className="h-9 text-sm bg-gray-900 border-gray-800 text-gray-300 hover:bg-gray-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[110px]">
+          <SelectTrigger
+            className="h-9 text-sm bg-gray-900 border-gray-800 text-gray-300 hover:bg-gray-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[110px]"
+            title="Em veiculação: página publicada recebendo tráfego ativo (campanha, disparo, bio). Fora de veiculação: publicada, mas sem campanha ativa agora."
+          >
             <SelectValue placeholder="Veiculação" />
           </SelectTrigger>
           <SelectContent className="bg-gray-900 border-gray-800">
@@ -1141,7 +1146,14 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
                 <th className="px-4 py-3 text-left font-medium">Etapa</th>
                 <th className="px-4 py-3 text-left font-medium">Ferramenta</th>
                 <th className="px-4 py-3 text-left font-medium">Status</th>
-                <th className="px-4 py-3 text-left font-medium">Veiculação</th>
+                <th className="px-4 py-3 text-left font-medium">
+                  <span
+                    className="inline-flex items-center gap-1 cursor-help"
+                    title="Em veiculação: página publicada e recebendo tráfego ativo agora (campanha, disparo, bio). Fora de veiculação: publicada e funcionando, mas sem campanha ativa no momento."
+                  >
+                    Veiculação <Info size={11} className="text-gray-600" />
+                  </span>
+                </th>
                 <th className="px-4 py-3 text-left font-medium">Prioridade</th>
                 <th className="px-4 py-3 text-left font-medium">Horas</th>
                 <th className="px-4 py-3 text-left font-medium">Datas</th>

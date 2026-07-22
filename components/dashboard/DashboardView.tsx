@@ -6,7 +6,6 @@ import { AlertTriangle, CheckCircle, Zap, ListTodo, TrendingUp, PauseCircle, Che
 interface Kpis {
   total_paginas: number
   paginas_publicadas: number
-  paginas_em_andamento: number
   paginas_implementadas: number
   paginas_atrasadas: number
   paginas_a_fazer: number
@@ -48,7 +47,6 @@ type CardCor = 'indigo' | 'green' | 'yellow' | 'amber' | 'red' | 'blue' | 'orang
 
 const STATUS_COR_DEFAULT: Record<string, string> = {
   'A fazer':      '#6b7280',
-  'Em andamento': '#3b82f6',
   'Implementada': '#f59e0b',
   'Publicada':    '#22c55e',
 }
@@ -172,11 +170,10 @@ export function DashboardView({
   const colorMap = Object.fromEntries(statusConfigs.map(c => [c.valor, c.cor]))
   const getColor = (status: string) => colorMap[status] ?? STATUS_COR_DEFAULT[status] ?? '#4b5563'
 
-  const pipelineStatuses = ['A fazer', 'Em andamento', 'Implementada', 'Publicada']
+  const pipelineStatuses = ['A fazer', 'Implementada', 'Publicada']
   const pipelineData = pipelineStatuses.map(s => {
     const count =
       s === 'A fazer'      ? kpis.paginas_a_fazer :
-      s === 'Em andamento' ? kpis.paginas_em_andamento :
       s === 'Implementada' ? kpis.paginas_implementadas :
       kpis.paginas_publicadas
     return {
@@ -250,10 +247,10 @@ export function DashboardView({
           <KpiCard
             label="Paradas há 7+ dias"
             value={kpis.paginas_paradas}
-            sub="em andamento sem atualização"
+            sub="implementadas sem publicar"
             icon={OctagonPause}
             cor={kpis.paginas_paradas > 0 ? 'orange' : 'gray'}
-            href="/paginas?status=Em+andamento"
+            href="/paginas?status=Implementada"
             badge={kpis.paginas_paradas > 0 ? 'requer atenção' : undefined}
           />
           <KpiCard label="Implementadas" value={kpis.paginas_implementadas} sub="aguardando publicação"  icon={Zap}         cor={kpis.paginas_implementadas > 0 ? 'yellow' : 'gray'} href="/paginas?status=Implementada" />

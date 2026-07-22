@@ -32,10 +32,7 @@ interface Props {
 const STATUS_COR: Record<string, string> = {
   'Publicada':    '#22c55e',
   'Implementada': '#f59e0b',
-  'Em andamento': '#6366f1',
   'A fazer':      '#6b7280',
-  'Suspensa':     '#ef4444',
-  'Pausada':      '#f97316',
 }
 
 const STATUS_TESTE_COR: Record<string, string> = {
@@ -132,7 +129,6 @@ export function DetalhesFunil({ funil, paginas, paginasProduto = [], historico, 
   }
 
   const totalPublicadas = paginas.filter(p => p.status === 'Publicada').length
-  const totalAndamento = paginas.filter(p => p.status === 'Em andamento').length
   const totalImplementadas = paginas.filter(p => p.status === 'Implementada').length
 
   return (
@@ -178,12 +174,6 @@ export function DetalhesFunil({ funil, paginas, paginasProduto = [], historico, 
               <p className="text-green-400 font-semibold text-lg">{totalPublicadas}</p>
               <p className="text-gray-500 text-xs">publicadas</p>
             </div>
-            {totalAndamento > 0 && (
-              <div className="text-center">
-                <p className="text-indigo-400 font-semibold text-lg">{totalAndamento}</p>
-                <p className="text-gray-500 text-xs">em andamento</p>
-              </div>
-            )}
             {totalImplementadas > 0 && (
               <div className="text-center">
                 <p className="text-yellow-400 font-semibold text-lg">{totalImplementadas}</p>

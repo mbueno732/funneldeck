@@ -12,15 +12,13 @@ import { ModalPagina } from '@/components/paginas/ModalPagina'
 import { deletarFunil, atualizarFunil } from '@/lib/actions/funis'
 import type { Funil, Produto, Especialista, Configuracao, Estrategia } from '@/lib/types'
 
-type EtapaHealth = 'publicada' | 'implementada' | 'andamento' | 'fazer' | 'atrasada' | 'pausada'
+type EtapaHealth = 'publicada' | 'implementada' | 'fazer' | 'atrasada'
 
 const HEALTH_CONFIG: Record<EtapaHealth, { cor: string; label: string }> = {
   publicada:    { cor: '#22c55e', label: 'Publicada' },
   implementada: { cor: '#eab308', label: 'Implementada' },
-  andamento:    { cor: '#3b82f6', label: 'Em andamento' },
   fazer:        { cor: '#6b7280', label: 'A fazer' },
   atrasada:     { cor: '#ef4444', label: 'Atrasada' },
-  pausada:      { cor: '#f97316', label: 'Pausada' },
 }
 
 interface FunilComMetricas extends Funil {
