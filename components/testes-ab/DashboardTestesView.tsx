@@ -60,12 +60,13 @@ const KPI_CARDS: { chave: keyof KpisDashboard; label: string; cor: string; forma
   { chave: 'liftMedioVencedor', label: 'Lift Médio (Vencedoras)', cor: '#34d399', formato: 'lift' },
 ]
 
-function TabelaAgrupada({ titulo, linhas, rotuloChave }: { titulo: string; linhas: LinhaAgrupada[]; rotuloChave: string }) {
+function TabelaAgrupada({ titulo, subtitulo, linhas, rotuloChave }: { titulo: string; subtitulo?: string; linhas: LinhaAgrupada[]; rotuloChave: string }) {
   return (
     <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
-      <h3 className="text-white font-medium mb-4 flex items-center gap-2">
+      <h3 className={`text-white font-medium flex items-center gap-2 ${subtitulo ? 'mb-1' : 'mb-4'}`}>
         <Trophy size={15} className="text-indigo-400" /> {titulo}
       </h3>
+      {subtitulo && <p className="text-gray-600 text-xs mb-4">{subtitulo}</p>}
       {linhas.length === 0 ? (
         <p className="text-gray-600 text-sm">Sem dados suficientes ainda.</p>
       ) : (
@@ -201,7 +202,12 @@ export function DashboardTestesView({ testes }: Props) {
         <TabelaAgrupada titulo="Win Rate por Segmento" linhas={porSegmento} rotuloChave="Segmento" />
         <TabelaAgrupada titulo="Win Rate por Elemento Testado" linhas={porElemento} rotuloChave="Elemento" />
       </div>
-      <TabelaAgrupada titulo="Win Rate por Ângulo da Hero" linhas={porAngulo} rotuloChave="Ângulo" />
+      <TabelaAgrupada
+        titulo="Ângulos presentes em testes vencedores"
+        subtitulo="Descreve a mensagem da Hero no teste, não necessariamente a variável testada — não interprete como causa da vitória sem cruzar com o Elemento Testado."
+        linhas={porAngulo}
+        rotuloChave="Ângulo"
+      />
 
       {/* Testes Ativos */}
       <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">

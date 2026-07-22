@@ -9,9 +9,10 @@ function taxaConversao(sessoes: number, conversoes: number): number {
 
 /**
  * Classifica o RESULTADO do teste (não da variante) em 5 estados. Testes finalizados sem
- * vencedora explícita (`is_vencedor`) são desempatados estatisticamente: se algum desafiante
- * perdeu com confiança >= 80%, o teste conta como "perdedora"; senão, "empate" — a mesma lógica
- * de confiança (z-test) já usada no Detalhe do Experimento, sem precisar de mais nenhuma coluna.
+ * vencedora explícita (`is_vencedor`) são desempatados estatisticamente: só contam como
+ * "perdedora" se algum desafiante perdeu com confiança Alta (>= 90%, mesmo limiar que o
+ * Detalhe do Experimento classifica como "Alta") — abaixo disso conta como "empate", pra não
+ * rotular um resultado só moderadamente sugestivo como uma conclusão forte.
  */
 export function classificarTeste(t: TesteAB): ClassificacaoTeste {
   if (t.status === 'Planejado') return 'planejado'
@@ -30,7 +31,7 @@ export function classificarTeste(t: TesteAB): ClassificacaoTeste {
       const crVariante = taxaConversao(v.sessoes!, v.conversoes ?? 0)
       if (crVariante >= crControle) return false
       const confianca = confiancaZTest(crControle, controle.sessoes!, crVariante, v.sessoes!)
-      return confianca !== null && confianca >= 80
+      return confianca !== null && confianca >= 90
     })
 
   return houvePerdaSignificativa ? 'perdedora' : 'empate'
