@@ -4,11 +4,10 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import {
   Plus, FlaskConical, Trophy, Search, ChevronDown, ChevronRight, ChevronUp, ChevronsUpDown, Check, Info,
-  Trash2, Pencil, Copy, Layers, Download, ZoomIn, FileCode2, X, ExternalLink, Lightbulb,
+  Trash2, Pencil, Copy, Layers, Download, ZoomIn, FileCode2, X, ExternalLink,
 } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Textarea } from '@/components/ui/textarea'
-import { atualizarMetricasVariante, atualizarAprendizado, deletarTesteAB, duplicarTesteAB } from '@/lib/actions/testes-ab'
+import { atualizarMetricasVariante, deletarTesteAB, duplicarTesteAB } from '@/lib/actions/testes-ab'
 import type { TesteAB, Funil } from '@/lib/types'
 
 type Variante = NonNullable<TesteAB['variantes_teste']>[number]
@@ -283,43 +282,6 @@ function LinhaMetricasVariante({
   )
 }
 
-function CampoAprendizadoRapido({
-  testeId, resultado, onSalvo,
-}: {
-  testeId: string
-  resultado?: string | null
-  onSalvo: (valor: string) => void
-}) {
-  const original = resultado ?? ''
-  const [valor, setValor] = useState(original)
-  const [salvando, setSalvando] = useState(false)
-
-  async function salvar() {
-    if (valor === original) return
-    setSalvando(true)
-    const r = await atualizarAprendizado(testeId, valor)
-    setSalvando(false)
-    if (r.ok) onSalvo(valor)
-  }
-
-  return (
-    <div className="mb-3 max-w-2xl">
-      <p className="text-[11px] text-gray-500 uppercase tracking-wide mb-1 flex items-center gap-1.5">
-        <Lightbulb size={11} className="text-amber-400" /> Aprendizado
-      </p>
-      <Textarea
-        value={valor}
-        onChange={e => setValor(e.target.value)}
-        onBlur={salvar}
-        placeholder="O que esse teste ensinou? Registre aqui — esse campo é seu, não é gerado automaticamente."
-        rows={2}
-        className="w-full bg-gray-900/60 border border-gray-800 rounded px-2 py-1 text-xs text-gray-300 focus:outline-none focus:border-indigo-500 resize-none min-h-0"
-      />
-      {salvando && <p className="text-gray-600 text-[11px] mt-1">Salvando...</p>}
-    </div>
-  )
-}
-
 export function ListaVariantes({ testes: testesProp, funis, initialStatus, initialTipo }: Props) {
   const router = useRouter()
   const [testes, setTestes] = useState(testesProp)
@@ -332,9 +294,6 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
     }))
   }
 
-  function atualizarAprendizadoLocal(testeId: string, valor: string) {
-    setTestes(prev => prev.map(t => t.id !== testeId ? t : { ...t, resultado: valor }))
-  }
 
   const [confirmandoExclusao, setConfirmandoExclusao] = useState<string | null>(null)
   const [excluindo, setExcluindo] = useState<string | null>(null)
@@ -1057,11 +1016,6 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
                                 </div>
                               ))}
                             </div>
-                            <CampoAprendizadoRapido
-                              testeId={t.id}
-                              resultado={t.resultado}
-                              onSalvo={valor => atualizarAprendizadoLocal(t.id, valor)}
-                            />
                             <p className="text-[11px] text-gray-500 uppercase tracking-wide mb-2">Métricas por variante</p>
                             <div className="divide-y divide-gray-800/60">
                               {(t.variantes_teste ?? []).map(v => (
