@@ -4,10 +4,11 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import {
   Plus, FlaskConical, Trophy, Search, ChevronDown, ChevronRight, ChevronUp, ChevronsUpDown, Check, Info,
-  Trash2, Pencil, Copy, Layers, Download, ZoomIn, FileCode2, X, ExternalLink,
+  Trash2, Pencil, Copy, Layers, Download, ZoomIn, FileCode2, X, ExternalLink, Lightbulb,
 } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { atualizarMetricasVariante, deletarTesteAB, duplicarTesteAB } from '@/lib/actions/testes-ab'
+import { Textarea } from '@/components/ui/textarea'
+import { atualizarMetricasVariante, atualizarAprendizado, deletarTesteAB, duplicarTesteAB } from '@/lib/actions/testes-ab'
 import type { TesteAB, Funil } from '@/lib/types'
 
 type Variante = NonNullable<TesteAB['variantes_teste']>[number]
@@ -282,6 +283,82 @@ function LinhaMetricasVariante({
   )
 }
 
+function AprendizadoResumo({
+  testeId, resultado, onSalvo,
+}: {
+  testeId: string
+  resultado?: string | null
+  onSalvo: (valor: string) => void
+}) {
+  const original = resultado ?? ''
+  const [editando, setEditando] = useState(false)
+  const [valor, setValor] = useState(original)
+  const [salvando, setSalvando] = useState(false)
+
+  async function salvar() {
+    setSalvando(true)
+    const r = await atualizarAprendizado(testeId, valor)
+    setSalvando(false)
+    if (r.ok) { onSalvo(valor); setEditando(false) }
+  }
+
+  function cancelar() {
+    setValor(original)
+    setEditando(false)
+  }
+
+  if (editando) {
+    return (
+      <div className="mb-3 bg-amber-500/5 border border-amber-500/15 rounded-md px-2.5 py-1.5">
+        <p className="text-[11px] text-amber-400/80 uppercase tracking-wide mb-1 flex items-center gap-1.5">
+          <Lightbulb size={11} className="text-amber-400" /> Aprendizado do teste
+        </p>
+        <div className="flex items-start gap-1.5">
+          <Textarea
+            autoFocus
+            value={valor}
+            onChange={e => setValor(e.target.value)}
+            rows={2}
+            className="w-full bg-gray-900/60 border border-gray-800 rounded px-2 py-1 text-xs text-gray-300 focus:outline-none focus:border-indigo-500 resize-none min-h-0"
+          />
+          <button type="button" onClick={salvar} disabled={salvando} className="text-green-400 hover:text-green-300 shrink-0 mt-1" title="Salvar">
+            <Check size={14} />
+          </button>
+          <button type="button" onClick={cancelar} className="text-gray-500 hover:text-gray-300 shrink-0 mt-1" title="Cancelar">
+            <X size={14} />
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  if (!original) {
+    return (
+      <button
+        type="button"
+        onClick={() => setEditando(true)}
+        className="mb-3 flex items-center gap-1.5 text-[11px] text-gray-600 hover:text-gray-400 transition-colors border border-dashed border-gray-800 rounded-md px-2.5 py-1.5 w-full"
+      >
+        <Lightbulb size={11} /> Registrar aprendizado deste teste
+      </button>
+    )
+  }
+
+  return (
+    <div className="mb-3 bg-amber-500/5 border border-amber-500/15 rounded-md px-2.5 py-1.5 group">
+      <p
+        onClick={() => setEditando(true)}
+        className="flex items-center gap-1.5 text-xs text-gray-300 cursor-pointer"
+        title={original}
+      >
+        <Lightbulb size={11} className="text-amber-400 shrink-0" />
+        <span className="text-[11px] text-amber-400/80 uppercase tracking-wide shrink-0">Aprendizado do teste:</span>
+        <span className="truncate min-w-0 flex-1 group-hover:text-white transition-colors">{original}</span>
+      </p>
+    </div>
+  )
+}
+
 export function ListaVariantes({ testes: testesProp, funis, initialStatus, initialTipo }: Props) {
   const router = useRouter()
   const [testes, setTestes] = useState(testesProp)
@@ -294,6 +371,9 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
     }))
   }
 
+  function atualizarAprendizadoLocal(testeId: string, valor: string) {
+    setTestes(prev => prev.map(t => t.id !== testeId ? t : { ...t, resultado: valor }))
+  }
 
   const [confirmandoExclusao, setConfirmandoExclusao] = useState<string | null>(null)
   const [excluindo, setExcluindo] = useState<string | null>(null)
@@ -950,6 +1030,11 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
                               <span><span className="text-gray-600">Especialista:</span> {t.especialistas?.nome ?? '—'}</span>
                               <span><span className="text-gray-600">Responsável:</span> {t.responsavel ?? '—'}</span>
                             </div>
+                            <AprendizadoResumo
+                              testeId={t.id}
+                              resultado={t.resultado}
+                              onSalvo={valor => atualizarAprendizadoLocal(t.id, valor)}
+                            />
                             <p className="text-[11px] text-gray-500 uppercase tracking-wide mb-2">Variantes</p>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 pb-4 border-b border-gray-800/60">
                               {(t.variantes_teste ?? []).map(v => (
