@@ -262,6 +262,10 @@ export function NovoTesteABForm({
     if (!res.ok) setErro(res.erro ?? 'Erro ao subir a imagem.')
   }
 
+  function removerScreenshot(idx: number) {
+    setVariantes(v => v.map((vv, i) => (i === idx ? { ...vv, screenshotUrl: '' } : vv)))
+  }
+
   // ── Progresso por seção (para o checklist lateral) ──────────────────────
   const progresso = useMemo(() => {
     // Só os campos marcados com * contam pra "Completo" — o resto é complementar
@@ -770,19 +774,39 @@ export function NovoTesteABForm({
                       {v.enviando ? (
                         <Loader2 size={20} className="text-indigo-400 animate-spin mb-2" />
                       ) : v.screenshotUrl && ehArquivoHtml(v.screenshotUrl) ? (
-                        <FileCode2 size={28} className="text-indigo-400 mb-2" />
+                        <div className="relative w-full flex flex-col items-center justify-center py-4">
+                          <FileCode2 size={28} className="text-indigo-400 mb-2" />
+                          <button
+                            type="button"
+                            onClick={e => { e.preventDefault(); e.stopPropagation(); removerScreenshot(idx) }}
+                            className="absolute top-0 right-0 p-1.5 bg-black/60 hover:bg-black/80 rounded-lg text-white transition-colors"
+                            title="Remover"
+                          >
+                            <X size={14} />
+                          </button>
+                        </div>
                       ) : v.screenshotUrl ? (
                         <div className="relative w-full aspect-[5/2] mb-2">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img src={v.screenshotUrl} alt={`Screenshot variação ${v.letra}`} className="w-full h-full rounded object-cover object-top" />
-                          <button
-                            type="button"
-                            onClick={e => { e.preventDefault(); e.stopPropagation(); setImagemAmpliada(v.screenshotUrl) }}
-                            className="absolute top-2 right-2 p-1.5 bg-black/60 hover:bg-black/80 rounded-lg text-white transition-colors"
-                            title="Ampliar"
-                          >
-                            <ZoomIn size={14} />
-                          </button>
+                          <div className="absolute top-2 right-2 flex items-center gap-1.5">
+                            <button
+                              type="button"
+                              onClick={e => { e.preventDefault(); e.stopPropagation(); setImagemAmpliada(v.screenshotUrl) }}
+                              className="p-1.5 bg-black/60 hover:bg-black/80 rounded-lg text-white transition-colors"
+                              title="Ampliar"
+                            >
+                              <ZoomIn size={14} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={e => { e.preventDefault(); e.stopPropagation(); removerScreenshot(idx) }}
+                              className="p-1.5 bg-black/60 hover:bg-red-900/80 rounded-lg text-white transition-colors"
+                              title="Remover"
+                            >
+                              <X size={14} />
+                            </button>
+                          </div>
                         </div>
                       ) : (
                         <Upload size={20} className="text-gray-600 mb-2" />
