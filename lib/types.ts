@@ -189,6 +189,7 @@ export type CategoriaConfig =
   | 'segmento_teste'
   | 'angulo_hero'
   | 'elemento_testado'
+  | 'secao_pagina'
 
 export interface Campanha {
   id: string
@@ -211,6 +212,7 @@ export interface TesteAB {
   status: string
   tipo_teste?: string | null
   elemento_testado?: string | null
+  secao_pagina?: string | null
   metrica_primaria?: string | null
   nivel_confianca?: number | null
   poder_estatistico?: number | null

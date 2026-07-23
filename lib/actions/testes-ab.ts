@@ -37,6 +37,7 @@ export async function criarTesteAB(input: {
   hipotese_motivo?: string
   resultado_esperado?: string
   elemento_testado?: string
+  secao_pagina?: string
   campanha_id?: string
   nova_campanha_codigo?: string
   segmento?: string
@@ -108,6 +109,7 @@ export async function criarTesteAB(input: {
         hipotese_motivo: input.hipotese_motivo || null,
         resultado_esperado: input.resultado_esperado || null,
         elemento_testado: input.elemento_testado || null,
+        secao_pagina: input.secao_pagina || null,
         campanha_id: campanhaId,
         segmento: input.segmento || null,
         especialista_id: input.especialista_id || null,
@@ -159,6 +161,7 @@ export async function atualizarTesteAB(testeId: string, input: {
   hipotese_motivo?: string
   resultado_esperado?: string
   elemento_testado?: string
+  secao_pagina?: string
   campanha_id?: string
   nova_campanha_codigo?: string
   segmento?: string
@@ -219,6 +222,7 @@ export async function atualizarTesteAB(testeId: string, input: {
         hipotese_motivo: input.hipotese_motivo || null,
         resultado_esperado: input.resultado_esperado || null,
         elemento_testado: input.elemento_testado || null,
+        secao_pagina: input.secao_pagina || null,
         campanha_id: campanhaId,
         segmento: input.segmento || null,
         especialista_id: input.especialista_id || null,
@@ -298,6 +302,7 @@ export async function duplicarTesteAB(testeId: string): Promise<{ ok: boolean; e
         hipotese_motivo: original.hipotese_motivo,
         resultado_esperado: original.resultado_esperado,
         elemento_testado: original.elemento_testado,
+        secao_pagina: original.secao_pagina,
         campanha_id: original.campanha_id,
         segmento: original.segmento,
         especialista_id: original.especialista_id,

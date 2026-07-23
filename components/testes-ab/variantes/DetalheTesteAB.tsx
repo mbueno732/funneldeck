@@ -250,6 +250,11 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
                 Testando: {teste.elemento_testado}
               </span>
             )}
+            {teste.secao_pagina && (
+              <span className="inline-flex px-2 py-0.5 rounded text-xs font-medium border bg-gray-800 text-gray-300 border-gray-700">
+                Seção: {teste.secao_pagina}
+              </span>
+            )}
             {(teste.especialistas?.nome || teste.responsavel) && (
               <span className="text-gray-500 text-xs">
                 {[teste.especialistas?.nome, teste.responsavel].filter(Boolean).join(' · ')}

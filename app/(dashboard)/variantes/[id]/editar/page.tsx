@@ -19,6 +19,7 @@ export default async function EditarTesteABPage({ params }: { params: { id: stri
     { data: configsResponsavel },
     { data: configsAngulo },
     { data: configsElemento },
+    { data: configsSecao },
     { data: testesExistentes },
     { data: variantesEmTesteAtivo },
   ] = await Promise.all([
@@ -33,6 +34,7 @@ export default async function EditarTesteABPage({ params }: { params: { id: stri
     supabase.from('configuracoes').select('valor').eq('categoria', 'responsavel').eq('ativo', true).order('ordem'),
     supabase.from('configuracoes').select('valor').eq('categoria', 'angulo_hero').eq('ativo', true).order('ordem'),
     supabase.from('configuracoes').select('valor').eq('categoria', 'elemento_testado').eq('ativo', true).order('ordem'),
+    supabase.from('configuracoes').select('valor').eq('categoria', 'secao_pagina').eq('ativo', true).order('ordem'),
     supabase.from('testes_ab').select('funil_id, segmento'),
     supabase.from('variantes_teste').select('pagina_id, teste_id, testes_ab!inner(nome, status)').eq('testes_ab.status', 'Ativo'),
   ])
@@ -59,6 +61,7 @@ export default async function EditarTesteABPage({ params }: { params: { id: stri
       responsaveis={(configsResponsavel ?? []).map(c => c.valor)}
       angulos={(configsAngulo ?? []).map(c => c.valor)}
       elementosTestados={(configsElemento ?? []).map(c => c.valor)}
+      secoesPagina={(configsSecao ?? []).map(c => c.valor)}
       testesExistentes={testesExistentes ?? []}
       paginasEmTesteAtivo={paginasEmTesteAtivo}
       testeParaEditar={teste}

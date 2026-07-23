@@ -49,6 +49,7 @@ interface Props {
   responsaveis: string[]
   angulos: string[]
   elementosTestados: string[]
+  secoesPagina: string[]
   testesExistentes: { funil_id: string; segmento: string | null }[]
   paginasEmTesteAtivo?: { pagina_id: string; teste_id: string; teste_nome: string }[]
   testeParaEditar?: TesteAB
@@ -64,6 +65,7 @@ const LAYOUTS = [
 ]
 const NOVA_CAMPANHA = '__nova__'
 const NOVO_ELEMENTO = '__novo_elemento__'
+const NOVA_SECAO = '__nova_secao__'
 
 const SECOES = [
   { id: 'basicas',   label: 'Informações Básicas', icon: Info },
@@ -125,7 +127,7 @@ async function abrirReferenciaHtml(url: string) {
 
 export function NovoTesteABForm({
   funis, metricasVendas, metricasAquisicao, paginas, especialistas, campanhas, segmentos, responsaveis, angulos,
-  elementosTestados, testesExistentes, paginasEmTesteAtivo, testeParaEditar,
+  elementosTestados, secoesPagina, testesExistentes, paginasEmTesteAtivo, testeParaEditar,
 }: Props) {
   const router = useRouter()
   const refs = useRef<Record<string, HTMLDivElement | null>>({})
@@ -170,6 +172,31 @@ export function NovoTesteABForm({
       setErroElemento('Não foi possível criar. Tente novamente.')
     } finally {
       setSalvandoElemento(false)
+    }
+  }
+
+  const [secaoPagina, setSecaoPagina] = useState(testeParaEditar?.secao_pagina ?? '')
+  const [secoesState, setSecoesState] = useState(secoesPagina)
+  const [criandoSecao, setCriandoSecao] = useState(false)
+  const [novaSecaoValor, setNovaSecaoValor] = useState('')
+  const [salvandoSecao, setSalvandoSecao] = useState(false)
+  const [erroSecao, setErroSecao] = useState('')
+
+  async function criarNovaSecao() {
+    const valor = novaSecaoValor.trim()
+    if (!valor) return
+    setSalvandoSecao(true)
+    setErroSecao('')
+    try {
+      await criarConfiguracao({ categoria: 'secao_pagina', valor })
+      setSecoesState(prev => prev.includes(valor) ? prev : [...prev, valor])
+      setSecaoPagina(valor)
+      setCriandoSecao(false)
+      setNovaSecaoValor('')
+    } catch {
+      setErroSecao('Não foi possível criar. Tente novamente.')
+    } finally {
+      setSalvandoSecao(false)
     }
   }
 
@@ -389,6 +416,7 @@ export function NovoTesteABForm({
       hipotese_motivo: hipoteseMotivo,
       resultado_esperado: resultadoEsperado,
       elemento_testado: elementoTestado || undefined,
+      secao_pagina: secaoPagina || undefined,
       campanha_id: campanhaId && campanhaId !== NOVA_CAMPANHA ? campanhaId : undefined,
       nova_campanha_codigo: campanhaId === NOVA_CAMPANHA ? novaCampanhaCodigo : undefined,
       segmento: segmento || undefined,
@@ -432,6 +460,7 @@ export function NovoTesteABForm({
       hipotese_motivo: hipoteseMotivo,
       resultado_esperado: resultadoEsperado,
       elemento_testado: elementoTestado || undefined,
+      secao_pagina: secaoPagina || undefined,
       campanha_id: campanhaId && campanhaId !== NOVA_CAMPANHA ? campanhaId : undefined,
       nova_campanha_codigo: campanhaId === NOVA_CAMPANHA ? novaCampanhaCodigo : undefined,
       segmento: segmento || undefined,
@@ -694,8 +723,56 @@ export function NovoTesteABForm({
                   </Select>
                 )}
               </div>
+              <div className="flex items-center gap-2">
+                <Label className="text-gray-500 text-xs shrink-0 whitespace-nowrap">Seção da página</Label>
+                {criandoSecao ? (
+                  <div className="flex items-center gap-1.5">
+                    <Input
+                      autoFocus
+                      value={novaSecaoValor}
+                      onChange={e => setNovaSecaoValor(e.target.value)}
+                      onKeyDown={e => { if (e.key === 'Enter') criarNovaSecao() }}
+                      placeholder="Seções são posições, não tipos de bloco"
+                      className="w-56 h-9 bg-gray-900 border-gray-800 text-white text-sm"
+                    />
+                    <button
+                      type="button"
+                      onClick={criarNovaSecao}
+                      disabled={salvandoSecao || !novaSecaoValor.trim()}
+                      className="text-green-400 hover:text-green-300 disabled:opacity-40 shrink-0"
+                      title="Salvar"
+                    >
+                      {salvandoSecao ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle2 size={16} />}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setCriandoSecao(false); setNovaSecaoValor(''); setErroSecao('') }}
+                      className="text-gray-500 hover:text-gray-300 shrink-0"
+                      title="Cancelar"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                ) : (
+                  <Select
+                    value={secaoPagina || '__none__'}
+                    onValueChange={v => v === NOVA_SECAO ? setCriandoSecao(true) : setSecaoPagina(v === '__none__' ? '' : v)}
+                  >
+                    <SelectTrigger className="w-44 h-9 bg-gray-900 border-gray-800 text-white text-sm focus:ring-0 focus:ring-offset-0">
+                      <SelectValue placeholder="Selecionar..." />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-900 border-gray-800">
+                      <SelectItem value="__none__" className="text-gray-400 focus:bg-gray-800 focus:text-white">Selecionar...</SelectItem>
+                      {secoesState.map(s => (
+                        <SelectItem key={s} value={s} className="text-gray-300 focus:bg-gray-800 focus:text-white">{s}</SelectItem>
+                      ))}
+                      <SelectItem value={NOVA_SECAO} className="text-indigo-400 focus:bg-gray-800 focus:text-indigo-300">+ Nova seção</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              </div>
             </div>
-            {erroElemento && <p className="text-red-400 text-xs text-right -mt-4 mb-4">{erroElemento}</p>}
+            {(erroElemento || erroSecao) && <p className="text-red-400 text-xs text-right -mt-4 mb-4">{erroElemento || erroSecao}</p>}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
               <div className="space-y-1.5">
                 <Label className={labelCls}>O QUE vamos mudar?</Label>

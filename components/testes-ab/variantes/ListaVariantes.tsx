@@ -408,6 +408,7 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
   const [filtroCampanha, setFiltroCampanha] = useState('__all__')
   const [filtroResponsavel, setFiltroResponsavel] = useState('__all__')
   const [filtroElemento, setFiltroElemento] = useState('__all__')
+  const [filtroSecao, setFiltroSecao] = useState('__all__')
   const [filtroAngulo, setFiltroAngulo] = useState('__all__')
   const [filtroLayout, setFiltroLayout] = useState('__all__')
   const [filtroPeriodo, setFiltroPeriodo] = useState('__all__')
@@ -417,6 +418,7 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
   const campanhasOpcoes = useMemo(() => unicos(testes.map(t => t.campanhas?.codigo)), [testes])
   const responsaveisOpcoes = useMemo(() => unicos(testes.map(t => t.responsavel)), [testes])
   const elementosOpcoes = useMemo(() => unicos(testes.map(t => t.elemento_testado)), [testes])
+  const secoesOpcoes = useMemo(() => unicos(testes.map(t => t.secao_pagina)), [testes])
   const angulosOpcoes = useMemo(() => unicos(testes.flatMap(t => angulosDoTeste(t))), [testes])
   const layoutsOpcoes = useMemo(() => unicos(testes.flatMap(t => t.variantes_teste?.map(v => v.layout) ?? [])), [testes])
 
@@ -437,6 +439,7 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
     if (filtroCampanha !== '__all__' && t.campanhas?.codigo !== filtroCampanha) return false
     if (filtroResponsavel !== '__all__' && t.responsavel !== filtroResponsavel) return false
     if (filtroElemento !== '__all__' && t.elemento_testado !== filtroElemento) return false
+    if (filtroSecao !== '__all__' && t.secao_pagina !== filtroSecao) return false
     if (filtroAngulo !== '__all__' && !angulosDoTeste(t).includes(filtroAngulo)) return false
     if (filtroLayout !== '__all__' && !(t.variantes_teste ?? []).some(v => v.layout === filtroLayout)) return false
     if (filtroPeriodo !== '__all__') {
@@ -447,7 +450,7 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
     return true
   }), [
     testesPorTipo, busca, filtroFunil, filtroStatus, filtroEspecialista, filtroSegmento,
-    filtroCampanha, filtroResponsavel, filtroElemento, filtroAngulo, filtroLayout, filtroPeriodo,
+    filtroCampanha, filtroResponsavel, filtroElemento, filtroSecao, filtroAngulo, filtroLayout, filtroPeriodo,
   ])
 
   type CampoOrdenacao = 'nome' | 'status' | 'resultado'
@@ -492,7 +495,7 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
 
   const ITENS_POR_PAGINA = 30
   const [paginaAtual, setPaginaAtual] = useState(1)
-  useEffect(() => setPaginaAtual(1), [tipoAtivo, busca, filtroFunil, filtroStatus, filtroEspecialista, filtroSegmento, filtroCampanha, filtroResponsavel, filtroElemento, filtroAngulo, filtroLayout, filtroPeriodo, ordenacao])
+  useEffect(() => setPaginaAtual(1), [tipoAtivo, busca, filtroFunil, filtroStatus, filtroEspecialista, filtroSegmento, filtroCampanha, filtroResponsavel, filtroElemento, filtroSecao, filtroAngulo, filtroLayout, filtroPeriodo, ordenacao])
 
   const visiveis = useMemo(() => filtrados.slice(0, paginaAtual * ITENS_POR_PAGINA), [filtrados, paginaAtual])
 
@@ -565,7 +568,7 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
 
   function exportarCSV() {
     const cabecalho = [
-      'Nome', 'Código', 'Funil', 'Campanha', 'Elemento', 'Ângulos', 'Layout', 'Tipo', 'Segmento',
+      'Nome', 'Código', 'Funil', 'Campanha', 'Elemento', 'Seção', 'Ângulos', 'Layout', 'Tipo', 'Segmento',
       'Status', 'Início', 'Dias rodando', 'CVR Controle (%)', 'Resultado', 'Lift (%)', 'RPV',
       'Especialista', 'Responsável',
     ]
@@ -582,6 +585,7 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
         t.funis?.nome ?? '',
         t.campanhas?.codigo ?? '',
         t.elemento_testado ?? '',
+        t.secao_pagina ?? '',
         angulosDoTeste(t).join('; '),
         resumoLayout(t.variantes_teste ?? []) ?? '',
         t.tipo_teste ? (TIPO_LABEL[t.tipo_teste] ?? t.tipo_teste) : '',
@@ -729,6 +733,13 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
                 {elementosOpcoes.map(e => <SelectItem key={e} value={e} className={itemCls}>{e}</SelectItem>)}
               </SelectContent>
             </Select>
+            <Select value={filtroSecao} onValueChange={setFiltroSecao}>
+              <SelectTrigger className={`w-40 ${selectCls}`}><SelectValue placeholder="Seção" /></SelectTrigger>
+              <SelectContent className="bg-gray-900 border-gray-800">
+                <SelectItem value="__all__" className={itemCls}>Todas seções</SelectItem>
+                {secoesOpcoes.map(s => <SelectItem key={s} value={s} className={itemCls}>{s}</SelectItem>)}
+              </SelectContent>
+            </Select>
             <Select value={filtroAngulo} onValueChange={setFiltroAngulo}>
               <SelectTrigger className={`w-40 ${selectCls}`}><SelectValue placeholder="Ângulo" /></SelectTrigger>
               <SelectContent className="bg-gray-900 border-gray-800">
@@ -772,6 +783,7 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
                     <th className="px-4 py-3 font-medium">Funil</th>
                     <th className="px-4 py-3 font-medium">Campanha</th>
                     <th className="px-4 py-3 font-medium">Elemento</th>
+                    <th className="px-4 py-3 font-medium">Seção</th>
                     <th className="px-4 py-3 font-medium">Layout</th>
                     <th className="px-4 py-3 font-medium">Segmentação</th>
                     <ThOrdenavel campo="status">Status</ThOrdenavel>
@@ -785,7 +797,7 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
                     <Fragment key={grupo.funilId}>
                       {usarAgrupamento && (
                         <tr className="bg-gray-900/60">
-                          <td colSpan={11} className="px-4 py-2">
+                          <td colSpan={12} className="px-4 py-2">
                             <button
                               type="button"
                               onClick={() => toggleGrupo(grupo.funilId)}
@@ -861,6 +873,14 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
                             <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-gray-800 text-gray-300 border border-gray-700 whitespace-nowrap">
                               {t.elemento_testado}
                             </span>
+                          ) : (
+                            <span className="text-gray-600 text-xs">—</span>
+                          )}
+                        </td>
+                        {/* Seção da página */}
+                        <td className="px-4 py-3">
+                          {t.secao_pagina ? (
+                            <span className="text-xs text-gray-400 whitespace-nowrap">{t.secao_pagina}</span>
                           ) : (
                             <span className="text-gray-600 text-xs">—</span>
                           )}
@@ -1012,7 +1032,7 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
                       {expandido && (
                         <tr className="bg-black/20">
                           <td></td>
-                          <td colSpan={10} className="px-4 py-3">
+                          <td colSpan={11} className="px-4 py-3">
                             <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-gray-400 mb-3 pb-3 border-b border-gray-800/60">
                               <span><span className="text-gray-600">Início:</span> {inicio ?? '—'}</span>
                               <span><span className="text-gray-600">Especialista:</span> {t.especialistas?.nome ?? '—'}</span>

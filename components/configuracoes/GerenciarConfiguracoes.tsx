@@ -54,6 +54,7 @@ const GRUPOS: { label: string; itens: { key: AbaAtiva; label: string }[] }[] = [
       { key: 'segmento_teste',           label: 'Segmentos' },
       { key: 'angulo_hero',              label: 'Ângulos da Hero' },
       { key: 'elemento_testado',         label: 'Elementos Testados' },
+      { key: 'secao_pagina',             label: 'Seções da Página' },
     ],
   },
 ]
