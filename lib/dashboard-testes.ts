@@ -98,6 +98,18 @@ export interface LinhaAgrupada {
   cvrMedio: number | null
 }
 
+/**
+ * Ângulo da Hero é por variante (dominante + secundários), não do teste — junta os de todas
+ * as variantes do teste pra usos que ainda pensam em "ângulos do teste" (filtro, coluna, CSV,
+ * agrupamento do Dashboard).
+ */
+export function angulosDoTeste(t: TesteAB): string[] {
+  return Array.from(new Set(
+    (t.variantes_teste ?? []).flatMap(v => [v.angulo_dominante, ...(v.angulos_secundarios ?? [])])
+      .filter((a): a is string => !!a)
+  ))
+}
+
 /** Agrupa testes por um campo simples do teste (segmento, elemento_testado, ou 1 ângulo por vez). */
 export function agruparPor(testes: TesteAB[], valorDe: (t: TesteAB) => string[] | string | null): LinhaAgrupada[] {
   const grupos = new Map<string, TesteAB[]>()

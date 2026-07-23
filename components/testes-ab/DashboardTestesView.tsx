@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { FlaskConical, ExternalLink, Trophy, Rocket, TrendingDown, TrendingUp, Equal, Percent, Target } from 'lucide-react'
-import { calcularKpis, agruparPor, type LinhaAgrupada, type KpisDashboard } from '@/lib/dashboard-testes'
+import { calcularKpis, agruparPor, angulosDoTeste, type LinhaAgrupada, type KpisDashboard } from '@/lib/dashboard-testes'
 import { SectionLabel } from '@/components/dashboard/DashboardView'
 import type { TesteAB } from '@/lib/types'
 
@@ -131,7 +131,7 @@ export function DashboardTestesView({ testes }: Props) {
   const kpis = useMemo(() => calcularKpis(filtrados), [filtrados])
   const porSegmento = useMemo(() => agruparPor(filtrados, t => t.segmento ?? null), [filtrados])
   const porElemento = useMemo(() => agruparPor(filtrados, t => t.elemento_testado ?? null), [filtrados])
-  const porAngulo = useMemo(() => agruparPor(filtrados, t => t.angulos ?? null), [filtrados])
+  const porAngulo = useMemo(() => agruparPor(filtrados, t => angulosDoTeste(t)), [filtrados])
 
   const testesAtivos = useMemo(
     () => filtrados

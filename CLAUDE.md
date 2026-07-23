@@ -113,9 +113,9 @@ Stitch, comparo campo a campo contra o modelo de dados combinado (ver plano ativ
     (`Elemento · Funil`) que foi removido por ficar redundante com as colunas dedicadas da Lista;
     hoje só tem placeholder de exemplo + texto de ajuda orientando a descrever a mudança testada,
     não o contexto (que já vive em colunas/campos próprios).
-  - Campanha (com opção de criar nova inline), Segmento, Responsável, Data de Início, Elemento
-    Testado (`O que vamos testar?`) e Assistente de Hipótese (até 3 ângulos) — em Informações
-    Básicas / Framework de Hipótese.
+  - Campanha (com opção de criar nova inline), Segmento, Responsável, Data de Início e Elemento
+    Testado (`O que vamos testar?`, criável inline com "+ Novo elemento" sem precisar ir em
+    Configurações) — em Informações Básicas / Framework de Hipótese.
   - **Toda variante precisa estar vinculada a uma página cadastrada no Mapa de Páginas**
     (`variantes_teste.pagina_id`, obrigatório, validado em `criarTesteAB`/`atualizarTesteAB`).
     Autofill da URL a partir da página escolhida, mas a URL continua editável (ex: pra UTM).
@@ -127,6 +127,11 @@ Stitch, comparo campo a campo contra o modelo de dados combinado (ver plano ativ
     parecer quebrado (nunca havia nada pra redistribuir). Indicador "Total: X%" ao lado do botão
     fica âmbar se a soma não bater 100%.
   - **Layout (Curto/Longo) é por variante**, não do teste inteiro.
+  - **Ângulo da Hero é por variante** (não do teste inteiro) — cada variante pode ter uma hero
+    diferente, então o assistente de hipótese ficou dentro de cada card de Variação, não em
+    Framework de Hipótese. Até 3 ângulos por variante: 1 dominante (marcado com estrela — a
+    primeira selecionada vira dominante por padrão, clique na estrela de outra selecionada pra
+    trocar) + até 2 secundários.
   - **URL de Ativação do Teste** — campo editável na seção Revisão. Calculada automaticamente a
     partir da URL de qualquer variante (remove o último segmento do path — a letra/versão, ex:
     `/a`, `/a-v2`), com fallback automático enquanto o campo não for editado manualmente
@@ -137,13 +142,16 @@ Stitch, comparo campo a campo contra o modelo de dados combinado (ver plano ativ
     Funil + Segmento. Não muda ao editar um teste existente.
   - Lightbox/zoom nos screenshots; upload aceita colar (Ctrl+V) direto na área de upload.
 - **Tela de Detalhe do Experimento** (`/variantes/[id]`, `DetalheTesteAB.tsx`) — **pronta**:
-  - Header com Segmento, Campanha, Elemento Testado e Ângulos visíveis (badges), Especialista e
-    Responsável.
+  - Header com Segmento, Campanha, Elemento Testado (badges), Especialista e Responsável.
   - Confiança estatística real por variante vs. Controle (`lib/estatistica.ts` — z-test de duas
     proporções, classificação Alta/Média/Baixa), com aviso (não bloqueante) de amostra pequena
     (`< MIN_CONVERSOES_CONFIAVEL`) ou teste rodando há pouco tempo (`< MIN_DIAS_RECOMENDADO`).
-  - Cada variante exibe Layout, Headline, Subheadline e URL de Preview (antes só apareciam
-    reabrindo o formulário de Edição).
+  - Cada variante exibe Layout, Headline, Subheadline, URL de Preview e **Ângulo da Hero próprio**
+    (dominante + até 2 secundários, `variantes_teste.angulo_dominante`/`angulos_secundarios`,
+    migration `023`) — cada variante pode ter uma hero diferente, então o ângulo não é mais
+    compartilhado por todo o teste (era `testes_ab.angulos`, coluna legada mantida só por
+    compatibilidade com testes criados antes desta mudança). Dominante tem selo com ícone de
+    estrela preenchida; secundários aparecem mais discretos.
   - "Marcar vencedora" (por variante) / "Desfazer" (reverte pra Ativo) / "Aplicar Vencedor"
     (muda status pra `Vencedor implementado`).
   - **"Encerrar sem vencedor"** — fecha o teste em empate/inconclusivo sem declarar vencedora
@@ -155,7 +163,9 @@ Stitch, comparo campo a campo contra o modelo de dados combinado (ver plano ativ
     público — contorna buscando o texto e reembrulhando num Blob `text/html`).
 - **Tela de Lista de Experimentos** (`ListaVariantes.tsx`, `/variantes`) — **pronta**:
   - Toggle Todos/Aquisição/Vendas; filtros por Funil, Especialista, Responsável, Segmento,
-    Campanha, Elemento Testado, Ângulo, Layout, Status, Período; busca por nome/código.
+    Campanha, Elemento Testado, Ângulo, Layout, Status, Período; busca por nome/código. Ângulo é
+    por variante — filtro/coluna/CSV mostram a união dos ângulos de todas as variantes do teste
+    (`angulosDoTeste()` em `lib/dashboard-testes.ts`), dominante com selo de estrela.
   - Colunas dedicadas (não mais texto empilhado): Experimento (nome + `#sequencial`), Funil,
     Campanha, Elemento, Ângulos da Hero, Layout, Segmentação, Status, Resultado, Métrica/RPV,
     Ações. Todas viraram filtro também — pensadas pra alimentar a futura tela de Inteligência.
@@ -316,10 +326,14 @@ Cadastro do Teste nesta sessão):
   — permite encerrar um teste em empate/inconclusivo sem forçar uma vencedora artificial.
 - `021_url_ativacao_teste.sql` — `testes_ab.url_ativacao` — versão editável da URL de ativação do
   teste, com fallback automático calculado a partir da URL das variantes.
+- `023_angulo_por_variante.sql` — `variantes_teste.angulo_dominante`/`angulos_secundarios`
+  (Ângulo da Hero por variante, substitui `testes_ab.angulos` do teste inteiro — mesmo princípio
+  do Layout na migration `019`).
 
 **Colunas antigas não são dropadas** (`testes_ab.pagina_id`, `testes_ab.layout`,
-`testes_ab.angulo_primario`, `testes_ab.angulos_secundarios`) — ficam no banco por compatibilidade
-com testes já criados antes dessas mudanças, mas não são mais preenchidas por telas novas.
+`testes_ab.angulo_primario`, `testes_ab.angulos_secundarios`, `testes_ab.angulos`) — ficam no
+banco por compatibilidade com testes já criados antes dessas mudanças, mas não são mais
+preenchidas por telas novas.
 
 ### Colunas relevantes adicionadas pós-schema inicial
 
@@ -403,6 +417,7 @@ supabase/migrations/
   019_layout_por_variante.sql     # variantes_teste.layout (Curto/Longo por variante)
   020_resultado_final_teste.sql   # testes_ab.resultado_final ('vencedora' | 'sem_vencedor')
   021_url_ativacao_teste.sql      # testes_ab.url_ativacao (editável, fallback automático)
+  023_angulo_por_variante.sql     # variantes_teste.angulo_dominante/angulos_secundarios
 
 app/(dashboard)/
   dashboard/page.tsx              # reaproveita DashboardView real; toggle Operação/Inteligência A/B

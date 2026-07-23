@@ -256,6 +256,8 @@ export interface VarianteTeste {
   url_preview?: string | null
   pagina_id?: string | null
   layout?: string | null
+  angulo_dominante?: string | null
+  angulos_secundarios?: string[] | null
   criado_em: string
   paginas?: Pick<Pagina, 'id' | 'nome' | 'codigo'> | null
 }

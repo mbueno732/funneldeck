@@ -5,7 +5,7 @@ import Link from 'next/link'
 import {
   ChevronRight, Info, Brain, Rocket, Trash2, Upload,
   PlusCircle, SplitSquareHorizontal, MousePointerClick, Loader2, ImageOff,
-  CheckCircle2, Circle, ClipboardCheck, FileCode2, ZoomIn, X, AlertTriangle,
+  CheckCircle2, Circle, ClipboardCheck, FileCode2, ZoomIn, X, AlertTriangle, Star,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -31,6 +31,8 @@ interface Variante {
   screenshotUrl: string
   enviando: boolean
   percentual: number
+  anguloDominante: string
+  angulosSecundarios: string[]
 }
 
 interface Props {
@@ -71,7 +73,10 @@ const SECOES = [
 ] as const
 
 function varianteVazia(letra: string): Variante {
-  return { letra, paginaId: '', urlVariante: '', urlPreview: '', headline: '', subheadline: '', layout: '', screenshotUrl: '', enviando: false, percentual: 0 }
+  return {
+    letra, paginaId: '', urlVariante: '', urlPreview: '', headline: '', subheadline: '', layout: '', screenshotUrl: '',
+    enviando: false, percentual: 0, anguloDominante: '', angulosSecundarios: [],
+  }
 }
 
 function redistribuir(lista: Variante[]): Variante[] {
@@ -148,7 +153,6 @@ export function NovoTesteABForm({
   const [novoElementoValor, setNovoElementoValor] = useState('')
   const [salvandoElemento, setSalvandoElemento] = useState(false)
   const [erroElemento, setErroElemento] = useState('')
-  const [angulosSelecionados, setAngulosSelecionados] = useState<string[]>(testeParaEditar?.angulos ?? [])
 
   async function criarNovoElemento() {
     const valor = novoElementoValor.trim()
@@ -184,6 +188,10 @@ export function NovoTesteABForm({
         screenshotUrl: v.screenshot_url ?? '',
         enviando: false,
         percentual: v.percentual_trafego ?? 0,
+        // Testes criados antes do ângulo virar por variante: aproveita o
+        // ângulo do teste (nível antigo) só na Controle, na 1ª edição.
+        anguloDominante: v.angulo_dominante ?? (idx === 0 ? testeParaEditar?.angulos?.[0] ?? '' : ''),
+        angulosSecundarios: v.angulos_secundarios ?? (idx === 0 ? testeParaEditar?.angulos?.slice(1) ?? [] : []),
       }))
   })
   const [metricaPrimaria, setMetricaPrimaria] = useState(testeParaEditar?.metrica_primaria ?? '')
@@ -223,12 +231,29 @@ export function NovoTesteABForm({
     refs.current[id]?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
-  function toggleAngulo(valor: string) {
-    setAngulosSelecionados(list => {
-      if (list.includes(valor)) return list.filter(a => a !== valor)
-      if (list.length >= MAX_ANGULOS) return list
-      return [...list, valor]
-    })
+  function toggleAnguloVariante(idx: number, valor: string) {
+    setVariantes(list => list.map((v, i) => {
+      if (i !== idx) return v
+      const selecionados = [v.anguloDominante, ...v.angulosSecundarios].filter(Boolean)
+      if (selecionados.includes(valor)) {
+        if (v.anguloDominante === valor) {
+          const [novoDominante, ...resto] = v.angulosSecundarios
+          return { ...v, anguloDominante: novoDominante ?? '', angulosSecundarios: resto }
+        }
+        return { ...v, angulosSecundarios: v.angulosSecundarios.filter(a => a !== valor) }
+      }
+      if (selecionados.length >= MAX_ANGULOS) return v
+      if (!v.anguloDominante) return { ...v, anguloDominante: valor }
+      return { ...v, angulosSecundarios: [...v.angulosSecundarios, valor] }
+    }))
+  }
+
+  function marcarAnguloDominante(idx: number, valor: string) {
+    setVariantes(list => list.map((v, i) => {
+      if (i !== idx || v.anguloDominante === valor) return v
+      const secundarios = [v.anguloDominante, ...v.angulosSecundarios].filter((a): a is string => !!a && a !== valor)
+      return { ...v, anguloDominante: valor, angulosSecundarios: secundarios }
+    }))
   }
 
   function selecionarPaginaVariante(idx: number, pid: string) {
@@ -363,7 +388,6 @@ export function NovoTesteABForm({
       hipotese_motivo: hipoteseMotivo,
       resultado_esperado: resultadoEsperado,
       elemento_testado: elementoTestado || undefined,
-      angulos: angulosSelecionados.length ? angulosSelecionados : undefined,
       campanha_id: campanhaId && campanhaId !== NOVA_CAMPANHA ? campanhaId : undefined,
       nova_campanha_codigo: campanhaId === NOVA_CAMPANHA ? novaCampanhaCodigo : undefined,
       segmento: segmento || undefined,
@@ -386,6 +410,8 @@ export function NovoTesteABForm({
         screenshot_url: v.screenshotUrl || undefined,
         percentual_trafego: v.percentual,
         is_controle: i === 0,
+        angulo_dominante: v.anguloDominante || undefined,
+        angulos_secundarios: v.angulosSecundarios.length ? v.angulosSecundarios : undefined,
       })),
     })
     setSalvando(null)
@@ -405,7 +431,6 @@ export function NovoTesteABForm({
       hipotese_motivo: hipoteseMotivo,
       resultado_esperado: resultadoEsperado,
       elemento_testado: elementoTestado || undefined,
-      angulos: angulosSelecionados.length ? angulosSelecionados : undefined,
       campanha_id: campanhaId && campanhaId !== NOVA_CAMPANHA ? campanhaId : undefined,
       nova_campanha_codigo: campanhaId === NOVA_CAMPANHA ? novaCampanhaCodigo : undefined,
       segmento: segmento || undefined,
@@ -429,6 +454,8 @@ export function NovoTesteABForm({
         screenshot_url: v.screenshotUrl || undefined,
         percentual_trafego: v.percentual,
         is_controle: i === 0,
+        angulo_dominante: v.anguloDominante || undefined,
+        angulos_secundarios: v.angulosSecundarios.length ? v.angulosSecundarios : undefined,
       })),
     })
     setSalvando(null)
@@ -704,48 +731,20 @@ export function NovoTesteABForm({
               </div>
             </div>
 
-            <div className="border-t border-gray-800 pt-6 space-y-3">
-              <div className="flex items-center justify-between">
-                <Label className={labelCls}>Assistente de Hipótese — Ângulo da Hero</Label>
-                <span className="text-gray-600 text-xs">{angulosSelecionados.length}/{MAX_ANGULOS} selecionados</span>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {angulos.map(a => {
-                  const ativo = angulosSelecionados.includes(a)
-                  const bloqueado = !ativo && angulosSelecionados.length >= MAX_ANGULOS
-                  return (
-                    <button
-                      key={a}
-                      type="button"
-                      disabled={bloqueado}
-                      onClick={() => toggleAngulo(a)}
-                      className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors disabled:opacity-30 ${
-                        ativo
-                          ? 'bg-indigo-500/15 border-indigo-500 text-indigo-300'
-                          : 'bg-gray-950 border-gray-800 text-gray-400 hover:text-white'
-                      }`}
-                    >
-                      {a}
-                    </button>
-                  )
-                })}
-              </div>
-              {(elementoTestado || hipotese.trim() || angulosSelecionados.length > 0) && (
+            {(elementoTestado || hipotese.trim()) && (
+              <div className="border-t border-gray-800 pt-6">
                 <div className="bg-gray-950 border border-gray-800 rounded-lg px-3 py-2">
                   <p className="text-indigo-400 text-[10px] font-semibold uppercase tracking-wide mb-1">Hipótese Consolidada</p>
                   <p className="text-gray-400 text-xs italic">
                     &quot;Se eu testar <span className="text-indigo-300 font-medium not-italic">{elementoTestado || '[elemento]'}</span>
                     {hipotese.trim() && <> (<span className="text-indigo-300 font-medium not-italic">{hipotese.trim()}</span>)</>}
-                    {angulosSelecionados.length > 0 && <>
-                      {' '}com ângulo de <span className="text-indigo-300 font-medium not-italic">{angulosSelecionados.join(', ')}</span>
-                    </>}
                     {' '}no <span className="text-indigo-300 font-medium not-italic">{segmento ? `tráfego ${segmento.toLowerCase()}` : '[público]'}</span>,
                     {' '}então <span className="text-indigo-300 font-medium not-italic">{metricaPrimaria || '[métrica]'}</span> vai
                     {' '}melhorar{hipoteseMotivo.trim() && <>, porque <span className="text-indigo-300 font-medium not-italic">{hipoteseMotivo.trim()}</span></>}.&quot;
                   </p>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
 
           {/* Variações */}
@@ -968,6 +967,55 @@ export function NovoTesteABForm({
                         ))}
                       </div>
                     </div>
+                    <div className="space-y-1.5 pt-2 border-t border-gray-800">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-gray-500 text-xs">Ângulo da Hero desta variação</Label>
+                        <span className="text-gray-600 text-[10px]">
+                          {[v.anguloDominante, ...v.angulosSecundarios].filter(Boolean).length}/{MAX_ANGULOS}
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {angulos.map(a => {
+                          const dominante = v.anguloDominante === a
+                          const secundario = v.angulosSecundarios.includes(a)
+                          const ativo = dominante || secundario
+                          const bloqueado = !ativo && [v.anguloDominante, ...v.angulosSecundarios].filter(Boolean).length >= MAX_ANGULOS
+                          return (
+                            <button
+                              key={a}
+                              type="button"
+                              disabled={bloqueado}
+                              onClick={() => toggleAnguloVariante(idx, a)}
+                              title={dominante ? `${a} — dominante` : secundario ? `${a} — secundário` : a}
+                              className={`inline-flex items-center gap-1 pl-2.5 pr-1.5 py-1 rounded-full text-xs font-medium border transition-colors disabled:opacity-30 ${
+                                dominante
+                                  ? 'bg-indigo-500/20 border-indigo-500 text-indigo-200'
+                                  : secundario
+                                  ? 'bg-gray-800 border-gray-700 text-gray-300'
+                                  : 'bg-gray-950 border-gray-800 text-gray-400 hover:text-white'
+                              }`}
+                            >
+                              {a}
+                              {ativo && (
+                                <span
+                                  role="button"
+                                  tabIndex={0}
+                                  onClick={e => { e.stopPropagation(); marcarAnguloDominante(idx, a) }}
+                                  className="p-0.5"
+                                >
+                                  <Star size={11} className={dominante ? 'fill-indigo-400 text-indigo-400' : 'text-gray-600 hover:text-gray-400'} />
+                                </span>
+                              )}
+                            </button>
+                          )
+                        })}
+                      </div>
+                      {(v.anguloDominante || v.angulosSecundarios.length > 0) && (
+                        <p className="text-gray-600 text-[11px]">
+                          Clique na estrela pra trocar qual ângulo é o dominante.
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
@@ -1070,6 +1118,12 @@ export function NovoTesteABForm({
                 Layout{' '}
                 <span className="text-gray-300">
                   {variantes.map(v => `${v.letra}: ${LAYOUTS.find(l => l.valor === v.layout)?.label ?? '—'}`).join(' · ')}
+                </span>
+              </p>
+              <p className="text-gray-500">
+                Ângulo da Hero{' '}
+                <span className="text-gray-300">
+                  {variantes.map(v => `${v.letra}: ${v.anguloDominante || '—'}${v.angulosSecundarios.length ? ` (+${v.angulosSecundarios.join(', ')})` : ''}`).join(' · ')}
                 </span>
               </p>
               <p className="text-gray-500">Variantes <span className="text-gray-300">{variantes.length}</span></p>

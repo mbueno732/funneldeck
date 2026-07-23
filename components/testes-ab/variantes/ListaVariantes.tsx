@@ -4,11 +4,12 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import {
   Plus, FlaskConical, Trophy, Search, ChevronDown, ChevronRight, ChevronUp, ChevronsUpDown, Check, Info,
-  Trash2, Pencil, Copy, Layers, Download, ZoomIn, FileCode2, X, ExternalLink, Lightbulb,
+  Trash2, Pencil, Copy, Layers, Download, ZoomIn, FileCode2, X, ExternalLink, Lightbulb, Star,
 } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { atualizarMetricasVariante, atualizarAprendizado, deletarTesteAB, duplicarTesteAB } from '@/lib/actions/testes-ab'
+import { angulosDoTeste } from '@/lib/dashboard-testes'
 import type { TesteAB, Funil } from '@/lib/types'
 
 type Variante = NonNullable<TesteAB['variantes_teste']>[number]
@@ -415,7 +416,7 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
   const campanhasOpcoes = useMemo(() => unicos(testes.map(t => t.campanhas?.codigo)), [testes])
   const responsaveisOpcoes = useMemo(() => unicos(testes.map(t => t.responsavel)), [testes])
   const elementosOpcoes = useMemo(() => unicos(testes.map(t => t.elemento_testado)), [testes])
-  const angulosOpcoes = useMemo(() => unicos(testes.flatMap(t => t.angulos ?? [])), [testes])
+  const angulosOpcoes = useMemo(() => unicos(testes.flatMap(t => angulosDoTeste(t))), [testes])
   const layoutsOpcoes = useMemo(() => unicos(testes.flatMap(t => t.variantes_teste?.map(v => v.layout) ?? [])), [testes])
 
   const testesPorTipo = useMemo(
@@ -435,7 +436,7 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
     if (filtroCampanha !== '__all__' && t.campanhas?.codigo !== filtroCampanha) return false
     if (filtroResponsavel !== '__all__' && t.responsavel !== filtroResponsavel) return false
     if (filtroElemento !== '__all__' && t.elemento_testado !== filtroElemento) return false
-    if (filtroAngulo !== '__all__' && !(t.angulos ?? []).includes(filtroAngulo)) return false
+    if (filtroAngulo !== '__all__' && !angulosDoTeste(t).includes(filtroAngulo)) return false
     if (filtroLayout !== '__all__' && !(t.variantes_teste ?? []).some(v => v.layout === filtroLayout)) return false
     if (filtroPeriodo !== '__all__') {
       const limite = new Date()
@@ -580,7 +581,7 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
         t.funis?.nome ?? '',
         t.campanhas?.codigo ?? '',
         t.elemento_testado ?? '',
-        (t.angulos ?? []).join('; '),
+        angulosDoTeste(t).join('; '),
         resumoLayout(t.variantes_teste ?? []) ?? '',
         t.tipo_teste ? (TIPO_LABEL[t.tipo_teste] ?? t.tipo_teste) : '',
         t.segmento ?? '',
@@ -770,7 +771,6 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
                     <th className="px-4 py-3 font-medium">Funil</th>
                     <th className="px-4 py-3 font-medium">Campanha</th>
                     <th className="px-4 py-3 font-medium">Elemento</th>
-                    <th className="px-4 py-3 font-medium">Ângulos da Hero</th>
                     <th className="px-4 py-3 font-medium">Layout</th>
                     <th className="px-4 py-3 font-medium">Segmentação</th>
                     <ThOrdenavel campo="status">Status</ThOrdenavel>
@@ -784,7 +784,7 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
                     <Fragment key={grupo.funilId}>
                       {usarAgrupamento && (
                         <tr className="bg-gray-900/60">
-                          <td colSpan={12} className="px-4 py-2">
+                          <td colSpan={11} className="px-4 py-2">
                             <button
                               type="button"
                               onClick={() => toggleGrupo(grupo.funilId)}
@@ -807,7 +807,6 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
                     const cvr = cvrControle(t)
                     const vencedora = t.variantes_teste?.find(v => v.is_vencedor)
                     const lider = !vencedora ? liderAtual(t) : null
-                    const angulosDoTeste = t.angulos ?? []
                     const layoutResumo = resumoLayout(t.variantes_teste ?? [])
                     const urlAtivacao = t.url_ativacao || urlAtivacaoDoTeste(t.variantes_teste ?? [])
                     const expandido = expandidos.has(t.id)
@@ -861,18 +860,6 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
                             <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-gray-800 text-gray-300 border border-gray-700 whitespace-nowrap">
                               {t.elemento_testado}
                             </span>
-                          ) : (
-                            <span className="text-gray-600 text-xs">—</span>
-                          )}
-                        </td>
-                        {/* Ângulos da Hero */}
-                        <td className="px-4 py-3">
-                          {angulosDoTeste.length > 0 ? (
-                            <div className="flex flex-wrap items-center gap-1 max-w-[220px]">
-                              {angulosDoTeste.map(a => (
-                                <span key={a} className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 whitespace-nowrap">{a}</span>
-                              ))}
-                            </div>
                           ) : (
                             <span className="text-gray-600 text-xs">—</span>
                           )}
@@ -1024,7 +1011,7 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
                       {expandido && (
                         <tr className="bg-black/20">
                           <td></td>
-                          <td colSpan={11} className="px-4 py-3">
+                          <td colSpan={10} className="px-4 py-3">
                             <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-gray-400 mb-3 pb-3 border-b border-gray-800/60">
                               <span><span className="text-gray-600">Início:</span> {inicio ?? '—'}</span>
                               <span><span className="text-gray-600">Especialista:</span> {t.especialistas?.nome ?? '—'}</span>
@@ -1080,6 +1067,18 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
                                       <p className="text-xs text-gray-600 italic">Sem headline registrada</p>
                                     )}
                                     {v.subheadline && <p className="text-xs text-gray-500 leading-snug truncate">{v.subheadline}</p>}
+                                    {(v.angulo_dominante || (v.angulos_secundarios ?? []).length > 0) && (
+                                      <div className="flex flex-wrap items-center gap-1 mt-1">
+                                        {v.angulo_dominante && (
+                                          <span className="inline-flex items-center gap-0.5 text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-200 border border-indigo-500">
+                                            <Star size={9} className="fill-indigo-300 text-indigo-300" /> {v.angulo_dominante}
+                                          </span>
+                                        )}
+                                        {(v.angulos_secundarios ?? []).map(a => (
+                                          <span key={a} className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-gray-800 text-gray-400 border border-gray-700">{a}</span>
+                                        ))}
+                                      </div>
+                                    )}
                                     <div className="flex items-center gap-3 mt-0.5">
                                       {v.url_variante && (
                                         <a

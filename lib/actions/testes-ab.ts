@@ -10,7 +10,7 @@ export async function listarTestesAB(): Promise<TesteAB[]> {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('testes_ab')
-    .select('*, funis(id, id_funil, nome), paginas(id, nome, codigo, etapa), campanhas(id, codigo), especialistas(id, nome), variantes_teste(id, nome, is_controle, is_vencedor, sessoes, conversoes, receita, sessoes_checkout, url_variante, layout, headline, subheadline, url_preview, screenshot_url)')
+    .select('*, funis(id, id_funil, nome), paginas(id, nome, codigo, etapa), campanhas(id, codigo), especialistas(id, nome), variantes_teste(id, nome, is_controle, is_vencedor, sessoes, conversoes, receita, sessoes_checkout, url_variante, layout, headline, subheadline, url_preview, screenshot_url, angulo_dominante, angulos_secundarios)')
     .order('criado_em', { ascending: false })
     .order('nome', { foreignTable: 'variantes_teste', ascending: true })
   if (error) throw error
@@ -37,7 +37,6 @@ export async function criarTesteAB(input: {
   hipotese_motivo?: string
   resultado_esperado?: string
   elemento_testado?: string
-  angulos?: string[]
   campanha_id?: string
   nova_campanha_codigo?: string
   segmento?: string
@@ -60,6 +59,8 @@ export async function criarTesteAB(input: {
     screenshot_url?: string
     percentual_trafego: number
     is_controle: boolean
+    angulo_dominante?: string
+    angulos_secundarios?: string[]
   }[]
 }): Promise<{ ok: boolean; erro?: string; id?: string }> {
   if (!input.funil_id || !input.nome.trim()) {
@@ -107,7 +108,6 @@ export async function criarTesteAB(input: {
         hipotese_motivo: input.hipotese_motivo || null,
         resultado_esperado: input.resultado_esperado || null,
         elemento_testado: input.elemento_testado || null,
-        angulos: input.angulos?.length ? input.angulos : null,
         campanha_id: campanhaId,
         segmento: input.segmento || null,
         especialista_id: input.especialista_id || null,
@@ -138,6 +138,8 @@ export async function criarTesteAB(input: {
         screenshot_url: v.screenshot_url || null,
         percentual_trafego: v.percentual_trafego,
         is_controle: v.is_controle,
+        angulo_dominante: v.angulo_dominante || null,
+        angulos_secundarios: v.angulos_secundarios?.length ? v.angulos_secundarios : null,
       })))
     if (errVariantes) return { ok: false, erro: errVariantes.message }
 
@@ -157,7 +159,6 @@ export async function atualizarTesteAB(testeId: string, input: {
   hipotese_motivo?: string
   resultado_esperado?: string
   elemento_testado?: string
-  angulos?: string[]
   campanha_id?: string
   nova_campanha_codigo?: string
   segmento?: string
@@ -181,6 +182,8 @@ export async function atualizarTesteAB(testeId: string, input: {
     screenshot_url?: string
     percentual_trafego: number
     is_controle: boolean
+    angulo_dominante?: string
+    angulos_secundarios?: string[]
   }[]
 }): Promise<{ ok: boolean; erro?: string }> {
   if (!input.funil_id || !input.nome.trim()) {
@@ -216,7 +219,6 @@ export async function atualizarTesteAB(testeId: string, input: {
         hipotese_motivo: input.hipotese_motivo || null,
         resultado_esperado: input.resultado_esperado || null,
         elemento_testado: input.elemento_testado || null,
-        angulos: input.angulos?.length ? input.angulos : null,
         campanha_id: campanhaId,
         segmento: input.segmento || null,
         especialista_id: input.especialista_id || null,
@@ -244,6 +246,8 @@ export async function atualizarTesteAB(testeId: string, input: {
         screenshot_url: v.screenshot_url || null,
         percentual_trafego: v.percentual_trafego,
         is_controle: v.is_controle,
+        angulo_dominante: v.angulo_dominante || null,
+        angulos_secundarios: v.angulos_secundarios?.length ? v.angulos_secundarios : null,
       }
       if (v.id) {
         const { error } = await supabase.from('variantes_teste').update(payload).eq('id', v.id)
@@ -294,7 +298,6 @@ export async function duplicarTesteAB(testeId: string): Promise<{ ok: boolean; e
         hipotese_motivo: original.hipotese_motivo,
         resultado_esperado: original.resultado_esperado,
         elemento_testado: original.elemento_testado,
-        angulos: original.angulos,
         campanha_id: original.campanha_id,
         segmento: original.segmento,
         especialista_id: original.especialista_id,
@@ -326,6 +329,8 @@ export async function duplicarTesteAB(testeId: string): Promise<{ ok: boolean; e
           screenshot_url: v.screenshot_url,
           percentual_trafego: v.percentual_trafego,
           is_controle: v.is_controle,
+          angulo_dominante: v.angulo_dominante,
+          angulos_secundarios: v.angulos_secundarios,
         })))
       if (errVariantes) return { ok: false, erro: errVariantes.message }
     }

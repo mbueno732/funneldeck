@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import {
-  ChevronRight, Trophy, Brain, Lightbulb, ImageOff, Loader2, CheckCircle2, Rocket, AlertTriangle, FileCode2, ZoomIn, X,
+  ChevronRight, Trophy, Brain, Lightbulb, ImageOff, Loader2, CheckCircle2, Rocket, AlertTriangle, FileCode2, ZoomIn, X, Star,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -255,16 +255,6 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
               </span>
             )}
           </div>
-          {(teste.angulos ?? []).length > 0 && (
-            <div className="flex flex-wrap items-center gap-1.5 mt-2">
-              <span className="text-gray-600 text-[11px] uppercase tracking-wide mr-1">Ângulos:</span>
-              {(teste.angulos ?? []).map(a => (
-                <span key={a} className="text-[11px] px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">
-                  {a}
-                </span>
-              ))}
-            </div>
-          )}
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
@@ -434,12 +424,26 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
                   </div>
                 )}
 
-                {(v.layout || v.headline || v.subheadline) && (
+                {(v.layout || v.angulo_dominante || v.headline || v.subheadline) && (
                   <div className="space-y-1.5 mb-4 pb-4 border-b border-gray-800">
                     {v.layout && (
                       <span className="inline-flex px-2 py-0.5 rounded text-xs font-medium border bg-gray-800 text-gray-300 border-gray-700">
                         Layout: {LAYOUT_LABEL[v.layout] ?? v.layout}
                       </span>
+                    )}
+                    {(v.angulo_dominante || (v.angulos_secundarios ?? []).length > 0) && (
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        {v.angulo_dominante && (
+                          <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-200 border border-indigo-500 font-medium">
+                            <Star size={10} className="fill-indigo-300 text-indigo-300" /> {v.angulo_dominante}
+                          </span>
+                        )}
+                        {(v.angulos_secundarios ?? []).map(a => (
+                          <span key={a} className="text-[11px] px-2 py-0.5 rounded-full bg-gray-800 text-gray-400 border border-gray-700">
+                            {a}
+                          </span>
+                        ))}
+                      </div>
                     )}
                     {v.headline && (
                       <p className="text-white text-sm font-medium leading-snug">{v.headline}</p>
