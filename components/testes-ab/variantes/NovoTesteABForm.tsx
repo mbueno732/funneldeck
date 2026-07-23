@@ -13,6 +13,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectGroup, SelectLabel, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { criarTesteAB, atualizarTesteAB, uploadScreenshotVariante } from '@/lib/actions/testes-ab'
+import { criarConfiguracao } from '@/lib/actions/configuracoes'
 import type { Funil, Pagina, Especialista, Campanha, Produto, TesteAB } from '@/lib/types'
 
 interface Variante {
@@ -56,6 +57,7 @@ const LAYOUTS = [
   { valor: 'longo', label: 'Longo' },
 ]
 const NOVA_CAMPANHA = '__nova__'
+const NOVO_ELEMENTO = '__novo_elemento__'
 
 const SECOES = [
   { id: 'basicas',   label: 'Informações Básicas', icon: Info },
@@ -138,7 +140,30 @@ export function NovoTesteABForm({
   const [hipoteseMotivo, setHipoteseMotivo] = useState(testeParaEditar?.hipotese_motivo ?? '')
   const [resultadoEsperado, setResultadoEsperado] = useState(testeParaEditar?.resultado_esperado ?? '')
   const [elementoTestado, setElementoTestado] = useState(testeParaEditar?.elemento_testado ?? '')
+  const [elementosState, setElementosState] = useState(elementosTestados)
+  const [criandoElemento, setCriandoElemento] = useState(false)
+  const [novoElementoValor, setNovoElementoValor] = useState('')
+  const [salvandoElemento, setSalvandoElemento] = useState(false)
+  const [erroElemento, setErroElemento] = useState('')
   const [angulosSelecionados, setAngulosSelecionados] = useState<string[]>(testeParaEditar?.angulos ?? [])
+
+  async function criarNovoElemento() {
+    const valor = novoElementoValor.trim()
+    if (!valor) return
+    setSalvandoElemento(true)
+    setErroElemento('')
+    try {
+      await criarConfiguracao({ categoria: 'elemento_testado', valor })
+      setElementosState(prev => prev.includes(valor) ? prev : [...prev, valor])
+      setElementoTestado(valor)
+      setCriandoElemento(false)
+      setNovoElementoValor('')
+    } catch {
+      setErroElemento('Não foi possível criar. Tente novamente.')
+    } finally {
+      setSalvandoElemento(false)
+    }
+  }
 
   const [variantes, setVariantes] = useState<Variante[]>(() => {
     if (!testeParaEditar?.variantes_teste?.length) return redistribuir([varianteVazia('A'), varianteVazia('B')])
@@ -549,19 +574,54 @@ export function NovoTesteABForm({
               </h3>
               <div className="flex items-center gap-2">
                 <Label className="text-gray-500 text-xs shrink-0 whitespace-nowrap">O que vamos testar?</Label>
-                <Select value={elementoTestado || '__none__'} onValueChange={v => setElementoTestado(v === '__none__' ? '' : v)}>
-                  <SelectTrigger className="w-44 h-9 bg-gray-900 border-gray-800 text-white text-sm focus:ring-0 focus:ring-offset-0">
-                    <SelectValue placeholder="Selecionar..." />
-                  </SelectTrigger>
-                  <SelectContent className="bg-gray-900 border-gray-800">
-                    <SelectItem value="__none__" className="text-gray-400 focus:bg-gray-800 focus:text-white">Selecionar...</SelectItem>
-                    {elementosTestados.map(el => (
-                      <SelectItem key={el} value={el} className="text-gray-300 focus:bg-gray-800 focus:text-white">{el}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                {criandoElemento ? (
+                  <div className="flex items-center gap-1.5">
+                    <Input
+                      autoFocus
+                      value={novoElementoValor}
+                      onChange={e => setNovoElementoValor(e.target.value)}
+                      onKeyDown={e => { if (e.key === 'Enter') criarNovoElemento() }}
+                      placeholder="Nome do novo elemento..."
+                      className="w-44 h-9 bg-gray-900 border-gray-800 text-white text-sm"
+                    />
+                    <button
+                      type="button"
+                      onClick={criarNovoElemento}
+                      disabled={salvandoElemento || !novoElementoValor.trim()}
+                      className="text-green-400 hover:text-green-300 disabled:opacity-40 shrink-0"
+                      title="Salvar"
+                    >
+                      {salvandoElemento ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle2 size={16} />}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setCriandoElemento(false); setNovoElementoValor(''); setErroElemento('') }}
+                      className="text-gray-500 hover:text-gray-300 shrink-0"
+                      title="Cancelar"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                ) : (
+                  <Select
+                    value={elementoTestado || '__none__'}
+                    onValueChange={v => v === NOVO_ELEMENTO ? setCriandoElemento(true) : setElementoTestado(v === '__none__' ? '' : v)}
+                  >
+                    <SelectTrigger className="w-44 h-9 bg-gray-900 border-gray-800 text-white text-sm focus:ring-0 focus:ring-offset-0">
+                      <SelectValue placeholder="Selecionar..." />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-900 border-gray-800">
+                      <SelectItem value="__none__" className="text-gray-400 focus:bg-gray-800 focus:text-white">Selecionar...</SelectItem>
+                      {elementosState.map(el => (
+                        <SelectItem key={el} value={el} className="text-gray-300 focus:bg-gray-800 focus:text-white">{el}</SelectItem>
+                      ))}
+                      <SelectItem value={NOVO_ELEMENTO} className="text-indigo-400 focus:bg-gray-800 focus:text-indigo-300">+ Novo elemento</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
               </div>
             </div>
+            {erroElemento && <p className="text-red-400 text-xs text-right -mt-4 mb-4">{erroElemento}</p>}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
               <div className="space-y-1.5">
                 <Label className={labelCls}>O QUE vamos mudar?</Label>
