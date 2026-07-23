@@ -258,7 +258,12 @@ export function NovoTesteABForm({
     setVariantes(v => v.map((vv, i) => (i === idx ? { ...vv, enviando: true } : vv)))
     const fd = new FormData()
     fd.append('file', file)
-    const res = await uploadScreenshotVariante(fd)
+    let res: { ok: boolean; url?: string; erro?: string }
+    try {
+      res = await uploadScreenshotVariante(fd)
+    } catch {
+      res = { ok: false, erro: 'Arquivo grande demais ou conexão instável. Tente um arquivo menor.' }
+    }
     setVariantes(v => v.map((vv, i) => (i === idx
       ? { ...vv, enviando: false, screenshotUrl: res.ok ? (res.url ?? '') : vv.screenshotUrl }
       : vv)))
