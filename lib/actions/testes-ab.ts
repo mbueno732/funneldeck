@@ -303,7 +303,6 @@ export async function duplicarTesteAB(testeId: string): Promise<{ ok: boolean; e
         metrica_primaria: original.metrica_primaria,
         nivel_confianca: original.nivel_confianca,
         poder_estatistico: original.poder_estatistico,
-        url_ativacao: original.url_ativacao,
         status: 'Planejado',
         data_inicio: null,
       })

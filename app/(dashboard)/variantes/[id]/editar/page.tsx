@@ -23,10 +23,10 @@ export default async function EditarTesteABPage({ params }: { params: { id: stri
     { data: variantesEmTesteAtivo },
   ] = await Promise.all([
     buscarTesteAB(params.id),
-    supabase.from('funis').select('id, id_funil, nome, objetivo, especialista_id, produtos(especialista_id)').order('nome'),
+    supabase.from('funis').select('id, id_funil, nome, objetivo, especialista_id, produto_id, produtos(especialista_id)').order('nome'),
     supabase.from('configuracoes').select('valor').eq('categoria', 'metrica_teste').eq('ativo', true).order('ordem'),
     supabase.from('configuracoes').select('valor').eq('categoria', 'metrica_teste_aquisicao').eq('ativo', true).order('ordem'),
-    supabase.from('paginas').select('id, funil_id, nome, codigo, etapa, url_pagina').order('nome'),
+    supabase.from('paginas').select('id, funil_id, produto_id, nome, codigo, etapa, url_pagina').order('nome'),
     supabase.from('especialistas').select('id, nome').eq('ativo', true).order('nome'),
     supabase.from('campanhas').select('id, codigo').order('codigo'),
     supabase.from('configuracoes').select('valor').eq('categoria', 'segmento_teste').eq('ativo', true).order('ordem'),

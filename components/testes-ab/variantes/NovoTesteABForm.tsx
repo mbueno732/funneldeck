@@ -31,12 +31,12 @@ interface Variante {
 }
 
 interface Props {
-  funis: (Pick<Funil, 'id' | 'id_funil' | 'nome' | 'objetivo' | 'especialista_id'> & {
+  funis: (Pick<Funil, 'id' | 'id_funil' | 'nome' | 'objetivo' | 'especialista_id' | 'produto_id'> & {
     produtos?: Pick<Produto, 'especialista_id'> | null
   })[]
   metricasVendas: string[]
   metricasAquisicao: string[]
-  paginas: Pick<Pagina, 'id' | 'funil_id' | 'nome' | 'codigo' | 'etapa' | 'url_pagina'>[]
+  paginas: Pick<Pagina, 'id' | 'funil_id' | 'produto_id' | 'nome' | 'codigo' | 'etapa' | 'url_pagina'>[]
   especialistas: Pick<Especialista, 'id' | 'nome'>[]
   campanhas: Pick<Campanha, 'id' | 'codigo'>[]
   segmentos: string[]
@@ -193,8 +193,11 @@ export function NovoTesteABForm({
   const [erro, setErro] = useState('')
   const [imagemAmpliada, setImagemAmpliada] = useState<string | null>(null)
 
-  const paginasDoFunil = paginas.filter(p => p.funil_id === funilId)
   const funilSelecionado = funis.find(f => f.id === funilId)
+  const paginasDoFunil = paginas.filter(p =>
+    p.funil_id === funilId || (!p.funil_id && !!funilSelecionado?.produto_id && p.produto_id === funilSelecionado.produto_id)
+  )
+  const paginasDoProduto = new Set(paginas.filter(p => !p.funil_id).map(p => p.id))
   const campanhaSelecionada = campanhas.find(c => c.id === campanhaId)
   const especialistaId = funilSelecionado?.especialista_id || funilSelecionado?.produtos?.especialista_id || ''
   const especialistaNome = especialistas.find(e => e.id === especialistaId)?.nome || ''
@@ -842,11 +845,24 @@ export function NovoTesteABForm({
                         </SelectTrigger>
                         <SelectContent className="bg-gray-900 border-gray-800">
                           <SelectItem value="__none__" className="text-gray-400 focus:bg-gray-800 focus:text-white">Selecionar página cadastrada...</SelectItem>
-                          {paginasDoFunil.map(p => (
-                            <SelectItem key={p.id} value={p.id} className="text-gray-300 focus:bg-gray-800 focus:text-white">
-                              {p.codigo ? `[${p.codigo}] ` : ''}{p.nome}
-                            </SelectItem>
-                          ))}
+                          <SelectGroup>
+                            <SelectLabel className="text-gray-600 text-[11px] uppercase tracking-wide">Páginas do Funil</SelectLabel>
+                            {paginasDoFunil.filter(p => !paginasDoProduto.has(p.id)).map(p => (
+                              <SelectItem key={p.id} value={p.id} className="text-gray-300 focus:bg-gray-800 focus:text-white">
+                                {p.codigo ? `[${p.codigo}] ` : ''}{p.nome}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                          {paginasDoFunil.some(p => paginasDoProduto.has(p.id)) && (
+                            <SelectGroup>
+                              <SelectLabel className="text-gray-600 text-[11px] uppercase tracking-wide">Páginas do Produto</SelectLabel>
+                              {paginasDoFunil.filter(p => paginasDoProduto.has(p.id)).map(p => (
+                                <SelectItem key={p.id} value={p.id} className="text-gray-300 focus:bg-gray-800 focus:text-white">
+                                  {p.codigo ? `[${p.codigo}] ` : ''}{p.nome}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                          )}
                         </SelectContent>
                       </Select>
                     </div>
