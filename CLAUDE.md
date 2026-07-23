@@ -294,13 +294,11 @@ migracoes
 
 ### Armadilha conhecida — tabela `estrategias`
 
-A tabela `estrategias` foi criada manualmente no Supabase dashboard (fora do sistema de migrations). Isso causou problemas de RLS silencioso em produção. A migration `009_estrategias_sem_rls.sql` garante:
-- `RLS DISABLED` na tabela
-- Todas as políticas removidas
+A tabela `estrategias` foi criada manualmente no Supabase dashboard (fora do sistema de migrations), o que gerou um RLS mal configurado. A migration `009_estrategias_sem_rls.sql` "resolveu" isso desabilitando RLS na tabela inteira — **decisão errada, revertida na migration `025_estrategias_reativar_rls.sql`**: a service role key (usada pelo app inteiro no servidor) sempre ignora RLS, com ou sem a tabela ter RLS ativado, então desabilitar nunca foi necessário — só deixou a tabela legível por qualquer pessoa com a anon key pública (que fica exposta no navegador em qualquer app Supabase), direto pela API, sem passar pelo Funneldeck. Confirmado em 2026-07-23 testando a anon key contra todas as tabelas: só `estrategias` estava exposta assim.
 
-Se a tabela for recriada, rodar a migration ou executar manualmente no SQL Editor:
+**Nunca desabilitar RLS numa tabela pra "resolver" um bug de acesso** — o problema quase certamente está em outro lugar (RLS não afeta o server client, que usa service role key). Se `estrategias` for recriada, ativar RLS nela como qualquer outra tabela:
 ```sql
-ALTER TABLE estrategias DISABLE ROW LEVEL SECURITY;
+ALTER TABLE estrategias ENABLE ROW LEVEL SECURITY;
 ```
 
 ### Convenção de migrations

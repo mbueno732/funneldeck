@@ -1,0 +1,13 @@
+-- A migration 009 desabilitou RLS em `estrategias` com o comentário "garante
+-- acesso total via service role key" — mas a service role key já ignora RLS
+-- por definição, com ou sem essa tabela ter RLS ativado. Desabilitar RLS não
+-- era necessário e teve um efeito colateral real: qualquer pessoa com a anon
+-- key pública (exposta no navegador, como em qualquer app Supabase) conseguia
+-- ler todas as linhas de `estrategias` direto pela API do Supabase, sem
+-- passar pelo Funneldeck.
+--
+-- Reativa RLS sem nenhuma policy — mesmo padrão já usado em todas as outras
+-- tabelas (funis, paginas, testes_ab, etc.), que bloqueia acesso via anon key
+-- e não afeta em nada o app, que só acessa o banco via service role key no
+-- servidor.
+ALTER TABLE estrategias ENABLE ROW LEVEL SECURITY;
