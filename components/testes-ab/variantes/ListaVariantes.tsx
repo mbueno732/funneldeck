@@ -1043,7 +1043,7 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
                                     <button
                                       type="button"
                                       onClick={() => abrirReferenciaHtml(v.screenshot_url!)}
-                                      className="shrink-0 w-20 h-14 rounded border border-dashed border-gray-700 bg-gray-950 flex items-center justify-center text-indigo-400 hover:border-indigo-500/40 transition-colors"
+                                      className="shrink-0 w-40 aspect-[5/2] rounded border border-dashed border-gray-700 bg-gray-950 flex items-center justify-center text-indigo-400 hover:border-indigo-500/40 transition-colors"
                                       title="Abrir referência HTML"
                                     >
                                       <FileCode2 size={16} />
@@ -1052,17 +1052,17 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
                                     <button
                                       type="button"
                                       onClick={() => setImagemAmpliada(v.screenshot_url!)}
-                                      className="relative shrink-0 w-20 h-14 group"
+                                      className="relative shrink-0 w-40 aspect-[5/2] group"
                                       title="Ampliar screenshot"
                                     >
                                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                                      <img src={v.screenshot_url} alt={nomeVariante(v)} className="w-full h-full object-cover rounded border border-gray-800" />
+                                      <img src={v.screenshot_url} alt={nomeVariante(v)} className="w-full h-full object-cover object-top rounded border border-gray-800" />
                                       <span className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/40 rounded transition-colors">
                                         <ZoomIn size={14} className="text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                                       </span>
                                     </button>
                                   ) : (
-                                    <div className="shrink-0 w-20 h-14 rounded border border-dashed border-gray-800 bg-gray-950" />
+                                    <div className="shrink-0 w-40 aspect-[5/2] rounded border border-dashed border-gray-800 bg-gray-950" />
                                   )}
                                   <div className="min-w-0 flex-1">
                                     <p className="text-xs text-gray-400 mb-0.5 flex items-center gap-1.5 flex-wrap">

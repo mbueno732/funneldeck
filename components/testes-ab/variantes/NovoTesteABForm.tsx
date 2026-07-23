@@ -635,7 +635,7 @@ export function NovoTesteABForm({
                     </>}
                     {' '}no <span className="text-indigo-300 font-medium not-italic">{segmento ? `tráfego ${segmento.toLowerCase()}` : '[público]'}</span>,
                     {' '}então <span className="text-indigo-300 font-medium not-italic">{metricaPrimaria || '[métrica]'}</span> vai
-                    {' '}melhorar, porque {hipoteseMotivo.trim() || 'esse público tem características específicas'}.&quot;
+                    {' '}melhorar{hipoteseMotivo.trim() && <>, porque <span className="text-indigo-300 font-medium not-italic">{hipoteseMotivo.trim()}</span></>}.&quot;
                   </p>
                 </div>
               )}
@@ -712,9 +712,9 @@ export function NovoTesteABForm({
                       ) : v.screenshotUrl && ehArquivoHtml(v.screenshotUrl) ? (
                         <FileCode2 size={28} className="text-indigo-400 mb-2" />
                       ) : v.screenshotUrl ? (
-                        <div className="relative w-full mb-2">
+                        <div className="relative w-full aspect-[5/2] mb-2">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={v.screenshotUrl} alt={`Screenshot variação ${v.letra}`} className="max-h-[420px] w-full rounded object-contain" />
+                          <img src={v.screenshotUrl} alt={`Screenshot variação ${v.letra}`} className="w-full h-full rounded object-cover object-top" />
                           <button
                             type="button"
                             onClick={e => { e.preventDefault(); e.stopPropagation(); setImagemAmpliada(v.screenshotUrl) }}
