@@ -1,6 +1,7 @@
 'use server'
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { registrarAuditoria } from './auditoria'
 import type { Estrategia } from '@/lib/types'
 
 export async function listarEstrategias(funilId: string) {
@@ -72,6 +73,9 @@ export async function deletarEstrategia(id: string): Promise<{ ok: boolean; erro
   try {
     const supabase = await createClient()
 
+    const { data: registro } = await supabase.from('estrategias').select('*').eq('id', id).single()
+    const { data: paginasDesvinculadas } = await supabase.from('paginas').select('id, nome').eq('estrategia_id', id)
+
     const { error: errUpdate } = await supabase
       .from('paginas')
       .update({ estrategia_id: null })
@@ -88,6 +92,7 @@ export async function deletarEstrategia(id: string): Promise<{ ok: boolean; erro
     if (error) return { ok: false, erro: error.message }
     if (count === 0) return { ok: false, erro: 'Estratégia não encontrada no banco. Atualize a página.' }
 
+    await registrarAuditoria('estrategias', id, 'deletar', { registro, paginas_desvinculadas: paginasDesvinculadas ?? [] })
     revalidatePath('/funis', 'layout')
     revalidatePath('/paginas')
     return { ok: true }

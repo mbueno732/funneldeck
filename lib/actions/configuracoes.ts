@@ -1,6 +1,7 @@
 'use server'
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { registrarAuditoria } from './auditoria'
 import type { Configuracao, CategoriaConfig } from '@/lib/types'
 
 export async function listarConfiguracoes(categoria: CategoriaConfig) {
@@ -55,11 +56,13 @@ export async function atualizarConfiguracao(id: string, input: Partial<Pick<Conf
 
 export async function deletarConfiguracao(id: string) {
   const supabase = await createClient()
+  const { data: registro } = await supabase.from('configuracoes').select('*').eq('id', id).single()
   const { error } = await supabase
     .from('configuracoes')
     .delete()
     .eq('id', id)
   if (error) throw error
+  await registrarAuditoria('configuracoes', id, 'deletar', { registro })
   revalidatePath('/configuracoes')
   revalidatePath('/paginas')
 }

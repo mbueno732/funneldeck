@@ -211,13 +211,16 @@ export async function criarVariante(input: {
 export async function deletarPagina(id: string) {
   const supabase = await createClient()
 
+  const { data: registro } = await supabase.from('paginas').select('*').eq('id', id).single()
+
   // Remove dependências sem CASCADE antes de deletar
+  const { data: migracoesRemovidas } = await supabase.from('migracoes').select('*').eq('pagina_id', id)
   await supabase.from('migracoes').delete().eq('pagina_id', id)
   await supabase.from('testes_ab').update({ pagina_id: null }).eq('pagina_id', id)
 
   const { error } = await supabase.from('paginas').delete().eq('id', id)
   if (error) throw error
-  await registrarAuditoria('paginas', id, 'deletar', {})
+  await registrarAuditoria('paginas', id, 'deletar', { registro, migracoes_removidas: migracoesRemovidas ?? [] })
   revalidatePath('/paginas')
   revalidatePath('/funis', 'layout')
   revalidatePath('/dashboard')

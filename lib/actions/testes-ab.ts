@@ -499,13 +499,16 @@ export async function desfazerVencedora(testeId: string): Promise<{ ok: boolean;
 export async function deletarTesteAB(testeId: string): Promise<{ ok: boolean; erro?: string }> {
   const supabase = await createClient()
 
+  const { data: registro } = await supabase.from('testes_ab').select('*').eq('id', testeId).single()
+  const { data: variantesRemovidas } = await supabase.from('variantes_teste').select('*').eq('teste_id', testeId)
+
   const { error: errVariantes } = await supabase.from('variantes_teste').delete().eq('teste_id', testeId)
   if (errVariantes) return { ok: false, erro: errVariantes.message }
 
   const { error: errTeste } = await supabase.from('testes_ab').delete().eq('id', testeId)
   if (errTeste) return { ok: false, erro: errTeste.message }
 
-  await registrarAuditoria('testes_ab', testeId, 'deletar')
+  await registrarAuditoria('testes_ab', testeId, 'deletar', { registro, variantes_removidas: variantesRemovidas ?? [] })
   revalidatePath('/variantes')
   return { ok: true }
 }

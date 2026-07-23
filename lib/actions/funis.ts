@@ -80,12 +80,15 @@ export async function deletarFunil(id: string) {
     .select('id', { count: 'exact', head: true })
     .eq('funil_id', id)
   if ((count ?? 0) > 0) throw new Error(`Este funil possui ${count} página(s) vinculada(s). Remova-as antes de excluir.`)
+
+  const { data: registro } = await supabase.from('funis').select('*').eq('id', id).single()
   // testes_ab.funil_id não tem CASCADE — limpa antes
+  const { data: testesRemovidos } = await supabase.from('testes_ab').select('*').eq('funil_id', id)
   await supabase.from('testes_ab').delete().eq('funil_id', id)
 
   const { error } = await supabase.from('funis').delete().eq('id', id)
   if (error) throw error
-  await registrarAuditoria('funis', id, 'deletar', {})
+  await registrarAuditoria('funis', id, 'deletar', { registro, testes_ab_removidos: testesRemovidos ?? [] })
   revalidatePath('/funis')
   revalidatePath('/produtos')
 }

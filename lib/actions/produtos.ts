@@ -52,9 +52,10 @@ export async function deletarProduto(id: string) {
     .select('id', { count: 'exact', head: true })
     .eq('produto_id', id)
   if ((count ?? 0) > 0) throw new Error(`Este produto possui ${count} funil(is) vinculado(s). Remova-os antes de excluir.`)
+  const { data: registro } = await supabase.from('produtos').select('*').eq('id', id).single()
   const { error } = await supabase.from('produtos').delete().eq('id', id)
   if (error) throw error
-  await registrarAuditoria('produtos', id, 'deletar', {})
+  await registrarAuditoria('produtos', id, 'deletar', { registro })
   revalidatePath('/produtos')
   revalidatePath('/funis')
 }
