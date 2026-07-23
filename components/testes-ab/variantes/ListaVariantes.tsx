@@ -1052,7 +1052,7 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
                                     <button
                                       type="button"
                                       onClick={() => setImagemAmpliada(v.screenshot_url!)}
-                                      className="relative shrink-0 w-40 aspect-[5/2] group"
+                                      className="relative shrink-0 w-40 aspect-[5/2] min-h-0 overflow-hidden group"
                                       title="Ampliar screenshot"
                                     >
                                       {/* eslint-disable-next-line @next/next/no-img-element */}

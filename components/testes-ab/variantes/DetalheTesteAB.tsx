@@ -408,7 +408,7 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
                     title="Ampliar screenshot"
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={v.screenshot_url} alt={`Screenshot ${v.nome}`} className="w-full aspect-[5/2] rounded-lg border border-gray-800 bg-gray-950 object-cover object-top" />
+                    <img src={v.screenshot_url} alt={`Screenshot ${v.nome}`} className="w-full aspect-[5/2] min-h-0 rounded-lg border border-gray-800 bg-gray-950 object-cover object-top" />
                     <span className="absolute top-2 right-2 p-1.5 bg-black/60 group-hover:bg-black/80 rounded-lg text-white transition-colors">
                       <ZoomIn size={14} />
                     </span>

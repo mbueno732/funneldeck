@@ -12,9 +12,12 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectGroup, SelectLabel, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { criarTesteAB, atualizarTesteAB, uploadScreenshotVariante } from '@/lib/actions/testes-ab'
+import { criarTesteAB, atualizarTesteAB, criarUploadAssinado } from '@/lib/actions/testes-ab'
 import { criarConfiguracao } from '@/lib/actions/configuracoes'
+import { createClient } from '@/lib/supabase/client'
 import type { Funil, Pagina, Especialista, Campanha, Produto, TesteAB } from '@/lib/types'
+
+const BUCKET_SCREENSHOTS = 'teste-ab-screenshots'
 
 interface Variante {
   id?: string
@@ -255,19 +258,39 @@ export function NovoTesteABForm({
   }
 
   async function handleArquivo(idx: number, file: File) {
-    setVariantes(v => v.map((vv, i) => (i === idx ? { ...vv, enviando: true } : vv)))
-    const fd = new FormData()
-    fd.append('file', file)
-    let res: { ok: boolean; url?: string; erro?: string }
-    try {
-      res = await uploadScreenshotVariante(fd)
-    } catch {
-      res = { ok: false, erro: 'Arquivo grande demais ou conexão instável. Tente um arquivo menor.' }
+    const ehHtml = file.type === 'text/html' || /\.html?$/i.test(file.name)
+    const ehImagem = file.type.startsWith('image/')
+    if (!ehImagem && !ehHtml) {
+      setErro('Envie uma imagem (PNG, JPG...) ou um arquivo HTML (ex: salvo com SingleFile).')
+      return
     }
-    setVariantes(v => v.map((vv, i) => (i === idx
-      ? { ...vv, enviando: false, screenshotUrl: res.ok ? (res.url ?? '') : vv.screenshotUrl }
-      : vv)))
-    if (!res.ok) setErro(res.erro ?? 'Erro ao subir a imagem.')
+    const limite = 20 * 1024 * 1024
+    if (file.size > limite) {
+      setErro('Arquivo maior que 20MB.')
+      return
+    }
+
+    setVariantes(v => v.map((vv, i) => (i === idx ? { ...vv, enviando: true } : vv)))
+    try {
+      // Upload direto do navegador pro Supabase Storage (não passa pela Server
+      // Action) — a Vercel limita o corpo de funções serverless a ~4.5MB.
+      const assinado = await criarUploadAssinado({ nomeOriginal: file.name, ehHtml })
+      if (!assinado.ok || !assinado.path || !assinado.token) {
+        throw new Error(assinado.erro ?? 'Erro ao preparar upload.')
+      }
+      const supabase = createClient()
+      const { error } = await supabase.storage
+        .from(BUCKET_SCREENSHOTS)
+        .uploadToSignedUrl(assinado.path, assinado.token, file, {
+          contentType: ehHtml ? 'text/html' : file.type,
+        })
+      if (error) throw error
+      const { data } = supabase.storage.from(BUCKET_SCREENSHOTS).getPublicUrl(assinado.path)
+      setVariantes(v => v.map((vv, i) => (i === idx ? { ...vv, enviando: false, screenshotUrl: data.publicUrl } : vv)))
+    } catch (e) {
+      setVariantes(v => v.map((vv, i) => (i === idx ? { ...vv, enviando: false } : vv)))
+      setErro(e instanceof Error ? e.message : 'Erro ao subir a imagem.')
+    }
   }
 
   function removerScreenshot(idx: number) {
@@ -317,6 +340,17 @@ export function NovoTesteABForm({
     const auto = urlAtivacaoDoTeste(variantes)
     if (auto) setUrlAtivacao(auto)
   }, [variantes, urlAtivacaoEditada])
+
+  // Trocar o Funil de Atuação significa recomeçar a associação de páginas —
+  // qualquer URL de ativação herdada (ex: de uma duplicação) deixa de fazer
+  // sentido, então volta a recalcular sozinha a partir das novas variantes.
+  const funilIdAnterior = useRef(funilId)
+  useEffect(() => {
+    if (funilIdAnterior.current !== funilId) {
+      funilIdAnterior.current = funilId
+      setUrlAtivacaoEditada(false)
+    }
+  }, [funilId])
 
   async function finalizar(status: 'Planejado' | 'Ativo') {
     setSalvando(status === 'Ativo' ? 'ativo' : 'planejado')
@@ -794,7 +828,7 @@ export function NovoTesteABForm({
                           </button>
                         </div>
                       ) : v.screenshotUrl ? (
-                        <div className="relative w-full aspect-[5/2] mb-2">
+                        <div className="relative w-full aspect-[5/2] mb-2 min-h-0 overflow-hidden">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img src={v.screenshotUrl} alt={`Screenshot variação ${v.letra}`} className="w-full h-full rounded object-cover object-top" />
                           <div className="absolute top-2 right-2 flex items-center gap-1.5">

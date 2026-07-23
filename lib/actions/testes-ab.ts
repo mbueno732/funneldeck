@@ -338,31 +338,21 @@ export async function duplicarTesteAB(testeId: string): Promise<{ ok: boolean; e
   }
 }
 
-export async function uploadScreenshotVariante(
-  formData: FormData
-): Promise<{ ok: boolean; url?: string; erro?: string }> {
-  const file = formData.get('file') as File | null
-  if (!file || file.size === 0) return { ok: false, erro: 'Nenhum arquivo enviado.' }
-
-  const ehHtml = file.type === 'text/html' || /\.html?$/i.test(file.name)
-  const ehImagem = file.type.startsWith('image/')
-  if (!ehImagem && !ehHtml) return { ok: false, erro: 'Envie uma imagem (PNG, JPG...) ou um arquivo HTML (ex: salvo com SingleFile).' }
-
-  const limite = ehHtml ? 15 * 1024 * 1024 : 5 * 1024 * 1024
-  if (file.size > limite) return { ok: false, erro: `Arquivo maior que ${ehHtml ? '15MB' : '5MB'}.` }
-
+// Gera uma signed upload URL — o upload em si acontece direto do navegador pro
+// Supabase Storage (ver handleArquivo em NovoTesteABForm.tsx), sem passar pela
+// Server Action. Necessário porque a Vercel limita o corpo de requisições de
+// função serverless a ~4.5MB, bem abaixo do limite de 5MB/15MB que este módulo
+// já suporta — um print de página longa passava disso e quebrava a tela.
+export async function criarUploadAssinado(input: {
+  nomeOriginal: string
+  ehHtml: boolean
+}): Promise<{ ok: boolean; path?: string; token?: string; erro?: string }> {
   const supabase = await createClient()
-  const extensao = ehHtml ? 'html' : (file.name.split('.').pop() || 'png')
-  const nomeArquivo = `${crypto.randomUUID()}.${extensao}`
-
-  const { error } = await supabase.storage.from(BUCKET).upload(nomeArquivo, file, {
-    contentType: ehHtml ? 'text/html' : file.type,
-    upsert: false,
-  })
-  if (error) return { ok: false, erro: error.message }
-
-  const { data } = supabase.storage.from(BUCKET).getPublicUrl(nomeArquivo)
-  return { ok: true, url: data.publicUrl }
+  const extensao = input.ehHtml ? 'html' : (input.nomeOriginal.split('.').pop() || 'png')
+  const path = `${crypto.randomUUID()}.${extensao}`
+  const { data, error } = await supabase.storage.from(BUCKET).createSignedUploadUrl(path)
+  if (error || !data) return { ok: false, erro: error?.message ?? 'Erro ao preparar upload.' }
+  return { ok: true, path: data.path, token: data.token }
 }
 
 export async function atualizarMetricasVariante(input: {
