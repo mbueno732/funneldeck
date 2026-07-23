@@ -303,9 +303,9 @@ function CampoAprendizadoRapido({
   }
 
   return (
-    <div className="mb-4 pb-4 border-b border-gray-800/60">
-      <p className="text-[11px] text-gray-500 uppercase tracking-wide mb-2 flex items-center gap-1.5">
-        <Lightbulb size={12} className="text-amber-400" /> Aprendizado
+    <div className="mb-3 max-w-2xl">
+      <p className="text-[11px] text-gray-500 uppercase tracking-wide mb-1 flex items-center gap-1.5">
+        <Lightbulb size={11} className="text-amber-400" /> Aprendizado
       </p>
       <Textarea
         value={valor}
@@ -313,7 +313,7 @@ function CampoAprendizadoRapido({
         onBlur={salvar}
         placeholder="O que esse teste ensinou? Registre aqui — esse campo é seu, não é gerado automaticamente."
         rows={2}
-        className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1.5 text-sm text-white focus:outline-none focus:border-indigo-500 resize-none"
+        className="w-full bg-gray-900/60 border border-gray-800 rounded px-2 py-1 text-xs text-gray-300 focus:outline-none focus:border-indigo-500 resize-none min-h-0"
       />
       {salvando && <p className="text-gray-600 text-[11px] mt-1">Salvando...</p>}
     </div>
