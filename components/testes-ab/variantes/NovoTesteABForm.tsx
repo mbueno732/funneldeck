@@ -671,10 +671,10 @@ export function NovoTesteABForm({
 
           {/* Hipótese */}
           <div ref={el => { refs.current.hipotese = el }} className={cardCls}>
-            <div className="flex items-center justify-between gap-4 mb-6 flex-wrap">
-              <h3 className="text-white font-medium flex items-center gap-2 shrink-0">
-                <Brain size={16} className="text-indigo-400" /> Framework de Hipótese
-              </h3>
+            <h3 className="text-white font-medium flex items-center gap-2 mb-4">
+              <Brain size={16} className="text-indigo-400" /> Framework de Hipótese
+            </h3>
+            <div className="flex items-center gap-x-6 gap-y-3 mb-6 flex-wrap">
               <div className="flex items-center gap-2">
                 <Label className="text-gray-500 text-xs shrink-0 whitespace-nowrap">O que vamos testar?</Label>
                 {criandoElemento ? (
