@@ -12,6 +12,7 @@ import {
   encerrarSemVencedor,
 } from '@/lib/actions/testes-ab'
 import { confiancaZTest, classificarConfianca, MIN_CONVERSOES_CONFIAVEL, MIN_DIAS_RECOMENDADO } from '@/lib/estatistica'
+import { iconeAngulo } from '@/lib/angulos-hero'
 import type { TesteAB, VarianteTeste } from '@/lib/types'
 
 const STATUS_COR: Record<string, string> = {
@@ -435,12 +436,12 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
                       <div className="flex flex-wrap items-center gap-1.5">
                         {v.angulo_dominante && (
                           <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-200 border border-indigo-500 font-medium">
-                            <Star size={10} className="fill-indigo-300 text-indigo-300" /> {v.angulo_dominante}
+                            <Star size={10} className="fill-indigo-300 text-indigo-300" /> {iconeAngulo(v.angulo_dominante)} {v.angulo_dominante}
                           </span>
                         )}
                         {(v.angulos_secundarios ?? []).map(a => (
                           <span key={a} className="text-[11px] px-2 py-0.5 rounded-full bg-gray-800 text-gray-400 border border-gray-700">
-                            {a}
+                            {iconeAngulo(a)} {a}
                           </span>
                         ))}
                       </div>

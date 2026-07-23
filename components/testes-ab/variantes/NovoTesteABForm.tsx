@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectGroup, SelectLabel, SelectItem, SelectTrig
 import { criarTesteAB, atualizarTesteAB, criarUploadAssinado } from '@/lib/actions/testes-ab'
 import { criarConfiguracao } from '@/lib/actions/configuracoes'
 import { createClient } from '@/lib/supabase/client'
+import { iconeAngulo } from '@/lib/angulos-hero'
 import type { Funil, Pagina, Especialista, Campanha, Produto, TesteAB } from '@/lib/types'
 
 const BUCKET_SCREENSHOTS = 'teste-ab-screenshots'
@@ -995,7 +996,7 @@ export function NovoTesteABForm({
                                   : 'bg-gray-950 border-gray-800 text-gray-400 hover:text-white'
                               }`}
                             >
-                              {a}
+                              {iconeAngulo(a) && <span>{iconeAngulo(a)}</span>} {a}
                               {ativo && (
                                 <span
                                   role="button"

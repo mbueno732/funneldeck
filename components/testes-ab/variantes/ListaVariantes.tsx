@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea'
 import { atualizarMetricasVariante, atualizarAprendizado, deletarTesteAB, duplicarTesteAB } from '@/lib/actions/testes-ab'
 import { angulosDoTeste } from '@/lib/dashboard-testes'
+import { iconeAngulo } from '@/lib/angulos-hero'
 import type { TesteAB, Funil } from '@/lib/types'
 
 type Variante = NonNullable<TesteAB['variantes_teste']>[number]
@@ -1071,11 +1072,11 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
                                       <div className="flex flex-wrap items-center gap-1 mt-1">
                                         {v.angulo_dominante && (
                                           <span className="inline-flex items-center gap-0.5 text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-200 border border-indigo-500">
-                                            <Star size={9} className="fill-indigo-300 text-indigo-300" /> {v.angulo_dominante}
+                                            <Star size={9} className="fill-indigo-300 text-indigo-300" /> {iconeAngulo(v.angulo_dominante)} {v.angulo_dominante}
                                           </span>
                                         )}
                                         {(v.angulos_secundarios ?? []).map(a => (
-                                          <span key={a} className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-gray-800 text-gray-400 border border-gray-700">{a}</span>
+                                          <span key={a} className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-gray-800 text-gray-400 border border-gray-700">{iconeAngulo(a)} {a}</span>
                                         ))}
                                       </div>
                                     )}
