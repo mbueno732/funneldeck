@@ -493,21 +493,21 @@ export function NovoTesteABForm({
     router.push(`/variantes/${testeParaEditar.id}`)
   }
 
-  const inputCls = 'w-full bg-gray-900 border-gray-800 text-white placeholder-gray-500 focus:border-indigo-500'
-  const labelCls = 'text-gray-400 text-xs'
-  const cardCls = 'bg-gray-900 border border-gray-800 rounded-xl p-6'
+  const inputCls = 'w-full bg-slate-900 border-slate-800 text-white placeholder-slate-500 focus:border-indigo-500'
+  const labelCls = 'text-slate-400 text-xs'
+  const cardCls = 'bg-slate-900 border border-slate-800 rounded-xl p-6'
 
   return (
     <div className="max-w-4xl mx-auto w-full">
       {/* Breadcrumb + título */}
       <div className="mb-8">
-        <nav className="flex items-center gap-2 text-gray-500 mb-2 text-sm">
-          <Link href="/variantes" className="hover:text-gray-300 transition-colors">Experimentos</Link>
+        <nav className="flex items-center gap-2 text-slate-500 mb-2 text-sm">
+          <Link href="/variantes" className="hover:text-slate-300 transition-colors">Experimentos</Link>
           <ChevronRight size={14} />
           <span className="text-indigo-400 font-medium">{modoEdicao ? 'Editar Experimento' : 'Novo Experimento'}</span>
         </nav>
         <h2 className="text-2xl font-bold text-white">{modoEdicao ? 'Editar Experimento' : 'Criar Experimento'}</h2>
-        <p className="text-gray-500 text-sm mt-1">
+        <p className="text-slate-500 text-sm mt-1">
           {modoEdicao ? 'Ajuste os parâmetros do experimento.' : 'Configure os parâmetros do seu teste estatístico para otimizar conversões.'}
         </p>
       </div>
@@ -531,16 +531,16 @@ export function NovoTesteABForm({
                     placeholder="Ex: Formulário com 2 campos (email + nome)"
                     className={inputCls}
                   />
-                  <p className="text-gray-600 text-xs">
+                  <p className="text-slate-600 text-xs">
                     Descreva a mudança testada, não o contexto — Funil, Campanha, Elemento e Segmento já aparecem em colunas próprias na lista.
                   </p>
                 </div>
                 <div className="space-y-1.5">
                   <Label className={labelCls}>ID do Teste</Label>
-                  <div className="h-10 px-3 flex items-center bg-gray-900 border border-gray-800 rounded-md text-gray-400 text-sm font-mono whitespace-nowrap">
+                  <div className="h-10 px-3 flex items-center bg-slate-900 border border-slate-800 rounded-md text-slate-400 text-sm font-mono whitespace-nowrap">
                     {codigoPreview}
                   </div>
-                  <p className="text-gray-600 text-xs">Gerado automaticamente</p>
+                  <p className="text-slate-600 text-xs">Gerado automaticamente</p>
                 </div>
               </div>
 
@@ -555,16 +555,16 @@ export function NovoTesteABForm({
                       setMetricaPrimaria('')
                     }}
                   >
-                    <SelectTrigger className="w-full bg-gray-900 border-gray-800 text-white focus:ring-0 focus:ring-offset-0 h-10">
+                    <SelectTrigger className="w-full bg-slate-900 border-slate-800 text-white focus:ring-0 focus:ring-offset-0 h-10">
                       <SelectValue placeholder="Selecionar funil..." />
                     </SelectTrigger>
-                    <SelectContent className="bg-gray-900 border-gray-800">
-                      <SelectItem value="__none__" className="text-gray-400 focus:bg-gray-800 focus:text-white">Selecionar funil...</SelectItem>
+                    <SelectContent className="bg-slate-900 border-slate-800">
+                      <SelectItem value="__none__" className="text-slate-400 focus:bg-slate-800 focus:text-white">Selecionar funil...</SelectItem>
                       {funisAgrupados.map(({ nomeEspecialista, funis: funisDoGrupo }) => (
                         <SelectGroup key={nomeEspecialista}>
-                          <SelectLabel className="text-gray-500 text-[11px] uppercase tracking-wide">{nomeEspecialista}</SelectLabel>
+                          <SelectLabel className="text-slate-500 text-[11px] uppercase tracking-wide">{nomeEspecialista}</SelectLabel>
                           {funisDoGrupo.map(f => (
-                            <SelectItem key={f.id} value={f.id} className="text-gray-300 focus:bg-gray-800 focus:text-white">
+                            <SelectItem key={f.id} value={f.id} className="text-slate-300 focus:bg-slate-800 focus:text-white">
                               {f.id_funil ? `[${f.id_funil}] ` : ''}{f.nome}
                             </SelectItem>
                           ))}
@@ -592,15 +592,15 @@ export function NovoTesteABForm({
                 <div className="space-y-1.5">
                   <Label className={labelCls}>Campanha</Label>
                   <Select value={campanhaId || '__none__'} onValueChange={v => setCampanhaId(v === '__none__' ? '' : v)}>
-                    <SelectTrigger className="w-full bg-gray-900 border-gray-800 text-white focus:ring-0 focus:ring-offset-0 h-10">
+                    <SelectTrigger className="w-full bg-slate-900 border-slate-800 text-white focus:ring-0 focus:ring-offset-0 h-10">
                       <SelectValue placeholder="Selecionar campanha..." />
                     </SelectTrigger>
-                    <SelectContent className="bg-gray-900 border-gray-800">
-                      <SelectItem value="__none__" className="text-gray-400 focus:bg-gray-800 focus:text-white">Sem campanha</SelectItem>
+                    <SelectContent className="bg-slate-900 border-slate-800">
+                      <SelectItem value="__none__" className="text-slate-400 focus:bg-slate-800 focus:text-white">Sem campanha</SelectItem>
                       {campanhas.map(c => (
-                        <SelectItem key={c.id} value={c.id} className="text-gray-300 focus:bg-gray-800 focus:text-white">{c.codigo}</SelectItem>
+                        <SelectItem key={c.id} value={c.id} className="text-slate-300 focus:bg-slate-800 focus:text-white">{c.codigo}</SelectItem>
                       ))}
-                      <SelectItem value={NOVA_CAMPANHA} className="text-indigo-400 focus:bg-gray-800 focus:text-indigo-300">+ Nova campanha</SelectItem>
+                      <SelectItem value={NOVA_CAMPANHA} className="text-indigo-400 focus:bg-slate-800 focus:text-indigo-300">+ Nova campanha</SelectItem>
                     </SelectContent>
                   </Select>
                   {campanhaId === NOVA_CAMPANHA && (
@@ -611,19 +611,19 @@ export function NovoTesteABForm({
                       className={`${inputCls} mt-2`}
                     />
                   )}
-                  <p className="text-gray-600 text-xs">Uma campanha pode abranger mais de um funil (ex: aquisição + vendas do mesmo lançamento).</p>
+                  <p className="text-slate-600 text-xs">Uma campanha pode abranger mais de um funil (ex: aquisição + vendas do mesmo lançamento).</p>
                 </div>
 
                 <div className="space-y-1.5">
                   <Label className={labelCls}>Segmento (público)</Label>
                   <Select value={segmento || '__none__'} onValueChange={v => setSegmento(v === '__none__' ? '' : v)}>
-                    <SelectTrigger className="w-full bg-gray-900 border-gray-800 text-white focus:ring-0 focus:ring-offset-0 h-10">
+                    <SelectTrigger className="w-full bg-slate-900 border-slate-800 text-white focus:ring-0 focus:ring-offset-0 h-10">
                       <SelectValue placeholder="Selecionar segmento..." />
                     </SelectTrigger>
-                    <SelectContent className="bg-gray-900 border-gray-800">
-                      <SelectItem value="__none__" className="text-gray-400 focus:bg-gray-800 focus:text-white">Selecionar segmento...</SelectItem>
+                    <SelectContent className="bg-slate-900 border-slate-800">
+                      <SelectItem value="__none__" className="text-slate-400 focus:bg-slate-800 focus:text-white">Selecionar segmento...</SelectItem>
                       {segmentos.map(s => (
-                        <SelectItem key={s} value={s} className="text-gray-300 focus:bg-gray-800 focus:text-white">{s}</SelectItem>
+                        <SelectItem key={s} value={s} className="text-slate-300 focus:bg-slate-800 focus:text-white">{s}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -633,24 +633,24 @@ export function NovoTesteABForm({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="space-y-1.5">
                   <Label className={labelCls}>Especialista</Label>
-                  <div className="h-10 px-3 flex items-center bg-gray-900 border border-gray-800 rounded-md text-sm">
+                  <div className="h-10 px-3 flex items-center bg-slate-900 border border-slate-800 rounded-md text-sm">
                     {especialistaNome
                       ? <span className="text-white">{especialistaNome}</span>
-                      : <span className="text-gray-600">{funilId ? 'Funil sem especialista cadastrado' : 'Selecione um funil'}</span>}
+                      : <span className="text-slate-600">{funilId ? 'Funil sem especialista cadastrado' : 'Selecione um funil'}</span>}
                   </div>
-                  <p className="text-gray-600 text-xs">Vem do especialista já cadastrado no Funil.</p>
+                  <p className="text-slate-600 text-xs">Vem do especialista já cadastrado no Funil.</p>
                 </div>
 
                 <div className="space-y-1.5">
                   <Label className={labelCls}>Responsável</Label>
                   <Select value={responsavel || '__none__'} onValueChange={v => setResponsavel(v === '__none__' ? '' : v)}>
-                    <SelectTrigger className="w-full bg-gray-900 border-gray-800 text-white focus:ring-0 focus:ring-offset-0 h-10">
+                    <SelectTrigger className="w-full bg-slate-900 border-slate-800 text-white focus:ring-0 focus:ring-offset-0 h-10">
                       <SelectValue placeholder="Selecionar responsável..." />
                     </SelectTrigger>
-                    <SelectContent className="bg-gray-900 border-gray-800">
-                      <SelectItem value="__none__" className="text-gray-400 focus:bg-gray-800 focus:text-white">Selecionar responsável...</SelectItem>
+                    <SelectContent className="bg-slate-900 border-slate-800">
+                      <SelectItem value="__none__" className="text-slate-400 focus:bg-slate-800 focus:text-white">Selecionar responsável...</SelectItem>
                       {responsaveis.map(r => (
-                        <SelectItem key={r} value={r} className="text-gray-300 focus:bg-gray-800 focus:text-white">{r}</SelectItem>
+                        <SelectItem key={r} value={r} className="text-slate-300 focus:bg-slate-800 focus:text-white">{r}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -676,7 +676,7 @@ export function NovoTesteABForm({
             </h3>
             <div className="flex items-center gap-x-6 gap-y-3 mb-6 flex-wrap">
               <div className="flex items-center gap-2">
-                <Label className="text-gray-500 text-xs shrink-0 whitespace-nowrap">O que vamos testar?</Label>
+                <Label className="text-slate-500 text-xs shrink-0 whitespace-nowrap">O que vamos testar?</Label>
                 {criandoElemento ? (
                   <div className="flex items-center gap-1.5">
                     <Input
@@ -685,7 +685,7 @@ export function NovoTesteABForm({
                       onChange={e => setNovoElementoValor(e.target.value)}
                       onKeyDown={e => { if (e.key === 'Enter') criarNovoElemento() }}
                       placeholder="Nome do novo elemento..."
-                      className="w-44 h-9 bg-gray-900 border-gray-800 text-white text-sm"
+                      className="w-44 h-9 bg-slate-900 border-slate-800 text-white text-sm"
                     />
                     <button
                       type="button"
@@ -699,7 +699,7 @@ export function NovoTesteABForm({
                     <button
                       type="button"
                       onClick={() => { setCriandoElemento(false); setNovoElementoValor(''); setErroElemento('') }}
-                      className="text-gray-500 hover:text-gray-300 shrink-0"
+                      className="text-slate-500 hover:text-slate-300 shrink-0"
                       title="Cancelar"
                     >
                       <X size={16} />
@@ -710,21 +710,21 @@ export function NovoTesteABForm({
                     value={elementoTestado || '__none__'}
                     onValueChange={v => v === NOVO_ELEMENTO ? setCriandoElemento(true) : setElementoTestado(v === '__none__' ? '' : v)}
                   >
-                    <SelectTrigger className="w-44 h-9 bg-gray-900 border-gray-800 text-white text-sm focus:ring-0 focus:ring-offset-0">
+                    <SelectTrigger className="w-44 h-9 bg-slate-900 border-slate-800 text-white text-sm focus:ring-0 focus:ring-offset-0">
                       <SelectValue placeholder="Selecionar..." />
                     </SelectTrigger>
-                    <SelectContent className="bg-gray-900 border-gray-800">
-                      <SelectItem value="__none__" className="text-gray-400 focus:bg-gray-800 focus:text-white">Selecionar...</SelectItem>
+                    <SelectContent className="bg-slate-900 border-slate-800">
+                      <SelectItem value="__none__" className="text-slate-400 focus:bg-slate-800 focus:text-white">Selecionar...</SelectItem>
                       {elementosState.map(el => (
-                        <SelectItem key={el} value={el} className="text-gray-300 focus:bg-gray-800 focus:text-white">{el}</SelectItem>
+                        <SelectItem key={el} value={el} className="text-slate-300 focus:bg-slate-800 focus:text-white">{el}</SelectItem>
                       ))}
-                      <SelectItem value={NOVO_ELEMENTO} className="text-indigo-400 focus:bg-gray-800 focus:text-indigo-300">+ Novo elemento</SelectItem>
+                      <SelectItem value={NOVO_ELEMENTO} className="text-indigo-400 focus:bg-slate-800 focus:text-indigo-300">+ Novo elemento</SelectItem>
                     </SelectContent>
                   </Select>
                 )}
               </div>
               <div className="flex items-center gap-2">
-                <Label className="text-gray-500 text-xs shrink-0 whitespace-nowrap">Seção da página</Label>
+                <Label className="text-slate-500 text-xs shrink-0 whitespace-nowrap">Seção da página</Label>
                 {criandoSecao ? (
                   <div className="flex items-center gap-1.5">
                     <Input
@@ -733,7 +733,7 @@ export function NovoTesteABForm({
                       onChange={e => setNovaSecaoValor(e.target.value)}
                       onKeyDown={e => { if (e.key === 'Enter') criarNovaSecao() }}
                       placeholder="Seções são posições, não tipos de bloco"
-                      className="w-56 h-9 bg-gray-900 border-gray-800 text-white text-sm"
+                      className="w-56 h-9 bg-slate-900 border-slate-800 text-white text-sm"
                     />
                     <button
                       type="button"
@@ -747,7 +747,7 @@ export function NovoTesteABForm({
                     <button
                       type="button"
                       onClick={() => { setCriandoSecao(false); setNovaSecaoValor(''); setErroSecao('') }}
-                      className="text-gray-500 hover:text-gray-300 shrink-0"
+                      className="text-slate-500 hover:text-slate-300 shrink-0"
                       title="Cancelar"
                     >
                       <X size={16} />
@@ -758,15 +758,15 @@ export function NovoTesteABForm({
                     value={secaoPagina || '__none__'}
                     onValueChange={v => v === NOVA_SECAO ? setCriandoSecao(true) : setSecaoPagina(v === '__none__' ? '' : v)}
                   >
-                    <SelectTrigger className="w-44 h-9 bg-gray-900 border-gray-800 text-white text-sm focus:ring-0 focus:ring-offset-0">
+                    <SelectTrigger className="w-44 h-9 bg-slate-900 border-slate-800 text-white text-sm focus:ring-0 focus:ring-offset-0">
                       <SelectValue placeholder="Selecionar..." />
                     </SelectTrigger>
-                    <SelectContent className="bg-gray-900 border-gray-800">
-                      <SelectItem value="__none__" className="text-gray-400 focus:bg-gray-800 focus:text-white">Selecionar...</SelectItem>
+                    <SelectContent className="bg-slate-900 border-slate-800">
+                      <SelectItem value="__none__" className="text-slate-400 focus:bg-slate-800 focus:text-white">Selecionar...</SelectItem>
                       {secoesState.map(s => (
-                        <SelectItem key={s} value={s} className="text-gray-300 focus:bg-gray-800 focus:text-white">{s}</SelectItem>
+                        <SelectItem key={s} value={s} className="text-slate-300 focus:bg-slate-800 focus:text-white">{s}</SelectItem>
                       ))}
-                      <SelectItem value={NOVA_SECAO} className="text-indigo-400 focus:bg-gray-800 focus:text-indigo-300">+ Nova seção</SelectItem>
+                      <SelectItem value={NOVA_SECAO} className="text-indigo-400 focus:bg-slate-800 focus:text-indigo-300">+ Nova seção</SelectItem>
                     </SelectContent>
                   </Select>
                 )}
@@ -783,7 +783,7 @@ export function NovoTesteABForm({
                   rows={4}
                   className={`${inputCls} resize-none`}
                 />
-                <p className={`text-xs text-right ${hipotese.length > LIMITE_HIPOTESE ? 'text-amber-400' : 'text-gray-600'}`}>
+                <p className={`text-xs text-right ${hipotese.length > LIMITE_HIPOTESE ? 'text-amber-400' : 'text-slate-600'}`}>
                   {hipotese.length}/{LIMITE_HIPOTESE} — uma hipótese cabe numa frase só
                 </p>
               </div>
@@ -810,10 +810,10 @@ export function NovoTesteABForm({
             </div>
 
             {(elementoTestado || hipotese.trim()) && (
-              <div className="border-t border-gray-800 pt-6">
-                <div className="bg-gray-950 border border-gray-800 rounded-lg px-3 py-2">
+              <div className="border-t border-slate-800 pt-6">
+                <div className="bg-slate-950 border border-slate-800 rounded-lg px-3 py-2">
                   <p className="text-indigo-400 text-[10px] font-semibold uppercase tracking-wide mb-1">Hipótese Consolidada</p>
-                  <p className="text-gray-400 text-xs italic">
+                  <p className="text-slate-400 text-xs italic">
                     &quot;Se eu testar <span className="text-indigo-300 font-medium not-italic">{elementoTestado || '[elemento]'}</span>
                     {hipotese.trim() && <> (<span className="text-indigo-300 font-medium not-italic">{hipotese.trim()}</span>)</>}
                     {' '}no <span className="text-indigo-300 font-medium not-italic">{segmento ? `tráfego ${segmento.toLowerCase()}` : '[público]'}</span>,
@@ -832,7 +832,7 @@ export function NovoTesteABForm({
                 <SplitSquareHorizontal size={16} className="text-indigo-400" /> Variações
               </h3>
               <div className="flex items-center gap-3">
-                <span className={`text-xs font-medium ${somaPercentuais === 100 ? 'text-gray-500' : 'text-amber-400'}`}>
+                <span className={`text-xs font-medium ${somaPercentuais === 100 ? 'text-slate-500' : 'text-amber-400'}`}>
                   Total: {somaPercentuais}%
                 </span>
                 <button type="button" onClick={distribuirIgualmente} className="text-indigo-400 text-sm hover:text-indigo-300 transition-colors">
@@ -854,7 +854,7 @@ export function NovoTesteABForm({
                           type="button"
                           onClick={() => removerVariante(idx)}
                           title="Remover variante"
-                          className="ml-auto text-gray-600 hover:text-red-400 transition-colors shrink-0"
+                          className="ml-auto text-slate-600 hover:text-red-400 transition-colors shrink-0"
                         >
                           <Trash2 size={14} />
                         </button>
@@ -882,7 +882,7 @@ export function NovoTesteABForm({
                         const f = item?.getAsFile()
                         if (f) handleArquivo(idx, f)
                       }}
-                      className="border-2 border-dashed border-gray-800 rounded-lg p-6 flex flex-col items-center justify-center bg-gray-950 hover:bg-gray-900 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
+                      className="border-2 border-dashed border-slate-800 rounded-lg p-6 flex flex-col items-center justify-center bg-slate-950 hover:bg-slate-900 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
                     >
                       <input
                         type="file"
@@ -928,9 +928,9 @@ export function NovoTesteABForm({
                           </div>
                         </div>
                       ) : (
-                        <Upload size={20} className="text-gray-600 mb-2" />
+                        <Upload size={20} className="text-slate-600 mb-2" />
                       )}
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-slate-500">
                         {v.enviando
                           ? 'Enviando...'
                           : v.screenshotUrl
@@ -938,7 +938,7 @@ export function NovoTesteABForm({
                           : 'Upload de Screenshot ou HTML'}
                       </p>
                       {!v.enviando && !v.screenshotUrl && (
-                        <p className="text-[11px] text-gray-600 mt-0.5">Clique e cole (Ctrl+V), arraste ou selecione (imagem ou .html salvo com SingleFile)</p>
+                        <p className="text-[11px] text-slate-600 mt-0.5">Clique e cole (Ctrl+V), arraste ou selecione (imagem ou .html salvo com SingleFile)</p>
                       )}
                     </label>
                     {v.screenshotUrl && ehArquivoHtml(v.screenshotUrl) && (
@@ -951,29 +951,29 @@ export function NovoTesteABForm({
                       </button>
                     )}
                     <div className="space-y-1.5">
-                      <Label className="text-gray-500 text-xs">Página *</Label>
+                      <Label className="text-slate-500 text-xs">Página *</Label>
                       <Select
                         value={v.paginaId || '__none__'}
                         onValueChange={pid => selecionarPaginaVariante(idx, pid === '__none__' ? '' : pid)}
                       >
-                        <SelectTrigger className="w-full bg-gray-900 border-gray-800 text-white text-sm h-9 focus:ring-0 focus:ring-offset-0">
+                        <SelectTrigger className="w-full bg-slate-900 border-slate-800 text-white text-sm h-9 focus:ring-0 focus:ring-offset-0">
                           <SelectValue placeholder="Selecionar página cadastrada..." />
                         </SelectTrigger>
-                        <SelectContent className="bg-gray-900 border-gray-800">
-                          <SelectItem value="__none__" className="text-gray-400 focus:bg-gray-800 focus:text-white">Selecionar página cadastrada...</SelectItem>
+                        <SelectContent className="bg-slate-900 border-slate-800">
+                          <SelectItem value="__none__" className="text-slate-400 focus:bg-slate-800 focus:text-white">Selecionar página cadastrada...</SelectItem>
                           <SelectGroup>
-                            <SelectLabel className="text-gray-600 text-[11px] uppercase tracking-wide">Páginas do Funil</SelectLabel>
+                            <SelectLabel className="text-slate-600 text-[11px] uppercase tracking-wide">Páginas do Funil</SelectLabel>
                             {paginasDoFunil.filter(p => !paginasDoProduto.has(p.id)).map(p => (
-                              <SelectItem key={p.id} value={p.id} className="text-gray-300 focus:bg-gray-800 focus:text-white">
+                              <SelectItem key={p.id} value={p.id} className="text-slate-300 focus:bg-slate-800 focus:text-white">
                                 {p.codigo ? `[${p.codigo}] ` : ''}{p.nome}
                               </SelectItem>
                             ))}
                           </SelectGroup>
                           {paginasDoFunil.some(p => paginasDoProduto.has(p.id)) && (
                             <SelectGroup>
-                              <SelectLabel className="text-gray-600 text-[11px] uppercase tracking-wide">Páginas do Produto</SelectLabel>
+                              <SelectLabel className="text-slate-600 text-[11px] uppercase tracking-wide">Páginas do Produto</SelectLabel>
                               {paginasDoFunil.filter(p => paginasDoProduto.has(p.id)).map(p => (
-                                <SelectItem key={p.id} value={p.id} className="text-gray-300 focus:bg-gray-800 focus:text-white">
+                                <SelectItem key={p.id} value={p.id} className="text-slate-300 focus:bg-slate-800 focus:text-white">
                                   {p.codigo ? `[${p.codigo}] ` : ''}{p.nome}
                                 </SelectItem>
                               ))}
@@ -989,7 +989,7 @@ export function NovoTesteABForm({
                       </p>
                     )}
                     <div className="space-y-1.5">
-                      <Label className="text-gray-500 text-xs">URL da Página *</Label>
+                      <Label className="text-slate-500 text-xs">URL da Página *</Label>
                       <Input
                         value={v.urlVariante}
                         onChange={e => setVariantes(list => list.map((vv, i) => i === idx ? { ...vv, urlVariante: e.target.value } : vv))}
@@ -998,7 +998,7 @@ export function NovoTesteABForm({
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <Label className="text-gray-500 text-xs">URL de Preview</Label>
+                      <Label className="text-slate-500 text-xs">URL de Preview</Label>
                       <Input
                         value={v.urlPreview}
                         onChange={e => setVariantes(list => list.map((vv, i) => i === idx ? { ...vv, urlPreview: e.target.value } : vv))}
@@ -1007,7 +1007,7 @@ export function NovoTesteABForm({
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <Label className="text-gray-500 text-xs">Headline testada</Label>
+                      <Label className="text-slate-500 text-xs">Headline testada</Label>
                       <Textarea
                         value={v.headline}
                         onChange={e => setVariantes(list => list.map((vv, i) => i === idx ? { ...vv, headline: e.target.value } : vv))}
@@ -1017,7 +1017,7 @@ export function NovoTesteABForm({
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <Label className="text-gray-500 text-xs">Subheadline testada</Label>
+                      <Label className="text-slate-500 text-xs">Subheadline testada</Label>
                       <Textarea
                         value={v.subheadline}
                         onChange={e => setVariantes(list => list.map((vv, i) => i === idx ? { ...vv, subheadline: e.target.value } : vv))}
@@ -1026,8 +1026,8 @@ export function NovoTesteABForm({
                         className={`${inputCls} text-sm resize-none`}
                       />
                     </div>
-                    <div className="space-y-1.5 pt-2 border-t border-gray-800">
-                      <Label className="text-gray-500 text-xs">Layout</Label>
+                    <div className="space-y-1.5 pt-2 border-t border-slate-800">
+                      <Label className="text-slate-500 text-xs">Layout</Label>
                       <div className="flex gap-2">
                         {LAYOUTS.map(l => (
                           <button
@@ -1037,7 +1037,7 @@ export function NovoTesteABForm({
                             className={`flex-1 h-9 rounded-lg text-xs font-medium border transition-colors ${
                               v.layout === l.valor
                                 ? 'bg-indigo-500/15 border-indigo-500 text-indigo-300'
-                                : 'bg-gray-900 border-gray-800 text-gray-400 hover:text-white'
+                                : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
                             }`}
                           >
                             {l.label}
@@ -1045,10 +1045,10 @@ export function NovoTesteABForm({
                         ))}
                       </div>
                     </div>
-                    <div className="space-y-1.5 pt-2 border-t border-gray-800">
+                    <div className="space-y-1.5 pt-2 border-t border-slate-800">
                       <div className="flex items-center justify-between">
-                        <Label className="text-gray-500 text-xs">Ângulo da Hero desta variação</Label>
-                        <span className="text-gray-600 text-[10px]">
+                        <Label className="text-slate-500 text-xs">Ângulo da Hero desta variação</Label>
+                        <span className="text-slate-600 text-[10px]">
                           {[v.anguloDominante, ...v.angulosSecundarios].filter(Boolean).length}/{MAX_ANGULOS}
                         </span>
                       </div>
@@ -1069,8 +1069,8 @@ export function NovoTesteABForm({
                                 dominante
                                   ? 'bg-indigo-500/20 border-indigo-500 text-indigo-200'
                                   : secundario
-                                  ? 'bg-gray-800 border-gray-700 text-gray-300'
-                                  : 'bg-gray-950 border-gray-800 text-gray-400 hover:text-white'
+                                  ? 'bg-slate-800 border-slate-700 text-slate-300'
+                                  : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
                               }`}
                             >
                               {iconeAngulo(a) && <span>{iconeAngulo(a)}</span>} {a}
@@ -1081,7 +1081,7 @@ export function NovoTesteABForm({
                                   onClick={e => { e.stopPropagation(); marcarAnguloDominante(idx, a) }}
                                   className="p-0.5"
                                 >
-                                  <Star size={11} className={dominante ? 'fill-indigo-400 text-indigo-400' : 'text-gray-600 hover:text-gray-400'} />
+                                  <Star size={11} className={dominante ? 'fill-indigo-400 text-indigo-400' : 'text-slate-600 hover:text-slate-400'} />
                                 </span>
                               )}
                             </button>
@@ -1089,7 +1089,7 @@ export function NovoTesteABForm({
                         })}
                       </div>
                       {(v.anguloDominante || v.angulosSecundarios.length > 0) && (
-                        <p className="text-gray-600 text-[11px]">
+                        <p className="text-slate-600 text-[11px]">
                           Clique na estrela pra trocar qual ângulo é o dominante.
                         </p>
                       )}
@@ -1102,16 +1102,16 @@ export function NovoTesteABForm({
                 <button
                   type="button"
                   onClick={adicionarVariante}
-                  className="bg-gray-950 border-2 border-dashed border-gray-800 rounded-xl flex flex-col items-center justify-center gap-2 hover:bg-gray-900 hover:border-gray-700 transition-colors min-h-[220px]"
+                  className="bg-slate-950 border-2 border-dashed border-slate-800 rounded-xl flex flex-col items-center justify-center gap-2 hover:bg-slate-900 hover:border-slate-700 transition-colors min-h-[220px]"
                 >
                   <PlusCircle size={28} className="text-indigo-400" />
                   <p className="text-indigo-400 text-sm font-medium">Adicionar Variante</p>
-                  <p className="text-gray-600 text-xs text-center px-6">Até 4 variações neste teste.</p>
+                  <p className="text-slate-600 text-xs text-center px-6">Até 4 variações neste teste.</p>
                 </button>
               )}
             </div>
 
-            <div className="flex h-2 w-full rounded-full overflow-hidden bg-gray-800 gap-px">
+            <div className="flex h-2 w-full rounded-full overflow-hidden bg-slate-800 gap-px">
               {variantes.map((v, i) => (
                 <div
                   key={v.letra}
@@ -1127,7 +1127,7 @@ export function NovoTesteABForm({
             <h3 className="text-white font-medium mb-1 flex items-center gap-2">
               <MousePointerClick size={16} className="text-indigo-400" /> Sucesso do Experimento
             </h3>
-            <p className="text-gray-600 text-xs mb-6">
+            <p className="text-slate-600 text-xs mb-6">
               Métricas de {tipoTeste === 'aquisicao' ? 'Aquisição' : 'Vendas'}
             </p>
             <div className="space-y-8">
@@ -1135,13 +1135,13 @@ export function NovoTesteABForm({
                 <Label className={labelCls}>Métrica Primária *</Label>
                 {metricas.length > 0 ? (
                   <Select value={metricaPrimaria || '__none__'} onValueChange={v => setMetricaPrimaria(v === '__none__' ? '' : v)}>
-                    <SelectTrigger className="w-full bg-gray-900 border-gray-800 text-white focus:ring-0 focus:ring-offset-0 h-10">
+                    <SelectTrigger className="w-full bg-slate-900 border-slate-800 text-white focus:ring-0 focus:ring-offset-0 h-10">
                       <SelectValue placeholder="Selecionar métrica..." />
                     </SelectTrigger>
-                    <SelectContent className="bg-gray-900 border-gray-800">
-                      <SelectItem value="__none__" className="text-gray-400 focus:bg-gray-800 focus:text-white">Selecionar métrica...</SelectItem>
+                    <SelectContent className="bg-slate-900 border-slate-800">
+                      <SelectItem value="__none__" className="text-slate-400 focus:bg-slate-800 focus:text-white">Selecionar métrica...</SelectItem>
                       {metricas.map(m => (
-                        <SelectItem key={m} value={m} className="text-gray-300 focus:bg-gray-800 focus:text-white">{m}</SelectItem>
+                        <SelectItem key={m} value={m} className="text-slate-300 focus:bg-slate-800 focus:text-white">{m}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -1186,26 +1186,26 @@ export function NovoTesteABForm({
               <ClipboardCheck size={16} className="text-indigo-400" /> Revisão
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3 text-sm mb-6">
-              <p className="text-gray-500">Código do teste <span className="text-gray-300 font-mono">{codigoPreview}</span> <span className="text-gray-600 text-xs">(número definido ao salvar)</span></p>
-              <p className="text-gray-500">Nome <span className="text-gray-300">{nome || '—'}</span></p>
-              <p className="text-gray-500">Funil <span className="text-gray-300">{funilSelecionado?.nome ?? '—'}</span></p>
-              <p className="text-gray-500">Tipo <span className="text-gray-300">{tipoTeste === 'aquisicao' ? 'Aquisição' : 'Vendas'}</span></p>
-              <p className="text-gray-500">Campanha <span className="text-gray-300">{campanhaId === NOVA_CAMPANHA ? (novaCampanhaCodigo || '—') : (campanhaSelecionada?.codigo ?? '—')}</span></p>
-              <p className="text-gray-500">Segmento <span className="text-gray-300">{segmento || '—'}</span></p>
-              <p className="text-gray-500">
+              <p className="text-slate-500">Código do teste <span className="text-slate-300 font-mono">{codigoPreview}</span> <span className="text-slate-600 text-xs">(número definido ao salvar)</span></p>
+              <p className="text-slate-500">Nome <span className="text-slate-300">{nome || '—'}</span></p>
+              <p className="text-slate-500">Funil <span className="text-slate-300">{funilSelecionado?.nome ?? '—'}</span></p>
+              <p className="text-slate-500">Tipo <span className="text-slate-300">{tipoTeste === 'aquisicao' ? 'Aquisição' : 'Vendas'}</span></p>
+              <p className="text-slate-500">Campanha <span className="text-slate-300">{campanhaId === NOVA_CAMPANHA ? (novaCampanhaCodigo || '—') : (campanhaSelecionada?.codigo ?? '—')}</span></p>
+              <p className="text-slate-500">Segmento <span className="text-slate-300">{segmento || '—'}</span></p>
+              <p className="text-slate-500">
                 Layout{' '}
-                <span className="text-gray-300">
+                <span className="text-slate-300">
                   {variantes.map(v => `${v.letra}: ${LAYOUTS.find(l => l.valor === v.layout)?.label ?? '—'}`).join(' · ')}
                 </span>
               </p>
-              <p className="text-gray-500">
+              <p className="text-slate-500">
                 Ângulo da Hero{' '}
-                <span className="text-gray-300">
+                <span className="text-slate-300">
                   {variantes.map(v => `${v.letra}: ${v.anguloDominante || '—'}${v.angulosSecundarios.length ? ` (+${v.angulosSecundarios.join(', ')})` : ''}`).join(' · ')}
                 </span>
               </p>
-              <p className="text-gray-500">Variantes <span className="text-gray-300">{variantes.length}</span></p>
-              <p className="text-gray-500">Métrica primária <span className="text-gray-300">{metricaPrimaria || '—'}</span></p>
+              <p className="text-slate-500">Variantes <span className="text-slate-300">{variantes.length}</span></p>
+              <p className="text-slate-500">Métrica primária <span className="text-slate-300">{metricaPrimaria || '—'}</span></p>
             </div>
 
             <div className="space-y-1.5 mb-6">
@@ -1216,7 +1216,7 @@ export function NovoTesteABForm({
                 placeholder="Gerada automaticamente a partir da URL das variantes"
                 className={`${inputCls} text-xs font-mono`}
               />
-              <p className="text-gray-600 text-xs">
+              <p className="text-slate-600 text-xs">
                 Calculada automaticamente a partir da URL das variantes (remove a letra/versão do final) — edite aqui se sair errada.
                 É a mesma URL usada no botão de acesso rápido na Lista de Experimentos.
               </p>
@@ -1224,7 +1224,7 @@ export function NovoTesteABForm({
 
             {erro && <p className="text-red-400 text-sm mb-4">{erro}</p>}
 
-            <div className="flex flex-col md:flex-row items-center justify-end gap-3 pt-4 border-t border-gray-800">
+            <div className="flex flex-col md:flex-row items-center justify-end gap-3 pt-4 border-t border-slate-800">
               {modoEdicao ? (
                 <Button
                   type="button"
@@ -1240,7 +1240,7 @@ export function NovoTesteABForm({
                     type="button"
                     disabled={!podeFinalizar || salvando !== null}
                     onClick={() => finalizar('Planejado')}
-                    className="flex-1 md:flex-none bg-gray-800 hover:bg-gray-700 text-white border border-gray-700 disabled:opacity-40"
+                    className="flex-1 md:flex-none bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 disabled:opacity-40"
                   >
                     {salvando === 'planejado' ? 'Agendando...' : 'Agendar Início'}
                   </Button>
@@ -1260,12 +1260,12 @@ export function NovoTesteABForm({
 
         {/* ── Checklist de progresso lateral (direita) ─────────────────────── */}
         <nav className="w-48 shrink-0 sticky top-6 space-y-1">
-          <div className="px-3 pb-3 mb-1 border-b border-gray-800">
+          <div className="px-3 pb-3 mb-1 border-b border-slate-800">
             <div className="flex items-center justify-between mb-1.5">
-              <span className="text-[11px] text-gray-500 uppercase tracking-wide">Progresso Geral</span>
+              <span className="text-[11px] text-slate-500 uppercase tracking-wide">Progresso Geral</span>
               <span className="text-xs text-indigo-400 font-medium">{progressoGeral}%</span>
             </div>
-            <div className="h-1.5 w-full rounded-full bg-gray-800 overflow-hidden">
+            <div className="h-1.5 w-full rounded-full bg-slate-800 overflow-hidden">
               <div className="h-full bg-indigo-500 rounded-full transition-all" style={{ width: `${progressoGeral}%` }} />
             </div>
           </div>
@@ -1278,14 +1278,14 @@ export function NovoTesteABForm({
                 key={id}
                 type="button"
                 onClick={() => scrollPara(id)}
-                className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-left hover:bg-gray-900 transition-colors"
+                className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-left hover:bg-slate-900 transition-colors"
               >
-                {completo ? <CheckCircle2 size={16} className="text-green-400 shrink-0" /> : <Circle size={16} className="text-gray-700 shrink-0" />}
+                {completo ? <CheckCircle2 size={16} className="text-green-400 shrink-0" /> : <Circle size={16} className="text-slate-700 shrink-0" />}
                 <span className="flex-1 min-w-0">
-                  <span className="block text-sm text-gray-300">{label}</span>
-                  <span className="block text-[11px] text-gray-600">{status}</span>
+                  <span className="block text-sm text-slate-300">{label}</span>
+                  <span className="block text-[11px] text-slate-600">{status}</span>
                 </span>
-                <Icon size={14} className="text-gray-700 shrink-0" />
+                <Icon size={14} className="text-slate-700 shrink-0" />
               </button>
             )
           })}
@@ -1300,7 +1300,7 @@ export function NovoTesteABForm({
           <button
             type="button"
             onClick={() => setImagemAmpliada(null)}
-            className="absolute top-5 right-5 p-2 bg-gray-900/80 hover:bg-gray-800 rounded-lg text-white transition-colors"
+            className="absolute top-5 right-5 p-2 bg-slate-900/80 hover:bg-slate-800 rounded-lg text-white transition-colors"
             title="Fechar"
           >
             <X size={20} />

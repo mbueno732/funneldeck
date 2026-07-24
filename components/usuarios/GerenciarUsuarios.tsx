@@ -71,21 +71,21 @@ export function GerenciarUsuarios({ usuarios, usuarioAtualId }: Props) {
     <div className="space-y-6">
 
       {/* Convidar */}
-      <div className="bg-gray-900 border border-gray-800 rounded-xl p-5 space-y-4">
+      <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4">
         <div>
           <h2 className="text-white font-medium">Convidar usuário</h2>
-          <p className="text-gray-500 text-sm mt-0.5">A pessoa receberá um email para criar a própria senha.</p>
+          <p className="text-slate-500 text-sm mt-0.5">A pessoa receberá um email para criar a própria senha.</p>
         </div>
         <form onSubmit={handleConvidar} className="flex gap-2">
           <div className="relative flex-1">
-            <Mail size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+            <Mail size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
             <input
               type="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
               placeholder="email@empresa.com"
               required
-              className="w-full pl-8 pr-3 py-2 bg-gray-900 border border-gray-800 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500"
+              className="w-full pl-8 pr-3 py-2 bg-slate-900 border border-slate-800 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
             />
           </div>
           <button
@@ -102,8 +102,8 @@ export function GerenciarUsuarios({ usuarios, usuarioAtualId }: Props) {
       </div>
 
       {/* Lista */}
-      <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
-        <div className="px-5 py-3 border-b border-gray-800">
+      <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+        <div className="px-5 py-3 border-b border-slate-800">
           <p className="text-sm font-medium text-white">{usuarios.length} usuário{usuarios.length !== 1 ? 's' : ''}</p>
         </div>
         <div className="divide-y divide-white/[0.07]">
@@ -117,13 +117,13 @@ export function GerenciarUsuarios({ usuarios, usuarioAtualId }: Props) {
                   <div className="flex items-center gap-2">
                     <p className="text-sm text-white font-medium truncate">{u.nome || '—'}</p>
                     {u.id === usuarioAtualId && (
-                      <span className="text-[10px] text-gray-500 bg-gray-900 px-1.5 py-0.5 rounded">você</span>
+                      <span className="text-[10px] text-slate-500 bg-slate-900 px-1.5 py-0.5 rounded">você</span>
                     )}
                     {u.nunca_entrou && (
                       <span className="text-[10px] text-yellow-500 bg-yellow-500/10 px-1.5 py-0.5 rounded">convite pendente</span>
                     )}
                   </div>
-                  <p className="text-xs text-gray-500 truncate">{u.email}</p>
+                  <p className="text-xs text-slate-500 truncate">{u.email}</p>
                 </div>
               </div>
 
@@ -132,7 +132,7 @@ export function GerenciarUsuarios({ usuarios, usuarioAtualId }: Props) {
                   <button
                     onClick={() => handleReenviar(u.email)}
                     disabled={reenviando === u.email}
-                    className="flex items-center gap-1 text-xs px-2 py-1 text-gray-400 hover:text-indigo-400 hover:bg-gray-900 rounded-lg transition-colors"
+                    className="flex items-center gap-1 text-xs px-2 py-1 text-slate-400 hover:text-indigo-400 hover:bg-slate-900 rounded-lg transition-colors"
                     title="Reenviar convite"
                   >
                     {reenviando === u.email
@@ -143,24 +143,24 @@ export function GerenciarUsuarios({ usuarios, usuarioAtualId }: Props) {
                   </button>
                 )}
                 {alterandoPerfil === u.id ? (
-                  <Loader2 size={14} className="text-gray-500 animate-spin" />
+                  <Loader2 size={14} className="text-slate-500 animate-spin" />
                 ) : u.id === usuarioAtualId ? (
                   <span className={`flex items-center gap-1 text-xs px-2 py-1 rounded-lg font-medium ${
                     u.perfil === 'editor'
                       ? 'bg-indigo-500/10 text-indigo-400'
-                      : 'bg-gray-900 text-gray-400'
+                      : 'bg-slate-900 text-slate-400'
                   }`}>
                     {u.perfil === 'editor' ? <Shield size={11} /> : <Eye size={11} />}
                     {u.perfil}
                   </span>
                 ) : (
                   <Select value={u.perfil} onValueChange={v => handleAlterarPerfil(u.id, v as 'editor' | 'visualizador')}>
-                    <SelectTrigger className="border-0 bg-transparent p-0 h-auto w-auto text-xs font-medium focus:ring-0 focus:ring-offset-0 gap-0 [&>svg]:hidden px-2 py-1 border border-gray-800 rounded-lg text-gray-300 cursor-pointer" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
+                    <SelectTrigger className="border-0 bg-transparent p-0 h-auto w-auto text-xs font-medium focus:ring-0 focus:ring-offset-0 gap-0 [&>svg]:hidden px-2 py-1 border border-slate-800 rounded-lg text-slate-300 cursor-pointer" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-gray-900 border-gray-800">
-                      <SelectItem value="editor" className="text-gray-300 focus:bg-gray-800 focus:text-white">editor</SelectItem>
-                      <SelectItem value="visualizador" className="text-gray-300 focus:bg-gray-800 focus:text-white">visualizador</SelectItem>
+                    <SelectContent className="bg-slate-900 border-slate-800">
+                      <SelectItem value="editor" className="text-slate-300 focus:bg-slate-800 focus:text-white">editor</SelectItem>
+                      <SelectItem value="visualizador" className="text-slate-300 focus:bg-slate-800 focus:text-white">visualizador</SelectItem>
                     </SelectContent>
                   </Select>
                 )}

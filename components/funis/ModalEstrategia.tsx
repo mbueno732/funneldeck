@@ -50,7 +50,7 @@ export function ModalEstrategia({ aberto, onFechar, onSalvo, funilId, estrategia
 
   return (
     <Dialog open={aberto} onOpenChange={v => !v && onFechar()}>
-      <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-md">
+      <DialogContent className="bg-slate-900 border-slate-800 text-white max-w-md">
         <DialogHeader>
           <DialogTitle className="text-white">
             {estrategia ? 'Editar estratégia' : 'Nova estratégia'}
@@ -58,18 +58,18 @@ export function ModalEstrategia({ aberto, onFechar, onSalvo, funilId, estrategia
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 mt-2">
           <div className="space-y-1.5">
-            <Label className="text-gray-400 text-xs">Nome *</Label>
+            <Label className="text-slate-400 text-xs">Nome *</Label>
             <Input
               value={nome}
               onChange={e => setNome(e.target.value)}
               placeholder="Ex: Captação Normal, Aplicação..."
-              className="bg-gray-900 border-gray-800 text-white placeholder-gray-600 focus:border-indigo-500"
+              className="bg-slate-900 border-slate-800 text-white placeholder-slate-600 focus:border-indigo-500"
               autoFocus
             />
           </div>
           {erro && <p className="text-red-400 text-sm">{erro}</p>}
           <div className="flex justify-end gap-2 pt-1">
-            <Button type="button" variant="ghost" onClick={onFechar} className="text-gray-400 hover:text-white">
+            <Button type="button" variant="ghost" onClick={onFechar} className="text-slate-400 hover:text-white">
               Cancelar
             </Button>
             <Button type="submit" disabled={salvando} className="bg-indigo-600 hover:bg-indigo-500 text-white">

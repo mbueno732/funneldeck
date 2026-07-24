@@ -29,8 +29,8 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-950">
-      <div className="w-full max-w-sm p-8 bg-gray-900 rounded-xl border border-gray-800 space-y-6">
+    <div className="min-h-screen flex items-center justify-center bg-slate-950">
+      <div className="w-full max-w-sm p-8 bg-slate-900 rounded-xl border border-slate-800 space-y-6">
         <div className="text-center space-y-2">
           <div className="flex items-center justify-center gap-3">
             <svg width="36" height="36" viewBox="0 0 32 32" fill="none">
@@ -42,31 +42,31 @@ export default function LoginPage() {
               <span className="font-semibold" style={{ color: '#a5b4fc' }}>deck</span>
             </span>
           </div>
-          <p className="text-gray-500 text-sm">Hub operacional de funis & CRO</p>
+          <p className="text-slate-500 text-sm">Hub operacional de funis & CRO</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-4">
           <div className="space-y-1">
-            <label className="text-sm text-gray-400">Email</label>
+            <label className="text-sm text-slate-400">Email</label>
             <input
               type="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
               required
-              className="w-full px-3 py-2 bg-gray-900 border border-gray-800 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500"
+              className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
               placeholder="seu@email.com"
             />
           </div>
 
           <div className="space-y-1">
-            <label className="text-sm text-gray-400">Senha</label>
+            <label className="text-sm text-slate-400">Senha</label>
             <input
               type="password"
               value={senha}
               onChange={e => setSenha(e.target.value)}
               required
               minLength={6}
-              className="w-full px-3 py-2 bg-gray-900 border border-gray-800 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500"
+              className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
               placeholder="••••••••"
             />
           </div>

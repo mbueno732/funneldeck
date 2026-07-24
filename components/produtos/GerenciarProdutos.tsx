@@ -99,7 +99,7 @@ export function GerenciarProdutos({ produtos, especialistas, paginasCounts = {},
     <div className="space-y-6 max-w-3xl">
       <div>
         <h1 className="text-2xl font-bold text-white">Produtos</h1>
-        <p className="text-gray-500 text-sm mt-1">Produtos vinculados a cada especialista.</p>
+        <p className="text-slate-500 text-sm mt-1">Produtos vinculados a cada especialista.</p>
       </div>
 
       {especialistas.length === 0 && (
@@ -111,19 +111,19 @@ export function GerenciarProdutos({ produtos, especialistas, paginasCounts = {},
       {/* Formulário de criação */}
       <form onSubmit={handleCriar} className="flex gap-2 flex-wrap">
         <Select value={form.especialista_id || '__none__'} onValueChange={v => setForm(f => ({ ...f, especialista_id: v === '__none__' ? '' : v }))}>
-          <SelectTrigger className="h-9 text-sm bg-gray-900 border-gray-800 text-gray-300 hover:bg-gray-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[130px]">
+          <SelectTrigger className="h-9 text-sm bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[130px]">
             <SelectValue placeholder="Especialista *" />
           </SelectTrigger>
-          <SelectContent className="bg-gray-900 border-gray-800">
-            <SelectItem value="__none__" className="text-gray-300 focus:bg-gray-800 focus:text-white">Especialista *</SelectItem>
-            {especialistas.map(e => <SelectItem key={e.id} value={e.id} className="text-gray-300 focus:bg-gray-800 focus:text-white">{e.nome}</SelectItem>)}
+          <SelectContent className="bg-slate-900 border-slate-800">
+            <SelectItem value="__none__" className="text-slate-300 focus:bg-slate-800 focus:text-white">Especialista *</SelectItem>
+            {especialistas.map(e => <SelectItem key={e.id} value={e.id} className="text-slate-300 focus:bg-slate-800 focus:text-white">{e.nome}</SelectItem>)}
           </SelectContent>
         </Select>
         <Input
           value={form.nome}
           onChange={e => setForm(f => ({ ...f, nome: e.target.value }))}
           placeholder="Nome do produto *"
-          className="bg-gray-900 border-gray-800 text-white placeholder-gray-500 focus:border-indigo-500 flex-1 min-w-40"
+          className="bg-slate-900 border-slate-800 text-white placeholder-slate-500 focus:border-indigo-500 flex-1 min-w-40"
         />
         <Button type="submit" disabled={criando || !form.nome.trim() || !form.especialista_id} className="bg-indigo-600 hover:bg-indigo-500 text-white gap-2 shrink-0">
           <Plus size={16} />
@@ -141,22 +141,22 @@ export function GerenciarProdutos({ produtos, especialistas, paginasCounts = {},
       {/* Filtro */}
       <div className="flex items-center gap-2">
         <Select value={filtroEsp || '__all__'} onValueChange={v => setFiltroEsp(v === '__all__' ? '' : v)}>
-          <SelectTrigger className="h-9 text-sm bg-gray-900 border-gray-800 text-gray-300 hover:bg-gray-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[130px]">
+          <SelectTrigger className="h-9 text-sm bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[130px]">
             <SelectValue />
           </SelectTrigger>
-          <SelectContent className="bg-gray-900 border-gray-800">
-            <SelectItem value="__all__" className="text-gray-300 focus:bg-gray-800 focus:text-white">Todos os especialistas</SelectItem>
-            {especialistas.map(e => <SelectItem key={e.id} value={e.id} className="text-gray-300 focus:bg-gray-800 focus:text-white">{e.nome}</SelectItem>)}
+          <SelectContent className="bg-slate-900 border-slate-800">
+            <SelectItem value="__all__" className="text-slate-300 focus:bg-slate-800 focus:text-white">Todos os especialistas</SelectItem>
+            {especialistas.map(e => <SelectItem key={e.id} value={e.id} className="text-slate-300 focus:bg-slate-800 focus:text-white">{e.nome}</SelectItem>)}
           </SelectContent>
         </Select>
-        <span className="text-gray-500 text-sm">{filtrados.length} produto{filtrados.length !== 1 ? 's' : ''}</span>
+        <span className="text-slate-500 text-sm">{filtrados.length} produto{filtrados.length !== 1 ? 's' : ''}</span>
       </div>
 
       {/* Lista */}
-      <div className="rounded-xl border border-gray-800 overflow-hidden">
+      <div className="rounded-xl border border-slate-800 overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-gray-900/60 text-gray-400 text-xs uppercase tracking-wide">
+            <tr className="bg-slate-900/60 text-slate-400 text-xs uppercase tracking-wide">
               <th className="px-4 py-3 text-left font-medium">Produto</th>
               <th className="px-4 py-3 text-left font-medium">Especialista</th>
               <th className="px-4 py-3 text-left font-medium">Funis</th>
@@ -168,37 +168,37 @@ export function GerenciarProdutos({ produtos, especialistas, paginasCounts = {},
           <tbody className="divide-y divide-white/[0.07]">
             {filtrados.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-4 py-10 text-center text-gray-500">
+                <td colSpan={6} className="px-4 py-10 text-center text-slate-500">
                   Nenhum produto cadastrado.
                 </td>
               </tr>
             ) : filtrados.map(p => (
-              <tr key={p.id} className="hover:bg-gray-900/40 transition-colors">
+              <tr key={p.id} className="hover:bg-slate-900/40 transition-colors">
                 <td className="px-4 py-3">
                   {editando?.id === p.id ? (
                     <Input
                       value={editando.nome}
                       onChange={e => setEditando(prev => prev ? { ...prev, nome: e.target.value } : null)}
-                      className="bg-gray-900 border-gray-800 text-white h-8 text-sm"
+                      className="bg-slate-900 border-slate-800 text-white h-8 text-sm"
                       autoFocus
                       onKeyDown={e => e.key === 'Enter' && handleSalvarEdicao(p.id)}
                     />
                   ) : (
-                    <span className={`font-medium ${p.ativo ? 'text-white' : 'text-gray-500 line-through'}`}>{p.nome}</span>
+                    <span className={`font-medium ${p.ativo ? 'text-white' : 'text-slate-500 line-through'}`}>{p.nome}</span>
                   )}
                 </td>
                 <td className="px-4 py-3">
                   {editando?.id === p.id ? (
                     <Select value={editando.especialista_id || '__none__'} onValueChange={v => setEditando(prev => prev ? { ...prev, especialista_id: v === '__none__' ? '' : v } : null)}>
-                      <SelectTrigger className="h-8 text-xs bg-gray-900 border-gray-800 text-white focus:ring-0 focus:ring-offset-0 min-w-[120px]">
+                      <SelectTrigger className="h-8 text-xs bg-slate-900 border-slate-800 text-white focus:ring-0 focus:ring-offset-0 min-w-[120px]">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent className="bg-gray-900 border-gray-800">
-                        {especialistas.map(e => <SelectItem key={e.id} value={e.id} className="text-gray-300 focus:bg-gray-800 focus:text-white text-xs">{e.nome}</SelectItem>)}
+                      <SelectContent className="bg-slate-900 border-slate-800">
+                        {especialistas.map(e => <SelectItem key={e.id} value={e.id} className="text-slate-300 focus:bg-slate-800 focus:text-white text-xs">{e.nome}</SelectItem>)}
                       </SelectContent>
                     </Select>
                   ) : (
-                    <span className="text-gray-400">{p.especialistas?.nome ?? '—'}</span>
+                    <span className="text-slate-400">{p.especialistas?.nome ?? '—'}</span>
                   )}
                 </td>
                 <td className="px-4 py-3">
@@ -208,7 +208,7 @@ export function GerenciarProdutos({ produtos, especialistas, paginasCounts = {},
                       {funisCounts[p.id]}
                     </Link>
                   ) : (
-                    <span className="text-xs text-gray-600">—</span>
+                    <span className="text-xs text-slate-600">—</span>
                   )}
                 </td>
                 <td className="px-4 py-3">
@@ -218,12 +218,12 @@ export function GerenciarProdutos({ produtos, especialistas, paginasCounts = {},
                       {paginasCounts[p.id]}
                     </Link>
                   ) : (
-                    <span className="text-xs text-gray-600">—</span>
+                    <span className="text-xs text-slate-600">—</span>
                   )}
                 </td>
                 <td className="px-4 py-3">
                   <span className={`text-xs px-2 py-0.5 rounded-full border ${
-                    p.ativo ? 'bg-green-500/10 text-green-400 border-green-500/30' : 'bg-gray-500/10 text-gray-500 border-gray-500/30'
+                    p.ativo ? 'bg-green-500/10 text-green-400 border-green-500/30' : 'bg-slate-500/10 text-slate-500 border-slate-500/30'
                   }`}>{p.ativo ? 'Ativo' : 'Inativo'}</span>
                 </td>
                 <td className="px-4 py-3">
@@ -231,25 +231,25 @@ export function GerenciarProdutos({ produtos, especialistas, paginasCounts = {},
                     {editando?.id === p.id ? (
                       <>
                         <button onClick={() => handleSalvarEdicao(p.id)} className="text-green-400 hover:text-green-300 p-1"><Check size={15} /></button>
-                        <button onClick={() => setEditando(null)} className="text-gray-500 hover:text-gray-300 p-1"><X size={15} /></button>
+                        <button onClick={() => setEditando(null)} className="text-slate-500 hover:text-slate-300 p-1"><X size={15} /></button>
                       </>
                     ) : confirmandoDelete === p.id ? (
                       <div className="flex items-center gap-2">
                         <button onClick={() => handleDeletar(p.id)} className="px-3 py-1.5 text-xs text-white bg-red-600 hover:bg-red-500 rounded-lg font-medium transition-colors">Excluir</button>
-                        <button onClick={() => setConfirmandoDelete(null)} className="px-3 py-1.5 text-xs text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors">Cancelar</button>
+                        <button onClick={() => setConfirmandoDelete(null)} className="px-3 py-1.5 text-xs text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors">Cancelar</button>
                       </div>
                     ) : (
                       <>
-                        <Link href={`/produtos/${p.id}`} className="p-1.5 text-gray-500 hover:text-indigo-400 hover:bg-gray-900 rounded transition-colors" title="Ver produto">
+                        <Link href={`/produtos/${p.id}`} className="p-1.5 text-slate-500 hover:text-indigo-400 hover:bg-slate-900 rounded transition-colors" title="Ver produto">
                           <ChevronRight size={13} />
                         </Link>
-                        <button onClick={() => setEditando({ id: p.id, nome: p.nome, especialista_id: p.especialista_id })} className="p-1.5 text-gray-500 hover:text-white hover:bg-gray-900 rounded transition-colors" title="Editar">
+                        <button onClick={() => setEditando({ id: p.id, nome: p.nome, especialista_id: p.especialista_id })} className="p-1.5 text-slate-500 hover:text-white hover:bg-slate-900 rounded transition-colors" title="Editar">
                           <Pencil size={13} />
                         </button>
-                        <button onClick={() => handleToggleAtivo(p)} className="p-1.5 text-gray-500 hover:text-yellow-400 hover:bg-gray-900 rounded transition-colors" title={p.ativo ? 'Desativar' : 'Ativar'}>
+                        <button onClick={() => handleToggleAtivo(p)} className="p-1.5 text-slate-500 hover:text-yellow-400 hover:bg-slate-900 rounded transition-colors" title={p.ativo ? 'Desativar' : 'Ativar'}>
                           {p.ativo ? <X size={13} /> : <Check size={13} />}
                         </button>
-                        <button onClick={() => { setConfirmandoDelete(p.id); setErroDelete(null) }} className="p-1.5 text-gray-500 hover:text-red-400 hover:bg-gray-900 rounded transition-colors" title="Excluir produto">
+                        <button onClick={() => { setConfirmandoDelete(p.id); setErroDelete(null) }} className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-slate-900 rounded transition-colors" title="Excluir produto">
                           <Trash2 size={13} />
                         </button>
                       </>

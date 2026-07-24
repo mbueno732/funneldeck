@@ -131,31 +131,31 @@ export function PainelChecklist({ pagina, onFechar, dadosPreCarregados }: Props)
       <div className="fixed inset-0 z-30 bg-black/40" onClick={onFechar} />
 
       {/* Painel */}
-      <div className="fixed right-0 top-0 h-full w-full max-w-md z-40 bg-gray-900 border-l border-gray-800 flex flex-col shadow-2xl">
+      <div className="fixed right-0 top-0 h-full w-full max-w-md z-40 bg-slate-900 border-l border-slate-800 flex flex-col shadow-2xl">
         {/* Header */}
-        <div className="flex items-start justify-between p-5 border-b border-gray-800 shrink-0">
+        <div className="flex items-start justify-between p-5 border-b border-slate-800 shrink-0">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <CheckSquare size={16} className="text-indigo-400 shrink-0" />
               <h2 className="text-white font-semibold truncate">Checklist de Publicação</h2>
             </div>
-            <p className="text-gray-500 text-xs mt-0.5 truncate">{pagina.nome}</p>
+            <p className="text-slate-500 text-xs mt-0.5 truncate">{pagina.nome}</p>
           </div>
-          <button onClick={onFechar} className="p-1.5 text-gray-500 hover:text-white hover:bg-gray-900 rounded transition-colors shrink-0 ml-2">
+          <button onClick={onFechar} className="p-1.5 text-slate-500 hover:text-white hover:bg-slate-900 rounded transition-colors shrink-0 ml-2">
             <X size={16} />
           </button>
         </div>
 
         {carregando ? (
           <div className="flex-1 flex items-center justify-center">
-            <p className="text-gray-500 text-sm animate-pulse">Carregando checklist...</p>
+            <p className="text-slate-500 text-sm animate-pulse">Carregando checklist...</p>
           </div>
         ) : !checklist ? (
           <div className="flex-1 flex items-center justify-center p-6 text-center">
             <div className="space-y-4">
               <div className="space-y-1">
-                <p className="text-gray-400 text-sm">Checklist não criado ainda.</p>
-                <p className="text-gray-600 text-xs">Esta página não passou por &quot;Implementada&quot;.</p>
+                <p className="text-slate-400 text-sm">Checklist não criado ainda.</p>
+                <p className="text-slate-600 text-xs">Esta página não passou por &quot;Implementada&quot;.</p>
               </div>
               <button
                 onClick={async () => {
@@ -175,17 +175,17 @@ export function PainelChecklist({ pagina, onFechar, dadosPreCarregados }: Props)
         ) : (
           <div className="flex-1 overflow-y-auto">
             {/* Progresso */}
-            <div className="p-5 border-b border-gray-800 space-y-2">
+            <div className="p-5 border-b border-slate-800 space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-400">
+                <span className="text-sm text-slate-400">
                 {concluidos} de {aplicaveis.length} itens
-                {naoSeAplicam > 0 && <span className="text-gray-600 text-xs ml-1">· {naoSeAplicam} N/A</span>}
+                {naoSeAplicam > 0 && <span className="text-slate-600 text-xs ml-1">· {naoSeAplicam} N/A</span>}
               </span>
-                <span className={`text-sm font-bold ${pct === 100 ? 'text-green-400' : pct >= 60 ? 'text-yellow-400' : 'text-gray-400'}`}>
+                <span className={`text-sm font-bold ${pct === 100 ? 'text-green-400' : pct >= 60 ? 'text-yellow-400' : 'text-slate-400'}`}>
                   {pct}%
                 </span>
               </div>
-              <div className="h-2 bg-gray-900 rounded-full overflow-hidden">
+              <div className="h-2 bg-slate-900 rounded-full overflow-hidden">
                 <div
                   className="h-full rounded-full transition-all duration-300"
                   style={{ width: `${pct}%`, backgroundColor: pct === 100 ? '#22c55e' : pct >= 60 ? '#eab308' : '#f97316' }}
@@ -194,15 +194,15 @@ export function PainelChecklist({ pagina, onFechar, dadosPreCarregados }: Props)
             </div>
 
             {/* Toggle VSL */}
-            <div className="px-5 py-4 border-b border-gray-800">
+            <div className="px-5 py-4 border-b border-slate-800">
               <label className="flex items-center justify-between cursor-pointer">
                 <div>
                   <p className="text-sm text-white font-medium">Página tem elementos embedados</p>
-                  <p className="text-xs text-gray-500 mt-0.5">VSL no Panda, formulários multi-step e outros embeds — score da página esperado é menor</p>
+                  <p className="text-xs text-slate-500 mt-0.5">VSL no Panda, formulários multi-step e outros embeds — score da página esperado é menor</p>
                 </div>
                 <button
                   onClick={() => handleVsl(!vsl)}
-                  className={`relative w-10 h-5 rounded-full transition-colors ${vsl ? 'bg-indigo-600' : 'bg-gray-900'}`}
+                  className={`relative w-10 h-5 rounded-full transition-colors ${vsl ? 'bg-indigo-600' : 'bg-slate-900'}`}
                 >
                   <span className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform ${vsl ? 'translate-x-5' : ''}`} />
                 </button>
@@ -223,17 +223,17 @@ export function PainelChecklist({ pagina, onFechar, dadosPreCarregados }: Props)
                   <div key={fase}>
                     <button
                       onClick={() => setFasesAbertas(f => ({ ...f, [fase]: !faseAberta }))}
-                      className="w-full flex items-center justify-between px-5 py-3 hover:bg-gray-900/40 transition-colors"
+                      className="w-full flex items-center justify-between px-5 py-3 hover:bg-slate-900/40 transition-colors"
                     >
-                      <span className="text-xs font-semibold uppercase tracking-widest text-gray-400">
+                      <span className="text-xs font-semibold uppercase tracking-widest text-slate-400">
                         {FASE_LABEL[fase]}
                       </span>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-gray-600">
+                        <span className="text-xs text-slate-600">
                           {faseConcluidos}/{faseAplicaveis.length}
-                          {faseNa > 0 && <span className="ml-1 text-gray-700">· {faseNa} N/A</span>}
+                          {faseNa > 0 && <span className="ml-1 text-slate-700">· {faseNa} N/A</span>}
                         </span>
-                        {faseAberta ? <ChevronDown size={13} className="text-gray-600" /> : <ChevronRight size={13} className="text-gray-600" />}
+                        {faseAberta ? <ChevronDown size={13} className="text-slate-600" /> : <ChevronRight size={13} className="text-slate-600" />}
                       </div>
                     </button>
 
@@ -251,15 +251,15 @@ export function PainelChecklist({ pagina, onFechar, dadosPreCarregados }: Props)
                                   disabled={isNa}
                                 >
                                   {isNa
-                                    ? <MinusSquare size={15} className="text-gray-700" />
+                                    ? <MinusSquare size={15} className="text-slate-700" />
                                     : item.concluido
                                       ? <CheckSquare size={15} className="text-indigo-400" />
-                                      : <Square size={15} className="text-gray-600 hover:text-gray-400" />
+                                      : <Square size={15} className="text-slate-600 hover:text-slate-400" />
                                   }
                                 </button>
                                 <span className={`flex-1 text-sm leading-snug ${
-                                  isNa ? 'line-through text-gray-700 italic' :
-                                  item.concluido ? 'line-through text-gray-600' : 'text-gray-300'
+                                  isNa ? 'line-through text-slate-700 italic' :
+                                  item.concluido ? 'line-through text-slate-600' : 'text-slate-300'
                                 }`}>
                                   {item.item}
                                 </span>
@@ -268,8 +268,8 @@ export function PainelChecklist({ pagina, onFechar, dadosPreCarregados }: Props)
                                   title={isNa ? 'Desfazer N/A' : 'Marcar como não se aplica'}
                                   className={`shrink-0 px-1.5 py-0.5 text-xs rounded transition-colors opacity-0 group-hover:opacity-100 ${
                                     isNa
-                                      ? 'text-gray-500 bg-gray-800 hover:bg-gray-700 opacity-100'
-                                      : 'text-gray-600 hover:text-gray-400 hover:bg-gray-900'
+                                      ? 'text-slate-500 bg-slate-800 hover:bg-slate-700 opacity-100'
+                                      : 'text-slate-600 hover:text-slate-400 hover:bg-slate-900'
                                   }`}
                                 >
                                   N/A
@@ -285,7 +285,7 @@ export function PainelChecklist({ pagina, onFechar, dadosPreCarregados }: Props)
                                   >
                                     {grade} {gtmetrixScore}%
                                   </span>
-                                  {gtmetrixLcp && <span className="text-xs text-gray-500">LCP {gtmetrixLcp}s</span>}
+                                  {gtmetrixLcp && <span className="text-xs text-slate-500">LCP {gtmetrixLcp}s</span>}
                                   {vsl && (grade === 'B' || grade === 'A') && (
                                     <span className="text-xs text-green-400">✓ Aprovado com VSL</span>
                                   )}
@@ -311,10 +311,10 @@ export function PainelChecklist({ pagina, onFechar, dadosPreCarregados }: Props)
               const aplicaveis = checklist.checklist_itens.filter(i => !i.nao_se_aplica)
               const todosConcluidos = aplicaveis.length > 0 && aplicaveis.every(i => i.concluido)
               return (
-                <div className="px-5 pb-4 border-t border-gray-800 pt-4">
+                <div className="px-5 pb-4 border-t border-slate-800 pt-4">
                   <button
                     onClick={handleMarcarTodos}
-                    className="w-full py-2 text-xs font-medium rounded-lg border border-gray-700 text-gray-400 hover:text-white hover:border-gray-500 transition-colors"
+                    className="w-full py-2 text-xs font-medium rounded-lg border border-slate-700 text-slate-400 hover:text-white hover:border-slate-500 transition-colors"
                   >
                     {todosConcluidos ? 'Desmarcar todos' : 'Marcar todos como concluído'}
                   </button>
@@ -323,27 +323,27 @@ export function PainelChecklist({ pagina, onFechar, dadosPreCarregados }: Props)
             })()}
 
             {/* Observações */}
-            <div className="p-5 border-t border-gray-800">
-              <p className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-2">Observações</p>
+            <div className="p-5 border-t border-slate-800">
+              <p className="text-xs text-slate-500 font-medium uppercase tracking-wide mb-2">Observações</p>
               <textarea
                 value={checklist.observacao_geral ?? ''}
                 onChange={e => handleObservacao(e.target.value)}
                 placeholder="Notas sobre a publicação..."
                 rows={3}
-                className="w-full px-3 py-2 bg-gray-900 border border-gray-800 rounded-lg text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500 resize-none"
+                className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-lg text-sm text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 resize-none"
               />
             </div>
 
             {/* Histórico de status */}
             {historico.length > 0 && (
-              <div className="border-t border-gray-800">
+              <div className="border-t border-slate-800">
                 <button
                   onClick={() => setHistoricoAberto(v => !v)}
-                  className="w-full flex items-center justify-between px-5 py-3 text-xs text-gray-500 hover:text-gray-300 transition-colors"
+                  className="w-full flex items-center justify-between px-5 py-3 text-xs text-slate-500 hover:text-slate-300 transition-colors"
                 >
                   <span className="font-medium uppercase tracking-wide">Histórico de status</span>
                   <div className="flex items-center gap-2">
-                    <span className="text-gray-600">{historico.length} alteraç{historico.length === 1 ? 'ão' : 'ões'}</span>
+                    <span className="text-slate-600">{historico.length} alteraç{historico.length === 1 ? 'ão' : 'ões'}</span>
                     {historicoAberto ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
                   </div>
                 </button>
@@ -354,24 +354,24 @@ export function PainelChecklist({ pagina, onFechar, dadosPreCarregados }: Props)
                       <div key={h.id} className="flex gap-3">
                         <div className="flex flex-col items-center">
                           <div className="w-2 h-2 rounded-full bg-indigo-500 shrink-0 mt-1" />
-                          {i < historico.length - 1 && <div className="w-px flex-1 bg-gray-900 mt-1" />}
+                          {i < historico.length - 1 && <div className="w-px flex-1 bg-slate-900 mt-1" />}
                         </div>
                         <div className="pb-3 flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
                             {h.status_anterior && (
                               <>
-                                <span className="text-xs text-gray-500">{h.status_anterior}</span>
-                                <span className="text-gray-700">→</span>
+                                <span className="text-xs text-slate-500">{h.status_anterior}</span>
+                                <span className="text-slate-700">→</span>
                               </>
                             )}
                             <span className="text-xs text-white font-medium">{h.status_novo}</span>
                           </div>
                           <div className="flex items-center gap-2 mt-0.5">
-                            <span className="text-xs text-gray-600">
+                            <span className="text-xs text-slate-600">
                               {new Date(h.criado_em).toLocaleDateString('pt-BR')} às {new Date(h.criado_em).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
                             </span>
                             {h.usuarios?.nome && (
-                              <span className="text-xs text-gray-600">· {h.usuarios.nome}</span>
+                              <span className="text-xs text-slate-600">· {h.usuarios.nome}</span>
                             )}
                           </div>
                         </div>

@@ -36,7 +36,7 @@ const STATUS_COR: Record<string, string> = {
 }
 
 const STATUS_TESTE_COR: Record<string, string> = {
-  'Planejado':             'bg-gray-800 text-gray-400 border-gray-700',
+  'Planejado':             'bg-slate-800 text-slate-400 border-slate-700',
   'Ativo':                 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
   'Finalizado':            'bg-green-500/10 text-green-400 border-green-500/20',
   'Vencedor implementado': 'bg-green-500/10 text-green-400 border-green-500/20',
@@ -135,7 +135,7 @@ export function DetalhesFunil({ funil, paginas, paginasProduto = [], historico, 
     <div className="space-y-5">
       {/* Header */}
       <div>
-        <Link href="/funis" className="flex items-center gap-1.5 text-gray-500 hover:text-white text-sm transition-colors mb-3">
+        <Link href="/funis" className="flex items-center gap-1.5 text-slate-500 hover:text-white text-sm transition-colors mb-3">
           <ChevronLeft size={14} />
           Funis
         </Link>
@@ -157,27 +157,27 @@ export function DetalhesFunil({ funil, paginas, paginasProduto = [], historico, 
                 {funil.status}
               </span>
             </div>
-            <p className="text-gray-500 text-sm mt-1">
+            <p className="text-slate-500 text-sm mt-1">
               {especialistaNome && <span>{especialistaNome}</span>}
-              {especialistaNome && produtoNome && <span className="mx-1.5 text-gray-700">·</span>}
+              {especialistaNome && produtoNome && <span className="mx-1.5 text-slate-700">·</span>}
               {produtoNome && <span>{produtoNome}</span>}
-              <span className="mx-1.5 text-gray-700">·</span>
+              <span className="mx-1.5 text-slate-700">·</span>
               <span>criado em {formatarData(funil.criado_em)}</span>
             </p>
           </div>
           <div className="flex items-center gap-4 text-sm shrink-0">
             <div className="text-center">
               <p className="text-white font-semibold text-lg">{paginas.length}</p>
-              <p className="text-gray-500 text-xs">páginas</p>
+              <p className="text-slate-500 text-xs">páginas</p>
             </div>
             <div className="text-center">
               <p className="text-green-400 font-semibold text-lg">{totalPublicadas}</p>
-              <p className="text-gray-500 text-xs">publicadas</p>
+              <p className="text-slate-500 text-xs">publicadas</p>
             </div>
             {totalImplementadas > 0 && (
               <div className="text-center">
                 <p className="text-yellow-400 font-semibold text-lg">{totalImplementadas}</p>
-                <p className="text-gray-500 text-xs">implementadas</p>
+                <p className="text-slate-500 text-xs">implementadas</p>
               </div>
             )}
           </div>
@@ -185,7 +185,7 @@ export function DetalhesFunil({ funil, paginas, paginasProduto = [], historico, 
       </div>
 
       {/* Abas */}
-      <div className="flex gap-1 border-b border-gray-800">
+      <div className="flex gap-1 border-b border-slate-800">
         {([
           { id: 'timeline',    label: 'Timeline',    icon: Clock },
           { id: 'paginas',     label: 'Páginas',     icon: LayoutGrid },
@@ -198,7 +198,7 @@ export function DetalhesFunil({ funil, paginas, paginasProduto = [], historico, 
             className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors -mb-px ${
               aba === id
                 ? 'border-indigo-500 text-white'
-                : 'border-transparent text-gray-500 hover:text-gray-300'
+                : 'border-transparent text-slate-500 hover:text-slate-300'
             }`}
           >
             <Icon size={14} />
@@ -211,7 +211,7 @@ export function DetalhesFunil({ funil, paginas, paginasProduto = [], historico, 
       {aba === 'timeline' && (
         <div>
           {eventos.length === 0 ? (
-            <p className="text-gray-500 text-sm py-8 text-center">Nenhum evento registrado ainda.</p>
+            <p className="text-slate-500 text-sm py-8 text-center">Nenhum evento registrado ainda.</p>
           ) : (
             <div className="space-y-0">
               {porData.map((grupo, gi) => (
@@ -219,7 +219,7 @@ export function DetalhesFunil({ funil, paginas, paginasProduto = [], historico, 
                   {/* Separador de data */}
                   <div className="flex items-center gap-3 py-3">
                     <div className="h-px flex-1 bg-white/[0.06]" />
-                    <span className="text-[11px] text-gray-600 font-medium uppercase tracking-wide shrink-0">
+                    <span className="text-[11px] text-slate-600 font-medium uppercase tracking-wide shrink-0">
                       {new Date(grupo.data + 'T12:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })}
                     </span>
                     <div className="h-px flex-1 bg-white/[0.06]" />
@@ -236,7 +236,7 @@ export function DetalhesFunil({ funil, paginas, paginasProduto = [], historico, 
                       <div key={ev.id} className="relative flex items-start gap-4 py-2.5 group">
                         {/* Dot */}
                         <div
-                          className="absolute left-[-25px] top-3 w-3.5 h-3.5 rounded-full border-2 border-gray-950 shrink-0 z-10"
+                          className="absolute left-[-25px] top-3 w-3.5 h-3.5 rounded-full border-2 border-slate-950 shrink-0 z-10"
                           style={{
                             backgroundColor: ev.tipo === 'funil'
                               ? '#6366f1'
@@ -261,7 +261,7 @@ export function DetalhesFunil({ funil, paginas, paginasProduto = [], historico, 
                         </div>
 
                         {/* Hora */}
-                        <span className="text-xs text-gray-700 shrink-0 mt-0.5">{formatarHora(ev.data)}</span>
+                        <span className="text-xs text-slate-700 shrink-0 mt-0.5">{formatarHora(ev.data)}</span>
                       </div>
                     ))}
                   </div>
@@ -287,7 +287,7 @@ export function DetalhesFunil({ funil, paginas, paginasProduto = [], historico, 
               <table className="w-full text-sm">
                 <tbody className="divide-y divide-white/[0.05]">
                   {paginasProduto.map(p => (
-                    <tr key={p.id} className="hover:bg-gray-900/30 transition-colors">
+                    <tr key={p.id} className="hover:bg-slate-900/30 transition-colors">
                       <td className="px-4 py-2.5">
                         <div className="flex items-center gap-2">
                           {p.codigo && (
@@ -301,7 +301,7 @@ export function DetalhesFunil({ funil, paginas, paginasProduto = [], historico, 
                           )}
                         </div>
                       </td>
-                      <td className="px-4 py-2.5 text-xs text-gray-500">{p.etapa ?? '—'}</td>
+                      <td className="px-4 py-2.5 text-xs text-slate-500">{p.etapa ?? '—'}</td>
                       <td className="px-4 py-2.5">
                         <span className="text-xs font-medium" style={{ color: STATUS_COR[p.status] ?? '#6b7280' }}>{p.status}</span>
                       </td>
@@ -334,7 +334,7 @@ export function DetalhesFunil({ funil, paginas, paginasProduto = [], historico, 
           )}
 
           <div className="flex items-center justify-between">
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-slate-500">
               {estrategiasState.length === 0
                 ? 'Nenhuma estratégia cadastrada.'
                 : `${estrategiasState.length} estratégia${estrategiasState.length !== 1 ? 's' : ''}`}
@@ -349,22 +349,22 @@ export function DetalhesFunil({ funil, paginas, paginasProduto = [], historico, 
           </div>
 
           {estrategiasState.length === 0 ? (
-            <div className="border border-dashed border-gray-800 rounded-xl p-10 text-center">
-              <Layers size={24} className="text-gray-700 mx-auto mb-3" />
-              <p className="text-gray-500 text-sm">Crie estratégias para organizar as páginas deste funil.</p>
-              <p className="text-gray-600 text-xs mt-1">Ex: Captação Normal, Aplicação, VSL...</p>
+            <div className="border border-dashed border-slate-800 rounded-xl p-10 text-center">
+              <Layers size={24} className="text-slate-700 mx-auto mb-3" />
+              <p className="text-slate-500 text-sm">Crie estratégias para organizar as páginas deste funil.</p>
+              <p className="text-slate-600 text-xs mt-1">Ex: Captação Normal, Aplicação, VSL...</p>
             </div>
           ) : (
             <div className="space-y-3">
               {estrategiasState.map(est => {
                 const paginasDaEst = paginas.filter(p => (Object.hasOwn(estrategiaOverrides, p.id) ? estrategiaOverrides[p.id] : p.estrategia_id) === est.id)
                 return (
-                  <div key={est.id} className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
-                    <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800">
+                  <div key={est.id} className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+                    <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800">
                       <div className="flex items-center gap-2.5">
                         <Layers size={14} className="text-indigo-400 shrink-0" />
                         <span className="text-white font-medium text-sm">{est.nome}</span>
-                        <span className="text-xs text-gray-600">{paginasDaEst.length} página{paginasDaEst.length !== 1 ? 's' : ''}</span>
+                        <span className="text-xs text-slate-600">{paginasDaEst.length} página{paginasDaEst.length !== 1 ? 's' : ''}</span>
                       </div>
                       <div className="flex items-center gap-1">
                         {deletandoEstrategia === est.id ? (
@@ -390,7 +390,7 @@ export function DetalhesFunil({ funil, paginas, paginasProduto = [], historico, 
                             <button
                               disabled={deletandoConfirmado === est.id}
                               onClick={() => setDeletandoEstrategia(null)}
-                              className="px-2.5 py-1 text-xs text-gray-400 hover:text-white bg-gray-800 rounded-lg transition-colors disabled:opacity-50"
+                              className="px-2.5 py-1 text-xs text-slate-400 hover:text-white bg-slate-800 rounded-lg transition-colors disabled:opacity-50"
                             >
                               Cancelar
                             </button>
@@ -399,14 +399,14 @@ export function DetalhesFunil({ funil, paginas, paginasProduto = [], historico, 
                           <>
                             <button
                               onClick={() => { setEditandoEstrategia(est); setModalEstrategiaAberto(true) }}
-                              className="p-1.5 text-gray-500 hover:text-white hover:bg-gray-800 rounded transition-colors"
+                              className="p-1.5 text-slate-500 hover:text-white hover:bg-slate-800 rounded transition-colors"
                               title="Editar"
                             >
                               <Pencil size={13} />
                             </button>
                             <button
                               onClick={() => setDeletandoEstrategia(est.id)}
-                              className="p-1.5 text-gray-500 hover:text-red-400 hover:bg-gray-800 rounded transition-colors"
+                              className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-slate-800 rounded transition-colors"
                               title="Deletar"
                             >
                               <Trash2 size={13} />
@@ -424,8 +424,8 @@ export function DetalhesFunil({ funil, paginas, paginasProduto = [], historico, 
                                 {p.codigo}
                               </span>
                             )}
-                            <span className="text-sm text-gray-300">{p.nome}</span>
-                            {p.etapa && <span className="text-xs text-gray-600">· {p.etapa}</span>}
+                            <span className="text-sm text-slate-300">{p.nome}</span>
+                            {p.etapa && <span className="text-xs text-slate-600">· {p.etapa}</span>}
                             {p.url_pagina && (
                               <a href={p.url_pagina} target="_blank" rel="noopener noreferrer" className="text-indigo-400 hover:text-indigo-300 ml-auto shrink-0">
                                 <LinkIcon size={11} />
@@ -435,7 +435,7 @@ export function DetalhesFunil({ funil, paginas, paginasProduto = [], historico, 
                         ))}
                       </div>
                     ) : (
-                      <p className="px-4 py-3 text-xs text-gray-600">Nenhuma página associada a esta estratégia.</p>
+                      <p className="px-4 py-3 text-xs text-slate-600">Nenhuma página associada a esta estratégia.</p>
                     )}
                   </div>
                 )
@@ -446,9 +446,9 @@ export function DetalhesFunil({ funil, paginas, paginasProduto = [], historico, 
                 const semEst = paginas.filter(p => !(Object.hasOwn(estrategiaOverrides, p.id) ? estrategiaOverrides[p.id] : p.estrategia_id))
                 if (semEst.length === 0) return null
                 return (
-                  <div className="bg-gray-900/50 border border-dashed border-gray-800 rounded-xl overflow-hidden">
-                    <div className="px-4 py-3 border-b border-gray-800">
-                      <span className="text-xs text-gray-600">{semEst.length} página{semEst.length !== 1 ? 's' : ''} sem estratégia definida</span>
+                  <div className="bg-slate-900/50 border border-dashed border-slate-800 rounded-xl overflow-hidden">
+                    <div className="px-4 py-3 border-b border-slate-800">
+                      <span className="text-xs text-slate-600">{semEst.length} página{semEst.length !== 1 ? 's' : ''} sem estratégia definida</span>
                     </div>
                     <div className="divide-y divide-white/[0.05]">
                       {semEst.map(p => (
@@ -458,8 +458,8 @@ export function DetalhesFunil({ funil, paginas, paginasProduto = [], historico, 
                               {p.codigo}
                             </span>
                           )}
-                          <span className="text-sm text-gray-500 flex-1 truncate">{p.nome}</span>
-                          {p.etapa && <span className="text-xs text-gray-700 shrink-0">· {p.etapa}</span>}
+                          <span className="text-sm text-slate-500 flex-1 truncate">{p.nome}</span>
+                          {p.etapa && <span className="text-xs text-slate-700 shrink-0">· {p.etapa}</span>}
                           {estrategiasState.length > 0 && (
                             <Select
                               onValueChange={async (v) => {
@@ -474,13 +474,13 @@ export function DetalhesFunil({ funil, paginas, paginasProduto = [], historico, 
                             >
                               <SelectTrigger
                                 disabled={atribuindo === p.id}
-                                className="h-7 text-xs border-gray-700 bg-gray-900 text-gray-500 hover:text-white focus:ring-0 focus:ring-offset-0 w-36 shrink-0"
+                                className="h-7 text-xs border-slate-700 bg-slate-900 text-slate-500 hover:text-white focus:ring-0 focus:ring-offset-0 w-36 shrink-0"
                               >
                                 <SelectValue placeholder={atribuindo === p.id ? 'Salvando...' : 'Mover para...'} />
                               </SelectTrigger>
-                              <SelectContent className="bg-gray-900 border-gray-800">
+                              <SelectContent className="bg-slate-900 border-slate-800">
                                 {estrategiasState.map(est => (
-                                  <SelectItem key={est.id} value={est.id} className="text-gray-300 focus:bg-gray-800 focus:text-white text-xs">
+                                  <SelectItem key={est.id} value={est.id} className="text-slate-300 focus:bg-slate-800 focus:text-white text-xs">
                                     {est.nome}
                                   </SelectItem>
                                 ))}
@@ -502,27 +502,27 @@ export function DetalhesFunil({ funil, paginas, paginasProduto = [], historico, 
       {aba === 'testes' && (
         <div className="space-y-3">
           {testesAB.length === 0 ? (
-            <div className="rounded-xl border border-gray-800 p-8 text-center space-y-2">
-              <FlaskConical size={24} className="text-gray-700 mx-auto" />
-              <p className="text-gray-500 text-sm">Nenhum teste A/B vinculado a este funil ainda.</p>
+            <div className="rounded-xl border border-slate-800 p-8 text-center space-y-2">
+              <FlaskConical size={24} className="text-slate-700 mx-auto" />
+              <p className="text-slate-500 text-sm">Nenhum teste A/B vinculado a este funil ainda.</p>
               <Link href="/variantes/novo" className="text-indigo-400 hover:underline text-sm">
                 Criar experimento
               </Link>
             </div>
           ) : (
-            <div className="rounded-xl border border-gray-800 divide-y divide-gray-800 overflow-hidden">
+            <div className="rounded-xl border border-slate-800 divide-y divide-slate-800 overflow-hidden">
               {testesAB.map(t => {
                 const vencedora = t.variantes_teste?.find(v => v.is_vencedor)
                 return (
                   <Link
                     key={t.id}
                     href={`/variantes/${t.id}`}
-                    className="flex items-center justify-between gap-4 px-4 py-3 hover:bg-gray-900/40 transition-colors"
+                    className="flex items-center justify-between gap-4 px-4 py-3 hover:bg-slate-900/40 transition-colors"
                   >
                     <div className="min-w-0">
                       <p className="text-white text-sm font-medium truncate">{t.nome}</p>
                       {t.paginas?.nome && (
-                        <p className="text-gray-500 text-xs mt-0.5">
+                        <p className="text-slate-500 text-xs mt-0.5">
                           {t.paginas.codigo && `[${t.paginas.codigo}] `}{t.paginas.nome}
                         </p>
                       )}
@@ -533,7 +533,7 @@ export function DetalhesFunil({ funil, paginas, paginasProduto = [], historico, 
                           <Trophy size={12} /> {vencedora.nome}
                         </span>
                       )}
-                      <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium border ${STATUS_TESTE_COR[t.status] ?? 'bg-gray-800 text-gray-400 border-gray-700'}`}>
+                      <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium border ${STATUS_TESTE_COR[t.status] ?? 'bg-slate-800 text-slate-400 border-slate-700'}`}>
                         {t.status}
                       </span>
                     </div>

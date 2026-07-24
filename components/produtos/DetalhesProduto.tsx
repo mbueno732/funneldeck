@@ -64,7 +64,7 @@ export function DetalhesProduto({ produto, paginas, funis, configs, estrategias,
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-start gap-4">
-        <Link href="/produtos" className="mt-1 p-1.5 text-gray-500 hover:text-white hover:bg-gray-900 rounded transition-colors">
+        <Link href="/produtos" className="mt-1 p-1.5 text-slate-500 hover:text-white hover:bg-slate-900 rounded transition-colors">
           <ChevronLeft size={18} />
         </Link>
         <div className="flex-1 min-w-0">
@@ -73,27 +73,27 @@ export function DetalhesProduto({ produto, paginas, funis, configs, estrategias,
             <span className={`text-xs px-2 py-0.5 rounded-full border ${
               produto.ativo
                 ? 'bg-green-500/10 text-green-400 border-green-500/30'
-                : 'bg-gray-500/10 text-gray-500 border-gray-500/30'
+                : 'bg-slate-500/10 text-slate-500 border-slate-500/30'
             }`}>
               {produto.ativo ? 'Ativo' : 'Inativo'}
             </span>
           </div>
           {produto.especialistas?.nome && (
-            <p className="text-gray-500 text-sm mt-0.5">
-              Especialista: <span className="text-gray-300">{produto.especialistas.nome}</span>
+            <p className="text-slate-500 text-sm mt-0.5">
+              Especialista: <span className="text-slate-300">{produto.especialistas.nome}</span>
             </p>
           )}
         </div>
         <Link
           href={`/paginas?produto=${produto.id}`}
-          className="shrink-0 px-3 py-1.5 text-xs text-gray-400 hover:text-white border border-gray-800 hover:border-gray-600 rounded-lg transition-colors"
+          className="shrink-0 px-3 py-1.5 text-xs text-slate-400 hover:text-white border border-slate-800 hover:border-slate-600 rounded-lg transition-colors"
         >
           Ver no Mapa de Páginas
         </Link>
       </div>
 
       {/* Abas */}
-      <div className="flex gap-1 border-b border-gray-800">
+      <div className="flex gap-1 border-b border-slate-800">
         {([
           { id: 'paginas', label: `Páginas${paginasVisiveis.length > 0 ? ` (${paginasVisiveis.length})` : ''}` },
           { id: 'funis',   label: `Funis${funis.length > 0 ? ` (${funis.length})` : ''}` },
@@ -104,7 +104,7 @@ export function DetalhesProduto({ produto, paginas, funis, configs, estrategias,
             className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors -mb-px ${
               aba === tab.id
                 ? 'border-indigo-500 text-white'
-                : 'border-transparent text-gray-500 hover:text-gray-300'
+                : 'border-transparent text-slate-500 hover:text-slate-300'
             }`}
           >
             {tab.label}
@@ -116,7 +116,7 @@ export function DetalhesProduto({ produto, paginas, funis, configs, estrategias,
       {aba === 'paginas' && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <p className="text-gray-500 text-sm">Páginas permanentes — reaproveitadas em todos os lançamentos deste produto.</p>
+            <p className="text-slate-500 text-sm">Páginas permanentes — reaproveitadas em todos os lançamentos deste produto.</p>
             <Button
               onClick={() => { setEditando(null); setModalAberto(true) }}
               className="bg-indigo-600 hover:bg-indigo-500 text-white gap-2"
@@ -127,16 +127,16 @@ export function DetalhesProduto({ produto, paginas, funis, configs, estrategias,
           </div>
 
           {paginasVisiveis.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-gray-800 px-6 py-12 text-center">
-              <p className="text-gray-400 font-medium">Nenhuma página permanente ainda.</p>
-              <p className="text-gray-600 text-sm mt-1">Adicione páginas que são reaproveitadas em todos os lançamentos deste produto.</p>
-              <p className="text-gray-600 text-sm">Exemplos: Página de Vendas, Página de Indicação, Checkout.</p>
+            <div className="rounded-xl border border-dashed border-slate-800 px-6 py-12 text-center">
+              <p className="text-slate-400 font-medium">Nenhuma página permanente ainda.</p>
+              <p className="text-slate-600 text-sm mt-1">Adicione páginas que são reaproveitadas em todos os lançamentos deste produto.</p>
+              <p className="text-slate-600 text-sm">Exemplos: Página de Vendas, Página de Indicação, Checkout.</p>
             </div>
           ) : (
-            <div className="rounded-xl border border-gray-800 overflow-hidden">
+            <div className="rounded-xl border border-slate-800 overflow-hidden">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="bg-gray-900/60 text-gray-400 text-xs uppercase tracking-wide">
+                  <tr className="bg-slate-900/60 text-slate-400 text-xs uppercase tracking-wide">
                     <th className="px-4 py-3 text-left font-medium">Página</th>
                     <th className="px-4 py-3 text-left font-medium">Etapa</th>
                     <th className="px-4 py-3 text-left font-medium">Status</th>
@@ -146,7 +146,7 @@ export function DetalhesProduto({ produto, paginas, funis, configs, estrategias,
                 </thead>
                 <tbody className="divide-y divide-white/[0.07]">
                   {paginasVisiveis.map(p => (
-                    <tr key={p.id} className="hover:bg-gray-900/40 transition-colors">
+                    <tr key={p.id} className="hover:bg-slate-900/40 transition-colors">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
                           {p.codigo && (
@@ -160,27 +160,27 @@ export function DetalhesProduto({ produto, paginas, funis, configs, estrategias,
                           )}
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-gray-400 text-xs">{p.etapa ?? '—'}</td>
+                      <td className="px-4 py-3 text-slate-400 text-xs">{p.etapa ?? '—'}</td>
                       <td className="px-4 py-3">
                         <span className="text-xs font-medium" style={{ color: STATUS_COR[p.status] ?? '#6b7280' }}>{p.status}</span>
                       </td>
                       <td className="px-4 py-3">
                         {p.ferramenta ? (
                           <span className="text-xs" style={{ color: cor('ferramenta', p.ferramenta) ?? '#9ca3af' }}>{p.ferramenta}</span>
-                        ) : <span className="text-gray-600 text-xs">—</span>}
+                        ) : <span className="text-slate-600 text-xs">—</span>}
                       </td>
                       <td className="px-4 py-3">
                         {deletandoPagina === p.id ? (
                           <div className="flex items-center gap-1">
                             <button onClick={() => handleDeletar(p.id)} className="px-2 py-1 text-xs text-white bg-red-600 hover:bg-red-500 rounded font-medium">Excluir</button>
-                            <button onClick={() => setDeletandoPagina(null)} className="px-2 py-1 text-xs text-gray-400 hover:text-white bg-gray-800 rounded">Cancelar</button>
+                            <button onClick={() => setDeletandoPagina(null)} className="px-2 py-1 text-xs text-slate-400 hover:text-white bg-slate-800 rounded">Cancelar</button>
                           </div>
                         ) : (
                           <div className="flex items-center gap-1 justify-end">
-                            <button onClick={() => { setEditando(p); setModalAberto(true) }} className="p-1.5 text-gray-500 hover:text-white hover:bg-gray-900 rounded transition-colors" title="Editar">
+                            <button onClick={() => { setEditando(p); setModalAberto(true) }} className="p-1.5 text-slate-500 hover:text-white hover:bg-slate-900 rounded transition-colors" title="Editar">
                               <Pencil size={13} />
                             </button>
-                            <button onClick={() => setDeletandoPagina(p.id)} className="p-1.5 text-gray-500 hover:text-red-400 hover:bg-gray-900 rounded transition-colors" title="Excluir">
+                            <button onClick={() => setDeletandoPagina(p.id)} className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-slate-900 rounded transition-colors" title="Excluir">
                               <Trash2 size={13} />
                             </button>
                           </div>
@@ -205,15 +205,15 @@ export function DetalhesProduto({ produto, paginas, funis, configs, estrategias,
             </Button>
           </div>
           {funis.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-gray-800 px-6 py-12 text-center">
-              <p className="text-gray-400 font-medium">Nenhum funil vinculado a este produto.</p>
-              <p className="text-gray-600 text-sm mt-1">Crie um funil acima ou em <Link href="/funis" className="text-indigo-400 hover:text-indigo-300">Funis</Link>.</p>
+            <div className="rounded-xl border border-dashed border-slate-800 px-6 py-12 text-center">
+              <p className="text-slate-400 font-medium">Nenhum funil vinculado a este produto.</p>
+              <p className="text-slate-600 text-sm mt-1">Crie um funil acima ou em <Link href="/funis" className="text-indigo-400 hover:text-indigo-300">Funis</Link>.</p>
             </div>
           ) : funis.map(f => (
             <Link
               key={f.id}
               href={`/funis/${f.id}`}
-              className="flex items-center justify-between p-4 rounded-xl border border-gray-800 hover:border-gray-600 bg-gray-900/30 hover:bg-gray-900/60 transition-all group"
+              className="flex items-center justify-between p-4 rounded-xl border border-slate-800 hover:border-slate-600 bg-slate-900/30 hover:bg-slate-900/60 transition-all group"
             >
               <div className="flex items-center gap-3">
                 {f.tipo && (
@@ -233,10 +233,10 @@ export function DetalhesProduto({ produto, paginas, funis, configs, estrategias,
                     {f.id_funil && <span className="text-indigo-400 font-mono text-xs">[{f.id_funil}]</span>}
                     <span className="text-white font-medium">{f.nome}</span>
                   </div>
-                  <span className="text-gray-500 text-xs">{f.status}</span>
+                  <span className="text-slate-500 text-xs">{f.status}</span>
                 </div>
               </div>
-              <ChevronLeft size={14} className="text-gray-600 group-hover:text-gray-400 rotate-180 transition-colors" />
+              <ChevronLeft size={14} className="text-slate-600 group-hover:text-slate-400 rotate-180 transition-colors" />
             </Link>
           ))}
         </div>

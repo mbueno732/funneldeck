@@ -211,7 +211,7 @@ export function ModalVariante({ aberto, onFechar, onCriada, pagina, todasPaginas
 
   return (
     <Dialog open={aberto} onOpenChange={v => !v && onFechar()}>
-      <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent className="bg-slate-900 border-slate-800 text-white max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-white">
             Criar variante — <span className="text-indigo-400">{pagina?.nome}</span>
@@ -220,17 +220,17 @@ export function ModalVariante({ aberto, onFechar, onCriada, pagina, todasPaginas
 
         <div className="space-y-5 mt-2">
           {pagina?.url_pagina && (
-            <p className="text-xs text-gray-500 break-all">
-              Original: <span className="text-gray-400 font-mono">{pagina.url_pagina}</span>
+            <p className="text-xs text-slate-500 break-all">
+              Original: <span className="text-slate-400 font-mono">{pagina.url_pagina}</span>
             </p>
           )}
 
           {/* Checklist */}
           <div className="space-y-4">
             <div>
-              <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2.5">
+              <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-2.5">
                 Mudança de elemento
-                <span className="ml-2 normal-case font-normal text-gray-600">→ mesma variante, sobe versão</span>
+                <span className="ml-2 normal-case font-normal text-slate-600">→ mesma variante, sobe versão</span>
               </p>
               <div className="space-y-2">
                 {ELEMENTO.map(m => (
@@ -239,18 +239,18 @@ export function ModalVariante({ aberto, onFechar, onCriada, pagina, todasPaginas
                       type="checkbox"
                       checked={selecionadas.has(m.id)}
                       onChange={() => toggle(m.id)}
-                      className="w-4 h-4 rounded border-gray-700 bg-gray-950 text-indigo-500 focus:ring-0 focus:ring-offset-0 accent-indigo-500"
+                      className="w-4 h-4 rounded border-slate-700 bg-slate-950 text-indigo-500 focus:ring-0 focus:ring-offset-0 accent-indigo-500"
                     />
-                    <span className="text-sm text-gray-300 group-hover:text-white transition-colors">{m.label}</span>
+                    <span className="text-sm text-slate-300 group-hover:text-white transition-colors">{m.label}</span>
                   </label>
                 ))}
               </div>
             </div>
 
             <div>
-              <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2.5">
+              <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-2.5">
                 Mudança de estrutura
-                <span className="ml-2 normal-case font-normal text-gray-600">→ nova letra de variante</span>
+                <span className="ml-2 normal-case font-normal text-slate-600">→ nova letra de variante</span>
               </p>
               <div className="space-y-2">
                 {ESTRUTURA.map(m => (
@@ -259,9 +259,9 @@ export function ModalVariante({ aberto, onFechar, onCriada, pagina, todasPaginas
                       type="checkbox"
                       checked={selecionadas.has(m.id)}
                       onChange={() => toggle(m.id)}
-                      className="w-4 h-4 rounded border-gray-700 bg-gray-950 text-indigo-500 focus:ring-0 focus:ring-offset-0 accent-indigo-500"
+                      className="w-4 h-4 rounded border-slate-700 bg-slate-950 text-indigo-500 focus:ring-0 focus:ring-offset-0 accent-indigo-500"
                     />
-                    <span className="text-sm text-gray-300 group-hover:text-white transition-colors">{m.label}</span>
+                    <span className="text-sm text-slate-300 group-hover:text-white transition-colors">{m.label}</span>
                   </label>
                 ))}
               </div>
@@ -270,7 +270,7 @@ export function ModalVariante({ aberto, onFechar, onCriada, pagina, todasPaginas
 
           {/* Resultado */}
           {temSelecao && sugestao && (
-            <div className="border-t border-gray-800 pt-4 space-y-3">
+            <div className="border-t border-slate-800 pt-4 space-y-3">
               <div className="flex items-center gap-2 flex-wrap">
                 <span className={`text-xs px-2 py-0.5 rounded font-medium ${
                   isEstrutura
@@ -281,29 +281,29 @@ export function ModalVariante({ aberto, onFechar, onCriada, pagina, todasPaginas
                     ? `Nova variante ${sugestao.novaVariante?.toUpperCase()}`
                     : `Versão v${sugestao.novaVersao}`}
                 </span>
-                <span className="text-xs text-gray-600">
-                  slug: <span className="text-gray-400 font-mono">{sugestao.slug}</span>
+                <span className="text-xs text-slate-600">
+                  slug: <span className="text-slate-400 font-mono">{sugestao.slug}</span>
                 </span>
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-gray-400 text-xs">
-                  URL gerada <span className="text-gray-600">(editável)</span>
+                <Label className="text-slate-400 text-xs">
+                  URL gerada <span className="text-slate-600">(editável)</span>
                 </Label>
                 <div className="flex items-center gap-2">
                   <Input
                     value={urlEditada}
                     onChange={e => setUrlEditada(e.target.value)}
                     placeholder="https://..."
-                    className={`bg-gray-950 border text-white text-sm font-mono placeholder-gray-600 focus:border-indigo-500 ${
-                      urlDuplicada ? 'border-red-500' : 'border-gray-800'
+                    className={`bg-slate-950 border text-white text-sm font-mono placeholder-slate-600 focus:border-indigo-500 ${
+                      urlDuplicada ? 'border-red-500' : 'border-slate-800'
                     }`}
                   />
                   <button
                     type="button"
                     onClick={copiar}
                     disabled={!urlEditada}
-                    className="shrink-0 p-2 text-gray-500 hover:text-indigo-400 hover:bg-gray-800 rounded transition-colors disabled:opacity-30"
+                    className="shrink-0 p-2 text-slate-500 hover:text-indigo-400 hover:bg-slate-800 rounded transition-colors disabled:opacity-30"
                     title="Copiar URL"
                   >
                     {copiado ? <Check size={14} className="text-green-400" /> : <Copy size={14} />}
@@ -316,7 +316,7 @@ export function ModalVariante({ aberto, onFechar, onCriada, pagina, todasPaginas
                   <p className="text-xs text-red-400">Esta URL já existe — edite antes de salvar.</p>
                 )}
                 {info && info.variante === null && info.slugRaiz && (
-                  <p className="text-xs text-gray-600">Página sem variante definida — ajuste a URL se necessário.</p>
+                  <p className="text-xs text-slate-600">Página sem variante definida — ajuste a URL se necessário.</p>
                 )}
               </div>
             </div>
@@ -325,7 +325,7 @@ export function ModalVariante({ aberto, onFechar, onCriada, pagina, todasPaginas
           {erro && <p className="text-red-400 text-sm">{erro}</p>}
 
           <div className="flex justify-end gap-2 pt-1">
-            <Button type="button" variant="ghost" onClick={onFechar} className="text-gray-400 hover:text-white">
+            <Button type="button" variant="ghost" onClick={onFechar} className="text-slate-400 hover:text-white">
               Cancelar
             </Button>
             <Button

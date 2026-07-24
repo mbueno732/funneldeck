@@ -16,7 +16,7 @@ import { iconeAngulo } from '@/lib/angulos-hero'
 import type { TesteAB, VarianteTeste } from '@/lib/types'
 
 const STATUS_COR: Record<string, string> = {
-  'Planejado':             'bg-gray-800 text-gray-400 border-gray-700',
+  'Planejado':             'bg-slate-800 text-slate-400 border-slate-700',
   'Ativo':                 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
   'Finalizado':            'bg-green-500/10 text-green-400 border-green-500/20',
   'Vencedor implementado': 'bg-green-500/10 text-green-400 border-green-500/20',
@@ -77,7 +77,7 @@ function diasDeTeste(dataInicio?: string | null, dataFim?: string | null): numbe
 const CONFIANCA_COR: Record<string, string> = {
   'Alta': 'text-green-400',
   'Média': 'text-amber-400',
-  'Baixa': 'text-gray-400',
+  'Baixa': 'text-slate-400',
 }
 
 const LIMITE_HIPOTESE = 200
@@ -114,8 +114,8 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
   const vencedora = variantes.find(v => v.is_vencedor)
   const metricasControle = controle ? metricas[controle.id] : undefined
 
-  const inputCls = 'w-full bg-gray-900 border-gray-800 text-white placeholder-gray-500 focus:border-indigo-500'
-  const cardCls = 'bg-gray-900 border border-gray-800 rounded-xl p-6'
+  const inputCls = 'w-full bg-slate-900 border-slate-800 text-white placeholder-slate-500 focus:border-indigo-500'
+  const cardCls = 'bg-slate-900 border border-slate-800 rounded-xl p-6'
 
   async function salvarMetricas(varianteId: string) {
     setSalvandoMetricas(varianteId)
@@ -208,20 +208,20 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
       {/* Breadcrumb + título */}
       <div className="mb-8 flex flex-col md:flex-row md:items-start md:justify-between gap-4">
         <div>
-          <nav className="flex items-center gap-2 text-gray-500 mb-2 text-sm">
-            <Link href="/variantes" className="hover:text-gray-300 transition-colors">Experimentos</Link>
+          <nav className="flex items-center gap-2 text-slate-500 mb-2 text-sm">
+            <Link href="/variantes" className="hover:text-slate-300 transition-colors">Experimentos</Link>
             <ChevronRight size={14} />
             <span className="text-indigo-400 font-medium">{teste.nome}</span>
           </nav>
           <div className="flex items-center gap-3 mb-2">
-            <span className="text-[11px] font-mono text-gray-500 bg-gray-900 border border-gray-800 rounded px-2 py-0.5">
+            <span className="text-[11px] font-mono text-slate-500 bg-slate-900 border border-slate-800 rounded px-2 py-0.5">
               #{teste.id.slice(0, 8).toUpperCase()}
             </span>
-            <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium border ${STATUS_COR[teste.status] ?? 'bg-gray-800 text-gray-400 border-gray-700'}`}>
+            <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium border ${STATUS_COR[teste.status] ?? 'bg-slate-800 text-slate-400 border-slate-700'}`}>
               {teste.status}
             </span>
             {teste.resultado_final === 'sem_vencedor' && (
-              <span className="inline-flex items-center gap-1.5 text-[11px] font-medium bg-gray-800 text-gray-400 border border-gray-700 rounded-full px-2 py-0.5">
+              <span className="inline-flex items-center gap-1.5 text-[11px] font-medium bg-slate-800 text-slate-400 border border-slate-700 rounded-full px-2 py-0.5">
                 Sem vencedor (empate/inconclusivo)
                 <button
                   type="button"
@@ -236,37 +236,37 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
           </div>
           <h2 className="text-2xl font-bold text-white">{teste.nome}</h2>
           {teste.funis?.nome && (
-            <p className="text-gray-500 text-sm mt-1">
+            <p className="text-slate-500 text-sm mt-1">
               {teste.funis.id_funil && <span className="text-indigo-400 font-mono text-xs mr-1">[{teste.funis.id_funil}]</span>}
               {teste.funis.nome}
               {teste.paginas?.nome && (
-                <span className="text-gray-600"> · Página: {teste.paginas.codigo && `[${teste.paginas.codigo}] `}{teste.paginas.nome}</span>
+                <span className="text-slate-600"> · Página: {teste.paginas.codigo && `[${teste.paginas.codigo}] `}{teste.paginas.nome}</span>
               )}
             </p>
           )}
           <div className="flex flex-wrap items-center gap-1.5 mt-3">
             {teste.segmento && (
-              <span className="inline-flex px-2 py-0.5 rounded text-xs font-medium border bg-gray-800 text-gray-300 border-gray-700">
+              <span className="inline-flex px-2 py-0.5 rounded text-xs font-medium border bg-slate-800 text-slate-300 border-slate-700">
                 {teste.segmento}
               </span>
             )}
             {teste.campanhas?.codigo && (
-              <span className="inline-flex px-2 py-0.5 rounded text-xs font-medium border bg-gray-800 text-gray-300 border-gray-700">
+              <span className="inline-flex px-2 py-0.5 rounded text-xs font-medium border bg-slate-800 text-slate-300 border-slate-700">
                 {teste.campanhas.codigo}
               </span>
             )}
             {teste.elemento_testado && (
-              <span className="inline-flex px-2 py-0.5 rounded text-xs font-medium border bg-gray-800 text-gray-300 border-gray-700">
+              <span className="inline-flex px-2 py-0.5 rounded text-xs font-medium border bg-slate-800 text-slate-300 border-slate-700">
                 Testando: {teste.elemento_testado}
               </span>
             )}
             {teste.secao_pagina && (
-              <span className="inline-flex px-2 py-0.5 rounded text-xs font-medium border bg-gray-800 text-gray-300 border-gray-700">
+              <span className="inline-flex px-2 py-0.5 rounded text-xs font-medium border bg-slate-800 text-slate-300 border-slate-700">
                 Seção: {teste.secao_pagina}
               </span>
             )}
             {(teste.especialistas?.nome || teste.responsavel) && (
-              <span className="text-gray-500 text-xs">
+              <span className="text-slate-500 text-xs">
                 {[teste.especialistas?.nome, teste.responsavel].filter(Boolean).join(' · ')}
               </span>
             )}
@@ -289,7 +289,7 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
               variant="ghost"
               onClick={handleEncerrarSemVencedor}
               disabled={encerrando}
-              className="text-gray-400 hover:text-white border border-gray-800 disabled:opacity-40"
+              className="text-slate-400 hover:text-white border border-slate-800 disabled:opacity-40"
             >
               {encerrando ? <Loader2 size={16} className="animate-spin mr-2" /> : null}
               Encerrar sem vencedor
@@ -315,11 +315,11 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
             <h3 className="text-white font-medium flex items-center gap-2">
               <Brain size={16} className="text-indigo-400" /> Framework de Hipótese
             </h3>
-            {salvandoHipotese && <span className="text-gray-600 text-xs">Salvando...</span>}
+            {salvandoHipotese && <span className="text-slate-600 text-xs">Salvando...</span>}
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             <div className="space-y-1.5">
-              <label className="text-gray-500 text-xs">O QUE vamos mudar?</label>
+              <label className="text-slate-500 text-xs">O QUE vamos mudar?</label>
               <Textarea
                 value={hipotese}
                 onChange={e => setHipotese(e.target.value)}
@@ -328,12 +328,12 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
                 rows={4}
                 className={`${inputCls} resize-none text-sm`}
               />
-              <p className={`text-xs text-right ${hipotese.length > LIMITE_HIPOTESE ? 'text-amber-400' : 'text-gray-600'}`}>
+              <p className={`text-xs text-right ${hipotese.length > LIMITE_HIPOTESE ? 'text-amber-400' : 'text-slate-600'}`}>
                 {hipotese.length}/{LIMITE_HIPOTESE}
               </p>
             </div>
             <div className="space-y-1.5">
-              <label className="text-gray-500 text-xs">POR QUE estamos mudando?</label>
+              <label className="text-slate-500 text-xs">POR QUE estamos mudando?</label>
               <Textarea
                 value={hipoteseMotivo}
                 onChange={e => setHipoteseMotivo(e.target.value)}
@@ -344,7 +344,7 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-gray-500 text-xs">Resultado esperado</label>
+              <label className="text-slate-500 text-xs">Resultado esperado</label>
               <Textarea
                 value={resultadoEsperado}
                 onChange={e => setResultadoEsperado(e.target.value)}
@@ -359,7 +359,7 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
 
         {/* Aprendizado */}
         <div className={cardCls}>
-          <h3 className="text-gray-500 text-xs uppercase tracking-wide mb-4 flex items-center gap-2">
+          <h3 className="text-slate-500 text-xs uppercase tracking-wide mb-4 flex items-center gap-2">
             <Lightbulb size={14} className="text-amber-400" /> Aprendizado
           </h3>
           <Textarea
@@ -370,7 +370,7 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
             rows={3}
             className={`${inputCls} resize-none text-sm`}
           />
-          {salvandoAprendizado && <p className="text-gray-600 text-xs mt-1">Salvando...</p>}
+          {salvandoAprendizado && <p className="text-slate-600 text-xs mt-1">Salvando...</p>}
         </div>
 
         {/* Variantes */}
@@ -385,10 +385,10 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-white font-medium flex items-center gap-2">
                     {v.is_controle
-                      ? <CheckCircle2 size={16} className="text-gray-400" />
+                      ? <CheckCircle2 size={16} className="text-slate-400" />
                       : <Rocket size={16} className="text-indigo-400" />}
                     {v.nome}
-                    {v.is_controle && <span className="text-xs text-gray-500 font-normal">(Controle)</span>}
+                    {v.is_controle && <span className="text-xs text-slate-500 font-normal">(Controle)</span>}
                   </h3>
                   {v.is_vencedor && (
                     <div className="flex items-center gap-2">
@@ -399,7 +399,7 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
                         type="button"
                         onClick={handleDesfazerVencedora}
                         disabled={desfazendo}
-                        className="text-[11px] text-gray-500 hover:text-red-400 underline decoration-dotted disabled:opacity-40 transition-colors"
+                        className="text-[11px] text-slate-500 hover:text-red-400 underline decoration-dotted disabled:opacity-40 transition-colors"
                       >
                         {desfazendo ? 'Desfazendo...' : 'Desfazer'}
                       </button>
@@ -411,7 +411,7 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
                   <button
                     type="button"
                     onClick={() => abrirReferenciaHtml(v.screenshot_url!)}
-                    className="w-full rounded-lg border border-dashed border-gray-800 bg-gray-950 flex flex-col items-center justify-center h-32 mb-4 text-indigo-400 hover:border-indigo-500/40 transition-colors gap-1.5"
+                    className="w-full rounded-lg border border-dashed border-slate-800 bg-slate-950 flex flex-col items-center justify-center h-32 mb-4 text-indigo-400 hover:border-indigo-500/40 transition-colors gap-1.5"
                   >
                     <FileCode2 size={22} />
                     <span className="text-xs">Abrir referência HTML ↗</span>
@@ -424,13 +424,13 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
                     title="Ampliar screenshot"
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={v.screenshot_url} alt={`Screenshot ${v.nome}`} className="w-full aspect-[5/2] min-h-0 rounded-lg border border-gray-800 bg-gray-950 object-cover object-top" />
+                    <img src={v.screenshot_url} alt={`Screenshot ${v.nome}`} className="w-full aspect-[5/2] min-h-0 rounded-lg border border-slate-800 bg-slate-950 object-cover object-top" />
                     <span className="absolute top-2 right-2 p-1.5 bg-black/60 group-hover:bg-black/80 rounded-lg text-white transition-colors">
                       <ZoomIn size={14} />
                     </span>
                   </button>
                 ) : (
-                  <div className="w-full rounded-lg border border-dashed border-gray-800 bg-gray-950 flex items-center justify-center h-32 mb-4 text-gray-700">
+                  <div className="w-full rounded-lg border border-dashed border-slate-800 bg-slate-950 flex items-center justify-center h-32 mb-4 text-slate-700">
                     <ImageOff size={20} />
                   </div>
                 )}
@@ -443,7 +443,7 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
                       </a>
                     )}
                     {v.url_preview && (
-                      <a href={v.url_preview} target="_blank" rel="noreferrer" className="text-gray-500 text-xs hover:underline hover:text-gray-400 break-all block">
+                      <a href={v.url_preview} target="_blank" rel="noreferrer" className="text-slate-500 text-xs hover:underline hover:text-slate-400 break-all block">
                         Preview ↗
                       </a>
                     )}
@@ -451,15 +451,15 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
                 )}
 
                 {(v.layout || v.angulo_dominante || v.headline || v.subheadline) && (
-                  <div className="space-y-1.5 mb-4 pb-4 border-b border-gray-800">
+                  <div className="space-y-1.5 mb-4 pb-4 border-b border-slate-800">
                     {v.layout && (
-                      <span className="inline-flex px-2 py-0.5 rounded text-xs font-medium border bg-gray-800 text-gray-300 border-gray-700">
+                      <span className="inline-flex px-2 py-0.5 rounded text-xs font-medium border bg-slate-800 text-slate-300 border-slate-700">
                         Layout: {LAYOUT_LABEL[v.layout] ?? v.layout}
                       </span>
                     )}
                     {(v.angulo_dominante || (v.angulos_secundarios ?? []).length > 0) && (
                       <div className="flex flex-wrap items-center gap-1.5">
-                        <span className="text-[11px] text-gray-600 uppercase tracking-wide mr-0.5" title="Ângulo da Hero desta variação">
+                        <span className="text-[11px] text-slate-600 uppercase tracking-wide mr-0.5" title="Ângulo da Hero desta variação">
                           Ângulo:
                         </span>
                         {v.angulo_dominante && (
@@ -468,7 +468,7 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
                           </span>
                         )}
                         {(v.angulos_secundarios ?? []).map(a => (
-                          <span key={a} className="text-[11px] px-2 py-0.5 rounded-full bg-gray-800 text-gray-400 border border-gray-700">
+                          <span key={a} className="text-[11px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700">
                             {iconeAngulo(a)} {a}
                           </span>
                         ))}
@@ -478,7 +478,7 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
                       <p className="text-white text-sm font-medium leading-snug">{v.headline}</p>
                     )}
                     {v.subheadline && (
-                      <p className="text-gray-500 text-xs leading-snug">{v.subheadline}</p>
+                      <p className="text-slate-500 text-xs leading-snug">{v.subheadline}</p>
                     )}
                   </div>
                 )}
@@ -487,25 +487,25 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
                   <div className="space-y-3">
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-1">
-                        <label className="text-gray-500 text-[11px] uppercase">Sessões</label>
+                        <label className="text-slate-500 text-[11px] uppercase">Sessões</label>
                         <Input type="number" min={0} value={m.sessoes}
                           onChange={e => setMetricas(s => ({ ...s, [v.id]: { ...m, sessoes: Number(e.target.value) } }))}
                           className={`${inputCls} h-9`} />
                       </div>
                       <div className="space-y-1">
-                        <label className="text-gray-500 text-[11px] uppercase">Conversões</label>
+                        <label className="text-slate-500 text-[11px] uppercase">Conversões</label>
                         <Input type="number" min={0} value={m.conversoes}
                           onChange={e => setMetricas(s => ({ ...s, [v.id]: { ...m, conversoes: Number(e.target.value) } }))}
                           className={`${inputCls} h-9`} />
                       </div>
                       <div className="space-y-1">
-                        <label className="text-gray-500 text-[11px] uppercase">Receita (R$)</label>
+                        <label className="text-slate-500 text-[11px] uppercase">Receita (R$)</label>
                         <Input type="number" min={0} value={m.receita}
                           onChange={e => setMetricas(s => ({ ...s, [v.id]: { ...m, receita: Number(e.target.value) } }))}
                           className={`${inputCls} h-9`} />
                       </div>
                       <div className="space-y-1">
-                        <label className="text-gray-500 text-[11px] uppercase">Início Checkout</label>
+                        <label className="text-slate-500 text-[11px] uppercase">Início Checkout</label>
                         <Input type="number" min={0} value={m.sessoes_checkout}
                           onChange={e => setMetricas(s => ({ ...s, [v.id]: { ...m, sessoes_checkout: Number(e.target.value) } }))}
                           className={`${inputCls} h-9`} />
@@ -519,7 +519,7 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
                       >
                         {salvandoMetricas === v.id ? 'Salvando...' : 'Salvar'}
                       </Button>
-                      <Button variant="ghost" onClick={() => setEditando(null)} className="text-gray-400 hover:text-white">
+                      <Button variant="ghost" onClick={() => setEditando(null)} className="text-slate-400 hover:text-white">
                         Cancelar
                       </Button>
                     </div>
@@ -528,11 +528,11 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
                   <>
                     <div className="grid grid-cols-2 gap-4 mb-4">
                       <div>
-                        <p className="text-[10px] uppercase text-gray-600 mb-1">Conversões</p>
+                        <p className="text-[10px] uppercase text-slate-600 mb-1">Conversões</p>
                         <p className="text-white font-semibold">{m.conversoes.toLocaleString('pt-BR')}</p>
                       </div>
                       <div>
-                        <p className="text-[10px] uppercase text-gray-600 mb-1">Taxa de Conversão</p>
+                        <p className="text-[10px] uppercase text-slate-600 mb-1">Taxa de Conversão</p>
                         <p className="text-white font-semibold">
                           {cr.toFixed(1)}%
                           {!v.is_controle && crControle !== undefined && deltaPct(cr, crControle) && (
@@ -543,11 +543,11 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
                         </p>
                       </div>
                       <div>
-                        <p className="text-[10px] uppercase text-gray-600 mb-1">Receita</p>
+                        <p className="text-[10px] uppercase text-slate-600 mb-1">Receita</p>
                         <p className="text-white font-semibold">{formatarMoeda(m.receita)}</p>
                       </div>
                       <div>
-                        <p className="text-[10px] uppercase text-gray-600 mb-1">Início Checkout</p>
+                        <p className="text-[10px] uppercase text-slate-600 mb-1">Início Checkout</p>
                         <p className="text-white font-semibold">{m.sessoes_checkout.toLocaleString('pt-BR')}</p>
                       </div>
                     </div>
@@ -560,8 +560,8 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
                       const amostraPequena = m.conversoes < MIN_CONVERSOES_CONFIAVEL || (metricasControle?.conversoes ?? 0) < MIN_CONVERSOES_CONFIAVEL
                       const testeCurto = dias !== null && dias < MIN_DIAS_RECOMENDADO
                       return (
-                        <div className="mb-4 p-3 rounded-lg bg-gray-950 border border-gray-800">
-                          <p className="text-[10px] uppercase text-gray-600 mb-1">Confiança estatística (vs. Controle)</p>
+                        <div className="mb-4 p-3 rounded-lg bg-slate-950 border border-slate-800">
+                          <p className="text-[10px] uppercase text-slate-600 mb-1">Confiança estatística (vs. Controle)</p>
                           <p className={`font-semibold ${CONFIANCA_COR[classificacao]}`}>
                             {confianca.toFixed(1)}% <span className="text-xs font-normal">({classificacao})</span>
                           </p>
@@ -580,7 +580,7 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
                     })()}
 
                     <div className="flex gap-2">
-                      <Button variant="ghost" onClick={() => setEditando(v.id)} className="flex-1 text-gray-400 hover:text-white border border-gray-800">
+                      <Button variant="ghost" onClick={() => setEditando(v.id)} className="flex-1 text-slate-400 hover:text-white border border-slate-800">
                         Editar métricas
                       </Button>
                       {!v.is_vencedor && (
@@ -588,7 +588,7 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
                           variant="ghost"
                           onClick={() => marcarVencedora(v.id)}
                           disabled={declarando === v.id}
-                          className="text-green-400 hover:text-green-300 border border-gray-800 disabled:opacity-40"
+                          className="text-green-400 hover:text-green-300 border border-slate-800 disabled:opacity-40"
                         >
                           {declarando === v.id ? 'Marcando...' : 'Marcar vencedora'}
                         </Button>
@@ -610,7 +610,7 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse text-sm">
                 <thead>
-                  <tr className="border-b border-gray-800 text-gray-500 text-xs uppercase tracking-wide">
+                  <tr className="border-b border-slate-800 text-slate-500 text-xs uppercase tracking-wide">
                     <th className="py-2 pr-4 font-medium">Métrica</th>
                     {variantes.map(v => (
                       <th key={v.id} className="py-2 px-4 font-medium">
@@ -619,34 +619,34 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
                     ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-800">
+                <tbody className="divide-y divide-slate-800">
                   <tr>
-                    <td className="py-3 pr-4 text-gray-400">Sessões</td>
+                    <td className="py-3 pr-4 text-slate-400">Sessões</td>
                     {variantes.map(v => (
                       <td key={v.id} className="py-3 px-4 text-white">{(metricas[v.id]?.sessoes ?? 0).toLocaleString('pt-BR')}</td>
                     ))}
                   </tr>
                   <tr>
-                    <td className="py-3 pr-4 text-gray-400">Conversões</td>
+                    <td className="py-3 pr-4 text-slate-400">Conversões</td>
                     {variantes.map(v => (
                       <td key={v.id} className="py-3 px-4 text-white">{(metricas[v.id]?.conversoes ?? 0).toLocaleString('pt-BR')}</td>
                     ))}
                   </tr>
                   <tr>
-                    <td className="py-3 pr-4 text-gray-400">Taxa de Conversão</td>
+                    <td className="py-3 pr-4 text-slate-400">Taxa de Conversão</td>
                     {variantes.map(v => {
                       const val = taxaConversao(metricas[v.id] ?? metricasDe(v))
                       return <td key={v.id} className={`py-3 px-4 font-medium ${v.is_vencedor ? 'text-green-400' : 'text-white'}`}>{val.toFixed(1)}%</td>
                     })}
                   </tr>
                   <tr>
-                    <td className="py-3 pr-4 text-gray-400">Receita</td>
+                    <td className="py-3 pr-4 text-slate-400">Receita</td>
                     {variantes.map(v => (
                       <td key={v.id} className="py-3 px-4 text-white">{formatarMoeda(metricas[v.id]?.receita ?? 0)}</td>
                     ))}
                   </tr>
                   <tr>
-                    <td className="py-3 pr-4 text-gray-400">Início de Checkout</td>
+                    <td className="py-3 pr-4 text-slate-400">Início de Checkout</td>
                     {variantes.map(v => (
                       <td key={v.id} className="py-3 px-4 text-white">{(metricas[v.id]?.sessoes_checkout ?? 0).toLocaleString('pt-BR')}</td>
                     ))}
@@ -654,7 +654,7 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
                 </tbody>
               </table>
             </div>
-            <p className="text-gray-600 text-xs mt-4">
+            <p className="text-slate-600 text-xs mt-4">
               Nível de confiança do teste: {teste.nivel_confianca ?? 95}% · Poder estatístico: {teste.poder_estatistico ?? 80}%
             </p>
           </div>
@@ -669,7 +669,7 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
           <button
             type="button"
             onClick={() => setImagemAmpliada(null)}
-            className="absolute top-5 right-5 p-2 bg-gray-900/80 hover:bg-gray-800 rounded-lg text-white transition-colors"
+            className="absolute top-5 right-5 p-2 bg-slate-900/80 hover:bg-slate-800 rounded-lg text-white transition-colors"
             title="Fechar"
           >
             <X size={20} />

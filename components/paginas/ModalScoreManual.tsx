@@ -77,35 +77,35 @@ export function ModalScoreManual({ pagina, onFechar, onSalvo }: Props) {
     }
   }
 
-  const inputCls = 'bg-gray-900 border-gray-800 text-white placeholder-gray-600 focus:border-indigo-500'
+  const inputCls = 'bg-slate-900 border-slate-800 text-white placeholder-slate-600 focus:border-indigo-500'
   const temRegistro = !!(pagina?.score_manual_grade || pagina?.score_manual_pct)
 
   return (
     <Dialog open={!!pagina} onOpenChange={v => !v && onFechar()}>
-      <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-md">
+      <DialogContent className="bg-slate-900 border-slate-800 text-white max-w-md">
         <DialogHeader>
           <DialogTitle className="text-white">Score manual da página</DialogTitle>
         </DialogHeader>
-        <p className="text-gray-500 text-xs -mt-2">
+        <p className="text-slate-500 text-xs -mt-2">
           Para páginas que o GTmetrix não consegue analisar (ex: muito grandes). Some sozinho da
           exibição assim que uma análise automática do GTmetrix existir.
         </p>
         <form onSubmit={handleSubmit} className="space-y-4 mt-2">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label className="text-gray-400 text-xs">Letra (A–F)</Label>
+              <Label className="text-slate-400 text-xs">Letra (A–F)</Label>
               <Select value={grade || '__none__'} onValueChange={v => setGrade(v === '__none__' ? '' : v)}>
                 <SelectTrigger className={`w-full h-10 ${inputCls}`}><SelectValue placeholder="—" /></SelectTrigger>
-                <SelectContent className="bg-gray-900 border-gray-800">
-                  <SelectItem value="__none__" className="text-gray-400 focus:bg-gray-800 focus:text-white">—</SelectItem>
+                <SelectContent className="bg-slate-900 border-slate-800">
+                  <SelectItem value="__none__" className="text-slate-400 focus:bg-slate-800 focus:text-white">—</SelectItem>
                   {GRADES.map(g => (
-                    <SelectItem key={g} value={g} className="text-gray-300 focus:bg-gray-800 focus:text-white">{g}</SelectItem>
+                    <SelectItem key={g} value={g} className="text-slate-300 focus:bg-slate-800 focus:text-white">{g}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-gray-400 text-xs">Porcentagem</Label>
+              <Label className="text-slate-400 text-xs">Porcentagem</Label>
               <Input
                 type="number" min={0} max={100} value={pct}
                 onChange={e => setPct(e.target.value)}
@@ -115,7 +115,7 @@ export function ModalScoreManual({ pagina, onFechar, onSalvo }: Props) {
             </div>
           </div>
           <div className="space-y-1.5">
-            <Label className="text-gray-400 text-xs">Nota / observação</Label>
+            <Label className="text-slate-400 text-xs">Nota / observação</Label>
             <Textarea
               value={nota}
               onChange={e => setNota(e.target.value)}
@@ -131,13 +131,13 @@ export function ModalScoreManual({ pagina, onFechar, onSalvo }: Props) {
                 type="button"
                 onClick={handleRemover}
                 disabled={salvando}
-                className="text-xs text-gray-500 hover:text-red-400 disabled:opacity-40 transition-colors"
+                className="text-xs text-slate-500 hover:text-red-400 disabled:opacity-40 transition-colors"
               >
                 Remover registro manual
               </button>
             ) : <span />}
             <div className="flex gap-2">
-              <Button type="button" variant="ghost" onClick={onFechar} className="text-gray-400 hover:text-white">
+              <Button type="button" variant="ghost" onClick={onFechar} className="text-slate-400 hover:text-white">
                 Cancelar
               </Button>
               <Button type="submit" disabled={salvando} className="bg-indigo-600 hover:bg-indigo-500 text-white">

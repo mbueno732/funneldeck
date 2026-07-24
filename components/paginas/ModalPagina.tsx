@@ -31,15 +31,15 @@ function Select({ label, value, onChange, options, obrigatorio }: {
 }) {
   return (
     <div className="space-y-1.5">
-      <Label className="text-gray-400 text-xs">{label}{obrigatorio && ' *'}</Label>
+      <Label className="text-slate-400 text-xs">{label}{obrigatorio && ' *'}</Label>
       <ShadSelect value={value || '__none__'} onValueChange={v => onChange(v === '__none__' ? '' : v)}>
-        <SelectTrigger className="w-full bg-gray-900 border-gray-800 text-white focus:ring-0 focus:ring-offset-0 h-10">
+        <SelectTrigger className="w-full bg-slate-900 border-slate-800 text-white focus:ring-0 focus:ring-offset-0 h-10">
           <SelectValue />
         </SelectTrigger>
-        <SelectContent className="bg-gray-900 border-gray-800">
-          <SelectItem value="__none__" className="text-gray-300 focus:bg-gray-800 focus:text-white">Selecionar...</SelectItem>
+        <SelectContent className="bg-slate-900 border-slate-800">
+          <SelectItem value="__none__" className="text-slate-300 focus:bg-slate-800 focus:text-white">Selecionar...</SelectItem>
           {options.map(o => (
-            <SelectItem key={o.valor} value={o.valor} className="text-gray-300 focus:bg-gray-800 focus:text-white">{o.label ?? o.valor}</SelectItem>
+            <SelectItem key={o.valor} value={o.valor} className="text-slate-300 focus:bg-slate-800 focus:text-white">{o.label ?? o.valor}</SelectItem>
           ))}
         </SelectContent>
       </ShadSelect>
@@ -53,13 +53,13 @@ function Field({ label, value, onChange, type = 'text', placeholder }: {
 }) {
   return (
     <div className="space-y-1.5">
-      <Label className="text-gray-400 text-xs">{label}</Label>
+      <Label className="text-slate-400 text-xs">{label}</Label>
       <Input
         type={type}
         value={value}
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
-        className="bg-gray-900 border-gray-800 text-white placeholder-gray-600 focus:border-indigo-500"
+        className="bg-slate-900 border-slate-800 text-white placeholder-slate-600 focus:border-indigo-500"
       />
     </div>
   )
@@ -241,7 +241,7 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
 
   return (
     <Dialog open={aberto} onOpenChange={v => !v && onFechar()}>
-      <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="bg-slate-900 border-slate-800 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-white">
             {isEdit ? 'Editar Página' : 'Nova Página'}
@@ -252,7 +252,7 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
 
           {/* Tipo da página */}
           <div className="space-y-2">
-            <Label className="text-gray-400 text-xs">Tipo da página *</Label>
+            <Label className="text-slate-400 text-xs">Tipo da página *</Label>
             <div className="grid grid-cols-2 gap-2">
               {(['funil', 'produto'] as const).map(op => (
                 <button
@@ -262,13 +262,13 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
                   className={`flex flex-col items-start px-4 py-3 rounded-lg border transition-colors text-left ${
                     form.escopo === op
                       ? 'bg-indigo-600 border-indigo-500 text-white'
-                      : 'bg-gray-900 border-gray-800 text-gray-400 hover:border-gray-600'
+                      : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-600'
                   }`}
                 >
                   <span className="text-sm font-medium">
                     {op === 'funil' ? 'Página do funil' : 'Página do produto'}
                   </span>
-                  <span className={`text-xs mt-0.5 ${form.escopo === op ? 'text-indigo-200' : 'text-gray-600'}`}>
+                  <span className={`text-xs mt-0.5 ${form.escopo === op ? 'text-indigo-200' : 'text-slate-600'}`}>
                     {op === 'funil'
                       ? 'Usada em um lançamento ou campanha específica'
                       : 'Permanente, reutilizada em qualquer funil'}
@@ -305,7 +305,7 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
                       onChange={set('estrategia_id')}
                       options={opts.map(e => ({ valor: e.id, label: e.nome }))}
                     />
-                    <p className="text-xs text-gray-600">Caminhos alternativos do funil. Deixe em branco se a página for comum a todos.</p>
+                    <p className="text-xs text-slate-600">Caminhos alternativos do funil. Deixe em branco se a página for comum a todos.</p>
                   </div>
                 )
               })()}
@@ -322,18 +322,18 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
 
           {/* Nome da página */}
           <div className="space-y-1.5">
-            <Label className="text-gray-400 text-xs">Nome da página *</Label>
+            <Label className="text-slate-400 text-xs">Nome da página *</Label>
             <ShadSelect
               value={form.funcao || '__none__'}
               onValueChange={v => setForm(f => ({ ...f, funcao: v === '__none__' ? '' : v, variante: '' }))}
             >
-              <SelectTrigger className="w-full bg-gray-900 border-gray-800 text-white focus:ring-0 focus:ring-offset-0 h-10">
+              <SelectTrigger className="w-full bg-slate-900 border-slate-800 text-white focus:ring-0 focus:ring-offset-0 h-10">
                 <SelectValue placeholder="Selecionar..." />
               </SelectTrigger>
-              <SelectContent className="bg-gray-900 border-gray-800">
-                <SelectItem value="__none__" className="text-gray-300 focus:bg-gray-800 focus:text-white">Selecionar...</SelectItem>
+              <SelectContent className="bg-slate-900 border-slate-800">
+                <SelectItem value="__none__" className="text-slate-300 focus:bg-slate-800 focus:text-white">Selecionar...</SelectItem>
                 {configs.filter(c => c.categoria === 'funcao_pagina' && c.ativo).sort((a, b) => a.valor.localeCompare(b.valor, 'pt-BR')).map(c => (
-                  <SelectItem key={c.valor} value={c.valor} className="text-gray-300 focus:bg-gray-800 focus:text-white">{c.valor}</SelectItem>
+                  <SelectItem key={c.valor} value={c.valor} className="text-slate-300 focus:bg-slate-800 focus:text-white">{c.valor}</SelectItem>
                 ))}
               </SelectContent>
             </ShadSelect>
@@ -341,15 +341,15 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
 
           {form.funcao && form.funcao !== '__none__' ? (
             <div className="space-y-1.5">
-              <Label className="text-gray-400 text-xs">Variante</Label>
+              <Label className="text-slate-400 text-xs">Variante</Label>
               <Input
                 value={form.variante}
                 onChange={e => setForm(f => ({ ...f, variante: e.target.value }))}
                 placeholder="A, B, Flash Opening, CPP..."
-                className="bg-gray-900 border-gray-800 text-white placeholder-gray-600 focus:border-indigo-500"
+                className="bg-slate-900 border-slate-800 text-white placeholder-slate-600 focus:border-indigo-500"
               />
-              <p className="text-xs text-gray-600">
-                Nome: <span className="text-gray-400 font-medium">{computeNome(form.funcao, form.variante)}</span>
+              <p className="text-xs text-slate-600">
+                Nome: <span className="text-slate-400 font-medium">{computeNome(form.funcao, form.variante)}</span>
               </p>
             </div>
           ) : null}
@@ -390,19 +390,19 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
             <Field label="Documentação" value={form.url_documentacao} onChange={set('url_documentacao')} type="url" placeholder="https://" />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-gray-400 text-xs">Observações</Label>
+            <Label className="text-slate-400 text-xs">Observações</Label>
             <Textarea
               value={form.observacoes}
               onChange={e => set('observacoes')(e.target.value)}
               placeholder="Notas, contexto, links adicionais..."
-              className="bg-gray-900 border-gray-800 text-white placeholder-gray-600 focus:border-indigo-500 min-h-[80px]"
+              className="bg-slate-900 border-slate-800 text-white placeholder-slate-600 focus:border-indigo-500 min-h-[80px]"
             />
           </div>
 
           {erro && <p className="text-red-400 text-sm">{erro}</p>}
 
           <div className="flex justify-end gap-2 pt-1">
-            <Button type="button" variant="ghost" onClick={onFechar} className="text-gray-400 hover:text-white">
+            <Button type="button" variant="ghost" onClick={onFechar} className="text-slate-400 hover:text-white">
               Cancelar
             </Button>
             <Button type="submit" disabled={salvando} className="bg-indigo-600 hover:bg-indigo-500 text-white">

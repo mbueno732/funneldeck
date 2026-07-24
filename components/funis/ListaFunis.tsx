@@ -100,7 +100,7 @@ export function ListaFunis({ funis, produtos, especialistas, configs, estrategia
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white">Central de Funis</h1>
-          <p className="text-gray-500 text-sm mt-0.5">{filtrados.length} funil{filtrados.length !== 1 ? 's' : ''}</p>
+          <p className="text-slate-500 text-sm mt-0.5">{filtrados.length} funil{filtrados.length !== 1 ? 's' : ''}</p>
         </div>
         <Button onClick={() => { setEditando(null); setModalAberto(true) }} className="bg-indigo-600 hover:bg-indigo-500 text-white gap-2">
           <Plus size={16} /> Novo Funil
@@ -110,35 +110,35 @@ export function ListaFunis({ funis, produtos, especialistas, configs, estrategia
       {/* Filtros */}
       <div className="flex gap-2 flex-wrap">
         <Select value={filtroEsp || '__all__'} onValueChange={v => setFiltroEsp(v === '__all__' ? '' : v)}>
-          <SelectTrigger className="h-9 text-sm bg-gray-900 border-gray-800 text-gray-300 hover:bg-gray-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[130px]">
+          <SelectTrigger className="h-9 text-sm bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[130px]">
             <SelectValue />
           </SelectTrigger>
-          <SelectContent className="bg-gray-900 border-gray-800">
-            <SelectItem value="__all__" className="text-gray-300 focus:bg-gray-800 focus:text-white">Todos os especialistas</SelectItem>
-            {especialistas.map(e => <SelectItem key={e.id} value={e.id} className="text-gray-300 focus:bg-gray-800 focus:text-white">{e.nome}</SelectItem>)}
+          <SelectContent className="bg-slate-900 border-slate-800">
+            <SelectItem value="__all__" className="text-slate-300 focus:bg-slate-800 focus:text-white">Todos os especialistas</SelectItem>
+            {especialistas.map(e => <SelectItem key={e.id} value={e.id} className="text-slate-300 focus:bg-slate-800 focus:text-white">{e.nome}</SelectItem>)}
           </SelectContent>
         </Select>
         <Select value={filtroProduto || '__all__'} onValueChange={v => setFiltroProduto(v === '__all__' ? '' : v)}>
-          <SelectTrigger className="h-9 text-sm bg-gray-900 border-gray-800 text-gray-300 hover:bg-gray-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[130px]">
+          <SelectTrigger className="h-9 text-sm bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[130px]">
             <SelectValue />
           </SelectTrigger>
-          <SelectContent className="bg-gray-900 border-gray-800">
-            <SelectItem value="__all__" className="text-gray-300 focus:bg-gray-800 focus:text-white">Todos os produtos</SelectItem>
-            {produtos.map(p => <SelectItem key={p.id} value={p.id} className="text-gray-300 focus:bg-gray-800 focus:text-white">{p.nome}</SelectItem>)}
+          <SelectContent className="bg-slate-900 border-slate-800">
+            <SelectItem value="__all__" className="text-slate-300 focus:bg-slate-800 focus:text-white">Todos os produtos</SelectItem>
+            {produtos.map(p => <SelectItem key={p.id} value={p.id} className="text-slate-300 focus:bg-slate-800 focus:text-white">{p.nome}</SelectItem>)}
           </SelectContent>
         </Select>
         <Select value={filtroStatus || '__all__'} onValueChange={v => setFiltroStatus(v === '__all__' ? '' : v)}>
-          <SelectTrigger className="h-9 text-sm bg-gray-900 border-gray-800 text-gray-300 hover:bg-gray-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[130px]">
+          <SelectTrigger className="h-9 text-sm bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[130px]">
             <SelectValue />
           </SelectTrigger>
-          <SelectContent className="bg-gray-900 border-gray-800">
-            <SelectItem value="__all__" className="text-gray-300 focus:bg-gray-800 focus:text-white">Todos os status</SelectItem>
-            {statusOpts.map(c => <SelectItem key={c.valor} value={c.valor} className="text-gray-300 focus:bg-gray-800 focus:text-white">{c.valor}</SelectItem>)}
+          <SelectContent className="bg-slate-900 border-slate-800">
+            <SelectItem value="__all__" className="text-slate-300 focus:bg-slate-800 focus:text-white">Todos os status</SelectItem>
+            {statusOpts.map(c => <SelectItem key={c.valor} value={c.valor} className="text-slate-300 focus:bg-slate-800 focus:text-white">{c.valor}</SelectItem>)}
           </SelectContent>
         </Select>
         {(filtroEsp || filtroProduto || filtroStatus) && (
           <button onClick={() => { setFiltroEsp(''); setFiltroProduto(''); setFiltroStatus('') }}
-            className="px-3 py-1.5 text-xs text-gray-400 hover:text-white border border-gray-800 rounded-lg hover:border-gray-600 transition-colors">
+            className="px-3 py-1.5 text-xs text-slate-400 hover:text-white border border-slate-800 rounded-lg hover:border-slate-600 transition-colors">
             Limpar
           </button>
         )}
@@ -165,7 +165,7 @@ export function ListaFunis({ funis, produtos, especialistas, configs, estrategia
 
       {/* Cards */}
       {filtrados.length === 0 ? (
-        <div className="rounded-xl border border-gray-800 p-12 text-center text-gray-500">
+        <div className="rounded-xl border border-slate-800 p-12 text-center text-slate-500">
           {funis.length === 0 ? 'Nenhum funil cadastrado ainda.' : 'Nenhum funil encontrado com os filtros aplicados.'}
         </div>
       ) : (() => {
@@ -178,7 +178,7 @@ export function ListaFunis({ funis, produtos, especialistas, configs, estrategia
             const parado = !inativo && (statusOverrides[f.id] ?? f.status) === 'Ativo' && !f.tem_movimento
 
             return (
-              <div key={f.id} className={`bg-gray-900 rounded-xl p-4 space-y-3 transition-colors ${inativo ? 'border border-gray-800 opacity-50 hover:opacity-75' : parado ? 'border border-orange-500/40 hover:border-orange-500/60' : 'border border-gray-800 hover:border-gray-600'}`}>
+              <div key={f.id} className={`bg-slate-900 rounded-xl p-4 space-y-3 transition-colors ${inativo ? 'border border-slate-800 opacity-50 hover:opacity-75' : parado ? 'border border-orange-500/40 hover:border-orange-500/60' : 'border border-slate-800 hover:border-slate-600'}`}>
                 {/* Header do card */}
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
@@ -191,7 +191,7 @@ export function ListaFunis({ funis, produtos, especialistas, configs, estrategia
                       <Link href={`/funis/${f.id}`} className="text-white font-semibold truncate hover:text-indigo-300 transition-colors">{f.nome}</Link>
                     </div>
                     {(esp || prod) && (
-                      <p className="text-gray-500 text-xs mt-0.5">
+                      <p className="text-slate-500 text-xs mt-0.5">
                         {[esp?.nome, prod?.nome].filter(Boolean).join(' · ')}
                       </p>
                     )}
@@ -212,9 +212,9 @@ export function ListaFunis({ funis, produtos, especialistas, configs, estrategia
                         >
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent className="bg-gray-900 border-gray-800">
+                        <SelectContent className="bg-slate-900 border-slate-800">
                           {statusOpts.map(c => (
-                            <SelectItem key={c.valor} value={c.valor} className="text-gray-300 focus:bg-gray-800 focus:text-white">{c.valor}</SelectItem>
+                            <SelectItem key={c.valor} value={c.valor} className="text-slate-300 focus:bg-slate-800 focus:text-white">{c.valor}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
@@ -237,7 +237,7 @@ export function ListaFunis({ funis, produtos, especialistas, configs, estrategia
                   <span title={f.tem_teste_ativo ? 'Teste A/B ativo' : 'Sem teste A/B ativo'}>
                     <FlaskConical
                       size={14}
-                      className={f.tem_teste_ativo ? 'text-indigo-400' : 'text-gray-700'}
+                      className={f.tem_teste_ativo ? 'text-indigo-400' : 'text-slate-700'}
                       fill={f.tem_teste_ativo ? 'currentColor' : 'none'}
                     />
                   </span>
@@ -263,7 +263,7 @@ export function ListaFunis({ funis, produtos, especialistas, configs, estrategia
                       const cfg = HEALTH_CONFIG[health]
                       return (
                         <div key={etapa} className="flex items-center gap-1">
-                          {i > 0 && <span className="text-gray-700 text-xs">›</span>}
+                          {i > 0 && <span className="text-slate-700 text-xs">›</span>}
                           <div className="flex items-center gap-1" title={cfg.label}>
                             <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: cfg.cor }} />
                             <span className="text-xs" style={{ color: cfg.cor }}>{etapa}</span>
@@ -277,10 +277,10 @@ export function ListaFunis({ funis, produtos, especialistas, configs, estrategia
                 {/* Métricas */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-gray-500">{f.paginas_publicadas} de {f.total_paginas} páginas publicadas</span>
-                    <span className="text-gray-400 font-medium">{pct}%</span>
+                    <span className="text-slate-500">{f.paginas_publicadas} de {f.total_paginas} páginas publicadas</span>
+                    <span className="text-slate-400 font-medium">{pct}%</span>
                   </div>
-                  <div className="h-1.5 bg-gray-900 rounded-full overflow-hidden">
+                  <div className="h-1.5 bg-slate-900 rounded-full overflow-hidden">
                     <div
                       className="h-full rounded-full transition-all"
                       style={{
@@ -299,26 +299,26 @@ export function ListaFunis({ funis, produtos, especialistas, configs, estrategia
 
                 {/* Responsáveis */}
                 {(f.responsavel_cro || f.responsavel_dev) && (
-                  <div className="flex gap-3 text-xs text-gray-500">
-                    {f.responsavel_cro && <span>CRO: <span className="text-gray-400">{f.responsavel_cro}</span></span>}
-                    {f.responsavel_dev && <span>Dev: <span className="text-gray-400">{f.responsavel_dev}</span></span>}
+                  <div className="flex gap-3 text-xs text-slate-500">
+                    {f.responsavel_cro && <span>CRO: <span className="text-slate-400">{f.responsavel_cro}</span></span>}
+                    {f.responsavel_dev && <span>Dev: <span className="text-slate-400">{f.responsavel_dev}</span></span>}
                   </div>
                 )}
 
                 {/* Ações */}
-                <div className="flex items-center gap-2 pt-1 border-t border-gray-800">
+                <div className="flex items-center gap-2 pt-1 border-t border-slate-800">
                   {confirmandoDelete === f.id ? (
                     <>
-                      <span className="flex-1 text-xs text-gray-400">Excluir funil?</span>
+                      <span className="flex-1 text-xs text-slate-400">Excluir funil?</span>
                       <button
                         onClick={() => handleDeletar(f.id)}
-                        className="flex items-center gap-1 text-xs text-red-400 hover:text-red-300 py-1.5 px-2 hover:bg-gray-900 rounded-lg transition-colors"
+                        className="flex items-center gap-1 text-xs text-red-400 hover:text-red-300 py-1.5 px-2 hover:bg-slate-900 rounded-lg transition-colors"
                       >
                         <Check size={12} /> Confirmar
                       </button>
                       <button
                         onClick={() => setConfirmandoDelete(null)}
-                        className="flex items-center gap-1 text-xs text-gray-400 hover:text-white py-1.5 px-2 hover:bg-gray-900 rounded-lg transition-colors"
+                        className="flex items-center gap-1 text-xs text-slate-400 hover:text-white py-1.5 px-2 hover:bg-slate-900 rounded-lg transition-colors"
                       >
                         <X size={12} /> Cancelar
                       </button>
@@ -327,14 +327,14 @@ export function ListaFunis({ funis, produtos, especialistas, configs, estrategia
                     <>
                       <Link
                         href={`/paginas?funil=${f.id}`}
-                        className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-white py-1.5 px-2 hover:bg-gray-900 rounded-lg transition-colors"
+                        className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white py-1.5 px-2 hover:bg-slate-900 rounded-lg transition-colors"
                       >
                         <FileText size={12} />
                         Ver histórico
                       </Link>
                       <button
                         onClick={() => { setEditando(f); setModalAberto(true) }}
-                        className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-white py-1.5 px-2 hover:bg-gray-900 rounded-lg transition-colors"
+                        className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white py-1.5 px-2 hover:bg-slate-900 rounded-lg transition-colors"
                       >
                         <Pencil size={12} />
                         Editar
@@ -344,35 +344,35 @@ export function ListaFunis({ funis, produtos, especialistas, configs, estrategia
                     <>
                       <button
                         onClick={() => setNovaPaginaFunilId(f.id)}
-                        className="flex items-center gap-1.5 text-xs text-indigo-400 hover:text-indigo-300 py-1.5 px-2 hover:bg-gray-900 rounded-lg transition-colors"
+                        className="flex items-center gap-1.5 text-xs text-indigo-400 hover:text-indigo-300 py-1.5 px-2 hover:bg-slate-900 rounded-lg transition-colors"
                       >
                         <Plus size={12} />
                         Página
                       </button>
                       <Link
                         href={`/paginas?funil=${f.id}`}
-                        className="flex-1 flex items-center justify-center gap-1.5 text-xs text-gray-400 hover:text-white py-1.5 hover:bg-gray-900 rounded-lg transition-colors"
+                        className="flex-1 flex items-center justify-center gap-1.5 text-xs text-slate-400 hover:text-white py-1.5 hover:bg-slate-900 rounded-lg transition-colors"
                       >
                         <FileText size={12} />
                         Ver ({f.total_paginas})
                       </Link>
                       <button
                         onClick={() => setDuplicando(f)}
-                        className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-white py-1.5 px-2 hover:bg-gray-900 rounded-lg transition-colors"
+                        className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white py-1.5 px-2 hover:bg-slate-900 rounded-lg transition-colors"
                       >
                         <Copy size={12} />
                         Duplicar
                       </button>
                       <button
                         onClick={() => { setEditando(f); setModalAberto(true) }}
-                        className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-white py-1.5 px-2 hover:bg-gray-900 rounded-lg transition-colors"
+                        className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white py-1.5 px-2 hover:bg-slate-900 rounded-lg transition-colors"
                       >
                         <Pencil size={12} />
                         Editar
                       </button>
                       <button
                         onClick={() => { setConfirmandoDelete(f.id); setErroDelete(null) }}
-                        className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-red-400 py-1.5 px-2 hover:bg-gray-900 rounded-lg transition-colors"
+                        className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-red-400 py-1.5 px-2 hover:bg-slate-900 rounded-lg transition-colors"
                         title="Excluir funil"
                       >
                         <Trash2 size={12} />
@@ -454,16 +454,16 @@ export function ListaFunis({ funis, produtos, especialistas, configs, estrategia
                   onClick={() => setEncerradosAbertos(v => !v)}
                   className="flex items-center gap-3 w-full group"
                 >
-                  <span className="px-2.5 py-0.5 text-xs font-semibold uppercase tracking-widest rounded-full border bg-gray-800/50 text-gray-500 border-gray-700">
+                  <span className="px-2.5 py-0.5 text-xs font-semibold uppercase tracking-widest rounded-full border bg-slate-800/50 text-slate-500 border-slate-700">
                     Encerrados
                   </span>
-                  <div className="flex-1 h-px bg-gradient-to-r from-gray-700/60 to-transparent" />
-                  <span className="text-xs font-medium text-gray-700">
+                  <div className="flex-1 h-px bg-gradient-to-r from-slate-700/60 to-transparent" />
+                  <span className="text-xs font-medium text-slate-700">
                     {inativos.length} funil{inativos.length !== 1 ? 's' : ''}
                   </span>
                   {encerradosAbertos
-                    ? <ChevronDown size={14} className="text-gray-600" />
-                    : <ChevronRight size={14} className="text-gray-600" />
+                    ? <ChevronDown size={14} className="text-slate-600" />
+                    : <ChevronRight size={14} className="text-slate-600" />
                   }
                 </button>
                 {encerradosAbertos && (

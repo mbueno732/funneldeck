@@ -69,7 +69,7 @@ export function ModalDuplicarFunil({ aberto, onFechar, onSalvo, funil, produtos,
 
   return (
     <Dialog open={aberto} onOpenChange={v => !v && onFechar()}>
-      <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-md">
+      <DialogContent className="bg-slate-900 border-slate-800 text-white max-w-md">
         <DialogHeader>
           <DialogTitle className="text-white flex items-center gap-2">
             <Copy size={16} className="text-indigo-400" />
@@ -77,8 +77,8 @@ export function ModalDuplicarFunil({ aberto, onFechar, onSalvo, funil, produtos,
           </DialogTitle>
         </DialogHeader>
 
-        <div className="mt-1 p-3 bg-gray-900/60 rounded-lg border border-gray-800">
-          <p className="text-xs text-gray-400 mb-1">Duplicando</p>
+        <div className="mt-1 p-3 bg-slate-900/60 rounded-lg border border-slate-800">
+          <p className="text-xs text-slate-400 mb-1">Duplicando</p>
           <p className="text-white font-medium">
             {funil.id_funil && <span className="text-indigo-400 font-mono mr-2">[{funil.id_funil}]</span>}
             {funil.nome}
@@ -87,66 +87,66 @@ export function ModalDuplicarFunil({ aberto, onFechar, onSalvo, funil, produtos,
             const espOrigemNome = especialistas.find(e => e.id === funil.especialista_id)?.nome
               ?? (funil.produtos as { especialistas?: { nome: string } } | undefined)?.especialistas?.nome
             return espOrigemNome && (
-              <p className="text-xs text-gray-500 mt-0.5">{espOrigemNome}</p>
+              <p className="text-xs text-slate-500 mt-0.5">{espOrigemNome}</p>
             )
           })()}
         </div>
 
-        <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Novo funil</p>
+        <p className="text-xs text-slate-500 font-medium uppercase tracking-wide">Novo funil</p>
 
         <form onSubmit={handleSubmit} className="space-y-4 -mt-2">
           <div className="flex gap-3">
             <div className="space-y-1.5 flex-1">
-              <Label className="text-gray-400 text-xs">Nome *</Label>
+              <Label className="text-slate-400 text-xs">Nome *</Label>
               <Input
                 value={nome}
                 onChange={e => setNome(e.target.value)}
                 placeholder="Nome do novo funil"
                 required
-                className="bg-gray-900 border-gray-800 text-white placeholder-gray-600 focus:border-indigo-500"
+                className="bg-slate-900 border-slate-800 text-white placeholder-slate-600 focus:border-indigo-500"
               />
             </div>
             <div className="space-y-1.5 w-24">
-              <Label className="text-gray-400 text-xs">Código</Label>
+              <Label className="text-slate-400 text-xs">Código</Label>
               <Input
                 value={codigo}
                 onChange={e => setCodigo(e.target.value.toUpperCase())}
                 placeholder="ex: LIV"
                 maxLength={10}
-                className="bg-gray-900 border-gray-800 text-white placeholder-gray-600 focus:border-indigo-500 font-mono"
+                className="bg-slate-900 border-slate-800 text-white placeholder-slate-600 focus:border-indigo-500 font-mono"
               />
             </div>
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-gray-400 text-xs">Especialista</Label>
+            <Label className="text-slate-400 text-xs">Especialista</Label>
             <Select value={especialistaId || '__none__'} onValueChange={v => { setEspecialistaId(v === '__none__' ? '' : v); setProdutoId('') }}>
-              <SelectTrigger className="w-full bg-gray-900 border-gray-800 text-white focus:ring-0 focus:ring-offset-0 h-10">
+              <SelectTrigger className="w-full bg-slate-900 border-slate-800 text-white focus:ring-0 focus:ring-offset-0 h-10">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-gray-900 border-gray-800">
-                <SelectItem value="__none__" className="text-gray-300 focus:bg-gray-800 focus:text-white">Sem especialista</SelectItem>
-                {especialistas.map(e => <SelectItem key={e.id} value={e.id} className="text-gray-300 focus:bg-gray-800 focus:text-white">{e.nome}</SelectItem>)}
+              <SelectContent className="bg-slate-900 border-slate-800">
+                <SelectItem value="__none__" className="text-slate-300 focus:bg-slate-800 focus:text-white">Sem especialista</SelectItem>
+                {especialistas.map(e => <SelectItem key={e.id} value={e.id} className="text-slate-300 focus:bg-slate-800 focus:text-white">{e.nome}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-gray-400 text-xs">Produto <span className="text-gray-600">(opcional)</span></Label>
+            <Label className="text-slate-400 text-xs">Produto <span className="text-slate-600">(opcional)</span></Label>
             <Select value={produtoId || '__none__'} onValueChange={v => setProdutoId(v === '__none__' ? '' : v)}>
-              <SelectTrigger className="w-full bg-gray-900 border-gray-800 text-white focus:ring-0 focus:ring-offset-0 h-10">
+              <SelectTrigger className="w-full bg-slate-900 border-slate-800 text-white focus:ring-0 focus:ring-offset-0 h-10">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-gray-900 border-gray-800">
-                <SelectItem value="__none__" className="text-gray-300 focus:bg-gray-800 focus:text-white">Sem produto vinculado</SelectItem>
+              <SelectContent className="bg-slate-900 border-slate-800">
+                <SelectItem value="__none__" className="text-slate-300 focus:bg-slate-800 focus:text-white">Sem produto vinculado</SelectItem>
                 {produtosFiltrados.map(p => (
-                  <SelectItem key={p.id} value={p.id} className="text-gray-300 focus:bg-gray-800 focus:text-white">{p.nome}</SelectItem>
+                  <SelectItem key={p.id} value={p.id} className="text-slate-300 focus:bg-slate-800 focus:text-white">{p.nome}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
 
-          <label className="flex items-start gap-3 cursor-pointer p-3 rounded-lg border border-gray-800 hover:border-gray-600 transition-colors">
+          <label className="flex items-start gap-3 cursor-pointer p-3 rounded-lg border border-slate-800 hover:border-slate-600 transition-colors">
             <input
               type="checkbox"
               checked={incluirPaginas}
@@ -155,7 +155,7 @@ export function ModalDuplicarFunil({ aberto, onFechar, onSalvo, funil, produtos,
             />
             <div>
               <p className="text-sm text-white font-medium">Incluir páginas</p>
-              <p className="text-xs text-gray-500 mt-0.5">
+              <p className="text-xs text-slate-500 mt-0.5">
                 Todas as páginas serão copiadas com status &quot;A fazer&quot; e URLs zeradas.
               </p>
             </div>
@@ -164,7 +164,7 @@ export function ModalDuplicarFunil({ aberto, onFechar, onSalvo, funil, produtos,
           {erro && <p className="text-red-400 text-sm">{erro}</p>}
 
           <div className="flex justify-end gap-2 pt-1">
-            <Button type="button" variant="ghost" onClick={onFechar} className="text-gray-400 hover:text-white">
+            <Button type="button" variant="ghost" onClick={onFechar} className="text-slate-400 hover:text-white">
               Cancelar
             </Button>
             <Button type="submit" disabled={salvando} className="bg-indigo-600 hover:bg-indigo-500 text-white gap-2">

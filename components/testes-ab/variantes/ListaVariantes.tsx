@@ -17,7 +17,7 @@ type Variante = NonNullable<TesteAB['variantes_teste']>[number]
 type Metricas = { sessoes: number; conversoes: number; receita: number; sessoes_checkout: number }
 
 const STATUS_COR: Record<string, string> = {
-  'Planejado':             'bg-gray-800 text-gray-400 border-gray-700',
+  'Planejado':             'bg-slate-800 text-slate-400 border-slate-700',
   'Ativo':                 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
   'Finalizado':            'bg-green-500/10 text-green-400 border-green-500/20',
   'Vencedor implementado': 'bg-green-500/10 text-green-400 border-green-500/20',
@@ -41,7 +41,7 @@ const SEGMENTO_COR: Record<string, string> = {
   'Frio':      'bg-blue-500/10 text-blue-400 border-blue-500/20',
   'Orgânico':  'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
   'Amplo':     'bg-purple-500/10 text-purple-400 border-purple-500/20',
-  'Geral':     'bg-gray-700/30 text-gray-400 border-gray-600/30',
+  'Geral':     'bg-slate-700/30 text-slate-400 border-slate-600/30',
 }
 
 const PERIODOS = [
@@ -214,13 +214,13 @@ function LinhaMetricasVariante({
     }
   }
 
-  const inputCls = 'w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-white focus:outline-none focus:border-indigo-500'
+  const inputCls = 'w-full bg-slate-800 border border-slate-700 rounded px-2 py-1 text-sm text-white focus:outline-none focus:border-indigo-500'
   const mostrarVendas = tipoTeste !== 'aquisicao'
 
   function campo(label: string, chave: keyof Metricas) {
     return (
       <div>
-        <label className="text-[10px] text-gray-500 uppercase">{label}</label>
+        <label className="text-[10px] text-slate-500 uppercase">{label}</label>
         <input
           type="number" className={inputCls} placeholder="0"
           value={valores[chave] === 0 ? '' : valores[chave]}
@@ -240,8 +240,8 @@ function LinhaMetricasVariante({
     <div className="py-2">
     <div className={`grid ${mostrarVendas ? 'grid-cols-6' : 'grid-cols-4'} gap-3 items-end`}>
       <div>
-        <p className="text-xs text-gray-500 mb-1 flex items-center gap-1">
-          {variante.is_controle && <span className="text-gray-600">●</span>} {nomeVariante(variante)}
+        <p className="text-xs text-slate-500 mb-1 flex items-center gap-1">
+          {variante.is_controle && <span className="text-slate-600">●</span>} {nomeVariante(variante)}
         </p>
       </div>
       {campo('Sessões', 'sessoes')}
@@ -265,16 +265,16 @@ function LinhaMetricasVariante({
       </div>
     </div>
     {valores.sessoes > 0 && (
-      <div className="flex items-center gap-3 mt-1.5 text-[11px] text-gray-500">
+      <div className="flex items-center gap-3 mt-1.5 text-[11px] text-slate-500">
         <span>CVR Geral <span className="text-white font-medium">{cvrGeral.toFixed(1)}%</span></span>
         {mostrarVendas && (
           <>
-            <span className="text-gray-700">·</span>
-            <span>Sessão → Checkout <span className="text-gray-300 font-medium">{cvrCheckout.toFixed(1)}%</span></span>
+            <span className="text-slate-700">·</span>
+            <span>Sessão → Checkout <span className="text-slate-300 font-medium">{cvrCheckout.toFixed(1)}%</span></span>
             {valores.sessoes_checkout > 0 && (
               <>
-                <span className="text-gray-700">·</span>
-                <span>Checkout → Venda <span className="text-gray-300 font-medium">{cvrFechamento.toFixed(1)}%</span></span>
+                <span className="text-slate-700">·</span>
+                <span>Checkout → Venda <span className="text-slate-300 font-medium">{cvrFechamento.toFixed(1)}%</span></span>
               </>
             )}
           </>
@@ -321,12 +321,12 @@ function AprendizadoResumo({
             value={valor}
             onChange={e => setValor(e.target.value)}
             rows={2}
-            className="w-full bg-gray-900/60 border border-gray-800 rounded px-2 py-1 text-xs text-gray-300 focus:outline-none focus:border-indigo-500 resize-none min-h-0"
+            className="w-full bg-slate-900/60 border border-slate-800 rounded px-2 py-1 text-xs text-slate-300 focus:outline-none focus:border-indigo-500 resize-none min-h-0"
           />
           <button type="button" onClick={salvar} disabled={salvando} className="text-green-400 hover:text-green-300 shrink-0 mt-1" title="Salvar">
             <Check size={14} />
           </button>
-          <button type="button" onClick={cancelar} className="text-gray-500 hover:text-gray-300 shrink-0 mt-1" title="Cancelar">
+          <button type="button" onClick={cancelar} className="text-slate-500 hover:text-slate-300 shrink-0 mt-1" title="Cancelar">
             <X size={14} />
           </button>
         </div>
@@ -339,7 +339,7 @@ function AprendizadoResumo({
       <button
         type="button"
         onClick={() => setEditando(true)}
-        className="mb-3 flex items-center gap-1.5 text-[11px] text-gray-600 hover:text-gray-400 transition-colors border border-dashed border-gray-800 rounded-md px-2.5 py-1.5 w-full"
+        className="mb-3 flex items-center gap-1.5 text-[11px] text-slate-600 hover:text-slate-400 transition-colors border border-dashed border-slate-800 rounded-md px-2.5 py-1.5 w-full"
       >
         <Lightbulb size={11} /> Registrar aprendizado deste teste
       </button>
@@ -350,7 +350,7 @@ function AprendizadoResumo({
     <div className="mb-3 bg-amber-500/5 border border-amber-500/15 rounded-md px-2.5 py-1.5 group">
       <p
         onClick={() => setEditando(true)}
-        className="flex items-center gap-1.5 text-xs text-gray-300 cursor-pointer"
+        className="flex items-center gap-1.5 text-xs text-slate-300 cursor-pointer"
         title={original}
       >
         <Lightbulb size={11} className="text-amber-400 shrink-0" />
@@ -537,8 +537,8 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
   const funisAtivosComTeste = funisAtivos.filter(f => funisComTesteAtivo.has(f.id)).length
   const vencedoresDeclarados = testesPorTipo.filter(t => t.variantes_teste?.some(v => v.is_vencedor)).length
 
-  const selectCls = 'bg-gray-900 border-gray-800 text-white focus:ring-0 focus:ring-offset-0 h-9 text-sm'
-  const itemCls = 'text-gray-300 focus:bg-gray-800 focus:text-white'
+  const selectCls = 'bg-slate-900 border-slate-800 text-white focus:ring-0 focus:ring-offset-0 h-9 text-sm'
+  const itemCls = 'text-slate-300 focus:bg-slate-800 focus:text-white'
 
   function toggleExpandido(id: string) {
     setExpandidos(prev => {
@@ -560,7 +560,7 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
           {children}
           {ativo
             ? (ordenacao!.direcao === 'asc' ? <ChevronUp size={12} className="text-indigo-400" /> : <ChevronDown size={12} className="text-indigo-400" />)
-            : <ChevronsUpDown size={12} className="text-gray-700" />}
+            : <ChevronsUpDown size={12} className="text-slate-700" />}
         </button>
       </th>
     )
@@ -617,13 +617,13 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white">Experimentos</h1>
-          <p className="text-gray-500 text-sm mt-0.5">{testes.length} experimento{testes.length !== 1 ? 's' : ''}</p>
+          <p className="text-slate-500 text-sm mt-0.5">{testes.length} experimento{testes.length !== 1 ? 's' : ''}</p>
         </div>
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={exportarCSV}
-            className="bg-gray-900 border border-gray-800 hover:border-gray-700 text-gray-300 hover:text-white text-sm font-medium px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+            className="bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white text-sm font-medium px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
             title="Exporta os experimentos filtrados na tela"
           >
             <Download size={16} /> Exportar CSV
@@ -637,9 +637,9 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
       </div>
 
       {testes.length === 0 ? (
-        <div className="rounded-xl border border-gray-800 p-12 text-center space-y-3">
-          <FlaskConical size={28} className="text-gray-700 mx-auto" />
-          <p className="text-gray-400">Nenhum experimento criado ainda.</p>
+        <div className="rounded-xl border border-slate-800 p-12 text-center space-y-3">
+          <FlaskConical size={28} className="text-slate-700 mx-auto" />
+          <p className="text-slate-400">Nenhum experimento criado ainda.</p>
           <Link href="/variantes/novo" className="text-indigo-400 hover:underline text-sm">
             Criar o primeiro teste A/B
           </Link>
@@ -647,14 +647,14 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
       ) : (
         <>
           {/* Toggle Aquisição / Vendas / Todos */}
-          <div className="inline-flex bg-gray-900 border border-gray-800 rounded-lg p-1">
+          <div className="inline-flex bg-slate-900 border border-slate-800 rounded-lg p-1">
             {(['todos', 'aquisicao', 'vendas'] as const).map(t => (
               <button
                 key={t}
                 type="button"
                 onClick={() => setTipoAtivo(t)}
                 className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                  tipoAtivo === t ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-white'
+                  tipoAtivo === t ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'
                 }`}
               >
                 {t === 'todos' ? 'Todos' : t === 'aquisicao' ? 'Aquisição' : 'Vendas'}
@@ -664,18 +664,18 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
 
           {/* Cards de resumo */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
-              <p className="text-gray-500 text-xs uppercase tracking-wide mb-1">Testes Ativos</p>
+            <div className="bg-slate-900 border border-slate-800 rounded-xl p-4">
+              <p className="text-slate-500 text-xs uppercase tracking-wide mb-1">Testes Ativos</p>
               <p className="text-white text-2xl font-bold">{totalAtivos}</p>
             </div>
-            <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
-              <p className="text-gray-500 text-xs uppercase tracking-wide mb-1">Funis com Testes</p>
+            <div className="bg-slate-900 border border-slate-800 rounded-xl p-4">
+              <p className="text-slate-500 text-xs uppercase tracking-wide mb-1">Funis com Testes</p>
               <p className="text-white text-2xl font-bold">
-                {funisAtivosComTeste}<span className="text-gray-500 text-base font-normal">/{funisAtivos.length} Ativos</span>
+                {funisAtivosComTeste}<span className="text-slate-500 text-base font-normal">/{funisAtivos.length} Ativos</span>
               </p>
             </div>
-            <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
-              <p className="text-gray-500 text-xs uppercase tracking-wide mb-1">Vencedores Declarados</p>
+            <div className="bg-slate-900 border border-slate-800 rounded-xl p-4">
+              <p className="text-slate-500 text-xs uppercase tracking-wide mb-1">Vencedores Declarados</p>
               <p className="text-white text-2xl font-bold">{vencedoresDeclarados}</p>
             </div>
           </div>
@@ -683,101 +683,101 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
           {/* Filtros */}
           <div className="flex flex-wrap items-center gap-2.5">
             <div className="relative">
-              <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-600" />
+              <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-600" />
               <input
                 value={busca}
                 onChange={e => setBusca(e.target.value)}
                 placeholder="Buscar por nome ou código..."
-                className="w-56 h-9 pl-8 pr-3 bg-gray-900 border border-gray-800 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500"
+                className="w-56 h-9 pl-8 pr-3 bg-slate-900 border border-slate-800 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
               />
             </div>
             <Select value={filtroFunil} onValueChange={setFiltroFunil}>
               <SelectTrigger className={`w-44 ${selectCls}`}><SelectValue placeholder="Funil" /></SelectTrigger>
-              <SelectContent className="bg-gray-900 border-gray-800">
+              <SelectContent className="bg-slate-900 border-slate-800">
                 <SelectItem value="__all__" className={itemCls}>Todos os funis</SelectItem>
                 {funis.map(f => <SelectItem key={f.id} value={f.id} className={itemCls}>{f.id_funil ? `[${f.id_funil}] ` : ''}{f.nome}</SelectItem>)}
               </SelectContent>
             </Select>
             <Select value={filtroEspecialista} onValueChange={setFiltroEspecialista}>
               <SelectTrigger className={`w-48 ${selectCls}`}><SelectValue placeholder="Especialista" /></SelectTrigger>
-              <SelectContent className="bg-gray-900 border-gray-800">
+              <SelectContent className="bg-slate-900 border-slate-800">
                 <SelectItem value="__all__" className={itemCls}>Todos especialistas</SelectItem>
                 {especialistasOpcoes.map(e => <SelectItem key={e} value={e} className={itemCls}>{e}</SelectItem>)}
               </SelectContent>
             </Select>
             <Select value={filtroResponsavel} onValueChange={setFiltroResponsavel}>
               <SelectTrigger className={`w-44 ${selectCls}`}><SelectValue placeholder="Responsável" /></SelectTrigger>
-              <SelectContent className="bg-gray-900 border-gray-800">
+              <SelectContent className="bg-slate-900 border-slate-800">
                 <SelectItem value="__all__" className={itemCls}>Todos responsáveis</SelectItem>
                 {responsaveisOpcoes.map(r => <SelectItem key={r} value={r} className={itemCls}>{r}</SelectItem>)}
               </SelectContent>
             </Select>
             <Select value={filtroSegmento} onValueChange={setFiltroSegmento}>
               <SelectTrigger className={`w-40 ${selectCls}`}><SelectValue placeholder="Segmento" /></SelectTrigger>
-              <SelectContent className="bg-gray-900 border-gray-800">
+              <SelectContent className="bg-slate-900 border-slate-800">
                 <SelectItem value="__all__" className={itemCls}>Todos segmentos</SelectItem>
                 {segmentosOpcoes.map(s => <SelectItem key={s} value={s} className={itemCls}>{s}</SelectItem>)}
               </SelectContent>
             </Select>
             <Select value={filtroCampanha} onValueChange={setFiltroCampanha}>
               <SelectTrigger className={`w-40 ${selectCls}`}><SelectValue placeholder="Campanha" /></SelectTrigger>
-              <SelectContent className="bg-gray-900 border-gray-800">
+              <SelectContent className="bg-slate-900 border-slate-800">
                 <SelectItem value="__all__" className={itemCls}>Todas campanhas</SelectItem>
                 {campanhasOpcoes.map(c => <SelectItem key={c} value={c} className={itemCls}>{c}</SelectItem>)}
               </SelectContent>
             </Select>
             <Select value={filtroElemento} onValueChange={setFiltroElemento}>
               <SelectTrigger className={`w-44 ${selectCls}`}><SelectValue placeholder="Elemento" /></SelectTrigger>
-              <SelectContent className="bg-gray-900 border-gray-800">
+              <SelectContent className="bg-slate-900 border-slate-800">
                 <SelectItem value="__all__" className={itemCls}>Todos elementos</SelectItem>
                 {elementosOpcoes.map(e => <SelectItem key={e} value={e} className={itemCls}>{e}</SelectItem>)}
               </SelectContent>
             </Select>
             <Select value={filtroSecao} onValueChange={setFiltroSecao}>
               <SelectTrigger className={`w-40 ${selectCls}`}><SelectValue placeholder="Seção" /></SelectTrigger>
-              <SelectContent className="bg-gray-900 border-gray-800">
+              <SelectContent className="bg-slate-900 border-slate-800">
                 <SelectItem value="__all__" className={itemCls}>Todas seções</SelectItem>
                 {secoesOpcoes.map(s => <SelectItem key={s} value={s} className={itemCls}>{s}</SelectItem>)}
               </SelectContent>
             </Select>
             <Select value={filtroAngulo} onValueChange={setFiltroAngulo}>
               <SelectTrigger className={`w-40 ${selectCls}`}><SelectValue placeholder="Ângulo" /></SelectTrigger>
-              <SelectContent className="bg-gray-900 border-gray-800">
+              <SelectContent className="bg-slate-900 border-slate-800">
                 <SelectItem value="__all__" className={itemCls}>Todos ângulos</SelectItem>
                 {angulosOpcoes.map(a => <SelectItem key={a} value={a} className={itemCls}>{a}</SelectItem>)}
               </SelectContent>
             </Select>
             <Select value={filtroLayout} onValueChange={setFiltroLayout}>
               <SelectTrigger className={`w-36 ${selectCls}`}><SelectValue placeholder="Layout" /></SelectTrigger>
-              <SelectContent className="bg-gray-900 border-gray-800">
+              <SelectContent className="bg-slate-900 border-slate-800">
                 <SelectItem value="__all__" className={itemCls}>Todos layouts</SelectItem>
                 {layoutsOpcoes.map(l => <SelectItem key={l} value={l} className={itemCls}>{LAYOUT_LABEL[l] ?? l}</SelectItem>)}
               </SelectContent>
             </Select>
             <Select value={filtroStatus} onValueChange={setFiltroStatus}>
               <SelectTrigger className={`w-40 ${selectCls}`}><SelectValue placeholder="Status" /></SelectTrigger>
-              <SelectContent className="bg-gray-900 border-gray-800">
+              <SelectContent className="bg-slate-900 border-slate-800">
                 <SelectItem value="__all__" className={itemCls}>Todos os status</SelectItem>
                 {STATUS_OPCOES.map(s => <SelectItem key={s} value={s} className={itemCls}>{s}</SelectItem>)}
               </SelectContent>
             </Select>
             <Select value={filtroPeriodo} onValueChange={setFiltroPeriodo}>
               <SelectTrigger className={`w-40 ${selectCls}`}><SelectValue placeholder="Período" /></SelectTrigger>
-              <SelectContent className="bg-gray-900 border-gray-800">
+              <SelectContent className="bg-slate-900 border-slate-800">
                 {PERIODOS.map(p => <SelectItem key={p.valor} value={p.valor} className={itemCls}>{p.label}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
 
           {filtrados.length === 0 ? (
-            <div className="rounded-xl border border-gray-800 p-12 text-center">
-              <p className="text-gray-500 text-sm">Nenhum experimento encontrado com esses filtros.</p>
+            <div className="rounded-xl border border-slate-800 p-12 text-center">
+              <p className="text-slate-500 text-sm">Nenhum experimento encontrado com esses filtros.</p>
             </div>
           ) : (
-            <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-x-auto">
+            <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-x-auto">
               <table className="w-full text-left border-collapse min-w-[1560px]">
                 <thead>
-                  <tr className="border-b border-gray-800 bg-gray-900/60 text-gray-400 text-xs uppercase tracking-wide">
+                  <tr className="border-b border-slate-800 bg-slate-900/60 text-slate-400 text-xs uppercase tracking-wide">
                     <th className="w-8 px-2 py-3"></th>
                     <ThOrdenavel campo="nome">Experimento</ThOrdenavel>
                     <th className="px-4 py-3 font-medium">Funil</th>
@@ -792,11 +792,11 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
                     <th className="px-4 py-3 font-medium text-right">Ações</th>
                   </tr>
                 </thead>
-                <tbody className="text-sm divide-y divide-gray-800">
+                <tbody className="text-sm divide-y divide-slate-800">
                   {grupos.map(grupo => (
                     <Fragment key={grupo.funilId}>
                       {usarAgrupamento && (
-                        <tr className="bg-gray-900/60">
+                        <tr className="bg-slate-900/60">
                           <td colSpan={12} className="px-4 py-2">
                             <button
                               type="button"
@@ -807,7 +807,7 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
                               <Layers size={12} />
                               {grupo.idFunil && <span className="font-mono text-indigo-400">[{grupo.idFunil}]</span>}
                               {grupo.nome}
-                              <span className="text-gray-600 font-normal">· {grupo.testes.length} experimento{grupo.testes.length !== 1 ? 's' : ''}</span>
+                              <span className="text-slate-600 font-normal">· {grupo.testes.length} experimento{grupo.testes.length !== 1 ? 's' : ''}</span>
                             </button>
                           </td>
                         </tr>
@@ -825,12 +825,12 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
                     const expandido = expandidos.has(t.id)
                     return (
                       <Fragment key={t.id}>
-                      <tr className="hover:bg-gray-900/40 transition-colors align-top">
+                      <tr className="hover:bg-slate-900/40 transition-colors align-top">
                         <td className="px-2 py-3">
                           <button
                             type="button"
                             onClick={() => toggleExpandido(t.id)}
-                            className="text-gray-600 hover:text-white transition-colors"
+                            className="text-slate-600 hover:text-white transition-colors"
                             title="Editar métricas das variantes"
                           >
                             {expandido ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
@@ -842,88 +842,88 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
                             <Link href={`/variantes/${t.id}`} className="text-white font-medium hover:text-indigo-400 transition-colors">
                               {t.nome}
                             </Link>
-                            <span className="text-gray-600 text-xs font-mono">{numeroSequencial(t.codigo) ?? '—'}</span>
+                            <span className="text-slate-600 text-xs font-mono">{numeroSequencial(t.codigo) ?? '—'}</span>
                           </div>
                           {t.hipotese && (
-                            <p className="text-gray-500 text-xs truncate mt-0.5" title={t.hipotese}>{t.hipotese}</p>
+                            <p className="text-slate-500 text-xs truncate mt-0.5" title={t.hipotese}>{t.hipotese}</p>
                           )}
                         </td>
                         {/* Funil */}
                         <td className="px-4 py-3">
                           {t.funis ? (
-                            <span className="text-xs text-gray-300">
-                              {t.funis.id_funil && <span className="font-mono text-gray-500 mr-1">[{t.funis.id_funil}]</span>}
+                            <span className="text-xs text-slate-300">
+                              {t.funis.id_funil && <span className="font-mono text-slate-500 mr-1">[{t.funis.id_funil}]</span>}
                               {t.funis.nome}
                             </span>
                           ) : (
-                            <span className="text-gray-600 text-xs">—</span>
+                            <span className="text-slate-600 text-xs">—</span>
                           )}
                         </td>
                         {/* Campanha */}
                         <td className="px-4 py-3">
                           {t.campanhas?.codigo ? (
-                            <span className="text-xs text-gray-300 whitespace-nowrap">{t.campanhas.codigo}</span>
+                            <span className="text-xs text-slate-300 whitespace-nowrap">{t.campanhas.codigo}</span>
                           ) : (
-                            <span className="text-gray-600 text-xs">—</span>
+                            <span className="text-slate-600 text-xs">—</span>
                           )}
                         </td>
                         {/* Elemento testado */}
                         <td className="px-4 py-3">
                           {t.elemento_testado ? (
-                            <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-gray-800 text-gray-300 border border-gray-700 whitespace-nowrap">
+                            <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 whitespace-nowrap">
                               {t.elemento_testado}
                             </span>
                           ) : (
-                            <span className="text-gray-600 text-xs">—</span>
+                            <span className="text-slate-600 text-xs">—</span>
                           )}
                         </td>
                         {/* Seção da página */}
                         <td className="px-4 py-3">
                           {t.secao_pagina ? (
-                            <span className="text-xs text-gray-400 whitespace-nowrap">{t.secao_pagina}</span>
+                            <span className="text-xs text-slate-400 whitespace-nowrap">{t.secao_pagina}</span>
                           ) : (
-                            <span className="text-gray-600 text-xs">—</span>
+                            <span className="text-slate-600 text-xs">—</span>
                           )}
                         </td>
                         {/* Layout */}
                         <td className="px-4 py-3">
                           {layoutResumo ? (
-                            <span className="text-xs text-gray-400 whitespace-nowrap">{layoutResumo}</span>
+                            <span className="text-xs text-slate-400 whitespace-nowrap">{layoutResumo}</span>
                           ) : (
-                            <span className="text-gray-600 text-xs">—</span>
+                            <span className="text-slate-600 text-xs">—</span>
                           )}
                         </td>
                         {/* Segmentação: tipo + segmento */}
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-1.5 flex-wrap">
                             {t.tipo_teste && (
-                              <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium border ${TIPO_COR[t.tipo_teste] ?? 'bg-gray-800 text-gray-400 border-gray-700'}`}>
+                              <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium border ${TIPO_COR[t.tipo_teste] ?? 'bg-slate-800 text-slate-400 border-slate-700'}`}>
                                 {TIPO_LABEL[t.tipo_teste] ?? t.tipo_teste}
                               </span>
                             )}
                             {t.segmento && (
-                              <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium border ${SEGMENTO_COR[t.segmento] ?? 'bg-gray-800 text-gray-400 border-gray-700'}`}>
+                              <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium border ${SEGMENTO_COR[t.segmento] ?? 'bg-slate-800 text-slate-400 border-slate-700'}`}>
                                 {t.segmento}
                               </span>
                             )}
-                            {!t.tipo_teste && !t.segmento && <span className="text-gray-600 text-xs">—</span>}
+                            {!t.tipo_teste && !t.segmento && <span className="text-slate-600 text-xs">—</span>}
                           </div>
                         </td>
                         {/* Status + duração */}
                         <td className="px-4 py-3">
                           <span
-                            className={`inline-flex px-2 py-0.5 rounded text-xs font-medium border ${STATUS_COR[t.status] ?? 'bg-gray-800 text-gray-400 border-gray-700'}`}
+                            className={`inline-flex px-2 py-0.5 rounded text-xs font-medium border ${STATUS_COR[t.status] ?? 'bg-slate-800 text-slate-400 border-slate-700'}`}
                             title={inicio ? `Início ${inicio}` : undefined}
                           >
                             {t.status}
                           </span>
-                          {dias !== null && <span className="text-gray-600 text-xs ml-1.5">{dias}d</span>}
+                          {dias !== null && <span className="text-slate-600 text-xs ml-1.5">{dias}d</span>}
                         </td>
                         {/* Resultado: vencedora + lift */}
                         <td className="px-4 py-3">
                           {t.resultado_final === 'sem_vencedor' ? (
-                            <Link href={`/variantes/${t.id}`} className="text-gray-400 hover:text-gray-300 text-xs transition-colors">
-                              Encerrado sem vencedor <span className="text-gray-600">(empate/inconclusivo)</span>
+                            <Link href={`/variantes/${t.id}`} className="text-slate-400 hover:text-slate-300 text-xs transition-colors">
+                              Encerrado sem vencedor <span className="text-slate-600">(empate/inconclusivo)</span>
                             </Link>
                           ) : vencedora ? (
                             <span className="inline-flex items-center gap-1.5 text-green-400 text-xs font-medium">
@@ -948,21 +948,21 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
                                   ({lider.lift >= 0 ? '+' : ''}{lider.lift.toFixed(1)}%) <Info size={10} />
                                 </span>
                               </span>
-                              <span className="text-gray-600 text-[10px]">ainda não declarada</span>
+                              <span className="text-slate-600 text-[10px]">ainda não declarada</span>
                             </Link>
                           ) : cvr !== null ? (
-                            <Link href={`/variantes/${t.id}`} className="text-gray-500 hover:text-indigo-400 text-xs underline decoration-dotted transition-colors">
+                            <Link href={`/variantes/${t.id}`} className="text-slate-500 hover:text-indigo-400 text-xs underline decoration-dotted transition-colors">
                               Sem vencedora declarada
                             </Link>
                           ) : (
-                            <span className="text-gray-600 text-xs">
+                            <span className="text-slate-600 text-xs">
                               {t.status === 'Ativo' || t.status === 'Planejado' ? 'Aguardando dados...' : '—'}
                             </span>
                           )}
                         </td>
                         {/* Métrica + RPV */}
                         <td className="px-4 py-3 text-right" title={t.metrica_primaria ?? undefined}>
-                          <p className="text-gray-400 text-xs">
+                          <p className="text-slate-400 text-xs">
                             {cvr !== null ? `CVR ${cvr.toFixed(1)}%` : '—'}
                             {lider && ` · Líder ${lider.cr.toFixed(1)}%`}
                             {t.tipo_teste !== 'aquisicao' && rpv !== null && ` · RPV ${formatarMoeda(rpv)}`}
@@ -983,7 +983,7 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
                               <button
                                 type="button"
                                 onClick={() => setConfirmandoExclusao(null)}
-                                className="px-2 py-1 text-[11px] text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 rounded transition-colors"
+                                className="px-2 py-1 text-[11px] text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 rounded transition-colors"
                               >
                                 Cancelar
                               </button>
@@ -995,7 +995,7 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
                                   href={urlAtivacao}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="text-gray-600 hover:text-indigo-400 transition-colors"
+                                  className="text-slate-600 hover:text-indigo-400 transition-colors"
                                   title={`Acessar URL de ativação do teste (${urlAtivacao})`}
                                 >
                                   <ExternalLink size={14} />
@@ -1003,7 +1003,7 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
                               )}
                               <Link
                                 href={`/variantes/${t.id}/editar`}
-                                className="text-gray-600 hover:text-indigo-400 transition-colors"
+                                className="text-slate-600 hover:text-indigo-400 transition-colors"
                                 title="Editar experimento"
                               >
                                 <Pencil size={14} />
@@ -1012,7 +1012,7 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
                                 type="button"
                                 onClick={() => handleDuplicar(t.id)}
                                 disabled={duplicando === t.id}
-                                className="text-gray-600 hover:text-indigo-400 transition-colors disabled:opacity-50"
+                                className="text-slate-600 hover:text-indigo-400 transition-colors disabled:opacity-50"
                                 title="Duplicar experimento"
                               >
                                 <Copy size={14} className={duplicando === t.id ? 'animate-pulse' : ''} />
@@ -1020,7 +1020,7 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
                               <button
                                 type="button"
                                 onClick={() => setConfirmandoExclusao(t.id)}
-                                className="text-gray-600 hover:text-red-400 transition-colors"
+                                className="text-slate-600 hover:text-red-400 transition-colors"
                                 title="Excluir experimento"
                               >
                                 <Trash2 size={14} />
@@ -1033,25 +1033,25 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
                         <tr className="bg-black/20">
                           <td></td>
                           <td colSpan={11} className="px-4 py-3">
-                            <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-gray-400 mb-3 pb-3 border-b border-gray-800/60">
-                              <span><span className="text-gray-600">Início:</span> {inicio ?? '—'}</span>
-                              <span><span className="text-gray-600">Especialista:</span> {t.especialistas?.nome ?? '—'}</span>
-                              <span><span className="text-gray-600">Responsável:</span> {t.responsavel ?? '—'}</span>
+                            <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-slate-400 mb-3 pb-3 border-b border-slate-800/60">
+                              <span><span className="text-slate-600">Início:</span> {inicio ?? '—'}</span>
+                              <span><span className="text-slate-600">Especialista:</span> {t.especialistas?.nome ?? '—'}</span>
+                              <span><span className="text-slate-600">Responsável:</span> {t.responsavel ?? '—'}</span>
                             </div>
                             <AprendizadoResumo
                               testeId={t.id}
                               resultado={t.resultado}
                               onSalvo={valor => atualizarAprendizadoLocal(t.id, valor)}
                             />
-                            <p className="text-[11px] text-gray-500 uppercase tracking-wide mb-2">Variantes</p>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 pb-4 border-b border-gray-800/60">
+                            <p className="text-[11px] text-slate-500 uppercase tracking-wide mb-2">Variantes</p>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 pb-4 border-b border-slate-800/60">
                               {(t.variantes_teste ?? []).map(v => (
-                                <div key={v.id} className={`flex gap-3 bg-gray-900/60 border rounded-lg p-3 ${v.is_vencedor ? 'border-green-500/40' : 'border-gray-800'}`}>
+                                <div key={v.id} className={`flex gap-3 bg-slate-900/60 border rounded-lg p-3 ${v.is_vencedor ? 'border-green-500/40' : 'border-slate-800'}`}>
                                   {v.screenshot_url && ehArquivoHtml(v.screenshot_url) ? (
                                     <button
                                       type="button"
                                       onClick={() => abrirReferenciaHtml(v.screenshot_url!)}
-                                      className="shrink-0 w-40 aspect-[5/2] rounded border border-dashed border-gray-700 bg-gray-950 flex items-center justify-center text-indigo-400 hover:border-indigo-500/40 transition-colors"
+                                      className="shrink-0 w-40 aspect-[5/2] rounded border border-dashed border-slate-700 bg-slate-950 flex items-center justify-center text-indigo-400 hover:border-indigo-500/40 transition-colors"
                                       title="Abrir referência HTML"
                                     >
                                       <FileCode2 size={16} />
@@ -1064,18 +1064,18 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
                                       title="Ampliar screenshot"
                                     >
                                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                                      <img src={v.screenshot_url} alt={nomeVariante(v)} className="w-full h-full object-cover object-top rounded border border-gray-800" />
+                                      <img src={v.screenshot_url} alt={nomeVariante(v)} className="w-full h-full object-cover object-top rounded border border-slate-800" />
                                       <span className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/40 rounded transition-colors">
                                         <ZoomIn size={14} className="text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                                       </span>
                                     </button>
                                   ) : (
-                                    <div className="shrink-0 w-40 aspect-[5/2] rounded border border-dashed border-gray-800 bg-gray-950" />
+                                    <div className="shrink-0 w-40 aspect-[5/2] rounded border border-dashed border-slate-800 bg-slate-950" />
                                   )}
                                   <div className="min-w-0 flex-1">
-                                    <p className="text-xs text-gray-400 mb-0.5 flex items-center gap-1.5 flex-wrap">
-                                      {v.is_controle && <span className="text-gray-600">●</span>} {nomeVariante(v)}
-                                      {v.layout && <span className="text-[10px] text-gray-600">· {LAYOUT_LABEL[v.layout] ?? v.layout}</span>}
+                                    <p className="text-xs text-slate-400 mb-0.5 flex items-center gap-1.5 flex-wrap">
+                                      {v.is_controle && <span className="text-slate-600">●</span>} {nomeVariante(v)}
+                                      {v.layout && <span className="text-[10px] text-slate-600">· {LAYOUT_LABEL[v.layout] ?? v.layout}</span>}
                                       {v.is_vencedor && (
                                         <span className="inline-flex items-center gap-1 text-[11px] font-medium bg-green-500/10 text-green-400 border border-green-500/20 rounded-full px-2 py-0.5">
                                           <Trophy size={11} /> WINNER
@@ -1085,12 +1085,12 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
                                     {v.headline ? (
                                       <p className="text-sm text-white leading-snug truncate">{v.headline}</p>
                                     ) : (
-                                      <p className="text-xs text-gray-600 italic">Sem headline registrada</p>
+                                      <p className="text-xs text-slate-600 italic">Sem headline registrada</p>
                                     )}
-                                    {v.subheadline && <p className="text-xs text-gray-500 leading-snug truncate">{v.subheadline}</p>}
+                                    {v.subheadline && <p className="text-xs text-slate-500 leading-snug truncate">{v.subheadline}</p>}
                                     {(v.angulo_dominante || (v.angulos_secundarios ?? []).length > 0) && (
                                       <div className="flex flex-wrap items-center gap-1 mt-1">
-                                        <span className="text-[10px] text-gray-600 uppercase tracking-wide mr-0.5" title="Ângulo da Hero desta variação">
+                                        <span className="text-[10px] text-slate-600 uppercase tracking-wide mr-0.5" title="Ângulo da Hero desta variação">
                                           Ângulo:
                                         </span>
                                         {v.angulo_dominante && (
@@ -1099,7 +1099,7 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
                                           </span>
                                         )}
                                         {(v.angulos_secundarios ?? []).map(a => (
-                                          <span key={a} className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-gray-800 text-gray-400 border border-gray-700">{iconeAngulo(a)} {a}</span>
+                                          <span key={a} className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700">{iconeAngulo(a)} {a}</span>
                                         ))}
                                       </div>
                                     )}
@@ -1115,7 +1115,7 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
                                         </a>
                                       )}
                                       {v.url_preview && (
-                                        <a href={v.url_preview} target="_blank" rel="noreferrer" className="text-gray-500 text-[11px] hover:underline hover:text-gray-400">
+                                        <a href={v.url_preview} target="_blank" rel="noreferrer" className="text-slate-500 text-[11px] hover:underline hover:text-slate-400">
                                           Preview ↗
                                         </a>
                                       )}
@@ -1124,8 +1124,8 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
                                 </div>
                               ))}
                             </div>
-                            <p className="text-[11px] text-gray-500 uppercase tracking-wide mb-2">Métricas por variante</p>
-                            <div className="divide-y divide-gray-800/60">
+                            <p className="text-[11px] text-slate-500 uppercase tracking-wide mb-2">Métricas por variante</p>
+                            <div className="divide-y divide-slate-800/60">
                               {(t.variantes_teste ?? []).map(v => (
                                 <LinhaMetricasVariante
                                   key={v.id}
@@ -1154,7 +1154,7 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
               <button
                 type="button"
                 onClick={() => setPaginaAtual(p => p + 1)}
-                className="px-4 py-2 text-sm text-gray-400 hover:text-white bg-gray-900 border border-gray-800 hover:border-gray-700 rounded-lg transition-colors"
+                className="px-4 py-2 text-sm text-slate-400 hover:text-white bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-lg transition-colors"
               >
                 Carregar mais ({filtrados.length - visiveis.length} restantes)
               </button>
@@ -1171,7 +1171,7 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
           <button
             type="button"
             onClick={() => setImagemAmpliada(null)}
-            className="absolute top-5 right-5 p-2 bg-gray-900/80 hover:bg-gray-800 rounded-lg text-white transition-colors"
+            className="absolute top-5 right-5 p-2 bg-slate-900/80 hover:bg-slate-800 rounded-lg text-white transition-colors"
             title="Fechar"
           >
             <X size={20} />

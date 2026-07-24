@@ -129,7 +129,7 @@ export function ModalFunil({ aberto, onFechar, onSalvo, funil, produtos, especia
 
   return (
     <Dialog open={aberto} onOpenChange={v => !v && onFechar()}>
-      <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-lg">
+      <DialogContent className="bg-slate-900 border-slate-800 text-white max-w-lg">
         <DialogHeader>
           <DialogTitle className="text-white">{funil ? 'Editar Funil' : 'Novo Funil'}</DialogTitle>
         </DialogHeader>
@@ -137,7 +137,7 @@ export function ModalFunil({ aberto, onFechar, onSalvo, funil, produtos, especia
         <form onSubmit={handleSubmit} className="space-y-4 mt-2">
           {/* Objetivo */}
           <div className="space-y-1.5">
-            <Label className="text-gray-400 text-xs">Objetivo *</Label>
+            <Label className="text-slate-400 text-xs">Objetivo *</Label>
             <div className="flex gap-3">
               {(['Venda', 'Aquisição'] as const).map(op => (
                 <button
@@ -150,7 +150,7 @@ export function ModalFunil({ aberto, onFechar, onSalvo, funil, produtos, especia
                   className={`flex-1 py-2 rounded-lg border text-sm font-medium transition-colors ${
                     form.objetivo === op
                       ? 'bg-indigo-600/20 border-indigo-500 text-indigo-300'
-                      : 'bg-gray-900 border-gray-800 text-gray-400 hover:border-gray-600'
+                      : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-600'
                   }`}
                 >
                   {op}
@@ -161,83 +161,83 @@ export function ModalFunil({ aberto, onFechar, onSalvo, funil, produtos, especia
 
           {/* Especialista → Produto */}
           <div className="space-y-1.5">
-            <Label className="text-gray-400 text-xs">Especialista</Label>
+            <Label className="text-slate-400 text-xs">Especialista</Label>
             <Select value={filtroEsp || '__all__'} onValueChange={v => { setFiltroEsp(v === '__all__' ? '' : v); set('produto_id')('') }}>
-              <SelectTrigger className="w-full bg-gray-900 border-gray-800 text-white focus:ring-0 focus:ring-offset-0 h-10">
+              <SelectTrigger className="w-full bg-slate-900 border-slate-800 text-white focus:ring-0 focus:ring-offset-0 h-10">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-gray-900 border-gray-800">
-                <SelectItem value="__all__" className="text-gray-300 focus:bg-gray-800 focus:text-white">Todos</SelectItem>
-                {especialistas.map(e => <SelectItem key={e.id} value={e.id} className="text-gray-300 focus:bg-gray-800 focus:text-white">{e.nome}</SelectItem>)}
+              <SelectContent className="bg-slate-900 border-slate-800">
+                <SelectItem value="__all__" className="text-slate-300 focus:bg-slate-800 focus:text-white">Todos</SelectItem>
+                {especialistas.map(e => <SelectItem key={e.id} value={e.id} className="text-slate-300 focus:bg-slate-800 focus:text-white">{e.nome}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-gray-400 text-xs">
+            <Label className="text-slate-400 text-xs">
               {form.objetivo === 'Venda'
                 ? <span>Produto <span className="text-red-400">*</span></span>
-                : <span>Produto alvo <span className="text-gray-600">(opcional)</span></span>
+                : <span>Produto alvo <span className="text-slate-600">(opcional)</span></span>
               }
             </Label>
             <Select value={form.produto_id || '__none__'} onValueChange={v => handleCampoGatilho('produto_id', v === '__none__' ? '' : v)}>
-              <SelectTrigger className={`w-full bg-gray-900 text-white focus:ring-0 focus:ring-offset-0 h-10 ${
-                form.objetivo === 'Venda' && !form.produto_id ? 'border-red-500/50' : 'border-gray-800'
+              <SelectTrigger className={`w-full bg-slate-900 text-white focus:ring-0 focus:ring-offset-0 h-10 ${
+                form.objetivo === 'Venda' && !form.produto_id ? 'border-red-500/50' : 'border-slate-800'
               }`}>
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-gray-900 border-gray-800">
-                <SelectItem value="__none__" className="text-gray-400 focus:bg-gray-800 focus:text-white">
+              <SelectContent className="bg-slate-900 border-slate-800">
+                <SelectItem value="__none__" className="text-slate-400 focus:bg-slate-800 focus:text-white">
                   {form.objetivo === 'Venda' ? 'Selecionar produto...' : 'Sem produto alvo'}
                 </SelectItem>
-                {produtosFiltrados.map(p => <SelectItem key={p.id} value={p.id} className="text-gray-300 focus:bg-gray-800 focus:text-white">{p.nome}</SelectItem>)}
+                {produtosFiltrados.map(p => <SelectItem key={p.id} value={p.id} className="text-slate-300 focus:bg-slate-800 focus:text-white">{p.nome}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
 
           <div className="grid grid-cols-3 gap-3">
             <div className="space-y-1.5">
-              <Label className="text-gray-400 text-xs">Código <span className="text-gray-600">(opcional)</span></Label>
+              <Label className="text-slate-400 text-xs">Código <span className="text-slate-600">(opcional)</span></Label>
               <Input
                 value={form.id_funil}
                 onChange={e => handleCampoGatilho('id_funil', e.target.value)}
                 placeholder="Ex: MVA"
-                className="bg-gray-900 border-gray-800 text-white placeholder-gray-600 focus:border-indigo-500 font-mono"
+                className="bg-slate-900 border-slate-800 text-white placeholder-slate-600 focus:border-indigo-500 font-mono"
               />
             </div>
             <div className="col-span-2 space-y-1.5">
-              <Label className="text-gray-400 text-xs">Nome *</Label>
+              <Label className="text-slate-400 text-xs">Nome *</Label>
               <Input
                 value={form.nome}
                 onChange={e => { setNomeAuto(false); set('nome')(e.target.value) }}
                 placeholder="Ex: Perpétuo Digital Go"
                 required
-                className="bg-gray-900 border-gray-800 text-white placeholder-gray-500 focus:border-indigo-500"
+                className="bg-slate-900 border-slate-800 text-white placeholder-slate-500 focus:border-indigo-500"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label className="text-gray-400 text-xs">Tipo *</Label>
+              <Label className="text-slate-400 text-xs">Tipo *</Label>
               <Select value={form.tipo || '__none__'} onValueChange={v => handleCampoGatilho('tipo', v === '__none__' ? '' : v)}>
-                <SelectTrigger className="w-full bg-gray-900 border-gray-800 text-white focus:ring-0 focus:ring-offset-0 h-10">
+                <SelectTrigger className="w-full bg-slate-900 border-slate-800 text-white focus:ring-0 focus:ring-offset-0 h-10">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-gray-900 border-gray-800">
-                  <SelectItem value="__none__" className="text-gray-300 focus:bg-gray-800 focus:text-white">Selecionar...</SelectItem>
-                  {configOpts('tipo_funil').map(v => <SelectItem key={v} value={v} className="text-gray-300 focus:bg-gray-800 focus:text-white">{v}</SelectItem>)}
+                <SelectContent className="bg-slate-900 border-slate-800">
+                  <SelectItem value="__none__" className="text-slate-300 focus:bg-slate-800 focus:text-white">Selecionar...</SelectItem>
+                  {configOpts('tipo_funil').map(v => <SelectItem key={v} value={v} className="text-slate-300 focus:bg-slate-800 focus:text-white">{v}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-gray-400 text-xs">Status</Label>
+              <Label className="text-slate-400 text-xs">Status</Label>
               <Select value={form.status} onValueChange={v => set('status')(v)}>
-                <SelectTrigger className="w-full bg-gray-900 border-gray-800 text-white focus:ring-0 focus:ring-offset-0 h-10">
+                <SelectTrigger className="w-full bg-slate-900 border-slate-800 text-white focus:ring-0 focus:ring-offset-0 h-10">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-gray-900 border-gray-800">
-                  {configOpts('status_funil').map(v => <SelectItem key={v} value={v} className="text-gray-300 focus:bg-gray-800 focus:text-white">{v}</SelectItem>)}
+                <SelectContent className="bg-slate-900 border-slate-800">
+                  {configOpts('status_funil').map(v => <SelectItem key={v} value={v} className="text-slate-300 focus:bg-slate-800 focus:text-white">{v}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
@@ -245,51 +245,51 @@ export function ModalFunil({ aberto, onFechar, onSalvo, funil, produtos, especia
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label className="text-gray-400 text-xs">Responsável CRO</Label>
+              <Label className="text-slate-400 text-xs">Responsável CRO</Label>
               <Select value={form.responsavel_cro || '__none__'} onValueChange={v => set('responsavel_cro')(v === '__none__' ? '' : v)}>
-                <SelectTrigger className="w-full bg-gray-900 border-gray-800 text-white focus:ring-0 focus:ring-offset-0 h-10">
+                <SelectTrigger className="w-full bg-slate-900 border-slate-800 text-white focus:ring-0 focus:ring-offset-0 h-10">
                   <SelectValue placeholder="Selecionar..." />
                 </SelectTrigger>
-                <SelectContent className="bg-gray-900 border-gray-800">
-                  <SelectItem value="__none__" className="text-gray-500 focus:bg-gray-800 focus:text-white">—</SelectItem>
-                  {configOpts('responsavel').map(v => <SelectItem key={v} value={v} className="text-gray-300 focus:bg-gray-800 focus:text-white">{v}</SelectItem>)}
+                <SelectContent className="bg-slate-900 border-slate-800">
+                  <SelectItem value="__none__" className="text-slate-500 focus:bg-slate-800 focus:text-white">—</SelectItem>
+                  {configOpts('responsavel').map(v => <SelectItem key={v} value={v} className="text-slate-300 focus:bg-slate-800 focus:text-white">{v}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-gray-400 text-xs">Responsável Dev</Label>
+              <Label className="text-slate-400 text-xs">Responsável Dev</Label>
               <Select value={form.responsavel_dev || '__none__'} onValueChange={v => set('responsavel_dev')(v === '__none__' ? '' : v)}>
-                <SelectTrigger className="w-full bg-gray-900 border-gray-800 text-white focus:ring-0 focus:ring-offset-0 h-10">
+                <SelectTrigger className="w-full bg-slate-900 border-slate-800 text-white focus:ring-0 focus:ring-offset-0 h-10">
                   <SelectValue placeholder="Selecionar..." />
                 </SelectTrigger>
-                <SelectContent className="bg-gray-900 border-gray-800">
-                  <SelectItem value="__none__" className="text-gray-500 focus:bg-gray-800 focus:text-white">—</SelectItem>
-                  {configOpts('responsavel').map(v => <SelectItem key={v} value={v} className="text-gray-300 focus:bg-gray-800 focus:text-white">{v}</SelectItem>)}
+                <SelectContent className="bg-slate-900 border-slate-800">
+                  <SelectItem value="__none__" className="text-slate-500 focus:bg-slate-800 focus:text-white">—</SelectItem>
+                  {configOpts('responsavel').map(v => <SelectItem key={v} value={v} className="text-slate-300 focus:bg-slate-800 focus:text-white">{v}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-gray-400 text-xs">Data de Ativação</Label>
-            <Input type="date" value={form.data_ativacao} onChange={e => set('data_ativacao')(e.target.value)} className="bg-gray-900 border-gray-800 text-white focus:border-indigo-500" />
+            <Label className="text-slate-400 text-xs">Data de Ativação</Label>
+            <Input type="date" value={form.data_ativacao} onChange={e => set('data_ativacao')(e.target.value)} className="bg-slate-900 border-slate-800 text-white focus:border-indigo-500" />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label className="text-gray-400 text-xs">Planilha de Leads</Label>
-              <Input type="url" value={form.planilha_leads} onChange={e => set('planilha_leads')(e.target.value)} placeholder="https://" className="bg-gray-900 border-gray-800 text-white placeholder-gray-600 focus:border-indigo-500" />
+              <Label className="text-slate-400 text-xs">Planilha de Leads</Label>
+              <Input type="url" value={form.planilha_leads} onChange={e => set('planilha_leads')(e.target.value)} placeholder="https://" className="bg-slate-900 border-slate-800 text-white placeholder-slate-600 focus:border-indigo-500" />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-gray-400 text-xs">Planilha de Pesquisa</Label>
-              <Input type="url" value={form.planilha_pesquisa} onChange={e => set('planilha_pesquisa')(e.target.value)} placeholder="https://" className="bg-gray-900 border-gray-800 text-white placeholder-gray-600 focus:border-indigo-500" />
+              <Label className="text-slate-400 text-xs">Planilha de Pesquisa</Label>
+              <Input type="url" value={form.planilha_pesquisa} onChange={e => set('planilha_pesquisa')(e.target.value)} placeholder="https://" className="bg-slate-900 border-slate-800 text-white placeholder-slate-600 focus:border-indigo-500" />
             </div>
           </div>
 
           {erro && <p className="text-red-400 text-sm">{erro}</p>}
 
           <div className="flex justify-end gap-2 pt-1">
-            <Button type="button" variant="ghost" onClick={onFechar} className="text-gray-400 hover:text-white">Cancelar</Button>
+            <Button type="button" variant="ghost" onClick={onFechar} className="text-slate-400 hover:text-white">Cancelar</Button>
             <Button type="submit" disabled={salvando || !podeSubmeter} className="bg-indigo-600 hover:bg-indigo-500 text-white disabled:opacity-40">
               {salvando ? 'Salvando...' : funil ? 'Salvar alterações' : 'Criar funil'}
             </Button>

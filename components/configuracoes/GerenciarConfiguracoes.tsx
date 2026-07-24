@@ -107,7 +107,7 @@ function ItemRow({
 }) {
   const isEditando = editando?.id === item.id
   return (
-    <tr className="hover:bg-gray-900/40 transition-colors">
+    <tr className="hover:bg-slate-900/40 transition-colors">
       <td className="px-4 py-3">
         {isEditando ? (
           <div className="flex items-center gap-2">
@@ -116,17 +116,17 @@ function ItemRow({
               value={editando.valor}
               onChange={e => setEditando({ ...editando, valor: e.target.value })}
               onKeyDown={e => { if (e.key === 'Enter') onSalvar(); if (e.key === 'Escape') onCancelarEdicao() }}
-              className="flex-1 px-2 py-1 bg-gray-900 border border-gray-800 rounded text-white text-sm focus:outline-none focus:border-indigo-500"
+              className="flex-1 px-2 py-1 bg-slate-900 border border-slate-800 rounded text-white text-sm focus:outline-none focus:border-indigo-500"
             />
             <button onClick={onSalvar} className="text-green-400 hover:text-green-300"><Check size={14} /></button>
-            <button onClick={onCancelarEdicao} className="text-gray-500 hover:text-gray-300"><X size={14} /></button>
+            <button onClick={onCancelarEdicao} className="text-slate-500 hover:text-slate-300"><X size={14} /></button>
           </div>
         ) : (
           <div>
-            <span className={`font-medium ${item.ativo ? 'text-white' : 'text-gray-500 line-through'}`}>
+            <span className={`font-medium ${item.ativo ? 'text-white' : 'text-slate-500 line-through'}`}>
               {item.valor}
             </span>
-            {descricao && <p className="text-xs text-gray-500 mt-0.5">{descricao}</p>}
+            {descricao && <p className="text-xs text-slate-500 mt-0.5">{descricao}</p>}
           </div>
         )}
       </td>
@@ -136,7 +136,7 @@ function ItemRow({
             {CORES_RAPIDAS.map(c => (
               <button key={c} type="button"
                 onClick={() => setEditando({ ...editando, cor: editando.cor === c ? '' : c })}
-                className={`w-4 h-4 rounded-full transition-all ${editando.cor === c ? 'ring-2 ring-white ring-offset-1 ring-offset-gray-900 scale-110' : 'opacity-50 hover:opacity-100'}`}
+                className={`w-4 h-4 rounded-full transition-all ${editando.cor === c ? 'ring-2 ring-white ring-offset-1 ring-offset-slate-900 scale-110' : 'opacity-50 hover:opacity-100'}`}
                 style={{ backgroundColor: c }}
               />
             ))}
@@ -144,41 +144,41 @@ function ItemRow({
         ) : item.cor ? (
           <span className="flex items-center gap-1.5">
             <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: item.cor }} />
-            <span className="text-gray-500 text-xs font-mono">{item.cor}</span>
+            <span className="text-slate-500 text-xs font-mono">{item.cor}</span>
           </span>
-        ) : <span className="text-gray-600">—</span>}
+        ) : <span className="text-slate-600">—</span>}
       </td>
       <td className="px-4 py-3">
         <span className={`text-xs px-2 py-0.5 rounded-full border ${
           item.ativo
             ? 'bg-green-500/10 text-green-400 border-green-500/30'
-            : 'bg-gray-500/10 text-gray-500 border-gray-500/30'
+            : 'bg-slate-500/10 text-slate-500 border-slate-500/30'
         }`}>{item.ativo ? 'Ativo' : 'Inativo'}</span>
       </td>
       <td className="px-4 py-3">
         {confirmandoDelete === item.id ? (
           <div className="flex items-center gap-1 justify-end">
-            <span className="text-xs text-gray-400">Deletar?</span>
+            <span className="text-xs text-slate-400">Deletar?</span>
             <button onClick={onDeletar} className="p-1 text-red-400 hover:text-red-300"><Check size={12} /></button>
-            <button onClick={onCancelarDelete} className="p-1 text-gray-500 hover:text-gray-300"><X size={12} /></button>
+            <button onClick={onCancelarDelete} className="p-1 text-slate-500 hover:text-slate-300"><X size={12} /></button>
           </div>
         ) : (
           <div className="flex items-center gap-1 justify-end">
             <button
               onClick={() => onMover('cima')}
               disabled={!podeSubir}
-              className="p-1.5 text-gray-500 hover:text-white hover:bg-gray-900 rounded transition-colors disabled:opacity-20 disabled:pointer-events-none"
+              className="p-1.5 text-slate-500 hover:text-white hover:bg-slate-900 rounded transition-colors disabled:opacity-20 disabled:pointer-events-none"
               title="Mover pra cima"
             ><ArrowUp size={12} /></button>
             <button
               onClick={() => onMover('baixo')}
               disabled={!podeDescer}
-              className="p-1.5 text-gray-500 hover:text-white hover:bg-gray-900 rounded transition-colors disabled:opacity-20 disabled:pointer-events-none"
+              className="p-1.5 text-slate-500 hover:text-white hover:bg-slate-900 rounded transition-colors disabled:opacity-20 disabled:pointer-events-none"
               title="Mover pra baixo"
             ><ArrowDown size={12} /></button>
-            <button onClick={onEditar} className="p-1.5 text-gray-500 hover:text-white hover:bg-gray-900 rounded transition-colors"><Pencil size={12} /></button>
-            <button onClick={onToggleAtivo} className="p-1.5 text-gray-500 hover:text-yellow-400 hover:bg-gray-900 rounded transition-colors" title={item.ativo ? 'Desativar' : 'Ativar'}>{item.ativo ? <X size={12} /> : <Check size={12} />}</button>
-            <button onClick={onConfirmarDelete} className="p-1.5 text-gray-500 hover:text-red-400 hover:bg-gray-900 rounded transition-colors"><Trash2 size={12} /></button>
+            <button onClick={onEditar} className="p-1.5 text-slate-500 hover:text-white hover:bg-slate-900 rounded transition-colors"><Pencil size={12} /></button>
+            <button onClick={onToggleAtivo} className="p-1.5 text-slate-500 hover:text-yellow-400 hover:bg-slate-900 rounded transition-colors" title={item.ativo ? 'Desativar' : 'Ativar'}>{item.ativo ? <X size={12} /> : <Check size={12} />}</button>
+            <button onClick={onConfirmarDelete} className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-slate-900 rounded transition-colors"><Trash2 size={12} /></button>
           </div>
         )}
       </td>
@@ -212,10 +212,10 @@ function TabelaItens({
   setConfirmandoDelete: (id: string | null) => void
 }) {
   return (
-    <div className="rounded-xl border border-gray-800 overflow-hidden">
+    <div className="rounded-xl border border-slate-800 overflow-hidden">
       <table className="w-full text-sm">
         <thead>
-          <tr className="bg-gray-900/60 text-gray-400 text-xs uppercase tracking-wide">
+          <tr className="bg-slate-900/60 text-slate-400 text-xs uppercase tracking-wide">
             <th className="px-4 py-3 text-left font-medium">Valor</th>
             <th className="px-4 py-3 text-left font-medium">Cor</th>
             <th className="px-4 py-3 text-left font-medium">Status</th>
@@ -225,7 +225,7 @@ function TabelaItens({
         <tbody className="divide-y divide-white/[0.07]">
           {itens.length === 0 ? (
             <tr>
-              <td colSpan={4} className="px-4 py-8 text-center text-gray-500 text-xs">
+              <td colSpan={4} className="px-4 py-8 text-center text-slate-500 text-xs">
                 Nenhum item cadastrado.
               </td>
             </tr>
@@ -340,7 +340,7 @@ export function GerenciarConfiguracoes({ configs, especialistas }: Props) {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-white">Configurações</h1>
-        <p className="text-gray-500 text-sm mt-1">Gerencie as listas de opções usadas em todo o sistema.</p>
+        <p className="text-slate-500 text-sm mt-1">Gerencie as listas de opções usadas em todo o sistema.</p>
       </div>
 
       <div className="flex gap-8 items-start">
@@ -349,7 +349,7 @@ export function GerenciarConfiguracoes({ configs, especialistas }: Props) {
         <nav className="w-44 shrink-0 space-y-5">
           {GRUPOS.map(grupo => (
             <div key={grupo.label}>
-              <p className="text-xs font-semibold text-gray-600 uppercase tracking-widest mb-1.5 px-2">
+              <p className="text-xs font-semibold text-slate-600 uppercase tracking-widest mb-1.5 px-2">
                 {grupo.label}
               </p>
               <div className="space-y-0.5">
@@ -360,7 +360,7 @@ export function GerenciarConfiguracoes({ configs, especialistas }: Props) {
                     className={`w-full text-left px-2 py-1.5 rounded-lg text-sm transition-colors ${
                       abaAtiva === item.key
                         ? 'bg-indigo-600/20 text-indigo-300 font-medium'
-                        : 'text-gray-400 hover:text-white hover:bg-gray-900'
+                        : 'text-slate-400 hover:text-white hover:bg-slate-900'
                     }`}
                   >
                     {item.label}
@@ -386,7 +386,7 @@ export function GerenciarConfiguracoes({ configs, especialistas }: Props) {
                   .sort((a, b) => a.ordem - b.ordem)
                 return (
                   <div key={fase.key} className="space-y-3">
-                    <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-widest">{fase.label}</h3>
+                    <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-widest">{fase.label}</h3>
                     <TabelaItens
                       itens={itensFase}
                       editando={editando}
@@ -403,7 +403,7 @@ export function GerenciarConfiguracoes({ configs, especialistas }: Props) {
                         value={checkNovoValor[fase.key] ?? ''}
                         onChange={e => setCheckNovoValor(v => ({ ...v, [fase.key]: e.target.value }))}
                         placeholder={`Novo item de ${fase.label.toLowerCase()}...`}
-                        className="flex-1 px-3 py-2 bg-gray-900 border border-gray-800 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500"
+                        className="flex-1 px-3 py-2 bg-slate-900 border border-slate-800 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
                       />
                       <button
                         type="submit"
@@ -425,14 +425,14 @@ export function GerenciarConfiguracoes({ configs, especialistas }: Props) {
                   value={novoValor}
                   onChange={e => setNovoValor(e.target.value)}
                   placeholder="Novo item..."
-                  className="flex-1 px-3 py-2 bg-gray-900 border border-gray-800 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500"
+                  className="flex-1 px-3 py-2 bg-slate-900 border border-slate-800 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
                 />
                 <div className="flex items-center gap-1.5 shrink-0">
                   {CORES_RAPIDAS.map(c => (
                     <button
                       key={c} type="button"
                       onClick={() => setNovaCor(novaCor === c ? '' : c)}
-                      className={`w-5 h-5 rounded-full transition-all ${novaCor === c ? 'ring-2 ring-white ring-offset-1 ring-offset-gray-900 scale-110' : 'opacity-60 hover:opacity-100'}`}
+                      className={`w-5 h-5 rounded-full transition-all ${novaCor === c ? 'ring-2 ring-white ring-offset-1 ring-offset-slate-900 scale-110' : 'opacity-60 hover:opacity-100'}`}
                       style={{ backgroundColor: c }}
                     />
                   ))}

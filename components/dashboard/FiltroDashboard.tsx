@@ -15,13 +15,13 @@ export function FiltroDashboard({ especialistas }: { especialistas: Especialista
 
   return (
     <Select value={atual || '__all__'} onValueChange={v => handleChange(v === '__all__' ? '' : v)}>
-      <SelectTrigger className="h-9 text-sm bg-gray-900 border-gray-800 text-gray-300 hover:bg-gray-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[130px]">
+      <SelectTrigger className="h-9 text-sm bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[130px]">
         <SelectValue />
       </SelectTrigger>
-      <SelectContent className="bg-gray-900 border-gray-800">
-        <SelectItem value="__all__" className="text-gray-300 focus:bg-gray-800 focus:text-white">Todos os especialistas</SelectItem>
+      <SelectContent className="bg-slate-900 border-slate-800">
+        <SelectItem value="__all__" className="text-slate-300 focus:bg-slate-800 focus:text-white">Todos os especialistas</SelectItem>
         {especialistas.map(e => (
-          <SelectItem key={e.id} value={e.id} className="text-gray-300 focus:bg-gray-800 focus:text-white">{e.nome}</SelectItem>
+          <SelectItem key={e.id} value={e.id} className="text-slate-300 focus:bg-slate-800 focus:text-white">{e.nome}</SelectItem>
         ))}
       </SelectContent>
     </Select>

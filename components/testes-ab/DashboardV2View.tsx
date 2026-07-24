@@ -71,7 +71,7 @@ export function DashboardV2View({
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h2 className="text-2xl font-bold text-white">Central de Comando</h2>
-          <p className="text-gray-500 text-sm mt-0.5">
+          <p className="text-slate-500 text-sm mt-0.5">
             Visão em tempo real da saúde da produção e da velocidade dos experimentos.
           </p>
         </div>
@@ -82,13 +82,13 @@ export function DashboardV2View({
       </div>
 
       {/* Toggle Operação / Inteligência A/B — navegação primária entre os dois painéis */}
-      <div className="bg-gray-900 p-1.5 rounded-xl inline-flex gap-1 border border-gray-800 self-start">
+      <div className="bg-slate-900 p-1.5 rounded-xl inline-flex gap-1 border border-slate-800 self-start">
         <button
           onClick={() => setAba('operacao')}
           className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-colors ${
             aba === 'operacao'
               ? 'bg-indigo-600 text-white shadow'
-              : 'text-gray-400 hover:text-white hover:bg-gray-800'
+              : 'text-slate-400 hover:text-white hover:bg-slate-800'
           }`}
         >
           <LayoutDashboard size={16} />
@@ -99,7 +99,7 @@ export function DashboardV2View({
           className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-colors ${
             aba === 'ab'
               ? 'bg-indigo-600 text-white shadow'
-              : 'text-gray-400 hover:text-white hover:bg-gray-800'
+              : 'text-slate-400 hover:text-white hover:bg-slate-800'
           }`}
         >
           <FlaskConical size={16} />

@@ -16,7 +16,7 @@ Em produção: **https://funneldeck.vercel.app** | Repo: **mbueno732/funneldeck*
 - **Idioma:** Português (BR)
 - **Deploy:** Vercel (auto-deploy no push para main)
 - **Cor primária:** indigo (`#6366f1`) — NÃO trocar
-- **Tema:** dark — `bg-gray-950` (fundo) / `bg-gray-900` (cards)
+- **Tema:** dark — `bg-slate-950` (fundo) / `bg-slate-900` (cards)
 
 ### Como rodar localmente
 
@@ -70,7 +70,7 @@ cria uma árvore paralela.**
 
 O Stitch exporta com paleta, fontes e ícones próprios (varia a cada tela). **Ignorar a
 paleta/tema do Stitch sempre** e aplicar a identidade real do Funneldeck: indigo `#6366f1`,
-`bg-gray-950`/`bg-gray-900`, Geist (já instalado), ícones `lucide-react` (mapear os Material
+`bg-slate-950`/`bg-slate-900`, Geist (já instalado), ícones `lucide-react` (mapear os Material
 Symbols do mock). Reaproveitar classes/padrões já usados em `ModalFunil.tsx` / `ModalVariante.tsx`
 / `ListaFunis.tsx` pra inputs, selects, botões e cards.
 

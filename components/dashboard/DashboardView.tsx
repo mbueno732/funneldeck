@@ -59,12 +59,12 @@ const ICON_BG: Record<CardCor, string> = {
   red:    'bg-red-500/10 text-red-400',
   blue:   'bg-blue-500/10 text-blue-400',
   orange: 'bg-orange-500/10 text-orange-400',
-  gray:   'bg-gray-900 text-gray-400',
+  gray:   'bg-slate-900 text-slate-400',
 }
 
 export function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-[10px] font-medium tracking-[.06em] text-gray-500 uppercase mb-2">
+    <p className="text-[10px] font-medium tracking-[.06em] text-slate-500 uppercase mb-2">
       {children}
     </p>
   )
@@ -85,11 +85,11 @@ function KpiCard({ label, value, sub, icon: Icon, cor, href, badge, highlight }:
   const isOk    = (cor === 'red' || cor === 'amber') && numVal === 0
 
   const borderCls =
-    highlight === 'ok'              ? 'border-l-[3px] border-l-green-500/70 border-gray-800' :
-    cor === 'orange' && isAlert     ? 'border-l-[3px] border-l-orange-500 border-gray-800' :
+    highlight === 'ok'              ? 'border-l-[3px] border-l-green-500/70 border-slate-800' :
+    cor === 'orange' && isAlert     ? 'border-l-[3px] border-l-orange-500 border-slate-800' :
     cor === 'red'    && isAlert     ? 'border-red-500/40' :
     cor === 'amber'  && isAlert     ? 'border-amber-500/20' :
-    'border-gray-800'
+    'border-slate-800'
 
   const valueCls =
     isOk                             ? 'text-green-400' :
@@ -104,21 +104,21 @@ function KpiCard({ label, value, sub, icon: Icon, cor, href, badge, highlight }:
     cor === 'orange' ? 'bg-orange-500/10 text-orange-400' :
     cor === 'amber'  ? 'bg-amber-500/10 text-amber-400' :
     cor === 'red'    ? 'bg-red-500/10 text-red-400' :
-    'bg-gray-900 text-gray-400'
+    'bg-slate-900 text-slate-400'
 
   const content = (
-    <div className={`bg-gray-900 border rounded-xl p-4 space-y-3 h-full transition-colors ${
-      href ? 'hover:border-gray-600 cursor-pointer' : ''
+    <div className={`bg-slate-900 border rounded-xl p-4 space-y-3 h-full transition-colors ${
+      href ? 'hover:border-slate-600 cursor-pointer' : ''
     } ${borderCls}`}>
       <div className="flex items-center justify-between">
-        <span className="text-gray-400 text-sm">{label}</span>
+        <span className="text-slate-400 text-sm">{label}</span>
         <div className={`p-2 rounded-lg ${iconCls}`}>
           <Icon size={16} />
         </div>
       </div>
       <div>
         <p className={`text-[28px] font-medium leading-none mb-1 ${valueCls}`}>{value}</p>
-        {sub && <p className="text-gray-500 text-xs">{sub}</p>}
+        {sub && <p className="text-slate-500 text-xs">{sub}</p>}
         {badge && (
           <span className={`inline-flex items-center mt-2 text-[10px] px-1.5 py-0.5 rounded font-medium ${badgeCls}`}>
             {badge}
@@ -135,11 +135,11 @@ function ProgressBar({ value, max }: { value: number; max: number }) {
   const pct = max > 0 ? Math.round((value / max) * 100) : 0
   return (
     <div className="space-y-1">
-      <div className="flex justify-between text-xs text-gray-500">
+      <div className="flex justify-between text-xs text-slate-500">
         <span>{value} publicadas</span>
         <span>{pct}%</span>
       </div>
-      <div className="h-1 bg-gray-900 rounded-full overflow-hidden">
+      <div className="h-1 bg-slate-900 rounded-full overflow-hidden">
         <div
           className="h-full rounded-full transition-all"
           style={{ width: `${pct}%`, backgroundColor: pct === 100 ? '#22c55e' : pct > 50 ? '#6366f1' : '#3b82f6' }}
@@ -192,10 +192,10 @@ export function DashboardView({
 
       {/* Pipeline bar */}
       {kpis.total_paginas > 0 && (
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-5 space-y-4">
+        <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4">
           <div className="flex items-center justify-between">
             <p className="text-sm font-medium text-white">Pipeline de produção</p>
-            <span className="text-xs text-gray-500">
+            <span className="text-xs text-slate-500">
               {kpis.total_paginas} páginas · {kpis.funis_ativos} funis ativos
             </span>
           </div>
@@ -210,9 +210,9 @@ export function DashboardView({
             {pipelineData.map(({ status, count, cor, pct }) => (
               <div key={status} className="flex items-center gap-1.5">
                 <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: cor }} />
-                <span className="text-xs text-gray-500">{status}</span>
+                <span className="text-xs text-slate-500">{status}</span>
                 <span className="text-xs text-white font-medium">{count}</span>
-                <span className="text-xs text-gray-600">({pct}%)</span>
+                <span className="text-xs text-slate-600">({pct}%)</span>
               </div>
             ))}
           </div>
@@ -300,15 +300,15 @@ export function DashboardView({
 
       {/* HORAS */}
       {temHoras && (
-        <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+        <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
           <button
             onClick={() => setHorasAberto(v => !v)}
-            className="w-full flex items-center justify-between px-4 py-3 text-sm text-gray-400 hover:text-white transition-colors"
+            className="w-full flex items-center justify-between px-4 py-3 text-sm text-slate-400 hover:text-white transition-colors"
           >
             <div className="flex items-center gap-2">
               <Timer size={14} className="text-indigo-400" />
               <span className="font-medium text-white">Horas</span>
-              <span className="text-gray-600 text-xs">estimado vs realizado · {mesLabel}</span>
+              <span className="text-slate-600 text-xs">estimado vs realizado · {mesLabel}</span>
             </div>
             <div className="flex items-center gap-3">
               {!horasAberto && horasKpis.desvio_pct !== 0 && (
@@ -321,30 +321,30 @@ export function DashboardView({
           </button>
 
           {horasAberto && (
-            <div className="border-t border-gray-800 px-4 pb-4 pt-3 space-y-4">
+            <div className="border-t border-slate-800 px-4 pb-4 pt-3 space-y-4">
               {/* KPIs de horas */}
               <div className="grid grid-cols-3 gap-3">
-                <div className="bg-gray-950 border border-gray-800 rounded-xl p-4">
-                  <p className="text-gray-500 text-xs mb-1">Estimado</p>
-                  <p className="text-white text-2xl font-medium">{horasKpis.estimadas}<span className="text-gray-500 text-sm ml-1">h</span></p>
+                <div className="bg-slate-950 border border-slate-800 rounded-xl p-4">
+                  <p className="text-slate-500 text-xs mb-1">Estimado</p>
+                  <p className="text-white text-2xl font-medium">{horasKpis.estimadas}<span className="text-slate-500 text-sm ml-1">h</span></p>
                 </div>
-                <div className="bg-gray-950 border border-gray-800 rounded-xl p-4">
-                  <p className="text-gray-500 text-xs mb-1">Realizado</p>
-                  <p className="text-white text-2xl font-medium">{horasKpis.reais}<span className="text-gray-500 text-sm ml-1">h</span></p>
+                <div className="bg-slate-950 border border-slate-800 rounded-xl p-4">
+                  <p className="text-slate-500 text-xs mb-1">Realizado</p>
+                  <p className="text-white text-2xl font-medium">{horasKpis.reais}<span className="text-slate-500 text-sm ml-1">h</span></p>
                 </div>
                 <div className={`border rounded-xl p-4 ${
-                  horasKpis.desvio_pct === 0 ? 'bg-gray-950 border-gray-800' :
+                  horasKpis.desvio_pct === 0 ? 'bg-slate-950 border-slate-800' :
                   horasKpis.desvio_pct > 0   ? 'bg-red-500/5 border-red-500/20' :
                                                'bg-green-500/5 border-green-500/20'
                 }`}>
-                  <p className="text-gray-500 text-xs mb-1">Desvio</p>
+                  <p className="text-slate-500 text-xs mb-1">Desvio</p>
                   <p className={`text-2xl font-medium ${
-                    horasKpis.desvio_pct === 0 ? 'text-gray-400' :
+                    horasKpis.desvio_pct === 0 ? 'text-slate-400' :
                     horasKpis.desvio_pct > 0   ? 'text-red-400' : 'text-green-400'
                   }`}>
                     {horasKpis.desvio_pct > 0 ? '+' : ''}{horasKpis.desvio_pct}<span className="text-sm ml-0.5">%</span>
                   </p>
-                  <p className="text-gray-600 text-xs mt-0.5">
+                  <p className="text-slate-600 text-xs mt-0.5">
                     {horasKpis.desvio_pct > 0 ? 'acima do estimado' : horasKpis.desvio_pct < 0 ? 'abaixo do estimado' : 'dentro do estimado'}
                   </p>
                 </div>
@@ -353,13 +353,13 @@ export function DashboardView({
               {/* Top desvios */}
               {horasKpis.top_desvios.length > 0 && (
                 <div>
-                  <p className="text-[10px] font-medium tracking-[.06em] text-gray-600 uppercase mb-2">Maiores desvios por página</p>
+                  <p className="text-[10px] font-medium tracking-[.06em] text-slate-600 uppercase mb-2">Maiores desvios por página</p>
                   <div className="space-y-1.5">
                     {horasKpis.top_desvios.map((pg, i) => (
                       <div key={i} className="flex items-center justify-between text-xs">
-                        <span className="text-gray-400 truncate flex-1 mr-3">{pg.nome}</span>
+                        <span className="text-slate-400 truncate flex-1 mr-3">{pg.nome}</span>
                         <div className="flex items-center gap-3 shrink-0">
-                          <span className="text-gray-600">{pg.estimadas}h est. / {pg.reais}h real</span>
+                          <span className="text-slate-600">{pg.estimadas}h est. / {pg.reais}h real</span>
                           <span className={`font-medium w-12 text-right ${pg.desvio > 0 ? 'text-red-400' : 'text-green-400'}`}>
                             {pg.desvio > 0 ? '+' : ''}{pg.desvio}%
                           </span>
@@ -373,7 +373,7 @@ export function DashboardView({
               {/* Horas por especialista */}
               {porEspecialista.filter(e => e.horas_estimadas > 0).length > 0 && (
                 <div>
-                  <p className="text-[10px] font-medium tracking-[.06em] text-gray-600 uppercase mb-2">Por especialista</p>
+                  <p className="text-[10px] font-medium tracking-[.06em] text-slate-600 uppercase mb-2">Por especialista</p>
                   <div className="space-y-2">
                     {porEspecialista.filter(e => e.horas_estimadas > 0).map(esp => {
                       const desvio = esp.horas_estimadas > 0
@@ -385,8 +385,8 @@ export function DashboardView({
                       return (
                         <div key={esp.id} className="space-y-1">
                           <div className="flex items-center justify-between text-xs">
-                            <span className="text-gray-400">{esp.nome}</span>
-                            <div className="flex items-center gap-2 text-gray-600">
+                            <span className="text-slate-400">{esp.nome}</span>
+                            <div className="flex items-center gap-2 text-slate-600">
                               <span>{esp.horas_reais}h / {esp.horas_estimadas}h</span>
                               {desvio !== 0 && (
                                 <span className={`font-medium ${desvio > 0 ? 'text-red-400' : 'text-green-400'}`}>
@@ -395,7 +395,7 @@ export function DashboardView({
                               )}
                             </div>
                           </div>
-                          <div className="h-1 bg-gray-950 rounded-full overflow-hidden">
+                          <div className="h-1 bg-slate-950 rounded-full overflow-hidden">
                             <div
                               className="h-full rounded-full transition-all"
                               style={{
@@ -424,10 +424,10 @@ export function DashboardView({
               const pct = esp.total_paginas > 0 ? Math.round((esp.paginas_publicadas / esp.total_paginas) * 100) : 0
               return (
                 <Link key={esp.id} href={`/funis?especialista=${esp.id}`} className="block h-full">
-                  <div className="bg-gray-900 border border-gray-800 rounded-xl p-4 space-y-3 h-full hover:border-gray-600 transition-colors">
+                  <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-3 h-full hover:border-slate-600 transition-colors">
                     <div className="flex items-center justify-between">
                       <h3 className="text-sm font-medium text-white">{esp.nome}</h3>
-                      <div className="flex items-center gap-2 text-xs text-gray-500">
+                      <div className="flex items-center gap-2 text-xs text-slate-500">
                         <span>{esp.funis_ativos} funis ativos</span>
                         {esp.paginas_atrasadas > 0 && (
                           <span className="flex items-center gap-1 text-red-400">
@@ -439,12 +439,12 @@ export function DashboardView({
                     </div>
                     <ProgressBar value={esp.paginas_publicadas} max={esp.total_paginas} />
                     {esp.total_paginas === 0 ? (
-                      <p className="text-gray-600 text-xs">nenhuma página cadastrada ainda</p>
+                      <p className="text-slate-600 text-xs">nenhuma página cadastrada ainda</p>
                     ) : (
-                      <div className="flex gap-3 text-xs text-gray-500">
-                        <span><strong className="text-gray-300 font-medium">{esp.paginas_publicadas}</strong> publicadas</span>
-                        <span><strong className="text-gray-300 font-medium">{pct}%</strong> do total</span>
-                        <span><strong className="text-gray-300 font-medium">{esp.total_paginas}</strong> páginas</span>
+                      <div className="flex gap-3 text-xs text-slate-500">
+                        <span><strong className="text-slate-300 font-medium">{esp.paginas_publicadas}</strong> publicadas</span>
+                        <span><strong className="text-slate-300 font-medium">{pct}%</strong> do total</span>
+                        <span><strong className="text-slate-300 font-medium">{esp.total_paginas}</strong> páginas</span>
                       </div>
                     )}
                   </div>
@@ -457,9 +457,9 @@ export function DashboardView({
 
       {/* Estado vazio global */}
       {kpis.total_paginas === 0 && kpis.total_funis === 0 && (
-        <div className="rounded-xl border border-gray-800 p-12 text-center space-y-3">
-          <p className="text-gray-400">Nenhum dado ainda.</p>
-          <p className="text-gray-600 text-sm">
+        <div className="rounded-xl border border-slate-800 p-12 text-center space-y-3">
+          <p className="text-slate-400">Nenhum dado ainda.</p>
+          <p className="text-slate-600 text-sm">
             Comece cadastrando{' '}
             <Link href="/configuracoes" className="text-orange-400 hover:underline">especialistas</Link>,{' '}
             <Link href="/produtos" className="text-orange-400 hover:underline">produtos</Link> e{' '}
