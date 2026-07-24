@@ -941,8 +941,16 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
                         {/* Resultado: vencedora + lift */}
                         <td className="px-4 py-3">
                           {t.resultado_final === 'sem_vencedor' ? (
-                            <Link href={`/variantes/${t.id}`} className="text-slate-400 hover:text-slate-300 text-xs transition-colors">
-                              Encerrado sem vencedor <span className="text-slate-600">(empate/inconclusivo)</span>
+                            <Link href={`/variantes/${t.id}`} className="inline-flex flex-col hover:opacity-80 transition-opacity">
+                              <span className="text-slate-400 text-xs">
+                                Encerrado sem vencedor <span className="text-slate-600">(empate/inconclusivo)</span>
+                              </span>
+                              {lider && (
+                                <span className="inline-flex items-center gap-1 text-slate-500 text-[10px] mt-0.5">
+                                  {lider.nome} teve o melhor resultado
+                                  {lider.lift !== null && ` (+${lider.lift.toFixed(1)}%)`}
+                                </span>
+                              )}
                             </Link>
                           ) : vencedora ? (
                             <span className="inline-flex items-center gap-1.5 text-green-400 text-xs font-medium">
