@@ -1205,13 +1205,12 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
           >
             <X size={20} />
           </button>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={imagemAmpliada}
-            alt="Screenshot ampliado"
-            className="max-w-[95vw] max-h-[95vh] object-contain rounded-lg"
-            onClick={e => e.stopPropagation()}
-          />
+          {/* max-w/max-h no container (não na imagem) — screenshots de página longa mantêm o
+              tamanho real e ganham scroll vertical, em vez de espremer tudo pra caber na tela. */}
+          <div className="max-w-[95vw] max-h-[95vh] overflow-y-auto rounded-lg" onClick={e => e.stopPropagation()}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={imagemAmpliada} alt="Screenshot ampliado" className="w-full h-auto block" />
+          </div>
         </div>
       )}
     </div>
