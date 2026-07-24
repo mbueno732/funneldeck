@@ -454,6 +454,26 @@ export async function declararVencedora(
   return { ok: true }
 }
 
+export async function iniciarTeste(testeId: string): Promise<{ ok: boolean; erro?: string }> {
+  const supabase = await createClient()
+
+  const { data: teste } = await supabase.from('testes_ab').select('data_inicio').eq('id', testeId).single()
+
+  const { error } = await supabase
+    .from('testes_ab')
+    .update({
+      status: 'Ativo',
+      data_inicio: teste?.data_inicio ?? new Date().toISOString().split('T')[0],
+    })
+    .eq('id', testeId)
+  if (error) return { ok: false, erro: error.message }
+
+  await registrarAuditoria('testes_ab', testeId, 'iniciar')
+  revalidatePath(`/variantes/${testeId}`)
+  revalidatePath('/variantes')
+  return { ok: true }
+}
+
 export async function encerrarSemVencedor(testeId: string): Promise<{ ok: boolean; erro?: string }> {
   const supabase = await createClient()
 

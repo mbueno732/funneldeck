@@ -1,5 +1,6 @@
 'use client'
 import { useState, Suspense } from 'react'
+import { LayoutDashboard, FlaskConical } from 'lucide-react'
 import { DashboardView } from '@/components/dashboard/DashboardView'
 import { FiltroDashboard } from '@/components/dashboard/FiltroDashboard'
 import { FiltroMes } from '@/components/dashboard/FiltroMes'
@@ -66,8 +67,8 @@ export function DashboardV2View({
 
   return (
     <div className="flex flex-col gap-6" style={{ fontVariantNumeric: 'tabular-nums' }}>
-      {/* Cabeçalho + filtros + toggle */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-2">
+      {/* Cabeçalho + filtros */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h2 className="text-2xl font-bold text-white">Central de Comando</h2>
           <p className="text-gray-500 text-sm mt-0.5">
@@ -79,29 +80,31 @@ export function DashboardV2View({
           <Suspense><FiltroDashboard especialistas={especialistas} /></Suspense>
         </div>
       </div>
-      <div className="flex justify-end -mt-4 md:-mt-2">
-        <div className="bg-gray-900 p-1 rounded-lg inline-flex border border-gray-800">
-          <button
-            onClick={() => setAba('operacao')}
-            className={`px-5 py-1.5 rounded-md text-xs font-medium uppercase tracking-wide transition-colors ${
-              aba === 'operacao'
-                ? 'bg-gray-800 text-white'
-                : 'text-gray-500 hover:text-gray-300'
-            }`}
-          >
-            Operação
-          </button>
-          <button
-            onClick={() => setAba('ab')}
-            className={`px-5 py-1.5 rounded-md text-xs font-medium uppercase tracking-wide transition-colors ${
-              aba === 'ab'
-                ? 'bg-gray-800 text-white'
-                : 'text-gray-500 hover:text-gray-300'
-            }`}
-          >
-            Inteligência A/B
-          </button>
-        </div>
+
+      {/* Toggle Operação / Inteligência A/B — navegação primária entre os dois painéis */}
+      <div className="bg-gray-900 p-1.5 rounded-xl inline-flex gap-1 border border-gray-800 self-start">
+        <button
+          onClick={() => setAba('operacao')}
+          className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+            aba === 'operacao'
+              ? 'bg-indigo-600 text-white shadow'
+              : 'text-gray-400 hover:text-white hover:bg-gray-800'
+          }`}
+        >
+          <LayoutDashboard size={16} />
+          Operação
+        </button>
+        <button
+          onClick={() => setAba('ab')}
+          className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+            aba === 'ab'
+              ? 'bg-indigo-600 text-white shadow'
+              : 'text-gray-400 hover:text-white hover:bg-gray-800'
+          }`}
+        >
+          <FlaskConical size={16} />
+          Inteligência A/B
+        </button>
       </div>
 
       {aba === 'operacao' ? (

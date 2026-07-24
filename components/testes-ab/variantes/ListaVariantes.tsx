@@ -1090,6 +1090,9 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
                                     {v.subheadline && <p className="text-xs text-gray-500 leading-snug truncate">{v.subheadline}</p>}
                                     {(v.angulo_dominante || (v.angulos_secundarios ?? []).length > 0) && (
                                       <div className="flex flex-wrap items-center gap-1 mt-1">
+                                        <span className="text-[10px] text-gray-600 uppercase tracking-wide mr-0.5" title="Ângulo da Hero desta variação">
+                                          Ângulo:
+                                        </span>
                                         {v.angulo_dominante && (
                                           <span className="inline-flex items-center gap-0.5 text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-200 border border-indigo-500">
                                             <Star size={9} className="fill-indigo-300 text-indigo-300" /> {iconeAngulo(v.angulo_dominante)} {v.angulo_dominante}

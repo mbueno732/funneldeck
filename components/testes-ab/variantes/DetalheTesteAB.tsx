@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import {
   atualizarMetricasVariante, atualizarAprendizado, atualizarHipotese, declararVencedora, aplicarVencedor, desfazerVencedora,
-  encerrarSemVencedor,
+  encerrarSemVencedor, iniciarTeste,
 } from '@/lib/actions/testes-ab'
 import { confiancaZTest, classificarConfianca, MIN_CONVERSOES_CONFIAVEL, MIN_DIAS_RECOMENDADO } from '@/lib/estatistica'
 import { iconeAngulo } from '@/lib/angulos-hero'
@@ -104,6 +104,7 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
   const [declarando, setDeclarando] = useState<string | null>(null)
   const [desfazendo, setDesfazendo] = useState(false)
   const [encerrando, setEncerrando] = useState(false)
+  const [iniciando, setIniciando] = useState(false)
   const [aplicando, setAplicando] = useState(false)
   const [erro, setErro] = useState('')
   const [imagemAmpliada, setImagemAmpliada] = useState<string | null>(null)
@@ -154,6 +155,15 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
       resultado_final: 'vencedora',
       variantes_teste: (t.variantes_teste ?? []).map(v => ({ ...v, is_vencedor: v.id === varianteId })),
     }))
+  }
+
+  async function handleIniciarTeste() {
+    setIniciando(true)
+    setErro('')
+    const res = await iniciarTeste(teste.id)
+    setIniciando(false)
+    if (!res.ok) { setErro(res.erro ?? 'Erro ao iniciar o teste.'); return }
+    setTeste(t => ({ ...t, status: 'Ativo', data_inicio: t.data_inicio ?? new Date().toISOString().split('T')[0] }))
   }
 
   async function handleEncerrarSemVencedor() {
@@ -264,6 +274,16 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
+          {teste.status === 'Planejado' && (
+            <Button
+              onClick={handleIniciarTeste}
+              disabled={iniciando}
+              className="bg-indigo-600 hover:bg-indigo-500 text-white disabled:opacity-40"
+            >
+              {iniciando ? <Loader2 size={16} className="animate-spin mr-2" /> : <Rocket size={16} className="mr-2" />}
+              Iniciar Teste
+            </Button>
+          )}
           {teste.status === 'Ativo' && !vencedora && (
             <Button
               variant="ghost"
@@ -439,6 +459,9 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
                     )}
                     {(v.angulo_dominante || (v.angulos_secundarios ?? []).length > 0) && (
                       <div className="flex flex-wrap items-center gap-1.5">
+                        <span className="text-[11px] text-gray-600 uppercase tracking-wide mr-0.5" title="Ângulo da Hero desta variação">
+                          Ângulo:
+                        </span>
                         {v.angulo_dominante && (
                           <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-200 border border-indigo-500 font-medium">
                             <Star size={10} className="fill-indigo-300 text-indigo-300" /> {iconeAngulo(v.angulo_dominante)} {v.angulo_dominante}
