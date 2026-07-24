@@ -203,11 +203,15 @@ Marcelo quer construir a seguir, nesta ordem a confirmar:
 - **Backlog de Testes** — ainda em aberto se é uma tela nova leve (só hipótese + prioridade, sem
   exigir página/variante cadastrada, "promovendo" pra Experimento formal quando for construir de
   verdade) ou um filtro dos testes já com status `Planejado` na Lista atual.
-- **Inteligência / Padrões de Sucesso** — tela que agrega os experimentos já rodados pra mostrar
-  quais ângulos/elementos/layouts tendem a vencer. Já estava no radar desde o início do módulo
-  (Fase 6 do plano em `~/.claude/plans/`); só faz sentido com volume real de testes com ângulo
-  preenchido, que já está acontecendo desde que `angulos` virou campo obrigatório-de-fato no
-  Cadastro.
+- **Padrões de Sucesso** (`/padroes-sucesso`) — **placeholder criado em 2026-07-24**
+  (`components/shared/EmConstrucao.tsx`), ainda sem funcionalidade real. Vai agregar os
+  experimentos já rodados pra mostrar quais ângulos/elementos/layouts tendem a vencer. Já estava
+  no radar desde o início do módulo (Fase 6 do plano em `~/.claude/plans/`); só faz sentido com
+  volume real de testes com ângulo preenchido, que já está acontecendo desde que `angulos` virou
+  campo obrigatório-de-fato no Cadastro.
+- **Biblioteca** (`/biblioteca`) — **placeholder criado em 2026-07-24**, escopo exato ainda não
+  definido com o Marcelo. Ideia inicial: repositório de headlines/ângulos/criativos que já
+  venceram testes, pra consulta rápida na hora de montar um novo experimento.
 - **Dashboard de Testes** — KPIs focados só no módulo de Experimentos, separado do Dashboard
   operacional que já existe (que cobre Funis/Páginas/Especialistas, não testes A/B).
 
