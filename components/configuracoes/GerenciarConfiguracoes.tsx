@@ -5,9 +5,10 @@ import { Plus, Check, X, Pencil, Trash2, ArrowUp, ArrowDown } from 'lucide-react
 import { criarConfiguracao, atualizarConfiguracao, deletarConfiguracao } from '@/lib/actions/configuracoes'
 import { DESCRICOES_TIPO_PAGINA } from '@/lib/descricoes-tipo-pagina'
 import { GerenciarEspecialistas } from '@/components/especialistas/GerenciarEspecialistas'
-import type { Configuracao, CategoriaConfig, Especialista } from '@/lib/types'
+import { GerenciarCampanhas } from '@/components/campanhas/GerenciarCampanhas'
+import type { Configuracao, CategoriaConfig, Especialista, Campanha } from '@/lib/types'
 
-type AbaAtiva = CategoriaConfig | 'checklist' | 'especialistas'
+type AbaAtiva = CategoriaConfig | 'checklist' | 'especialistas' | 'campanhas'
 
 const GRUPOS: { label: string; itens: { key: AbaAtiva; label: string }[] }[] = [
   {
@@ -55,6 +56,7 @@ const GRUPOS: { label: string; itens: { key: AbaAtiva; label: string }[] }[] = [
       { key: 'angulo_hero',              label: 'Ângulos da Hero' },
       { key: 'elemento_testado',         label: 'Elementos Testados' },
       { key: 'secao_pagina',             label: 'Seções da Página' },
+      { key: 'campanhas',                label: 'Campanhas' },
     ],
   },
 ]
@@ -68,7 +70,7 @@ const CHECKLIST_FASES: { key: CategoriaConfig; label: string }[] = [
 
 const CORES_RAPIDAS = ['#22c55e','#3b82f6','#f97316','#eab308','#ef4444','#6b7280','#a855f7','#ec4899']
 
-interface Props { configs: Configuracao[]; especialistas: Especialista[] }
+interface Props { configs: Configuracao[]; especialistas: Especialista[]; campanhas: Campanha[] }
 
 // ─── Linha de item reutilizável ────────────────────────────────────────────────
 
@@ -257,7 +259,7 @@ function TabelaItens({
 
 // ─── Componente principal ──────────────────────────────────────────────────────
 
-export function GerenciarConfiguracoes({ configs, especialistas }: Props) {
+export function GerenciarConfiguracoes({ configs, especialistas, campanhas }: Props) {
   const router = useRouter()
   const [abaAtiva, setAbaAtiva] = useState<AbaAtiva>('status_pagina')
   const [novoValor, setNovoValor] = useState('')
@@ -277,7 +279,7 @@ export function GerenciarConfiguracoes({ configs, especialistas }: Props) {
 
   async function handleAdicionar(e: React.FormEvent) {
     e.preventDefault()
-    if (!novoValor.trim() || abaAtiva === 'checklist' || abaAtiva === 'especialistas') return
+    if (!novoValor.trim() || abaAtiva === 'checklist' || abaAtiva === 'especialistas' || abaAtiva === 'campanhas') return
     setAdicionando(true)
     try {
       await criarConfiguracao({ categoria: abaAtiva as CategoriaConfig, valor: novoValor.trim(), cor: novaCor || undefined, ordem: itens.length + 1 })
@@ -375,9 +377,11 @@ export function GerenciarConfiguracoes({ configs, especialistas }: Props) {
         <div className="flex-1 min-w-0 space-y-4">
           <h2 className="text-base font-semibold text-white">{abaLabel}</h2>
 
-          {/* Especialistas: componente próprio (tabela FK real, fora de configuracoes) */}
+          {/* Especialistas e Campanhas: componentes próprios (tabelas FK reais, fora de configuracoes) */}
           {abaAtiva === 'especialistas' ? (
             <GerenciarEspecialistas especialistas={especialistas} />
+          ) : abaAtiva === 'campanhas' ? (
+            <GerenciarCampanhas campanhas={campanhas} />
           ) : abaAtiva === 'checklist' ? (
             <div className="space-y-6">
               {CHECKLIST_FASES.map(fase => {

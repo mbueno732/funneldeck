@@ -2,14 +2,14 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import {
-  ChevronRight, Trophy, Brain, Lightbulb, ImageOff, Loader2, CheckCircle2, Rocket, AlertTriangle, FileCode2, ZoomIn, X, Star,
+  ChevronRight, Trophy, Brain, Lightbulb, ImageOff, Loader2, CheckCircle2, Rocket, AlertTriangle, FileCode2, ZoomIn, X, Star, Check, Pencil,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import {
   atualizarMetricasVariante, atualizarAprendizado, atualizarHipotese, declararVencedora, aplicarVencedor, desfazerVencedora,
-  encerrarSemVencedor, iniciarTeste,
+  encerrarSemVencedor, iniciarTeste, atualizarDataFim,
 } from '@/lib/actions/testes-ab'
 import { confiancaZTest, classificarConfianca, MIN_CONVERSOES_CONFIAVEL, MIN_DIAS_RECOMENDADO } from '@/lib/estatistica'
 import { iconeAngulo } from '@/lib/angulos-hero'
@@ -74,6 +74,11 @@ function diasDeTeste(dataInicio?: string | null, dataFim?: string | null): numbe
   return Math.max(0, Math.round((fim.getTime() - new Date(dataInicio).getTime()) / 86400000))
 }
 
+function formatarData(data?: string | null): string | null {
+  if (!data) return null
+  return new Date(data + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+}
+
 const CONFIANCA_COR: Record<string, string> = {
   'Alta': 'text-green-400',
   'Média': 'text-amber-400',
@@ -108,6 +113,9 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
   const [aplicando, setAplicando] = useState(false)
   const [erro, setErro] = useState('')
   const [imagemAmpliada, setImagemAmpliada] = useState<string | null>(null)
+  const [editandoDataFim, setEditandoDataFim] = useState(false)
+  const [dataFim, setDataFim] = useState(teste.data_fim ?? '')
+  const [salvandoDataFim, setSalvandoDataFim] = useState(false)
 
   const variantes = teste.variantes_teste ?? []
   const controle = variantes.find(v => v.is_controle)
@@ -125,6 +133,16 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
     setSalvandoMetricas(null)
     if (!res.ok) { setErro(res.erro ?? 'Erro ao salvar métricas.'); return }
     setEditando(null)
+  }
+
+  async function salvarDataFim() {
+    setSalvandoDataFim(true)
+    setErro('')
+    const res = await atualizarDataFim(teste.id, dataFim || null)
+    setSalvandoDataFim(false)
+    if (!res.ok) { setErro(res.erro ?? 'Erro ao salvar data de encerramento.'); return }
+    setTeste(t => ({ ...t, data_fim: dataFim || null }))
+    setEditandoDataFim(false)
   }
 
   async function salvarAprendizado() {
@@ -271,6 +289,43 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
               </span>
             )}
           </div>
+          {(teste.status === 'Finalizado' || teste.status === 'Vencedor implementado') && (
+            <div className="flex items-center gap-1.5 mt-2 text-xs text-slate-500">
+              <span>Encerrado em:</span>
+              {editandoDataFim ? (
+                <>
+                  <input
+                    type="date"
+                    autoFocus
+                    value={dataFim}
+                    onChange={e => setDataFim(e.target.value)}
+                    onKeyDown={e => { if (e.key === 'Enter') salvarDataFim(); if (e.key === 'Escape') { setDataFim(teste.data_fim ?? ''); setEditandoDataFim(false) } }}
+                    className="bg-slate-900 border border-slate-800 rounded px-1.5 py-0.5 text-slate-300 text-xs focus:outline-none focus:border-indigo-500"
+                  />
+                  <button type="button" onClick={salvarDataFim} disabled={salvandoDataFim} className="text-green-400 hover:text-green-300 disabled:opacity-40" title="Salvar">
+                    <Check size={12} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setDataFim(teste.data_fim ?? ''); setEditandoDataFim(false) }}
+                    className="text-slate-500 hover:text-slate-300"
+                    title="Cancelar"
+                  >
+                    <X size={12} />
+                  </button>
+                </>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setEditandoDataFim(true)}
+                  className="inline-flex items-center gap-1 text-slate-300 hover:text-indigo-400 transition-colors"
+                >
+                  {formatarData(teste.data_fim) ?? 'definir'}
+                  <Pencil size={10} className="text-slate-600" />
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="flex items-center gap-2 shrink-0">

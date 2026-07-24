@@ -516,6 +516,23 @@ export async function desfazerVencedora(testeId: string): Promise<{ ok: boolean;
   return { ok: true }
 }
 
+/**
+ * Corrige a data de encerramento depois do fato — útil pra registrar testes retroativos, já que
+ * declararVencedora/encerrarSemVencedor sempre gravam a data de hoje ao finalizar.
+ */
+export async function atualizarDataFim(testeId: string, dataFim: string | null): Promise<{ ok: boolean; erro?: string }> {
+  const supabase = await createClient()
+  const { error } = await supabase
+    .from('testes_ab')
+    .update({ data_fim: dataFim || null })
+    .eq('id', testeId)
+  if (error) return { ok: false, erro: error.message }
+
+  revalidatePath(`/variantes/${testeId}`)
+  revalidatePath('/variantes')
+  return { ok: true }
+}
+
 export async function deletarTesteAB(testeId: string): Promise<{ ok: boolean; erro?: string }> {
   const supabase = await createClient()
 
