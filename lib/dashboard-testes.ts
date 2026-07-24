@@ -54,6 +54,9 @@ export function cvrDaVencedora(t: TesteAB): number | null {
   return taxaConversao(vencedora.sessoes, vencedora.conversoes ?? 0)
 }
 
+/** Abaixo disso, Win Rate é só reflexo do tamanho da amostra, não um sinal real. */
+export const MIN_TESTES_CONFIAVEL = 3
+
 export interface KpisDashboard {
   testesTotais: number
   ativos: number
@@ -61,6 +64,7 @@ export interface KpisDashboard {
   vencedores: number
   perdedores: number
   empates: number
+  concluidos: number
   winRate: number | null
   cvrMedioVencedor: number | null
   liftMedioVencedor: number | null
@@ -83,6 +87,7 @@ export function calcularKpis(testes: TesteAB[]): KpisDashboard {
     vencedores: vencedores.length,
     perdedores,
     empates,
+    concluidos,
     winRate: concluidos > 0 ? (vencedores.length / concluidos) * 100 : null,
     cvrMedioVencedor: cvrs.length > 0 ? cvrs.reduce((s, v) => s + v, 0) / cvrs.length : null,
     liftMedioVencedor: lifts.length > 0 ? lifts.reduce((s, v) => s + v, 0) / lifts.length : null,
@@ -93,6 +98,7 @@ export interface LinhaAgrupada {
   chave: string
   total: number
   vencedores: number
+  concluidos: number
   winRate: number | null
   liftMedio: number | null
   cvrMedio: number | null
@@ -125,12 +131,12 @@ export function agruparPor(testes: TesteAB[], valorDe: (t: TesteAB) => string[] 
   return Array.from(grupos.entries())
     .map(([chave, lista]) => {
       const kpis = calcularKpis(lista)
-      const concluidos = kpis.vencedores + kpis.perdedores + kpis.empates
       return {
         chave,
         total: lista.length,
         vencedores: kpis.vencedores,
-        winRate: concluidos > 0 ? kpis.winRate : null,
+        concluidos: kpis.concluidos,
+        winRate: kpis.winRate,
         liftMedio: kpis.liftMedioVencedor,
         cvrMedio: kpis.cvrMedioVencedor,
       }

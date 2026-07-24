@@ -65,11 +65,14 @@ function liftDaVencedora(t: TesteAB): number | null {
   return ((crVencedora - crControle) / crControle) * 100
 }
 
-function liderAtual(t: TesteAB): { variante: NonNullable<TesteAB['variantes_teste']>[number]; cr: number; lift: number } | null {
+// Quem está à frente agora, entre o Controle e o melhor desafiante — não é sempre o desafiante:
+// se todos os desafiantes estão performando pior que o Controle, o Controle é quem lidera de
+// fato, e o lift retornado é sempre a margem de quem está ganhando (nunca negativo), pra não
+// mostrar "Variação B lidera" ao lado de um número negativo (contraditório).
+function liderAtual(t: TesteAB): { nome: string; cr: number; lift: number | null; ehDesafiante: boolean } | null {
   const controle = t.variantes_teste?.find(v => v.is_controle)
   if (!controle || !controle.sessoes) return null
   const crControle = taxaConversao(controle.sessoes, controle.conversoes ?? 0)
-  if (crControle <= 0) return null
   const desafiantes = (t.variantes_teste ?? []).filter(v => !v.is_controle && (v.sessoes ?? 0) > 0)
   if (desafiantes.length === 0) return null
   const melhor = desafiantes.reduce((acc, v) => {
@@ -77,7 +80,22 @@ function liderAtual(t: TesteAB): { variante: NonNullable<TesteAB['variantes_test
     return !acc || cr > acc.cr ? { variante: v, cr } : acc
   }, null as { variante: NonNullable<TesteAB['variantes_teste']>[number]; cr: number } | null)
   if (!melhor) return null
-  return { variante: melhor.variante, cr: melhor.cr, lift: ((melhor.cr - crControle) / crControle) * 100 }
+
+  if (melhor.cr >= crControle) {
+    return {
+      nome: melhor.variante.nome,
+      cr: melhor.cr,
+      lift: crControle > 0 ? ((melhor.cr - crControle) / crControle) * 100 : null,
+      ehDesafiante: true,
+    }
+  }
+
+  return {
+    nome: nomeVariante(controle),
+    cr: crControle,
+    lift: melhor.cr > 0 ? ((crControle - melhor.cr) / melhor.cr) * 100 : null,
+    ehDesafiante: false,
+  }
 }
 
 function rpvDe(t: TesteAB): number | null {
@@ -594,8 +612,8 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
         formatarData(t.data_inicio) ?? '',
         dias !== null ? String(dias) : '',
         cvr !== null ? cvr.toFixed(1) : '',
-        vencedora ? `Vencedora: ${vencedora.nome}` : lider ? `Líder: ${lider.variante.nome}` : '',
-        lift !== null ? lift.toFixed(1) : lider ? lider.lift.toFixed(1) : '',
+        vencedora ? `Vencedora: ${vencedora.nome}` : lider ? `Líder: ${lider.nome}` : '',
+        lift !== null ? lift.toFixed(1) : lider?.lift !== null && lider?.lift !== undefined ? lider.lift.toFixed(1) : '',
         rpv !== null ? rpv.toFixed(2) : '',
         t.especialistas?.nome ?? '',
         t.responsavel ?? '',
@@ -911,13 +929,14 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
                         </td>
                         {/* Status + duração */}
                         <td className="px-4 py-3">
-                          <span
-                            className={`inline-flex px-2 py-0.5 rounded text-xs font-medium border ${STATUS_COR[t.status] ?? 'bg-slate-800 text-slate-400 border-slate-700'}`}
-                            title={inicio ? `Início ${inicio}` : undefined}
-                          >
+                          <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium border ${STATUS_COR[t.status] ?? 'bg-slate-800 text-slate-400 border-slate-700'}`}>
                             {t.status}
                           </span>
-                          {dias !== null && <span className="text-slate-600 text-xs ml-1.5">{dias}d</span>}
+                          {dias !== null && (
+                            <span className="text-slate-600 text-xs ml-1.5">
+                              {dias}d{inicio ? ` · ${inicio}` : ''}
+                            </span>
+                          )}
                         </td>
                         {/* Resultado: vencedora + lift */}
                         <td className="px-4 py-3">
@@ -940,13 +959,15 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
                           ) : lider ? (
                             <Link href={`/variantes/${t.id}`} className="inline-flex flex-col hover:opacity-80 transition-opacity">
                               <span className="inline-flex items-center gap-1 text-indigo-400 text-xs font-medium">
-                                {lider.variante.nome} lidera
-                                <span
-                                  className={`inline-flex items-center gap-0.5 ${lider.lift >= 0 ? 'text-indigo-400' : 'text-red-400'}`}
-                                  title={`CVR Controle ${cvr?.toFixed(1)}% → CVR ${lider.variante.nome} ${lider.cr.toFixed(1)}% (lift relativo de ${lider.lift >= 0 ? '+' : ''}${lider.lift.toFixed(1)}%)`}
-                                >
-                                  ({lider.lift >= 0 ? '+' : ''}{lider.lift.toFixed(1)}%) <Info size={10} />
-                                </span>
+                                {lider.nome} lidera
+                                {lider.lift !== null && (
+                                  <span
+                                    className="inline-flex items-center gap-0.5 text-indigo-400"
+                                    title={`CVR ${lider.nome} ${lider.cr.toFixed(1)}% vs. ${lider.ehDesafiante ? `Controle ${cvr?.toFixed(1)}%` : 'melhor desafiante'} (${lider.lift.toFixed(1)}% à frente)`}
+                                  >
+                                    (+{lider.lift.toFixed(1)}%) <Info size={10} />
+                                  </span>
+                                )}
                               </span>
                               <span className="text-slate-600 text-[10px]">ainda não declarada</span>
                             </Link>

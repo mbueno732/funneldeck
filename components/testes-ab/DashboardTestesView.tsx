@@ -2,8 +2,8 @@
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { FlaskConical, ExternalLink, Trophy, Rocket, TrendingDown, TrendingUp, Equal, Percent, Target } from 'lucide-react'
-import { calcularKpis, agruparPor, angulosDoTeste, type LinhaAgrupada, type KpisDashboard } from '@/lib/dashboard-testes'
+import { FlaskConical, ExternalLink, Trophy, Rocket, TrendingDown, TrendingUp, Equal, Percent, Target, AlertTriangle } from 'lucide-react'
+import { calcularKpis, agruparPor, angulosDoTeste, MIN_TESTES_CONFIAVEL, type LinhaAgrupada, type KpisDashboard } from '@/lib/dashboard-testes'
 import { SectionLabel } from '@/components/dashboard/DashboardView'
 import type { TesteAB } from '@/lib/types'
 
@@ -97,7 +97,14 @@ function TabelaAgrupada({ titulo, subtitulo, linhas, rotuloChave }: { titulo: st
                   <td className="py-2.5 px-4 text-slate-400 text-right">{l.total}</td>
                   <td className="py-2.5 px-4 text-slate-400 text-right">{l.vencedores}</td>
                   <td className={`py-2.5 px-4 text-right font-medium ${l.winRate !== null && l.winRate >= 50 ? 'text-green-400' : 'text-slate-400'}`}>
-                    {fmtPct(l.winRate)}
+                    <span className="inline-flex items-center gap-1">
+                      {fmtPct(l.winRate)}
+                      {l.winRate !== null && l.concluidos < MIN_TESTES_CONFIAVEL && (
+                        <span title={`Baseado em só ${l.concluidos} teste${l.concluidos !== 1 ? 's' : ''} concluído${l.concluidos !== 1 ? 's' : ''} — ainda não é uma amostra confiável.`}>
+                          <AlertTriangle size={12} className="text-amber-400" />
+                        </span>
+                      )}
+                    </span>
                   </td>
                   <td className={`py-2.5 px-4 text-right ${l.liftMedio !== null && l.liftMedio >= 0 ? 'text-green-400' : 'text-slate-500'}`}>
                     {fmtLift(l.liftMedio)}
@@ -209,6 +216,8 @@ export function DashboardTestesView({ testes }: Props) {
                 })()
               : undefined
 
+            const amostraPequena = chave === 'winRate' && kpis.winRate !== null && kpis.concluidos < MIN_TESTES_CONFIAVEL
+
             const conteudo = (
               <div
                 className={`rounded-xl p-4 h-full transition-colors ${href ? 'hover:border-opacity-70 cursor-pointer' : ''}`}
@@ -218,7 +227,14 @@ export function DashboardTestesView({ testes }: Props) {
                   <p className="text-[10px] uppercase tracking-wide font-medium" style={{ color: cor }}>{label}</p>
                   <Icon size={14} style={{ color: cor }} />
                 </div>
-                <p className="text-[28px] leading-none font-medium text-white">{valor}</p>
+                <p className="text-[28px] leading-none font-medium text-white flex items-center gap-1.5">
+                  {valor}
+                  {amostraPequena && (
+                    <span title={`Baseado em só ${kpis.concluidos} teste${kpis.concluidos !== 1 ? 's' : ''} concluído${kpis.concluidos !== 1 ? 's' : ''} — ainda não é uma amostra confiável.`}>
+                      <AlertTriangle size={14} className="text-amber-400" />
+                    </span>
+                  )}
+                </p>
               </div>
             )
 
