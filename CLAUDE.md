@@ -209,9 +209,10 @@ Marcelo quer construir a seguir, nesta ordem a confirmar:
   no radar desde o início do módulo (Fase 6 do plano em `~/.claude/plans/`); só faz sentido com
   volume real de testes com ângulo preenchido, que já está acontecendo desde que `angulos` virou
   campo obrigatório-de-fato no Cadastro.
-- **Biblioteca** (`/biblioteca`) — **placeholder criado em 2026-07-24**, escopo exato ainda não
-  definido com o Marcelo. Ideia inicial: repositório de headlines/ângulos/criativos que já
-  venceram testes, pra consulta rápida na hora de montar um novo experimento.
+  - Uma tela irmã "Biblioteca" foi criada e removida no mesmo dia — o escopo proposto (headlines/
+    ângulos/criativos vencedores) se sobrepunha inteiro com Padrões de Sucesso, sem diferença real
+    definida. Se surgir uma necessidade genuinamente distinta (ex: repositório de criativos
+    navegável, independente de estatística agregada), reavaliar como parte desta tela ou nova.
 - **Dashboard de Testes** — KPIs focados só no módulo de Experimentos, separado do Dashboard
   operacional que já existe (que cobre Funis/Páginas/Especialistas, não testes A/B).
 

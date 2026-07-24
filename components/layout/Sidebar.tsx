@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
   LayoutDashboard, Package, GitBranch,
-  FileText, Settings, LogOut, UserCog, FlaskConical, Sparkles, Library,
+  FileText, Settings, LogOut, UserCog, FlaskConical, Sparkles,
 } from 'lucide-react'
 import { Logo } from './Logo'
 import { createClient } from '@/lib/supabase/client'
@@ -15,7 +15,6 @@ const navItems = [
   { href: '/paginas',          label: 'Páginas',            icon: FileText },
   { href: '/variantes',        label: 'Experimentos',       icon: FlaskConical },
   { href: '/padroes-sucesso',  label: 'Padrões de Sucesso', icon: Sparkles },
-  { href: '/biblioteca',       label: 'Biblioteca',         icon: Library },
   { href: '/usuarios',         label: 'Usuários',           icon: UserCog },
   { href: '/configuracoes',    label: 'Configurações',      icon: Settings },
 ]
