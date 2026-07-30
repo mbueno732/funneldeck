@@ -664,7 +664,7 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
                 </div>
               )
             }
-            if (p.url_pagina && p.status === 'Implementada') return (
+            if (p.url_pagina) return (
               <div className="flex items-center gap-2">
                 <button onClick={() => handleAnalisarGtmetrix(p)} className="text-xs text-slate-500 hover:text-indigo-400 transition-colors" title="Analisar no GTmetrix">Analisar</button>
                 <button onClick={() => setPaginaScoreManual(p)} className="text-xs text-slate-700 hover:text-slate-400 transition-colors" title="Registrar score manual">+ manual</button>
