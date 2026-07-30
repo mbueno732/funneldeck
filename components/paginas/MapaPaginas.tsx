@@ -1,7 +1,7 @@
 'use client'
 import { useState, useMemo, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { Plus, Search, ExternalLink, Pencil, Trash2, AlertTriangle, Clock, Copy, Link as LinkIcon, Check, X, ChevronRight, ChevronDown, ClipboardList, LayoutGrid, List, GitBranch, Layers, FlaskConical, Pin, Info } from 'lucide-react'
+import { Plus, Search, ExternalLink, Pencil, Trash2, AlertTriangle, Clock, Copy, Link as LinkIcon, Check, X, ChevronRight, ChevronDown, ChevronUp, ClipboardList, LayoutGrid, List, GitBranch, Layers, FlaskConical, Pin, Info } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -100,6 +100,7 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
   const [filtroEtapa, setFiltroEtapa] = useState('')
   const [filtroFerramenta, setFiltroFerramenta] = useState('')
   const [filtroVeiculacao, setFiltroVeiculacao] = useState('')
+  const [mostrarMaisFiltros, setMostrarMaisFiltros] = useState(false)
   const [modalAberto, setModalAberto] = useState(false)
   const [editando, setEditando] = useState<Pagina | null>(null)
   const [erroDuplicar, setErroDuplicar] = useState('')
@@ -841,7 +842,8 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
         </div>
       )}
 
-      {/* Filtros */}
+      {/* Filtros — Funil, Produto, Status, Etapa e Tipo de funil são os mais usados, ficam sempre
+          visíveis; Especialista, Ferramenta e Veiculação entram atrás de "Mais filtros" */}
       <div className="flex flex-wrap gap-2">
         <div className="relative">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
@@ -852,14 +854,16 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
             className="pl-8 bg-slate-900 border-slate-800 text-white placeholder-slate-500 h-9 w-52"
           />
         </div>
-        <Select value={filtroEspecialista || '__all__'} onValueChange={v => { setFiltroEspecialista(v === '__all__' ? '' : v); setFiltroProduto(''); setFiltroFunil('') }}>
-          <SelectTrigger className="h-9 text-sm bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[150px]">
-            <SelectValue placeholder="Especialista" />
+        <Select value={filtroFunil || '__all__'} onValueChange={v => setFiltroFunil(v === '__all__' ? '' : v)}>
+          <SelectTrigger className="h-9 text-sm bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[140px]">
+            <SelectValue placeholder="Todos os funis" />
           </SelectTrigger>
           <SelectContent className="bg-slate-900 border-slate-800">
-            <SelectItem value="__all__" className="text-slate-400 focus:bg-slate-800 focus:text-white">Especialista</SelectItem>
-            {especialistas.map(e => (
-              <SelectItem key={e.id} value={e.id} className="text-slate-300 focus:bg-slate-800 focus:text-white">{e.nome}</SelectItem>
+            <SelectItem value="__all__" className="text-slate-400 focus:bg-slate-800 focus:text-white">Todos os funis</SelectItem>
+            {funisDoProduto.map(f => (
+              <SelectItem key={f.id} value={f.id} className="text-slate-300 focus:bg-slate-800 focus:text-white">
+                {f.id_funil ? `[${f.id_funil}] ` : ''}{f.nome}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -876,19 +880,8 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
             </SelectContent>
           </Select>
         )}
-        <Select value={filtroFunil || '__all__'} onValueChange={v => setFiltroFunil(v === '__all__' ? '' : v)}>
-          <SelectTrigger className="h-9 text-sm bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[140px]">
-            <SelectValue placeholder="Todos os funis" />
-          </SelectTrigger>
-          <SelectContent className="bg-slate-900 border-slate-800">
-            <SelectItem value="__all__" className="text-slate-400 focus:bg-slate-800 focus:text-white">Todos os funis</SelectItem>
-            {funisDoProduto.map(f => (
-              <SelectItem key={f.id} value={f.id} className="text-slate-300 focus:bg-slate-800 focus:text-white">
-                {f.id_funil ? `[${f.id_funil}] ` : ''}{f.nome}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        {filtroSelect('Status', filtroStatus, setFiltroStatus, 'status_pagina')}
+        {filtroSelect('Etapa', filtroEtapa, setFiltroEtapa, 'etapa')}
         <Select value={filtroTipo || '__all__'} onValueChange={v => { setFiltroTipo(v === '__all__' ? '' : v); setFiltroFunil('') }}>
           <SelectTrigger className="h-9 text-sm bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[130px]">
             <SelectValue placeholder="Tipo de funil" />
@@ -900,22 +893,19 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
             ))}
           </SelectContent>
         </Select>
-        {filtroSelect('Etapa', filtroEtapa, setFiltroEtapa, 'etapa')}
-        {filtroSelect('Status', filtroStatus, setFiltroStatus, 'status_pagina')}
-        {filtroSelect('Ferramenta', filtroFerramenta, setFiltroFerramenta, 'ferramenta')}
-        <Select value={filtroVeiculacao || '__all__'} onValueChange={v => setFiltroVeiculacao(v === '__all__' ? '' : v)}>
-          <SelectTrigger
-            className="h-9 text-sm bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[110px]"
-            title="Em veiculação: página publicada recebendo tráfego ativo (campanha, disparo, bio). Fora de veiculação: publicada, mas sem campanha ativa agora."
-          >
-            <SelectValue placeholder="Veiculação" />
-          </SelectTrigger>
-          <SelectContent className="bg-slate-900 border-slate-800">
-            <SelectItem value="__all__" className="text-slate-400 focus:bg-slate-800 focus:text-white">Veiculação</SelectItem>
-            <SelectItem value="em_veiculacao" className="text-slate-300 focus:bg-slate-800 focus:text-white">Em veiculação</SelectItem>
-            <SelectItem value="fora_veiculacao" className="text-slate-300 focus:bg-slate-800 focus:text-white">Fora de veiculação</SelectItem>
-          </SelectContent>
-        </Select>
+
+        <button
+          type="button"
+          onClick={() => setMostrarMaisFiltros(v => !v)}
+          className={`h-9 px-3 rounded-lg border text-sm font-medium transition-colors flex items-center gap-1.5 ${
+            mostrarMaisFiltros || filtroEspecialista || filtroFerramenta || filtroVeiculacao
+              ? 'bg-indigo-500/15 border-indigo-500 text-indigo-300'
+              : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
+          }`}
+        >
+          Mais filtros{[filtroEspecialista, filtroFerramenta, filtroVeiculacao].filter(Boolean).length > 0 ? ` (${[filtroEspecialista, filtroFerramenta, filtroVeiculacao].filter(Boolean).length})` : ''}
+          {mostrarMaisFiltros ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+        </button>
 
         {filtroAtrasadas && (
           <button
@@ -925,7 +915,7 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
             Atrasadas <X size={12} />
           </button>
         )}
-        {(busca || filtroEspecialista || filtroProduto || filtroFunil || filtroTipo || filtroStatus || filtroEtapa || filtroFerramenta || filtroAtrasadas) && (
+        {(busca || filtroEspecialista || filtroProduto || filtroFunil || filtroTipo || filtroStatus || filtroEtapa || filtroFerramenta || filtroVeiculacao || filtroAtrasadas) && (
           <button
             onClick={() => { setBusca(''); setFiltroEspecialista(''); setFiltroProduto(''); setFiltroFunil(''); setFiltroTipo(''); setFiltroStatus(''); setFiltroEtapa(''); setFiltroFerramenta(''); setFiltroVeiculacao(''); setFiltroAtrasadas(false) }}
             className="px-3 py-1.5 text-xs text-slate-400 hover:text-white border border-slate-800 rounded-lg hover:border-slate-600 transition-colors"
@@ -934,6 +924,36 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
           </button>
         )}
       </div>
+
+      {mostrarMaisFiltros && (
+        <div className="flex flex-wrap gap-2 -mt-1">
+          <Select value={filtroEspecialista || '__all__'} onValueChange={v => { setFiltroEspecialista(v === '__all__' ? '' : v); setFiltroProduto(''); setFiltroFunil('') }}>
+            <SelectTrigger className="h-9 text-sm bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[150px]">
+              <SelectValue placeholder="Especialista" />
+            </SelectTrigger>
+            <SelectContent className="bg-slate-900 border-slate-800">
+              <SelectItem value="__all__" className="text-slate-400 focus:bg-slate-800 focus:text-white">Especialista</SelectItem>
+              {especialistas.map(e => (
+                <SelectItem key={e.id} value={e.id} className="text-slate-300 focus:bg-slate-800 focus:text-white">{e.nome}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {filtroSelect('Ferramenta', filtroFerramenta, setFiltroFerramenta, 'ferramenta')}
+          <Select value={filtroVeiculacao || '__all__'} onValueChange={v => setFiltroVeiculacao(v === '__all__' ? '' : v)}>
+            <SelectTrigger
+              className="h-9 text-sm bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[110px]"
+              title="Em veiculação: página publicada recebendo tráfego ativo (campanha, disparo, bio). Fora de veiculação: publicada, mas sem campanha ativa agora."
+            >
+              <SelectValue placeholder="Veiculação" />
+            </SelectTrigger>
+            <SelectContent className="bg-slate-900 border-slate-800">
+              <SelectItem value="__all__" className="text-slate-400 focus:bg-slate-800 focus:text-white">Veiculação</SelectItem>
+              <SelectItem value="em_veiculacao" className="text-slate-300 focus:bg-slate-800 focus:text-white">Em veiculação</SelectItem>
+              <SelectItem value="fora_veiculacao" className="text-slate-300 focus:bg-slate-800 focus:text-white">Fora de veiculação</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      )}
 
       {/* Kanban */}
       {visualizacao === 'kanban' && (
