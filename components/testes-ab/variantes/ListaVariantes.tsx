@@ -430,6 +430,7 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
   const [filtroAngulo, setFiltroAngulo] = useState('__all__')
   const [filtroLayout, setFiltroLayout] = useState('__all__')
   const [filtroPeriodo, setFiltroPeriodo] = useState('__all__')
+  const [mostrarMaisFiltros, setMostrarMaisFiltros] = useState(false)
 
   const especialistasOpcoes = useMemo(() => unicos(testes.map(t => t.especialistas?.nome)), [testes])
   const segmentosOpcoes = useMemo(() => unicos(testes.map(t => t.segmento)), [testes])
@@ -557,6 +558,25 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
 
   const selectCls = 'bg-slate-900 border-slate-800 text-white focus:ring-0 focus:ring-offset-0 h-9 text-sm'
   const itemCls = 'text-slate-300 focus:bg-slate-800 focus:text-white'
+
+  const filtrosSecundarios = [filtroEspecialista, filtroResponsavel, filtroSegmento, filtroElemento, filtroSecao, filtroAngulo, filtroLayout, filtroPeriodo]
+  const qtdFiltrosSecundariosAtivos = filtrosSecundarios.filter(f => f !== '__all__').length
+  const qtdFiltrosAtivos = qtdFiltrosSecundariosAtivos + [filtroFunil, filtroStatus, filtroCampanha].filter(f => f !== '__all__').length + (busca ? 1 : 0)
+
+  function limparFiltros() {
+    setBusca('')
+    setFiltroFunil('__all__')
+    setFiltroStatus('__all__')
+    setFiltroCampanha('__all__')
+    setFiltroEspecialista('__all__')
+    setFiltroResponsavel('__all__')
+    setFiltroSegmento('__all__')
+    setFiltroElemento('__all__')
+    setFiltroSecao('__all__')
+    setFiltroAngulo('__all__')
+    setFiltroLayout('__all__')
+    setFiltroPeriodo('__all__')
+  }
 
   function toggleExpandido(id: string) {
     setExpandidos(prev => {
@@ -699,7 +719,8 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
             </div>
           </div>
 
-          {/* Filtros */}
+          {/* Filtros — Status, Funil e Campanha são os mais usados no dia a dia, ficam sempre visíveis;
+              o resto entra atrás de "+ Mais filtros" pra não competir por atenção */}
           <div className="flex flex-wrap items-center gap-2.5">
             <div className="relative">
               <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-600" />
@@ -710,32 +731,18 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
                 className="w-56 h-9 pl-8 pr-3 bg-slate-900 border border-slate-800 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
               />
             </div>
+            <Select value={filtroStatus} onValueChange={setFiltroStatus}>
+              <SelectTrigger className={`w-40 ${selectCls}`}><SelectValue placeholder="Status" /></SelectTrigger>
+              <SelectContent className="bg-slate-900 border-slate-800">
+                <SelectItem value="__all__" className={itemCls}>Todos os status</SelectItem>
+                {STATUS_OPCOES.map(s => <SelectItem key={s} value={s} className={itemCls}>{s}</SelectItem>)}
+              </SelectContent>
+            </Select>
             <Select value={filtroFunil} onValueChange={setFiltroFunil}>
               <SelectTrigger className={`w-44 ${selectCls}`}><SelectValue placeholder="Funil" /></SelectTrigger>
               <SelectContent className="bg-slate-900 border-slate-800">
                 <SelectItem value="__all__" className={itemCls}>Todos os funis</SelectItem>
                 {funis.map(f => <SelectItem key={f.id} value={f.id} className={itemCls}>{f.id_funil ? `[${f.id_funil}] ` : ''}{f.nome}</SelectItem>)}
-              </SelectContent>
-            </Select>
-            <Select value={filtroEspecialista} onValueChange={setFiltroEspecialista}>
-              <SelectTrigger className={`w-48 ${selectCls}`}><SelectValue placeholder="Especialista" /></SelectTrigger>
-              <SelectContent className="bg-slate-900 border-slate-800">
-                <SelectItem value="__all__" className={itemCls}>Todos especialistas</SelectItem>
-                {especialistasOpcoes.map(e => <SelectItem key={e} value={e} className={itemCls}>{e}</SelectItem>)}
-              </SelectContent>
-            </Select>
-            <Select value={filtroResponsavel} onValueChange={setFiltroResponsavel}>
-              <SelectTrigger className={`w-44 ${selectCls}`}><SelectValue placeholder="Responsável" /></SelectTrigger>
-              <SelectContent className="bg-slate-900 border-slate-800">
-                <SelectItem value="__all__" className={itemCls}>Todos responsáveis</SelectItem>
-                {responsaveisOpcoes.map(r => <SelectItem key={r} value={r} className={itemCls}>{r}</SelectItem>)}
-              </SelectContent>
-            </Select>
-            <Select value={filtroSegmento} onValueChange={setFiltroSegmento}>
-              <SelectTrigger className={`w-40 ${selectCls}`}><SelectValue placeholder="Segmento" /></SelectTrigger>
-              <SelectContent className="bg-slate-900 border-slate-800">
-                <SelectItem value="__all__" className={itemCls}>Todos segmentos</SelectItem>
-                {segmentosOpcoes.map(s => <SelectItem key={s} value={s} className={itemCls}>{s}</SelectItem>)}
               </SelectContent>
             </Select>
             <Select value={filtroCampanha} onValueChange={setFiltroCampanha}>
@@ -745,48 +752,90 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
                 {campanhasOpcoes.map(c => <SelectItem key={c} value={c} className={itemCls}>{c}</SelectItem>)}
               </SelectContent>
             </Select>
-            <Select value={filtroElemento} onValueChange={setFiltroElemento}>
-              <SelectTrigger className={`w-44 ${selectCls}`}><SelectValue placeholder="Elemento" /></SelectTrigger>
-              <SelectContent className="bg-slate-900 border-slate-800">
-                <SelectItem value="__all__" className={itemCls}>Todos elementos</SelectItem>
-                {elementosOpcoes.map(e => <SelectItem key={e} value={e} className={itemCls}>{e}</SelectItem>)}
-              </SelectContent>
-            </Select>
-            <Select value={filtroSecao} onValueChange={setFiltroSecao}>
-              <SelectTrigger className={`w-40 ${selectCls}`}><SelectValue placeholder="Seção" /></SelectTrigger>
-              <SelectContent className="bg-slate-900 border-slate-800">
-                <SelectItem value="__all__" className={itemCls}>Todas seções</SelectItem>
-                {secoesOpcoes.map(s => <SelectItem key={s} value={s} className={itemCls}>{s}</SelectItem>)}
-              </SelectContent>
-            </Select>
-            <Select value={filtroAngulo} onValueChange={setFiltroAngulo}>
-              <SelectTrigger className={`w-40 ${selectCls}`}><SelectValue placeholder="Ângulo" /></SelectTrigger>
-              <SelectContent className="bg-slate-900 border-slate-800">
-                <SelectItem value="__all__" className={itemCls}>Todos ângulos</SelectItem>
-                {angulosOpcoes.map(a => <SelectItem key={a} value={a} className={itemCls}>{a}</SelectItem>)}
-              </SelectContent>
-            </Select>
-            <Select value={filtroLayout} onValueChange={setFiltroLayout}>
-              <SelectTrigger className={`w-36 ${selectCls}`}><SelectValue placeholder="Layout" /></SelectTrigger>
-              <SelectContent className="bg-slate-900 border-slate-800">
-                <SelectItem value="__all__" className={itemCls}>Todos layouts</SelectItem>
-                {layoutsOpcoes.map(l => <SelectItem key={l} value={l} className={itemCls}>{LAYOUT_LABEL[l] ?? l}</SelectItem>)}
-              </SelectContent>
-            </Select>
-            <Select value={filtroStatus} onValueChange={setFiltroStatus}>
-              <SelectTrigger className={`w-40 ${selectCls}`}><SelectValue placeholder="Status" /></SelectTrigger>
-              <SelectContent className="bg-slate-900 border-slate-800">
-                <SelectItem value="__all__" className={itemCls}>Todos os status</SelectItem>
-                {STATUS_OPCOES.map(s => <SelectItem key={s} value={s} className={itemCls}>{s}</SelectItem>)}
-              </SelectContent>
-            </Select>
-            <Select value={filtroPeriodo} onValueChange={setFiltroPeriodo}>
-              <SelectTrigger className={`w-40 ${selectCls}`}><SelectValue placeholder="Período" /></SelectTrigger>
-              <SelectContent className="bg-slate-900 border-slate-800">
-                {PERIODOS.map(p => <SelectItem key={p.valor} value={p.valor} className={itemCls}>{p.label}</SelectItem>)}
-              </SelectContent>
-            </Select>
+
+            <button
+              type="button"
+              onClick={() => setMostrarMaisFiltros(v => !v)}
+              className={`h-9 px-3 rounded-lg border text-sm font-medium transition-colors flex items-center gap-1.5 ${
+                mostrarMaisFiltros || qtdFiltrosSecundariosAtivos > 0
+                  ? 'bg-indigo-500/15 border-indigo-500 text-indigo-300'
+                  : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
+              }`}
+            >
+              Mais filtros{qtdFiltrosSecundariosAtivos > 0 ? ` (${qtdFiltrosSecundariosAtivos})` : ''}
+              {mostrarMaisFiltros ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+            </button>
+
+            {qtdFiltrosAtivos > 0 && (
+              <button
+                type="button"
+                onClick={limparFiltros}
+                className="h-9 px-3 text-xs text-slate-500 hover:text-white flex items-center gap-1 transition-colors"
+              >
+                <X size={12} /> Limpar filtros ({qtdFiltrosAtivos})
+              </button>
+            )}
           </div>
+
+          {mostrarMaisFiltros && (
+            <div className="flex flex-wrap items-center gap-2.5 -mt-1">
+              <Select value={filtroEspecialista} onValueChange={setFiltroEspecialista}>
+                <SelectTrigger className={`w-48 ${selectCls}`}><SelectValue placeholder="Especialista" /></SelectTrigger>
+                <SelectContent className="bg-slate-900 border-slate-800">
+                  <SelectItem value="__all__" className={itemCls}>Todos especialistas</SelectItem>
+                  {especialistasOpcoes.map(e => <SelectItem key={e} value={e} className={itemCls}>{e}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              <Select value={filtroResponsavel} onValueChange={setFiltroResponsavel}>
+                <SelectTrigger className={`w-44 ${selectCls}`}><SelectValue placeholder="Responsável" /></SelectTrigger>
+                <SelectContent className="bg-slate-900 border-slate-800">
+                  <SelectItem value="__all__" className={itemCls}>Todos responsáveis</SelectItem>
+                  {responsaveisOpcoes.map(r => <SelectItem key={r} value={r} className={itemCls}>{r}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              <Select value={filtroSegmento} onValueChange={setFiltroSegmento}>
+                <SelectTrigger className={`w-40 ${selectCls}`}><SelectValue placeholder="Segmento" /></SelectTrigger>
+                <SelectContent className="bg-slate-900 border-slate-800">
+                  <SelectItem value="__all__" className={itemCls}>Todos segmentos</SelectItem>
+                  {segmentosOpcoes.map(s => <SelectItem key={s} value={s} className={itemCls}>{s}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              <Select value={filtroElemento} onValueChange={setFiltroElemento}>
+                <SelectTrigger className={`w-44 ${selectCls}`}><SelectValue placeholder="Elemento" /></SelectTrigger>
+                <SelectContent className="bg-slate-900 border-slate-800">
+                  <SelectItem value="__all__" className={itemCls}>Todos elementos</SelectItem>
+                  {elementosOpcoes.map(e => <SelectItem key={e} value={e} className={itemCls}>{e}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              <Select value={filtroSecao} onValueChange={setFiltroSecao}>
+                <SelectTrigger className={`w-40 ${selectCls}`}><SelectValue placeholder="Seção" /></SelectTrigger>
+                <SelectContent className="bg-slate-900 border-slate-800">
+                  <SelectItem value="__all__" className={itemCls}>Todas seções</SelectItem>
+                  {secoesOpcoes.map(s => <SelectItem key={s} value={s} className={itemCls}>{s}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              <Select value={filtroAngulo} onValueChange={setFiltroAngulo}>
+                <SelectTrigger className={`w-40 ${selectCls}`}><SelectValue placeholder="Ângulo" /></SelectTrigger>
+                <SelectContent className="bg-slate-900 border-slate-800">
+                  <SelectItem value="__all__" className={itemCls}>Todos ângulos</SelectItem>
+                  {angulosOpcoes.map(a => <SelectItem key={a} value={a} className={itemCls}>{a}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              <Select value={filtroLayout} onValueChange={setFiltroLayout}>
+                <SelectTrigger className={`w-36 ${selectCls}`}><SelectValue placeholder="Layout" /></SelectTrigger>
+                <SelectContent className="bg-slate-900 border-slate-800">
+                  <SelectItem value="__all__" className={itemCls}>Todos layouts</SelectItem>
+                  {layoutsOpcoes.map(l => <SelectItem key={l} value={l} className={itemCls}>{LAYOUT_LABEL[l] ?? l}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              <Select value={filtroPeriodo} onValueChange={setFiltroPeriodo}>
+                <SelectTrigger className={`w-40 ${selectCls}`}><SelectValue placeholder="Período" /></SelectTrigger>
+                <SelectContent className="bg-slate-900 border-slate-800">
+                  {PERIODOS.map(p => <SelectItem key={p.valor} value={p.valor} className={itemCls}>{p.label}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           {filtrados.length === 0 ? (
             <div className="rounded-xl border border-slate-800 p-12 text-center">
