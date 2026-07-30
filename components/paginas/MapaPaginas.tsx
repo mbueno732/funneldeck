@@ -645,16 +645,23 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
               const tooltip = [p.score_manual_nota, manualData ? `Registrado em ${manualData}` : null].filter(Boolean).join(' · ')
               const cor = manualGrade ? GRADE_COR[manualGrade] : '#818cf8'
               return (
-                <button
-                  onClick={() => setPaginaScoreManual(p)}
-                  className="inline-flex items-center gap-1 text-xs font-bold px-1.5 py-0.5 rounded transition-all"
-                  style={{ backgroundColor: `${cor}22`, color: cor, border: `1px solid ${cor}44` }}
-                  title={tooltip || 'Score manual — clique para editar'}
-                >
-                  <Pencil size={10} />
-                  {manualGrade ?? ''} {manualPct != null ? `${manualPct}%` : ''}
-                  <span className="text-[9px] uppercase opacity-70">manual</span>
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setPaginaScoreManual(p)}
+                    className="inline-flex items-center gap-1 text-xs font-bold px-1.5 py-0.5 rounded transition-all"
+                    style={{ backgroundColor: `${cor}22`, color: cor, border: `1px solid ${cor}44` }}
+                    title={tooltip || 'Score manual — clique para editar'}
+                  >
+                    <Pencil size={10} />
+                    {manualGrade ?? ''} {manualPct != null ? `${manualPct}%` : ''}
+                    <span className="text-[9px] uppercase opacity-70">manual</span>
+                  </button>
+                  {p.url_pagina && (
+                    <button onClick={() => handleAnalisarGtmetrix(p)} className="text-xs text-slate-600 hover:text-indigo-400 transition-colors" title="Analisar no GTmetrix">
+                      Analisar
+                    </button>
+                  )}
+                </div>
               )
             }
             if (p.url_pagina && p.status === 'Implementada') return (
