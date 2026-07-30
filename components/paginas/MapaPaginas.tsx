@@ -98,7 +98,6 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
   const [filtroStatus, setFiltroStatus] = useState(initialStatus ?? '')
   const [filtroAtrasadas, setFiltroAtrasadas] = useState(initialAtrasadas ?? false)
   const [filtroEtapa, setFiltroEtapa] = useState('')
-  const [filtroPrioridade, setFiltroPrioridade] = useState('')
   const [filtroFerramenta, setFiltroFerramenta] = useState('')
   const [filtroVeiculacao, setFiltroVeiculacao] = useState('')
   const [modalAberto, setModalAberto] = useState(false)
@@ -192,7 +191,6 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
     }
     if (filtroStatus && p.status !== filtroStatus) return false
     if (filtroEtapa && p.etapa !== filtroEtapa) return false
-    if (filtroPrioridade && p.prioridade !== filtroPrioridade) return false
     if (filtroFerramenta && p.ferramenta !== filtroFerramenta) return false
     if (filtroVeiculacao === 'em_veiculacao' && !p.pagina_atual) return false
     if (filtroVeiculacao === 'fora_veiculacao' && p.pagina_atual) return false
@@ -203,7 +201,7 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
     }
     return true
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }), [paginas, deletadas, busca, filtroEspecialista, filtroProduto, filtroFunil, filtroTipo, filtroStatus, filtroEtapa, filtroPrioridade, filtroFerramenta, filtroVeiculacao, filtroAtrasadas, filtroMes, funis, funilEspecialista, produtoEspecialista])
+  }), [paginas, deletadas, busca, filtroEspecialista, filtroProduto, filtroFunil, filtroTipo, filtroStatus, filtroEtapa, filtroFerramenta, filtroVeiculacao, filtroAtrasadas, filtroMes, funis, funilEspecialista, produtoEspecialista])
 
   const distribuicaoFerramenta = useMemo(() => {
     const total = filtradas.length
@@ -249,11 +247,6 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
       // reverte override se save falhar
       setOverrides(o => ({ ...o, [pagina.id]: { ...o[pagina.id], url_pagina: pagina.url_pagina } }))
     }
-  }
-
-  async function handleMudarPrioridade(pagina: Pagina, novaPrioridade: string) {
-    setOverrides(o => ({ ...o, [pagina.id]: { ...o[pagina.id], prioridade: novaPrioridade || null } }))
-    await atualizarPagina(pagina.id, { prioridade: novaPrioridade || null })
   }
 
   async function handleMudarEtapa(pagina: Pagina, novaEtapa: string) {
@@ -524,18 +517,6 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
             <SelectContent className="bg-slate-900 border-slate-800">
               <SelectItem value="true" className="text-green-400 focus:bg-slate-800 focus:text-green-300">Em veiculação</SelectItem>
               <SelectItem value="false" className="text-slate-400 focus:bg-slate-800 focus:text-white">Fora de veiculação</SelectItem>
-            </SelectContent>
-          </Select>
-        </td>
-        {/* Prioridade */}
-        <td className="px-4 py-3">
-          <Select value={p.prioridade ?? '__none__'} onValueChange={v => handleMudarPrioridade(p, v === '__none__' ? '' : v)}>
-            <SelectTrigger className="border-0 bg-transparent p-0 h-auto w-auto text-xs font-medium focus:ring-0 focus:ring-offset-0 gap-0 [&>svg]:hidden" style={{ color: p.prioridade ? (cor('prioridade', p.prioridade) ?? '#6b7280') : '#4b5563' }}>
-              <SelectValue placeholder="— prioridade" />
-            </SelectTrigger>
-            <SelectContent className="bg-slate-900 border-slate-800">
-              <SelectItem value="__none__" className="text-slate-500 focus:bg-slate-800 focus:text-white">— prioridade</SelectItem>
-              {configOpts('prioridade').map(c => <SelectItem key={c.valor} value={c.valor} className="text-slate-300 focus:bg-slate-800 focus:text-white">{c.valor}</SelectItem>)}
             </SelectContent>
           </Select>
         </td>
@@ -921,7 +902,6 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
         </Select>
         {filtroSelect('Etapa', filtroEtapa, setFiltroEtapa, 'etapa')}
         {filtroSelect('Status', filtroStatus, setFiltroStatus, 'status_pagina')}
-        {filtroSelect('Prioridade', filtroPrioridade, setFiltroPrioridade, 'prioridade')}
         {filtroSelect('Ferramenta', filtroFerramenta, setFiltroFerramenta, 'ferramenta')}
         <Select value={filtroVeiculacao || '__all__'} onValueChange={v => setFiltroVeiculacao(v === '__all__' ? '' : v)}>
           <SelectTrigger
@@ -945,9 +925,9 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
             Atrasadas <X size={12} />
           </button>
         )}
-        {(busca || filtroEspecialista || filtroProduto || filtroFunil || filtroTipo || filtroStatus || filtroEtapa || filtroPrioridade || filtroFerramenta || filtroAtrasadas) && (
+        {(busca || filtroEspecialista || filtroProduto || filtroFunil || filtroTipo || filtroStatus || filtroEtapa || filtroFerramenta || filtroAtrasadas) && (
           <button
-            onClick={() => { setBusca(''); setFiltroEspecialista(''); setFiltroProduto(''); setFiltroFunil(''); setFiltroTipo(''); setFiltroStatus(''); setFiltroEtapa(''); setFiltroPrioridade(''); setFiltroFerramenta(''); setFiltroVeiculacao(''); setFiltroAtrasadas(false) }}
+            onClick={() => { setBusca(''); setFiltroEspecialista(''); setFiltroProduto(''); setFiltroFunil(''); setFiltroTipo(''); setFiltroStatus(''); setFiltroEtapa(''); setFiltroFerramenta(''); setFiltroVeiculacao(''); setFiltroAtrasadas(false) }}
             className="px-3 py-1.5 text-xs text-slate-400 hover:text-white border border-slate-800 rounded-lg hover:border-slate-600 transition-colors"
           >
             Limpar filtros
@@ -1095,17 +1075,6 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
                           {p.etapa && (
                             <span className="text-xs text-slate-400 bg-slate-900 px-1.5 py-0.5 rounded">{p.etapa}</span>
                           )}
-                          {p.prioridade && (
-                            <span
-                              className="text-xs px-1.5 py-0.5 rounded"
-                              style={{
-                                color: cor('prioridade', p.prioridade) ?? '#6b7280',
-                                backgroundColor: `${cor('prioridade', p.prioridade) ?? '#6b7280'}20`,
-                              }}
-                            >
-                              {p.prioridade}
-                            </span>
-                          )}
                           {atrasada && (
                             <span className="flex items-center gap-1 text-xs text-red-400">
                               <AlertTriangle size={11} />
@@ -1161,7 +1130,6 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
                     Veiculação <Info size={11} className="text-slate-600" />
                   </span>
                 </th>
-                <th className="px-4 py-3 text-left font-medium">Prioridade</th>
                 <th className="px-4 py-3 text-left font-medium">Horas</th>
                 <th className="px-4 py-3 text-left font-medium">Datas</th>
                 <th className="px-4 py-3 text-left font-medium">Score da Página</th>
