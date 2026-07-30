@@ -587,7 +587,7 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
   function exportarCSV() {
     const cabecalho = [
       'Nome', 'Código', 'Funil', 'Campanha', 'Elemento', 'Seção', 'Ângulos', 'Layout', 'Tipo', 'Segmento',
-      'Status', 'Início', 'Dias rodando', 'CVR Controle (%)', 'Resultado', 'Lift (%)', 'RPV',
+      'Status', 'Início', 'Fim', 'Dias rodando', 'CVR Controle (%)', 'Resultado', 'Lift (%)', 'RPV',
       'Especialista', 'Responsável',
     ]
     const linhas = filtrados.map(t => {
@@ -610,6 +610,7 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
         t.segmento ?? '',
         t.status,
         formatarData(t.data_inicio) ?? '',
+        formatarData(t.data_fim) ?? '',
         dias !== null ? String(dias) : '',
         cvr !== null ? cvr.toFixed(1) : '',
         vencedora ? `Vencedora: ${vencedora.nome}` : lider ? `Líder: ${lider.nome}` : '',
@@ -835,6 +836,7 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
                     const rpv = rpvDe(t)
                     const dias = diasEntre(t.data_inicio, t.data_fim)
                     const inicio = formatarData(t.data_inicio)
+                    const fim = formatarData(t.data_fim)
                     const cvr = cvrControle(t)
                     const vencedora = t.variantes_teste?.find(v => v.is_vencedor)
                     const lider = !vencedora ? liderAtual(t) : null
@@ -934,7 +936,7 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
                           </span>
                           {dias !== null && (
                             <span className="text-slate-600 text-xs ml-1.5">
-                              {dias}d{inicio ? ` · ${inicio}` : ''}
+                              {dias}d{inicio ? ` · ${inicio}${fim ? ` → ${fim}` : ''}` : ''}
                             </span>
                           )}
                         </td>
@@ -1064,6 +1066,7 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
                           <td colSpan={11} className="px-4 py-3">
                             <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-slate-400 mb-3 pb-3 border-b border-slate-800/60">
                               <span><span className="text-slate-600">Início:</span> {inicio ?? '—'}</span>
+                              {fim && <span><span className="text-slate-600">Fim:</span> {fim}</span>}
                               <span><span className="text-slate-600">Especialista:</span> {t.especialistas?.nome ?? '—'}</span>
                               <span><span className="text-slate-600">Responsável:</span> {t.responsavel ?? '—'}</span>
                             </div>

@@ -68,6 +68,14 @@ export async function atualizarFunil(id: string, input: Partial<Omit<Funil, 'id'
     .single()
   if (error) throw error
   await registrarAuditoria('funis', id, 'atualizar', { depois: data })
+
+  // Funil pausado/inativo não deve ter páginas "em veiculação" — tira todas do ar.
+  // Reativar o funil não restaura automaticamente: fica manual, escolhido na hora.
+  if (input.status === 'Pausado' || input.status === 'Inativo') {
+    await supabase.from('paginas').update({ pagina_atual: false }).eq('funil_id', id).eq('pagina_atual', true)
+    revalidatePath('/paginas')
+  }
+
   revalidatePath('/funis')
   revalidatePath('/produtos')
   return data as Funil

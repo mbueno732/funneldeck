@@ -46,6 +46,7 @@ export function ListaFunis({ funis, produtos, especialistas, configs, estrategia
   const [filtroProduto, setFiltroProduto] = useState(initialProdutoId ?? '')
   const [apenasParados, setApenasParados] = useState(initialParados ?? false)
   const [filtroStatus, setFiltroStatus] = useState('')
+  const [filtroObjetivo, setFiltroObjetivo] = useState('')
   const [modalAberto, setModalAberto] = useState(false)
   const [editando, setEditando] = useState<Funil | null>(null)
   const [duplicando, setDuplicando] = useState<Funil | null>(null)
@@ -66,6 +67,7 @@ export function ListaFunis({ funis, produtos, especialistas, configs, estrategia
     if (filtroEsp && espId !== filtroEsp) return false
     if (filtroProduto && f.produto_id !== filtroProduto) return false
     if (filtroStatus && f.status !== filtroStatus) return false
+    if (filtroObjetivo && f.objetivo !== filtroObjetivo) return false
     if (apenasParados && (f.tem_movimento || (statusOverrides[f.id] ?? f.status) !== 'Ativo')) return false
     return true
   })
@@ -136,8 +138,18 @@ export function ListaFunis({ funis, produtos, especialistas, configs, estrategia
             {statusOpts.map(c => <SelectItem key={c.valor} value={c.valor} className="text-slate-300 focus:bg-slate-800 focus:text-white">{c.valor}</SelectItem>)}
           </SelectContent>
         </Select>
-        {(filtroEsp || filtroProduto || filtroStatus) && (
-          <button onClick={() => { setFiltroEsp(''); setFiltroProduto(''); setFiltroStatus('') }}
+        <Select value={filtroObjetivo || '__all__'} onValueChange={v => setFiltroObjetivo(v === '__all__' ? '' : v)}>
+          <SelectTrigger className="h-9 text-sm bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[130px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="bg-slate-900 border-slate-800">
+            <SelectItem value="__all__" className="text-slate-300 focus:bg-slate-800 focus:text-white">Aquisição e Vendas</SelectItem>
+            <SelectItem value="Aquisição" className="text-slate-300 focus:bg-slate-800 focus:text-white">Aquisição</SelectItem>
+            <SelectItem value="Venda" className="text-slate-300 focus:bg-slate-800 focus:text-white">Vendas</SelectItem>
+          </SelectContent>
+        </Select>
+        {(filtroEsp || filtroProduto || filtroStatus || filtroObjetivo) && (
+          <button onClick={() => { setFiltroEsp(''); setFiltroProduto(''); setFiltroStatus(''); setFiltroObjetivo('') }}
             className="px-3 py-1.5 text-xs text-slate-400 hover:text-white border border-slate-800 rounded-lg hover:border-slate-600 transition-colors">
             Limpar
           </button>
