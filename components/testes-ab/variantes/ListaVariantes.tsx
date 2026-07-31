@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import {
   Plus, FlaskConical, Trophy, Search, ChevronDown, ChevronRight, ChevronUp, ChevronsUpDown, Check, Info,
-  Trash2, Pencil, Copy, Layers, Download, ZoomIn, FileCode2, X, ExternalLink, Lightbulb, Star,
+  Trash2, Pencil, Copy, Layers, Download, ZoomIn, FileCode2, X, ExternalLink, Lightbulb, Star, AlertTriangle,
 } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
@@ -182,6 +182,23 @@ function diasEntre(dataInicio?: string | null, dataFim?: string | null): number 
 function formatarData(data?: string | null): string | null {
   if (!data) return null
   return new Date(data + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit' })
+}
+
+const DIAS_DADOS_DESATUALIZADOS = 7
+
+function diasDesdeAtualizacaoDados(variantes?: { atualizado_em?: string | null }[]): number | null {
+  const datas = (variantes ?? [])
+    .map(v => v.atualizado_em ? new Date(v.atualizado_em).getTime() : null)
+    .filter((t): t is number => t !== null)
+  if (datas.length === 0) return null
+  return Math.max(0, Math.floor((Date.now() - Math.max(...datas)) / 86400000))
+}
+
+function labelAtualizacaoDados(dias: number | null): string | null {
+  if (dias === null) return null
+  if (dias === 0) return 'dados de hoje'
+  if (dias === 1) return 'dados de ontem'
+  return `dados de ${dias}d atrás`
 }
 
 function cvrControle(t: TesteAB): number | null {
@@ -886,6 +903,8 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
                     const dias = diasEntre(t.data_inicio, t.data_fim)
                     const inicio = formatarData(t.data_inicio)
                     const fim = formatarData(t.data_fim)
+                    const diasDados = diasDesdeAtualizacaoDados(t.variantes_teste)
+                    const dadosDesatualizados = t.status === 'Ativo' && diasDados !== null && diasDados >= DIAS_DADOS_DESATUALIZADOS
                     const cvr = cvrControle(t)
                     const vencedora = t.variantes_teste?.find(v => v.is_vencedor)
                     const lider = !vencedora ? liderAtual(t) : null
@@ -987,6 +1006,15 @@ export function ListaVariantes({ testes: testesProp, funis, initialStatus, initi
                             <span className="text-slate-600 text-xs ml-1.5">
                               {dias}d{inicio ? ` · ${inicio}${fim ? ` → ${fim}` : ''}` : ''}
                             </span>
+                          )}
+                          {diasDados !== null && (
+                            <div
+                              className={`text-[10px] mt-0.5 flex items-center gap-1 ${dadosDesatualizados ? 'text-amber-400' : 'text-slate-600'}`}
+                              title={dadosDesatualizados ? `Teste ativo sem atualizar métricas há ${diasDados} dias` : undefined}
+                            >
+                              {dadosDesatualizados && <AlertTriangle size={10} />}
+                              {labelAtualizacaoDados(diasDados)}
+                            </div>
                           )}
                         </td>
                         {/* Resultado: vencedora + lift */}

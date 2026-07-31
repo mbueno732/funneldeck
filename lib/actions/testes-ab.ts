@@ -10,7 +10,7 @@ export async function listarTestesAB(): Promise<TesteAB[]> {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('testes_ab')
-    .select('*, funis(id, id_funil, nome), paginas(id, nome, codigo, etapa), campanhas(id, codigo), especialistas(id, nome), variantes_teste(id, nome, is_controle, is_vencedor, sessoes, conversoes, receita, sessoes_checkout, url_variante, layout, headline, subheadline, url_preview, screenshot_url, angulo_dominante, angulos_secundarios)')
+    .select('*, funis(id, id_funil, nome), paginas(id, nome, codigo, etapa), campanhas(id, codigo), especialistas(id, nome), variantes_teste(id, nome, is_controle, is_vencedor, sessoes, conversoes, receita, sessoes_checkout, url_variante, layout, headline, subheadline, url_preview, screenshot_url, angulo_dominante, angulos_secundarios, atualizado_em)')
     .order('criado_em', { ascending: false })
     .order('nome', { foreignTable: 'variantes_teste', ascending: true })
   if (error) throw error
@@ -381,6 +381,7 @@ export async function atualizarMetricasVariante(input: {
       conversoes: input.conversoes,
       receita: input.receita,
       sessoes_checkout: input.sessoes_checkout,
+      atualizado_em: new Date().toISOString(),
     })
     .eq('id', input.id)
   if (error) return { ok: false, erro: error.message }

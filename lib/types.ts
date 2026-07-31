@@ -261,5 +261,6 @@ export interface VarianteTeste {
   angulo_dominante?: string | null
   angulos_secundarios?: string[] | null
   criado_em: string
+  atualizado_em?: string
   paginas?: Pick<Pagina, 'id' | 'nome' | 'codigo'> | null
 }
