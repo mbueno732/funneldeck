@@ -63,6 +63,7 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
   const [celula, setCelula] = useState<{ id: string; campo: 'horas_reais' | 'horas_estimadas' | 'data_prevista' | 'data_publicacao' | 'codigo'; valor: string } | null>(null)
   const [deletandoPagina, setDeletandoPagina] = useState<string | null>(null)
   const [deletadas, setDeletadas] = useState<Set<string>>(new Set())
+  const [erroDelete, setErroDelete] = useState<string | null>(null)
   const [duplicandoPagina, setDuplicandoPagina] = useState<string | null>(null)
   const [marcandoAtual, setMarcandoAtual] = useState<string | null>(null)
   const [analisando, setAnalisando] = useState<string | null>(null)
@@ -348,6 +349,7 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
   }
 
   async function handleDeletar(id: string) {
+    setErroDelete(null)
     setDeletadas(d => new Set(d).add(id))
     setDeletandoPagina(null)
     try {
@@ -355,6 +357,7 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
     } catch (e) {
       setDeletadas(d => { const next = new Set(d); next.delete(id); return next })
       console.error('Erro ao deletar página:', e)
+      setErroDelete('Não foi possível excluir esta página. Verifique se ela está vinculada a um teste A/B ou outro registro.')
     }
   }
 
@@ -793,6 +796,13 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
         <div className="p-3 rounded-lg border border-red-500/30 bg-red-500/10 text-red-400 text-sm flex items-start justify-between gap-2">
           <span>{erroGtmetrix}</span>
           <button onClick={() => setErroGtmetrix(null)} className="shrink-0"><X size={14} /></button>
+        </div>
+      )}
+
+      {erroDelete && (
+        <div className="p-3 rounded-lg border border-red-500/30 bg-red-500/10 text-red-400 text-sm flex items-start justify-between gap-2">
+          <span>{erroDelete}</span>
+          <button onClick={() => setErroDelete(null)} className="shrink-0"><X size={14} /></button>
         </div>
       )}
 
