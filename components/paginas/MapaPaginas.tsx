@@ -347,7 +347,8 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
     } catch (e) {
       setOverrides(o => ({ ...o, [id]: { ...o[id], pagina_atual: !emVeiculacao } }))
       console.error('Erro ao definir veiculação:', e)
-      setErroVeiculacao('Não foi possível salvar a veiculação desta página. Tente novamente.')
+      const msg = e instanceof Error ? e.message : 'Erro desconhecido.'
+      setErroVeiculacao(`Não foi possível salvar a veiculação desta página: ${msg}`)
     } finally {
       setMarcandoAtual(null)
     }
