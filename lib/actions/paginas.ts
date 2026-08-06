@@ -69,25 +69,9 @@ async function gerarCodigo(
   return `${prefix}-${String(proximo).padStart(2, '0')}`
 }
 
-async function resetVeiculacaoIrmas(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  funilId: string | null | undefined,
-  etapa: string | null | undefined,
-  excetoId?: string
-) {
-  let query = supabase.from('paginas').update({ pagina_atual: false }).eq('funil_id', funilId ?? '')
-  query = etapa ? query.eq('etapa', etapa) : query.is('etapa', null)
-  if (excetoId) query = query.neq('id', excetoId)
-  await query
-}
-
 export async function criarPagina(input: Omit<Pagina, 'id' | 'criado_em' | 'atualizado_em' | 'funis' | 'produtos'>) {
   const supabase = await createClient()
   const codigo = input.codigo || await gerarCodigo(supabase, { funil_id: input.funil_id, produto_id: input.produto_id }, input.etapa)
-
-  if (input.pagina_atual && input.funil_id) {
-    await resetVeiculacaoIrmas(supabase, input.funil_id, input.etapa)
-  }
 
   const { data, error } = await supabase
     .from('paginas')
@@ -108,10 +92,6 @@ export async function atualizarPagina(id: string, input: Partial<Omit<Pagina, 'i
   if (input.status === 'Publicada' && !input.data_publicacao) {
     const { data: atual } = await supabase.from('paginas').select('data_publicacao').eq('id', id).single()
     if (!atual?.data_publicacao) payload.data_publicacao = new Date().toISOString().split('T')[0]
-  }
-  if (input.pagina_atual) {
-    const { data: atual } = await supabase.from('paginas').select('funil_id, etapa').eq('id', id).single()
-    if (atual?.funil_id) await resetVeiculacaoIrmas(supabase, atual.funil_id, atual.etapa, id)
   }
   const { data, error } = await supabase
     .from('paginas')
@@ -229,18 +209,8 @@ export async function deletarPagina(id: string) {
 export async function definirVeiculacao(id: string, emVeiculacao: boolean): Promise<{ ok: boolean; erro?: string }> {
   const supabase = await createClient()
 
-  const { data: pagina, error: errBusca } = await supabase
-    .from('paginas').select('funil_id, etapa').eq('id', id).single()
-  if (errBusca || !pagina) return { ok: false, erro: 'Página não encontrada.' }
-
-  if (!emVeiculacao) {
-    const { error } = await supabase.from('paginas').update({ pagina_atual: false }).eq('id', id)
-    if (error) return { ok: false, erro: error.message }
-  } else {
-    await resetVeiculacaoIrmas(supabase, pagina.funil_id, pagina.etapa, id)
-    const { error: errSet } = await supabase.from('paginas').update({ pagina_atual: true }).eq('id', id)
-    if (errSet) return { ok: false, erro: errSet.message }
-  }
+  const { error } = await supabase.from('paginas').update({ pagina_atual: emVeiculacao }).eq('id', id)
+  if (error) return { ok: false, erro: error.message }
 
   await registrarAuditoria('paginas', id, 'definir_veiculacao', { em_veiculacao: emVeiculacao })
   revalidatePath('/paginas')
