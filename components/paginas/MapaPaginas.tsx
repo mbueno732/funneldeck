@@ -64,6 +64,7 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
   const [deletandoPagina, setDeletandoPagina] = useState<string | null>(null)
   const [deletadas, setDeletadas] = useState<Set<string>>(new Set())
   const [erroDelete, setErroDelete] = useState<string | null>(null)
+  const [erroVeiculacao, setErroVeiculacao] = useState<string | null>(null)
   const [duplicandoPagina, setDuplicandoPagina] = useState<string | null>(null)
   const [marcandoAtual, setMarcandoAtual] = useState<string | null>(null)
   const [analisando, setAnalisando] = useState<string | null>(null)
@@ -335,14 +336,18 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
   }
 
   async function handleMarcarAtual(id: string, emVeiculacao: boolean) {
+    if (marcandoAtual) return
+    setErroVeiculacao(null)
     setOverrides(o => ({ ...o, [id]: { ...o[id], pagina_atual: emVeiculacao } }))
     setMarcandoAtual(id)
     try {
-      await definirVeiculacao(id, emVeiculacao)
+      const resultado = await definirVeiculacao(id, emVeiculacao)
+      if (!resultado.ok) throw new Error(resultado.erro ?? 'Erro desconhecido.')
       router.refresh()
     } catch (e) {
       setOverrides(o => ({ ...o, [id]: { ...o[id], pagina_atual: !emVeiculacao } }))
       console.error('Erro ao definir veiculação:', e)
+      setErroVeiculacao('Não foi possível salvar a veiculação desta página. Tente novamente.')
     } finally {
       setMarcandoAtual(null)
     }
@@ -514,8 +519,9 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
           <Select
             value={p.pagina_atual ? 'true' : 'false'}
             onValueChange={v => handleMarcarAtual(p.id, v === 'true')}
+            disabled={marcandoAtual === p.id}
           >
-            <SelectTrigger className="border-0 bg-transparent p-0 h-auto w-auto text-xs font-medium focus:ring-0 focus:ring-offset-0 gap-0 [&>svg]:hidden" style={{ color: p.pagina_atual ? '#4ade80' : '#4b5563' }}>
+            <SelectTrigger className="border-0 bg-transparent p-0 h-auto w-auto text-xs font-medium focus:ring-0 focus:ring-offset-0 gap-0 [&>svg]:hidden disabled:opacity-50" style={{ color: p.pagina_atual ? '#4ade80' : '#4b5563' }}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="bg-slate-900 border-slate-800">
@@ -803,6 +809,13 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
         <div className="p-3 rounded-lg border border-red-500/30 bg-red-500/10 text-red-400 text-sm flex items-start justify-between gap-2">
           <span>{erroDelete}</span>
           <button onClick={() => setErroDelete(null)} className="shrink-0"><X size={14} /></button>
+        </div>
+      )}
+
+      {erroVeiculacao && (
+        <div className="p-3 rounded-lg border border-red-500/30 bg-red-500/10 text-red-400 text-sm flex items-start justify-between gap-2">
+          <span>{erroVeiculacao}</span>
+          <button onClick={() => setErroVeiculacao(null)} className="shrink-0"><X size={14} /></button>
         </div>
       )}
 
