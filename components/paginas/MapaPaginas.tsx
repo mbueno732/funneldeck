@@ -852,8 +852,8 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
         </div>
       )}
 
-      {/* Filtros — Funil, Produto, Status, Etapa e Tipo de funil são os mais usados, ficam sempre
-          visíveis; Especialista, Ferramenta e Veiculação entram atrás de "Mais filtros" */}
+      {/* Filtros — Funil, Produto, Status, Etapa, Tipo de funil e Veiculação são os mais usados,
+          ficam sempre visíveis; Especialista e Ferramenta entram atrás de "Mais filtros" */}
       <div className="flex flex-wrap gap-2">
         <div className="relative">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
@@ -903,17 +903,30 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
             ))}
           </SelectContent>
         </Select>
+        <Select value={filtroVeiculacao || '__all__'} onValueChange={v => setFiltroVeiculacao(v === '__all__' ? '' : v)}>
+          <SelectTrigger
+            className="h-9 text-sm bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[110px]"
+            title="Em veiculação: página publicada recebendo tráfego ativo (campanha, disparo, bio). Fora de veiculação: publicada, mas sem campanha ativa agora."
+          >
+            <SelectValue placeholder="Veiculação" />
+          </SelectTrigger>
+          <SelectContent className="bg-slate-900 border-slate-800">
+            <SelectItem value="__all__" className="text-slate-400 focus:bg-slate-800 focus:text-white">Veiculação</SelectItem>
+            <SelectItem value="em_veiculacao" className="text-slate-300 focus:bg-slate-800 focus:text-white">Em veiculação</SelectItem>
+            <SelectItem value="fora_veiculacao" className="text-slate-300 focus:bg-slate-800 focus:text-white">Fora de veiculação</SelectItem>
+          </SelectContent>
+        </Select>
 
         <button
           type="button"
           onClick={() => setMostrarMaisFiltros(v => !v)}
           className={`h-9 px-3 rounded-lg border text-sm font-medium transition-colors flex items-center gap-1.5 ${
-            mostrarMaisFiltros || filtroEspecialista || filtroFerramenta || filtroVeiculacao
+            mostrarMaisFiltros || filtroEspecialista || filtroFerramenta
               ? 'bg-indigo-500/15 border-indigo-500 text-indigo-300'
               : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
           }`}
         >
-          Mais filtros{[filtroEspecialista, filtroFerramenta, filtroVeiculacao].filter(Boolean).length > 0 ? ` (${[filtroEspecialista, filtroFerramenta, filtroVeiculacao].filter(Boolean).length})` : ''}
+          Mais filtros{[filtroEspecialista, filtroFerramenta].filter(Boolean).length > 0 ? ` (${[filtroEspecialista, filtroFerramenta].filter(Boolean).length})` : ''}
           {mostrarMaisFiltros ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
         </button>
 
@@ -949,19 +962,6 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
             </SelectContent>
           </Select>
           {filtroSelect('Ferramenta', filtroFerramenta, setFiltroFerramenta, 'ferramenta')}
-          <Select value={filtroVeiculacao || '__all__'} onValueChange={v => setFiltroVeiculacao(v === '__all__' ? '' : v)}>
-            <SelectTrigger
-              className="h-9 text-sm bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[110px]"
-              title="Em veiculação: página publicada recebendo tráfego ativo (campanha, disparo, bio). Fora de veiculação: publicada, mas sem campanha ativa agora."
-            >
-              <SelectValue placeholder="Veiculação" />
-            </SelectTrigger>
-            <SelectContent className="bg-slate-900 border-slate-800">
-              <SelectItem value="__all__" className="text-slate-400 focus:bg-slate-800 focus:text-white">Veiculação</SelectItem>
-              <SelectItem value="em_veiculacao" className="text-slate-300 focus:bg-slate-800 focus:text-white">Em veiculação</SelectItem>
-              <SelectItem value="fora_veiculacao" className="text-slate-300 focus:bg-slate-800 focus:text-white">Fora de veiculação</SelectItem>
-            </SelectContent>
-          </Select>
         </div>
       )}
 
