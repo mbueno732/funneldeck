@@ -75,7 +75,9 @@ export async function criarPagina(input: Omit<Pagina, 'id' | 'criado_em' | 'atua
 
   const { data, error } = await supabase
     .from('paginas')
-    .insert({ ...input, codigo, ja_esteve_em_veiculacao: !!input.pagina_atual })
+    // Respeita ja_esteve_em_veiculacao explícito (ex: cadastro retroativo de página que já
+    // rodou antes) — só assume a partir de pagina_atual quando o chamador não informou nada.
+    .insert({ ...input, codigo, ja_esteve_em_veiculacao: input.ja_esteve_em_veiculacao ?? !!input.pagina_atual })
     .select()
     .single()
   if (error) throw error
@@ -211,16 +213,23 @@ export async function deletarPagina(id: string) {
   revalidatePath('/dashboard')
 }
 
-export async function definirVeiculacao(id: string, emVeiculacao: boolean): Promise<{ ok: boolean; erro?: string }> {
+export type EstadoVeiculacao = 'em_veiculacao' | 'veiculacao_pausada' | 'nunca_veiculada'
+
+export async function definirVeiculacao(id: string, estado: EstadoVeiculacao): Promise<{ ok: boolean; erro?: string }> {
   const supabase = await createClient()
 
-  const payload: { pagina_atual: boolean; ja_esteve_em_veiculacao?: boolean } = { pagina_atual: emVeiculacao }
-  if (emVeiculacao) payload.ja_esteve_em_veiculacao = true
+  // Controle manual completo dos 3 estados — inclusive "nunca veiculada" é escolhível
+  // diretamente, pra corrigir um histórico que ficou errado (ex: página marcada em veiculação
+  // por engano/teste, sem ter rodado de verdade).
+  const payload =
+    estado === 'em_veiculacao' ? { pagina_atual: true, ja_esteve_em_veiculacao: true }
+    : estado === 'veiculacao_pausada' ? { pagina_atual: false, ja_esteve_em_veiculacao: true }
+    : { pagina_atual: false, ja_esteve_em_veiculacao: false }
 
   const { error } = await supabase.from('paginas').update(payload).eq('id', id)
   if (error) return { ok: false, erro: error.message }
 
-  await registrarAuditoria('paginas', id, 'definir_veiculacao', { em_veiculacao: emVeiculacao })
+  await registrarAuditoria('paginas', id, 'definir_veiculacao', { estado })
   revalidatePath('/paginas')
   revalidatePath('/funis', 'layout')
   return { ok: true }

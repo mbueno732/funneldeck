@@ -116,7 +116,7 @@ const VAZIO = {
   escopo: 'funil' as 'funil' | 'produto',
   funil_id: '', produto_id: '',
   funcao: '', variante: '',
-  etapa: '', ferramenta: '', status: 'A fazer', pagina_atual: 'true',
+  etapa: '', ferramenta: '', status: 'A fazer', veiculacao: 'em_veiculacao' as string,
   prioridade: '', responsavel: '', url_pagina: '', referencia_dev: '',
   horas_estimadas: '', horas_reais: '', data_prevista: '',
   url_planilha_pesquisa: '', url_documentacao: '',
@@ -144,7 +144,7 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
         etapa: pagina.etapa ?? '',
         ferramenta: pagina.ferramenta ?? '',
         status: pagina.status,
-        pagina_atual: pagina.pagina_atual ? 'true' : 'false',
+        veiculacao: pagina.pagina_atual ? 'em_veiculacao' : pagina.ja_esteve_em_veiculacao ? 'veiculacao_pausada' : 'nunca_veiculada',
         prioridade: pagina.prioridade ?? '',
         responsavel: pagina.responsavel ?? '',
         url_pagina: pagina.url_pagina ?? '',
@@ -196,7 +196,7 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
       setErro('Status é obrigatório.')
       return
     }
-    if (!form.pagina_atual) {
+    if (!form.veiculacao) {
       setErro('Informe se a página está em veiculação.')
       return
     }
@@ -210,7 +210,8 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
         etapa: form.etapa || null,
         ferramenta: form.ferramenta || null,
         status: form.status,
-        pagina_atual: form.pagina_atual === 'true',
+        pagina_atual: form.veiculacao === 'em_veiculacao',
+        ja_esteve_em_veiculacao: form.veiculacao !== 'nunca_veiculada',
         prioridade: form.prioridade || null,
         responsavel: form.responsavel || null,
         url_pagina: form.url_pagina || null,
@@ -361,13 +362,11 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
           <div className="grid grid-cols-2 gap-3">
             <Select label="Status *" value={form.status} onChange={set('status')} obrigatorio options={configOpts('status_pagina')} />
             <Select
-              label="Em veiculação? *" value={form.pagina_atual} onChange={set('pagina_atual')} obrigatorio
+              label="Veiculação *" value={form.veiculacao} onChange={set('veiculacao')} obrigatorio
               options={[
-                { valor: 'true', label: 'Em veiculação (recebendo tráfego agora)' },
-                {
-                  valor: 'false',
-                  label: pagina?.pagina_atual || pagina?.ja_esteve_em_veiculacao ? 'Veiculação pausada' : 'Nunca veiculada',
-                },
+                { valor: 'em_veiculacao', label: 'Em veiculação (recebendo tráfego agora)' },
+                { valor: 'veiculacao_pausada', label: 'Veiculação pausada (já rodou antes)' },
+                { valor: 'nunca_veiculada', label: 'Nunca veiculada' },
               ]}
             />
           </div>

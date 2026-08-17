@@ -10,7 +10,7 @@ import { ModalPagina } from './ModalPagina'
 import { ModalVariante } from './ModalVariante'
 import { ModalScoreManual } from './ModalScoreManual'
 import { PainelChecklist } from './PainelChecklist'
-import { atualizarPagina, deletarPagina, duplicarPagina, definirVeiculacao } from '@/lib/actions/paginas'
+import { atualizarPagina, deletarPagina, duplicarPagina, definirVeiculacao, type EstadoVeiculacao } from '@/lib/actions/paginas'
 import { iniciarAnaliseGtmetrix, verificarAnaliseGtmetrix } from '@/lib/actions/gtmetrix'
 import { buscarChecklist } from '@/lib/actions/checklists'
 import { buscarHistoricoStatus } from '@/lib/actions/historico'
@@ -40,10 +40,22 @@ function formatHoras(val: number | null | undefined): string {
   return `${h}h${m}`
 }
 
+function estadoVeiculacao(p: { pagina_atual?: boolean; ja_esteve_em_veiculacao?: boolean }): EstadoVeiculacao {
+  if (p.pagina_atual) return 'em_veiculacao'
+  if (p.ja_esteve_em_veiculacao) return 'veiculacao_pausada'
+  return 'nunca_veiculada'
+}
+
+const INFO_VEICULACAO: Record<EstadoVeiculacao, { texto: string; cor: string }> = {
+  em_veiculacao: { texto: 'Em veiculação', cor: '#4ade80' },
+  // Degradê intencional: verde vivo (em veiculação) → âmbar apagado (pausada) → cinza (nunca) —
+  // só "Em veiculação" deve chamar atenção de verdade.
+  veiculacao_pausada: { texto: 'Veiculação pausada', cor: '#a3854a' },
+  nunca_veiculada: { texto: 'Nunca veiculada', cor: '#4b5563' },
+}
+
 function infoVeiculacao(p: { pagina_atual?: boolean; ja_esteve_em_veiculacao?: boolean }): { texto: string; cor: string } {
-  if (p.pagina_atual) return { texto: 'Em veiculação', cor: '#4ade80' }
-  if (p.ja_esteve_em_veiculacao) return { texto: 'Veiculação pausada', cor: '#fbbf24' }
-  return { texto: 'Nunca veiculada', cor: '#4b5563' }
+  return INFO_VEICULACAO[estadoVeiculacao(p)]
 }
 
 interface Props {
@@ -277,9 +289,9 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
       setOverrides(o => ({ ...o, [paginaId]: { ...o[paginaId], status: anterior } }))
       await atualizarPagina(paginaId, { status: anterior })
     } else {
-      const emVeiculacaoAnterior = anterior === 'Em veiculação'
-      setOverrides(o => ({ ...o, [paginaId]: { ...o[paginaId], pagina_atual: emVeiculacaoAnterior } }))
-      await definirVeiculacao(paginaId, emVeiculacaoAnterior)
+      const estadoAnterior = (Object.keys(INFO_VEICULACAO) as EstadoVeiculacao[]).find(k => INFO_VEICULACAO[k].texto === anterior) ?? 'nunca_veiculada'
+      setOverrides(o => ({ ...o, [paginaId]: { ...o[paginaId], ...payloadDoEstado(estadoAnterior) } }))
+      await definirVeiculacao(paginaId, estadoAnterior)
       router.refresh()
     }
     setDesfazendoMudanca(false)
@@ -382,31 +394,33 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
     }
   }
 
-  async function handleMarcarAtual(pagina: Pagina, emVeiculacao: boolean) {
+  function payloadDoEstado(estado: EstadoVeiculacao): { pagina_atual: boolean; ja_esteve_em_veiculacao: boolean } {
+    return estado === 'em_veiculacao' ? { pagina_atual: true, ja_esteve_em_veiculacao: true }
+      : estado === 'veiculacao_pausada' ? { pagina_atual: false, ja_esteve_em_veiculacao: true }
+      : { pagina_atual: false, ja_esteve_em_veiculacao: false }
+  }
+
+  async function handleMarcarAtual(pagina: Pagina, novoEstado: EstadoVeiculacao) {
     if (marcandoAtual) return
     const id = pagina.id
-    const eraEmVeiculacao = !!pagina.pagina_atual
+    const estadoAnterior = estadoVeiculacao(pagina)
+    if (estadoAnterior === novoEstado) return
     setErroVeiculacao(null)
-    setOverrides(o => ({ ...o, [id]: { ...o[id], pagina_atual: emVeiculacao } }))
+    setOverrides(o => ({ ...o, [id]: { ...o[id], ...payloadDoEstado(novoEstado) } }))
     setMarcandoAtual(id)
     try {
-      const resultado = await definirVeiculacao(id, emVeiculacao)
+      const resultado = await definirVeiculacao(id, novoEstado)
       if (!resultado.ok) throw new Error(resultado.erro ?? 'Erro desconhecido.')
       router.refresh()
-      if (eraEmVeiculacao !== emVeiculacao) {
-        // Nas duas únicas combinações possíveis aqui (era false → true, ou era true → false),
-        // "já esteve em veiculação" sempre vale true no lado que está saindo do ar — ou porque
-        // já era true antes, ou porque acabou de passar por "Em veiculação" agora mesmo.
-        agendarToastMudanca({
-          paginaId: id,
-          nome: pagina.nome,
-          campo: 'veiculacao',
-          anterior: eraEmVeiculacao ? 'Em veiculação' : (pagina.ja_esteve_em_veiculacao ? 'Veiculação pausada' : 'Nunca veiculada'),
-          novo: emVeiculacao ? 'Em veiculação' : 'Veiculação pausada',
-        })
-      }
+      agendarToastMudanca({
+        paginaId: id,
+        nome: pagina.nome,
+        campo: 'veiculacao',
+        anterior: INFO_VEICULACAO[estadoAnterior].texto,
+        novo: INFO_VEICULACAO[novoEstado].texto,
+      })
     } catch (e) {
-      setOverrides(o => ({ ...o, [id]: { ...o[id], pagina_atual: !emVeiculacao } }))
+      setOverrides(o => ({ ...o, [id]: { ...o[id], ...payloadDoEstado(estadoAnterior) } }))
       console.error('Erro ao definir veiculação:', e)
       const msg = e instanceof Error ? e.message : 'Erro desconhecido.'
       setErroVeiculacao(`Não foi possível salvar a veiculação desta página: ${msg}`)
@@ -579,18 +593,17 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
         {/* Em Veiculação */}
         <td className="px-4 py-3">
           <Select
-            value={p.pagina_atual ? 'true' : 'false'}
-            onValueChange={v => handleMarcarAtual(p, v === 'true')}
+            value={estadoVeiculacao(p)}
+            onValueChange={v => handleMarcarAtual(p, v as EstadoVeiculacao)}
             disabled={marcandoAtual === p.id}
           >
             <SelectTrigger className="border-0 bg-transparent p-0 h-auto w-auto text-xs font-medium focus:ring-0 focus:ring-offset-0 gap-0 [&>svg]:hidden disabled:opacity-50" style={{ color: infoVeiculacao(p).cor }}>
               <SelectValue>{infoVeiculacao(p).texto}</SelectValue>
             </SelectTrigger>
             <SelectContent className="bg-slate-900 border-slate-800">
-              <SelectItem value="true" className="text-green-400 focus:bg-slate-800 focus:text-green-300">Em veiculação</SelectItem>
-              <SelectItem value="false" className="text-slate-400 focus:bg-slate-800 focus:text-white">
-                {p.pagina_atual || p.ja_esteve_em_veiculacao ? 'Veiculação pausada' : 'Nunca veiculada'}
-              </SelectItem>
+              <SelectItem value="em_veiculacao" className="text-green-400 focus:bg-slate-800 focus:text-green-300">Em veiculação</SelectItem>
+              <SelectItem value="veiculacao_pausada" className="text-[#a3854a] focus:bg-slate-800 focus:text-[#c9ab6f]">Veiculação pausada</SelectItem>
+              <SelectItem value="nunca_veiculada" className="text-slate-400 focus:bg-slate-800 focus:text-white">Nunca veiculada</SelectItem>
             </SelectContent>
           </Select>
         </td>
@@ -1139,7 +1152,7 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
                           </div>
                           <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                             <button
-                              onClick={() => handleMarcarAtual(p, !p.pagina_atual)}
+                              onClick={() => handleMarcarAtual(p, p.pagina_atual ? 'veiculacao_pausada' : 'em_veiculacao')}
                               disabled={marcandoAtual === p.id}
                               className={`p-1 hover:bg-slate-900 rounded transition-colors disabled:opacity-40 ${p.pagina_atual ? 'text-green-400' : 'text-slate-500 hover:text-green-400'}`}
                               title={p.pagina_atual ? 'Tirar de veiculação' : 'Marcar como em veiculação'}
