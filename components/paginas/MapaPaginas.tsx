@@ -394,12 +394,15 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
       if (!resultado.ok) throw new Error(resultado.erro ?? 'Erro desconhecido.')
       router.refresh()
       if (eraEmVeiculacao !== emVeiculacao) {
+        // Nas duas únicas combinações possíveis aqui (era false → true, ou era true → false),
+        // "já esteve em veiculação" sempre vale true no lado que está saindo do ar — ou porque
+        // já era true antes, ou porque acabou de passar por "Em veiculação" agora mesmo.
         agendarToastMudanca({
           paginaId: id,
           nome: pagina.nome,
           campo: 'veiculacao',
-          anterior: eraEmVeiculacao ? 'Em veiculação' : 'Fora de veiculação',
-          novo: emVeiculacao ? 'Em veiculação' : 'Fora de veiculação',
+          anterior: eraEmVeiculacao ? 'Em veiculação' : (pagina.ja_esteve_em_veiculacao ? 'Veiculação pausada' : 'Nunca veiculada'),
+          novo: emVeiculacao ? 'Em veiculação' : 'Veiculação pausada',
         })
       }
     } catch (e) {
@@ -585,7 +588,9 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
             </SelectTrigger>
             <SelectContent className="bg-slate-900 border-slate-800">
               <SelectItem value="true" className="text-green-400 focus:bg-slate-800 focus:text-green-300">Em veiculação</SelectItem>
-              <SelectItem value="false" className="text-slate-400 focus:bg-slate-800 focus:text-white">Fora de veiculação</SelectItem>
+              <SelectItem value="false" className="text-slate-400 focus:bg-slate-800 focus:text-white">
+                {p.pagina_atual || p.ja_esteve_em_veiculacao ? 'Veiculação pausada' : 'Nunca veiculada'}
+              </SelectItem>
             </SelectContent>
           </Select>
         </td>

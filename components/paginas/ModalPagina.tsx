@@ -364,7 +364,10 @@ export function ModalPagina({ aberto, onFechar, onSalvo, pagina, funis, configs,
               label="Em veiculação? *" value={form.pagina_atual} onChange={set('pagina_atual')} obrigatorio
               options={[
                 { valor: 'true', label: 'Em veiculação (recebendo tráfego agora)' },
-                { valor: 'false', label: 'Fora de veiculação' },
+                {
+                  valor: 'false',
+                  label: pagina?.pagina_atual || pagina?.ja_esteve_em_veiculacao ? 'Veiculação pausada' : 'Nunca veiculada',
+                },
               ]}
             />
           </div>
