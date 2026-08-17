@@ -40,6 +40,12 @@ function formatHoras(val: number | null | undefined): string {
   return `${h}h${m}`
 }
 
+function infoVeiculacao(p: { pagina_atual?: boolean; ja_esteve_em_veiculacao?: boolean }): { texto: string; cor: string } {
+  if (p.pagina_atual) return { texto: 'Em veiculação', cor: '#4ade80' }
+  if (p.ja_esteve_em_veiculacao) return { texto: 'Veiculação pausada', cor: '#fbbf24' }
+  return { texto: 'Nunca veiculada', cor: '#4b5563' }
+}
+
 interface Props {
   paginas: Pagina[]
   funis: Funil[]
@@ -65,9 +71,9 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
   const [deletadas, setDeletadas] = useState<Set<string>>(new Set())
   const [erroDelete, setErroDelete] = useState<string | null>(null)
   const [erroVeiculacao, setErroVeiculacao] = useState<string | null>(null)
-  const [ultimaMudancaStatus, setUltimaMudancaStatus] = useState<{ paginaId: string; nome: string; statusAnterior: string; statusNovo: string } | null>(null)
-  const [desfazendoStatus, setDesfazendoStatus] = useState(false)
-  const toastStatusTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [ultimaMudanca, setUltimaMudanca] = useState<{ paginaId: string; nome: string; campo: 'status' | 'veiculacao'; anterior: string; novo: string } | null>(null)
+  const [desfazendoMudanca, setDesfazendoMudanca] = useState(false)
+  const toastMudancaTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [duplicandoPagina, setDuplicandoPagina] = useState<string | null>(null)
   const [marcandoAtual, setMarcandoAtual] = useState<string | null>(null)
   const [analisando, setAnalisando] = useState<string | null>(null)
@@ -199,7 +205,8 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
     if (filtroEtapa && p.etapa !== filtroEtapa) return false
     if (filtroFerramenta && p.ferramenta !== filtroFerramenta) return false
     if (filtroVeiculacao === 'em_veiculacao' && !p.pagina_atual) return false
-    if (filtroVeiculacao === 'fora_veiculacao' && p.pagina_atual) return false
+    if (filtroVeiculacao === 'veiculacao_pausada' && !(!p.pagina_atual && p.ja_esteve_em_veiculacao)) return false
+    if (filtroVeiculacao === 'nunca_veiculada' && !(!p.pagina_atual && !p.ja_esteve_em_veiculacao)) return false
     if (filtroAtrasadas && !isAtrasada(p)) return false
     if (filtroMes) {
       const dp = (p as unknown as Record<string, unknown>).data_publicacao as string | null
@@ -239,8 +246,17 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
 
   // Limpa o timeout do toast de "desfazer status" se o componente desmontar antes dele disparar
   useEffect(() => {
-    return () => { if (toastStatusTimeoutRef.current) clearTimeout(toastStatusTimeoutRef.current) }
+    return () => { if (toastMudancaTimeoutRef.current) clearTimeout(toastMudancaTimeoutRef.current) }
   }, [])
+
+  function agendarToastMudanca(mudanca: { paginaId: string; nome: string; campo: 'status' | 'veiculacao'; anterior: string; novo: string }) {
+    // Quando um filtro (de status ou de veiculação) está ativo, mudar esse campo numa página faz
+    // ela sumir da lista filtrada na hora — o toast com "Desfazer" evita ter que sair procurando
+    // a página de novo pra reverter uma troca acidental.
+    setUltimaMudanca(mudanca)
+    if (toastMudancaTimeoutRef.current) clearTimeout(toastMudancaTimeoutRef.current)
+    toastMudancaTimeoutRef.current = setTimeout(() => setUltimaMudanca(null), 8000)
+  }
 
   async function handleMudarStatus(pagina: Pagina, novoStatus: string) {
     const statusAnterior = pagina.status
@@ -248,24 +264,26 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
     await atualizarPagina(pagina.id, { status: novoStatus })
 
     if (statusAnterior !== novoStatus) {
-      // Quando um filtro de status está ativo, mudar o status de uma página faz ela sumir da
-      // lista filtrada — o toast com "Desfazer" evita ter que sair procurando a página de novo
-      // pra reverter uma troca acidental.
-      setUltimaMudancaStatus({ paginaId: pagina.id, nome: pagina.nome, statusAnterior, statusNovo: novoStatus })
-      if (toastStatusTimeoutRef.current) clearTimeout(toastStatusTimeoutRef.current)
-      toastStatusTimeoutRef.current = setTimeout(() => setUltimaMudancaStatus(null), 8000)
+      agendarToastMudanca({ paginaId: pagina.id, nome: pagina.nome, campo: 'status', anterior: statusAnterior, novo: novoStatus })
     }
   }
 
-  async function handleDesfazerMudancaStatus() {
-    if (!ultimaMudancaStatus) return
-    const { paginaId, statusAnterior } = ultimaMudancaStatus
-    if (toastStatusTimeoutRef.current) clearTimeout(toastStatusTimeoutRef.current)
-    setDesfazendoStatus(true)
-    setOverrides(o => ({ ...o, [paginaId]: { ...o[paginaId], status: statusAnterior } }))
-    await atualizarPagina(paginaId, { status: statusAnterior })
-    setDesfazendoStatus(false)
-    setUltimaMudancaStatus(null)
+  async function handleDesfazerMudanca() {
+    if (!ultimaMudanca) return
+    const { paginaId, campo, anterior } = ultimaMudanca
+    if (toastMudancaTimeoutRef.current) clearTimeout(toastMudancaTimeoutRef.current)
+    setDesfazendoMudanca(true)
+    if (campo === 'status') {
+      setOverrides(o => ({ ...o, [paginaId]: { ...o[paginaId], status: anterior } }))
+      await atualizarPagina(paginaId, { status: anterior })
+    } else {
+      const emVeiculacaoAnterior = anterior === 'Em veiculação'
+      setOverrides(o => ({ ...o, [paginaId]: { ...o[paginaId], pagina_atual: emVeiculacaoAnterior } }))
+      await definirVeiculacao(paginaId, emVeiculacaoAnterior)
+      router.refresh()
+    }
+    setDesfazendoMudanca(false)
+    setUltimaMudanca(null)
   }
 
   async function handleSalvarUrl(pagina: Pagina) {
@@ -364,8 +382,10 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
     }
   }
 
-  async function handleMarcarAtual(id: string, emVeiculacao: boolean) {
+  async function handleMarcarAtual(pagina: Pagina, emVeiculacao: boolean) {
     if (marcandoAtual) return
+    const id = pagina.id
+    const eraEmVeiculacao = !!pagina.pagina_atual
     setErroVeiculacao(null)
     setOverrides(o => ({ ...o, [id]: { ...o[id], pagina_atual: emVeiculacao } }))
     setMarcandoAtual(id)
@@ -373,6 +393,15 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
       const resultado = await definirVeiculacao(id, emVeiculacao)
       if (!resultado.ok) throw new Error(resultado.erro ?? 'Erro desconhecido.')
       router.refresh()
+      if (eraEmVeiculacao !== emVeiculacao) {
+        agendarToastMudanca({
+          paginaId: id,
+          nome: pagina.nome,
+          campo: 'veiculacao',
+          anterior: eraEmVeiculacao ? 'Em veiculação' : 'Fora de veiculação',
+          novo: emVeiculacao ? 'Em veiculação' : 'Fora de veiculação',
+        })
+      }
     } catch (e) {
       setOverrides(o => ({ ...o, [id]: { ...o[id], pagina_atual: !emVeiculacao } }))
       console.error('Erro ao definir veiculação:', e)
@@ -548,11 +577,11 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
         <td className="px-4 py-3">
           <Select
             value={p.pagina_atual ? 'true' : 'false'}
-            onValueChange={v => handleMarcarAtual(p.id, v === 'true')}
+            onValueChange={v => handleMarcarAtual(p, v === 'true')}
             disabled={marcandoAtual === p.id}
           >
-            <SelectTrigger className="border-0 bg-transparent p-0 h-auto w-auto text-xs font-medium focus:ring-0 focus:ring-offset-0 gap-0 [&>svg]:hidden disabled:opacity-50" style={{ color: p.pagina_atual ? '#4ade80' : '#4b5563' }}>
-              <SelectValue />
+            <SelectTrigger className="border-0 bg-transparent p-0 h-auto w-auto text-xs font-medium focus:ring-0 focus:ring-offset-0 gap-0 [&>svg]:hidden disabled:opacity-50" style={{ color: infoVeiculacao(p).cor }}>
+              <SelectValue>{infoVeiculacao(p).texto}</SelectValue>
             </SelectTrigger>
             <SelectContent className="bg-slate-900 border-slate-800">
               <SelectItem value="true" className="text-green-400 focus:bg-slate-800 focus:text-green-300">Em veiculação</SelectItem>
@@ -949,14 +978,15 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
         <Select value={filtroVeiculacao || '__all__'} onValueChange={v => setFiltroVeiculacao(v === '__all__' ? '' : v)}>
           <SelectTrigger
             className="h-9 text-sm bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800 focus:ring-0 focus:ring-offset-0 w-auto min-w-[110px]"
-            title="Em veiculação: página publicada recebendo tráfego ativo (campanha, disparo, bio). Fora de veiculação: publicada, mas sem campanha ativa agora."
+            title="Em veiculação: recebendo tráfego ativo agora. Veiculação pausada: já rodou antes, parada agora. Nunca veiculada: nunca entrou no ar."
           >
             <SelectValue placeholder="Veiculação" />
           </SelectTrigger>
           <SelectContent className="bg-slate-900 border-slate-800">
             <SelectItem value="__all__" className="text-slate-400 focus:bg-slate-800 focus:text-white">Veiculação</SelectItem>
             <SelectItem value="em_veiculacao" className="text-slate-300 focus:bg-slate-800 focus:text-white">Em veiculação</SelectItem>
-            <SelectItem value="fora_veiculacao" className="text-slate-300 focus:bg-slate-800 focus:text-white">Fora de veiculação</SelectItem>
+            <SelectItem value="veiculacao_pausada" className="text-slate-300 focus:bg-slate-800 focus:text-white">Veiculação pausada</SelectItem>
+            <SelectItem value="nunca_veiculada" className="text-slate-300 focus:bg-slate-800 focus:text-white">Nunca veiculada</SelectItem>
           </SelectContent>
         </Select>
 
@@ -1104,7 +1134,7 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
                           </div>
                           <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                             <button
-                              onClick={() => handleMarcarAtual(p.id, !p.pagina_atual)}
+                              onClick={() => handleMarcarAtual(p, !p.pagina_atual)}
                               disabled={marcandoAtual === p.id}
                               className={`p-1 hover:bg-slate-900 rounded transition-colors disabled:opacity-40 ${p.pagina_atual ? 'text-green-400' : 'text-slate-500 hover:text-green-400'}`}
                               title={p.pagina_atual ? 'Tirar de veiculação' : 'Marcar como em veiculação'}
@@ -1315,25 +1345,26 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
         onSalvo={(id, update) => setOverrides(o => ({ ...o, [id]: { ...o[id], ...update } }))}
       />
 
-      {ultimaMudancaStatus && (
+      {ultimaMudanca && (
         <div className="fixed bottom-5 right-5 z-50 flex items-center gap-3 bg-slate-900 border border-slate-700 rounded-xl shadow-lg shadow-black/40 px-4 py-3 max-w-sm">
           <p className="text-sm text-slate-300">
-            <span className="font-medium text-white">{ultimaMudancaStatus.nome}</span> mudou de{' '}
-            <span className="text-slate-400">{ultimaMudancaStatus.statusAnterior}</span> pra{' '}
-            <span className="text-white">{ultimaMudancaStatus.statusNovo}</span>
+            <span className="font-medium text-white">{ultimaMudanca.nome}</span>{' '}
+            {ultimaMudanca.campo === 'status' ? 'mudou de' : 'passou de'}{' '}
+            <span className="text-slate-400">{ultimaMudanca.anterior}</span> pra{' '}
+            <span className="text-white">{ultimaMudanca.novo}</span>
           </p>
           <button
             type="button"
-            onClick={handleDesfazerMudancaStatus}
-            disabled={desfazendoStatus}
+            onClick={handleDesfazerMudanca}
+            disabled={desfazendoMudanca}
             className="shrink-0 flex items-center gap-1 text-xs font-medium text-indigo-400 hover:text-indigo-300 disabled:opacity-40 transition-colors"
           >
             <Undo2 size={13} />
-            {desfazendoStatus ? 'Desfazendo...' : 'Desfazer'}
+            {desfazendoMudanca ? 'Desfazendo...' : 'Desfazer'}
           </button>
           <button
             type="button"
-            onClick={() => setUltimaMudancaStatus(null)}
+            onClick={() => setUltimaMudanca(null)}
             className="shrink-0 text-slate-600 hover:text-slate-300"
           >
             <X size={13} />

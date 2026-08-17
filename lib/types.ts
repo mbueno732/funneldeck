@@ -107,6 +107,7 @@ export interface Pagina {
   pagina_origem_id?: string | null
   estrategia_id?: string | null
   pagina_atual?: boolean
+  ja_esteve_em_veiculacao?: boolean
   criado_em: string
   atualizado_em: string
   funis?: Pick<Funil, 'id' | 'id_funil' | 'nome' | 'tipo'> | null

@@ -75,7 +75,7 @@ export async function criarPagina(input: Omit<Pagina, 'id' | 'criado_em' | 'atua
 
   const { data, error } = await supabase
     .from('paginas')
-    .insert({ ...input, codigo })
+    .insert({ ...input, codigo, ja_esteve_em_veiculacao: !!input.pagina_atual })
     .select()
     .single()
   if (error) throw error
@@ -93,6 +93,7 @@ export async function atualizarPagina(id: string, input: Partial<Omit<Pagina, 'i
     const { data: atual } = await supabase.from('paginas').select('data_publicacao').eq('id', id).single()
     if (!atual?.data_publicacao) payload.data_publicacao = new Date().toISOString().split('T')[0]
   }
+  if (input.pagina_atual) payload.ja_esteve_em_veiculacao = true
   const { data, error } = await supabase
     .from('paginas')
     .update(payload)
@@ -127,6 +128,8 @@ export async function duplicarPagina(id: string) {
       horas_reais: null,
       data_prevista: null,
       data_publicacao: null,
+      pagina_atual: false,
+      ja_esteve_em_veiculacao: false,
     })
     .select()
     .single()
@@ -173,6 +176,8 @@ export async function criarVariante(input: {
       gtmetrix_lcp: null,
       gtmetrix_tempo: null,
       gtmetrix_analisado_em: null,
+      pagina_atual: false,
+      ja_esteve_em_veiculacao: false,
     })
     .select()
     .single()
@@ -209,7 +214,10 @@ export async function deletarPagina(id: string) {
 export async function definirVeiculacao(id: string, emVeiculacao: boolean): Promise<{ ok: boolean; erro?: string }> {
   const supabase = await createClient()
 
-  const { error } = await supabase.from('paginas').update({ pagina_atual: emVeiculacao }).eq('id', id)
+  const payload: { pagina_atual: boolean; ja_esteve_em_veiculacao?: boolean } = { pagina_atual: emVeiculacao }
+  if (emVeiculacao) payload.ja_esteve_em_veiculacao = true
+
+  const { error } = await supabase.from('paginas').update(payload).eq('id', id)
   if (error) return { ok: false, erro: error.message }
 
   await registrarAuditoria('paginas', id, 'definir_veiculacao', { em_veiculacao: emVeiculacao })
