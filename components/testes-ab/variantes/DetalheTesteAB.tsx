@@ -2,13 +2,13 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import {
-  ChevronRight, Trophy, Brain, Lightbulb, ImageOff, Loader2, CheckCircle2, Rocket, AlertTriangle, FileCode2, ZoomIn, X, Star, Check, Pencil,
+  ChevronRight, Trophy, Brain, Lightbulb, ImageOff, Loader2, CheckCircle2, Rocket, AlertTriangle, FileCode2, ZoomIn, X, Star, Check, Pencil, RotateCcw,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import {
-  atualizarMetricasVariante, atualizarAprendizado, atualizarHipotese, declararVencedora, aplicarVencedor, desfazerVencedora,
+  atualizarMetricasVariante, atualizarAprendizado, atualizarHipotese, declararVencedora, aplicarVencedor, reabrirTeste,
   encerrarSemVencedor, iniciarTeste, atualizarDataFim,
 } from '@/lib/actions/testes-ab'
 import { confiancaZTest, classificarConfianca, MIN_CONVERSOES_CONFIAVEL, MIN_DIAS_RECOMENDADO } from '@/lib/estatistica'
@@ -108,6 +108,7 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
   const [salvandoHipotese, setSalvandoHipotese] = useState(false)
   const [declarando, setDeclarando] = useState<string | null>(null)
   const [desfazendo, setDesfazendo] = useState(false)
+  const [confirmandoReabrir, setConfirmandoReabrir] = useState(false)
   const [encerrando, setEncerrando] = useState(false)
   const [iniciando, setIniciando] = useState(false)
   const [aplicando, setAplicando] = useState(false)
@@ -198,12 +199,13 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
     }))
   }
 
-  async function handleDesfazerVencedora() {
+  async function handleReabrirTeste() {
     setDesfazendo(true)
     setErro('')
-    const res = await desfazerVencedora(teste.id)
+    const res = await reabrirTeste(teste.id)
     setDesfazendo(false)
-    if (!res.ok) { setErro(res.erro ?? 'Erro ao desfazer declaração.'); return }
+    setConfirmandoReabrir(false)
+    if (!res.ok) { setErro(res.erro ?? 'Erro ao reabrir o experimento.'); return }
     setTeste(t => ({
       ...t,
       status: 'Ativo',
@@ -243,7 +245,7 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
                 Sem vencedor (empate/inconclusivo)
                 <button
                   type="button"
-                  onClick={handleDesfazerVencedora}
+                  onClick={handleReabrirTeste}
                   disabled={desfazendo}
                   className="underline decoration-dotted hover:text-red-400 disabled:opacity-40 transition-colors"
                 >
@@ -360,6 +362,41 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
               Aplicar Vencedor
             </Button>
           )}
+          {(teste.status === 'Finalizado' || teste.status === 'Vencedor implementado') && (
+            confirmandoReabrir ? (
+              <div className="flex flex-col items-end gap-1.5">
+                <p className="text-amber-400 text-[11px] text-right max-w-[240px]">
+                  A variante vencedora já foi aplicada nesta página. Reabrir volta o experimento pra Ativo.
+                </p>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setConfirmandoReabrir(false)}
+                    className="px-3 py-1.5 text-xs text-slate-400 hover:text-white transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                  <Button
+                    onClick={handleReabrirTeste}
+                    disabled={desfazendo}
+                    className="bg-amber-600 hover:bg-amber-500 text-white disabled:opacity-40"
+                  >
+                    {desfazendo ? 'Reabrindo...' : 'Reabrir mesmo assim'}
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <Button
+                variant="ghost"
+                onClick={() => teste.status === 'Vencedor implementado' ? setConfirmandoReabrir(true) : handleReabrirTeste()}
+                disabled={desfazendo}
+                className="text-slate-400 hover:text-white border border-slate-800 disabled:opacity-40"
+              >
+                {desfazendo ? <Loader2 size={16} className="animate-spin mr-2" /> : <RotateCcw size={16} className="mr-2" />}
+                Reabrir Experimento
+              </Button>
+            )
+          )}
         </div>
       </div>
 
@@ -446,19 +483,9 @@ export function DetalheTesteAB({ teste: testeInicial }: Props) {
                     {v.is_controle && <span className="text-xs text-slate-500 font-normal">(Controle)</span>}
                   </h3>
                   {v.is_vencedor && (
-                    <div className="flex items-center gap-2">
-                      <span className="inline-flex items-center gap-1 text-[11px] font-medium bg-green-500/10 text-green-400 border border-green-500/20 rounded-full px-2 py-0.5">
-                        <Trophy size={11} /> WINNER
-                      </span>
-                      <button
-                        type="button"
-                        onClick={handleDesfazerVencedora}
-                        disabled={desfazendo}
-                        className="text-[11px] text-slate-500 hover:text-red-400 underline decoration-dotted disabled:opacity-40 transition-colors"
-                      >
-                        {desfazendo ? 'Desfazendo...' : 'Desfazer'}
-                      </button>
-                    </div>
+                    <span className="inline-flex items-center gap-1 text-[11px] font-medium bg-green-500/10 text-green-400 border border-green-500/20 rounded-full px-2 py-0.5">
+                      <Trophy size={11} /> WINNER
+                    </span>
                   )}
                 </div>
 

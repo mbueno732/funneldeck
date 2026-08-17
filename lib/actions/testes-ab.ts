@@ -496,7 +496,13 @@ export async function encerrarSemVencedor(testeId: string): Promise<{ ok: boolea
   return { ok: true }
 }
 
-export async function desfazerVencedora(testeId: string): Promise<{ ok: boolean; erro?: string }> {
+/**
+ * Reabre um experimento finalizado — funciona a partir de qualquer status terminal
+ * (Finalizado com ou sem vencedor, ou Vencedor implementado). Volta pra Ativo, limpa
+ * data_fim/resultado_final e desmarca a vencedora, sem mexer no que já foi publicado
+ * de fato na página (isso é responsabilidade de quem reabriu, não do sistema).
+ */
+export async function reabrirTeste(testeId: string): Promise<{ ok: boolean; erro?: string }> {
   const supabase = await createClient()
 
   const { error: errReset } = await supabase
@@ -511,7 +517,7 @@ export async function desfazerVencedora(testeId: string): Promise<{ ok: boolean;
     .eq('id', testeId)
   if (errTeste) return { ok: false, erro: errTeste.message }
 
-  await registrarAuditoria('testes_ab', testeId, 'desfazer_vencedora')
+  await registrarAuditoria('testes_ab', testeId, 'reabrir_teste')
   revalidatePath(`/variantes/${testeId}`)
   revalidatePath('/variantes')
   return { ok: true }
