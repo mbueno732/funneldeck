@@ -1,7 +1,7 @@
 'use client'
 import { useState, useMemo, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { Plus, Search, ExternalLink, Pencil, Trash2, AlertTriangle, Clock, Copy, Link as LinkIcon, Check, X, ChevronRight, ChevronDown, ChevronUp, ClipboardList, LayoutGrid, List, GitBranch, Layers, FlaskConical, Pin, Info } from 'lucide-react'
+import { Plus, Search, ExternalLink, Pencil, Trash2, AlertTriangle, Clock, Copy, Link as LinkIcon, Check, X, ChevronRight, ChevronDown, ChevronUp, ClipboardList, LayoutGrid, List, GitBranch, Layers, FlaskConical, Pin, Info, Undo2 } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -65,6 +65,9 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
   const [deletadas, setDeletadas] = useState<Set<string>>(new Set())
   const [erroDelete, setErroDelete] = useState<string | null>(null)
   const [erroVeiculacao, setErroVeiculacao] = useState<string | null>(null)
+  const [ultimaMudancaStatus, setUltimaMudancaStatus] = useState<{ paginaId: string; nome: string; statusAnterior: string; statusNovo: string } | null>(null)
+  const [desfazendoStatus, setDesfazendoStatus] = useState(false)
+  const toastStatusTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [duplicandoPagina, setDuplicandoPagina] = useState<string | null>(null)
   const [marcandoAtual, setMarcandoAtual] = useState<string | null>(null)
   const [analisando, setAnalisando] = useState<string | null>(null)
@@ -234,9 +237,35 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [destaque, paginas])
 
+  // Limpa o timeout do toast de "desfazer status" se o componente desmontar antes dele disparar
+  useEffect(() => {
+    return () => { if (toastStatusTimeoutRef.current) clearTimeout(toastStatusTimeoutRef.current) }
+  }, [])
+
   async function handleMudarStatus(pagina: Pagina, novoStatus: string) {
+    const statusAnterior = pagina.status
     setOverrides(o => ({ ...o, [pagina.id]: { ...o[pagina.id], status: novoStatus } }))
     await atualizarPagina(pagina.id, { status: novoStatus })
+
+    if (statusAnterior !== novoStatus) {
+      // Quando um filtro de status está ativo, mudar o status de uma página faz ela sumir da
+      // lista filtrada — o toast com "Desfazer" evita ter que sair procurando a página de novo
+      // pra reverter uma troca acidental.
+      setUltimaMudancaStatus({ paginaId: pagina.id, nome: pagina.nome, statusAnterior, statusNovo: novoStatus })
+      if (toastStatusTimeoutRef.current) clearTimeout(toastStatusTimeoutRef.current)
+      toastStatusTimeoutRef.current = setTimeout(() => setUltimaMudancaStatus(null), 8000)
+    }
+  }
+
+  async function handleDesfazerMudancaStatus() {
+    if (!ultimaMudancaStatus) return
+    const { paginaId, statusAnterior } = ultimaMudancaStatus
+    if (toastStatusTimeoutRef.current) clearTimeout(toastStatusTimeoutRef.current)
+    setDesfazendoStatus(true)
+    setOverrides(o => ({ ...o, [paginaId]: { ...o[paginaId], status: statusAnterior } }))
+    await atualizarPagina(paginaId, { status: statusAnterior })
+    setDesfazendoStatus(false)
+    setUltimaMudancaStatus(null)
   }
 
   async function handleSalvarUrl(pagina: Pagina) {
@@ -998,8 +1027,9 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
                   e.preventDefault()
                   setDragOverStatus(null)
                   if (draggingId) {
-                    const pagina = paginas.find(p => p.id === draggingId)
-                    if (pagina && ({ ...pagina, ...overrides[pagina.id] }).status !== col.valor) {
+                    const raw = paginas.find(p => p.id === draggingId)
+                    const pagina = raw ? { ...raw, ...overrides[raw.id] } : undefined
+                    if (pagina && pagina.status !== col.valor) {
                       await handleMudarStatus(pagina, col.valor)
                     }
                   }
@@ -1284,6 +1314,32 @@ export function MapaPaginas({ paginas, funis, especialistas, configs, estrategia
         onFechar={() => setPaginaScoreManual(null)}
         onSalvo={(id, update) => setOverrides(o => ({ ...o, [id]: { ...o[id], ...update } }))}
       />
+
+      {ultimaMudancaStatus && (
+        <div className="fixed bottom-5 right-5 z-50 flex items-center gap-3 bg-slate-900 border border-slate-700 rounded-xl shadow-lg shadow-black/40 px-4 py-3 max-w-sm">
+          <p className="text-sm text-slate-300">
+            <span className="font-medium text-white">{ultimaMudancaStatus.nome}</span> mudou de{' '}
+            <span className="text-slate-400">{ultimaMudancaStatus.statusAnterior}</span> pra{' '}
+            <span className="text-white">{ultimaMudancaStatus.statusNovo}</span>
+          </p>
+          <button
+            type="button"
+            onClick={handleDesfazerMudancaStatus}
+            disabled={desfazendoStatus}
+            className="shrink-0 flex items-center gap-1 text-xs font-medium text-indigo-400 hover:text-indigo-300 disabled:opacity-40 transition-colors"
+          >
+            <Undo2 size={13} />
+            {desfazendoStatus ? 'Desfazendo...' : 'Desfazer'}
+          </button>
+          <button
+            type="button"
+            onClick={() => setUltimaMudancaStatus(null)}
+            className="shrink-0 text-slate-600 hover:text-slate-300"
+          >
+            <X size={13} />
+          </button>
+        </div>
+      )}
     </div>
   )
 }
